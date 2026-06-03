@@ -829,7 +829,7 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
   const children = [];
   const moodBg = getMoodBg(mood);
 
-  // block 1: time + mood + body — 한 블록, 배경색 전체 적용
+  
   const richText = [];
   // time: italic, gray
   richText.push({
@@ -859,7 +859,7 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
     paragraph: { rich_text: richText, color: moodBg }
   });
 
-  // block 2: photos (최대 3장, 3열)
+  
   if (photoUrls && photoUrls.length > 0) {
     const row = photoUrls.slice(0, 3);
     children.push({
@@ -902,7 +902,7 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
 
 
 
-// -- 설정 --
+
 function saveSettings() {
   const token = document.getElementById('notion-token').value.trim();
   const db = document.getElementById('notion-db').value.trim();
@@ -932,7 +932,7 @@ function openSettings() {
   document.getElementById('setup-screen').classList.remove('hidden');
 }
 
-// -- 날짜 (오전 7시 기준) --
+
 function getDiaryDate() {
   const now = new Date();
   if (now.getHours() < 7) now.setDate(now.getDate() - 1);
@@ -956,7 +956,7 @@ function formatTime(d) {
   return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-// -- 탭 전환 --
+
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -965,7 +965,7 @@ function switchTab(tab, btn) {
   if (tab === 'archive') loadArchive();
 }
 
-// -- 감정 선택 --
+
 let selectedMood = '';
 let selectedMoodType = '';
 
@@ -1049,7 +1049,7 @@ function recordCustomMoodHistory(mood, type) {
   history[mood].type = type;
   saveCustomHistory(history);
 
-  // 3번 이상이면 태그에 자동 추가
+  
   if (history[mood].count === 3) {
     addMoodToTags(mood, type);
   }
@@ -1061,7 +1061,7 @@ function addMoodToTags(mood, type) {
   const targetRow = rows[rowMap[type]];
   if (!targetRow) return;
 
-  // 이미 있으면 스킵
+  
   const existing = Array.from(targetRow.querySelectorAll('.tag')).map(t => t.textContent);
   if (existing.includes(mood)) return;
 
@@ -1072,9 +1072,9 @@ function addMoodToTags(mood, type) {
   targetRow.appendChild(tag);
 }
 
-// 저장된 히스토리에서 3회 이상인 항목 태그에 복원
 
-// ── 오늘 기록 로드 + 로컬 캐시 ──
+
+
 const CACHE_PREFIX = 'diary_cache_';
 
 function getCacheKey(dateStr) {
@@ -1090,7 +1090,7 @@ function loadCacheForDate(dateStr) {
 
 function saveCacheForDate(dateStr, records) {
   try {
-    // 오래된 캐시 정리 (90일 이상)
+    
     const keys = Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 90);
@@ -1102,7 +1102,7 @@ function saveCacheForDate(dateStr, records) {
   } catch(e) { console.error('cache save failed', e); }
 }
 
-// 노션 블록에서 기록 파싱
+
 function parseNotionRecords(blocks) {
   const records = [];
   let i = 0;
@@ -1115,7 +1115,7 @@ function parseNotionRecords(blocks) {
     if (!texts.length) { i++; continue; }
 
     const firstText = texts[0]?.text?.content || '';
-    // 시간 형식 HH:MM 으로 시작하는지 확인
+    
     if (!/^\d{2}:\d{2}$/.test(firstText.trim())) { i++; continue; }
 
     const timeStr = firstText.trim();
@@ -1123,9 +1123,9 @@ function parseNotionRecords(blocks) {
     let text = '';
     let photoUrls = [];
 
-    // 다음 블록들 읽기 (같은 기록 그룹)
+    
     i++;
-    // mood 블록
+    
     if (i < blocks.length && blocks[i].type === 'paragraph') {
       const moodTexts = blocks[i].paragraph?.rich_text || [];
       const moodContent = moodTexts[0]?.text?.content || '';
@@ -1134,23 +1134,23 @@ function parseNotionRecords(blocks) {
         i++;
       }
     }
-    // text 블록
+    
     if (i < blocks.length && blocks[i].type === 'paragraph') {
       const textTexts = blocks[i].paragraph?.rich_text || [];
       const textContent = textTexts[0]?.text?.content || '';
-      // ㅤ (zero-width) 이면 빈줄이므로 스킵
+      
       if (textContent && textContent.trim() !== 'ㅤ' && !/^\d{2}:\d{2}$/.test(textContent.trim())) {
         text = textContent;
         i++;
       }
     }
-    // column_list 블록들 (사진)
+    
     while (i < blocks.length && blocks[i].type === 'column_list') {
-      // column_list의 children은 별도 API 호출 필요 - URL만 저장된 경우 스킵
-      // 사진은 캐시에 URL로 저장되어 있으므로 여기선 건너뜀
+      
+      
       i++;
     }
-    // 빈줄 스킵
+    
     while (i < blocks.length && blocks[i].type === 'paragraph') {
       const t = (blocks[i].paragraph?.rich_text || [])[0]?.text?.content || '';
       if (t.trim() === '' || t.trim() === 'ㅤ') { i++; break; }
@@ -1166,14 +1166,14 @@ function parseNotionRecords(blocks) {
 async function loadTodayRecords() {
   const dateStr = formatDate(getDiaryDate());
   
-  // 캐시 먼저 확인
+  
   const cached = loadCacheForDate(dateStr);
   if (cached) {
     cached.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], r.notionUrl || null, r.blockId || null));
     return;
   }
 
-  // 캐시 없으면 노션에서 불러오기
+  
   try {
     const pageId = await getTodayPageId();
     if (!pageId) return;
@@ -1188,14 +1188,14 @@ async function loadTodayRecords() {
     const records = parseNotionRecords(blocks);
     records.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId));
 
-    // 캐시 저장
+    
     saveCacheForDate(dateStr, records.map(r => ({ ...r, notionUrl })));
   } catch(e) {
     console.error('load today records failed', e);
   }
 }
 
-// 기록 저장 시 캐시도 업데이트
+
 function updateCache(dateStr, time, mood, text, photoUrls, notionUrl, blockId) {
   const cached = loadCacheForDate(dateStr) || [];
   cached.unshift({ time, mood, text, photoUrls, notionUrl, blockId });
@@ -1209,12 +1209,12 @@ function restoreCustomTags() {
   });
 }
 
-// 드롭다운 외부 클릭 시 닫기
+
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.emotion-custom-row')) hideMoodDropdown();
 });
 
-// -- 사진 처리 --
+
 let selectedPhotos = [];
 function handlePhotos(input) {
   const files = Array.from(input.files);
@@ -1247,7 +1247,7 @@ function removePhoto(i) {
   renderPhotoPreview();
 }
 
-// -- Cloudinary 업로드 --
+
 async function uploadToCloudinary(file) {
   const cloudName = localStorage.getItem('cloud_name');
   const apiKey = localStorage.getItem('cloud_key');
@@ -1255,7 +1255,7 @@ async function uploadToCloudinary(file) {
   if (!cloudName || !apiKey || !apiSecret) return null;
 
   const timestamp = Math.round(Date.now() / 1000);
-  // unsigned upload preset 사용 (secret 불필요)
+  
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', 'diary_app');
@@ -1270,12 +1270,12 @@ async function uploadToCloudinary(file) {
   } catch { return null; }
 }
 
-// -- Notion: 오늘 페이지 찾기 or 생성 --
+
 async function getTodayPageId() {
   const db = localStorage.getItem('notion_db');
   const dateStr = formatDate(getDiaryDate());
 
-  // 검색
+  
   const searchRes = await fetch(`${WORKER_URL}/notion/databases/${db}/query`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1288,7 +1288,7 @@ async function getTodayPageId() {
     return searchData.results[0].id;
   }
 
-  // 없으면 생성
+  
   const days = ['일','월','화','수','목','금','토'];
   const d = getDiaryDate();
   const title = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
@@ -1303,17 +1303,17 @@ async function getTodayPageId() {
         '날짜': { date: { start: dateStr } }
       },
       children: [
-        // 섹션 1: 틈틈이 기록
+        
         { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '✏️ 틈틈이 기록' } }], color: 'default' } },
         { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } },
-        // 구분선
+        
         { object: 'block', type: 'divider', divider: {} },
-        // 섹션 2: 직접 쓰는 글
+        
         { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '🖊 오늘의 생각' } }] } },
         { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } },
-        // 구분선
+        
         { object: 'block', type: 'divider', divider: {} },
-        // 섹션 3: 감사일기
+        
         { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '🌿 감사 일기' } }] } },
         { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘 감사한 일' } }], icon: { emoji: '🍀' } } },
         { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘의 칭찬' } }], icon: { emoji: '😊' } } },
@@ -1328,7 +1328,7 @@ async function getTodayPageId() {
   return createData.id;
 }
 
-// -- 기록 저장 --
+
 
 
 async function saveRecord() {
@@ -1396,7 +1396,7 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
   const item = document.createElement('div');
   item.className = 'record-item';
 
-  // 썸네일: 첫 사진 1장만 미리보기로 표시
+  
   let thumbHtml = '';
   if (photoUrls && photoUrls.length > 0) {
     thumbHtml = `<div class="record-photos"><img class="record-photo" src="${photoUrls[0]}">${photoUrls.length > 1 ? `<span class="record-photo-more">+${photoUrls.length - 1}</span>` : ''}</div>`;
@@ -1410,13 +1410,13 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
       ${thumbHtml}
     </div>`;
 
-  // 클릭 시 팝업
+  
   item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl, blockId, item));
 
   list.insertBefore(item, list.firstChild);
 }
 
-// -- 팝업 --
+
 let currentPopupPhotos = [];
 let currentPopupBlockId = null;
 let currentPopupItem = null;
@@ -1455,7 +1455,7 @@ function openPopup(time, mood, text, photoUrls, notionUrl, blockId, itemEl) {
     photosEl.style.display = 'none';
   }
 
-  // 오늘 기록이고 blockId 있으면 수정/삭제 버튼 표시
+  
   const actionsEl = document.getElementById('popup-actions');
   if (blockId) {
     actionsEl.style.display = 'flex';
@@ -1518,14 +1518,14 @@ async function saveEdit() {
       body: JSON.stringify({ paragraph: { rich_text: richText, color: moodBg } })
     });
 
-    // UI 업데이트
+    
     document.getElementById('popup-text').textContent = newText;
     if (currentPopupItem) {
       const textEl = currentPopupItem.querySelector('.record-text');
       if (textEl) textEl.textContent = newText;
     }
 
-    // 캐시 업데이트
+    
     const dateStr = formatDate(getDiaryDate());
     const cached = loadCacheForDate(dateStr) || [];
     const idx = cached.findIndex(r => r.blockId === currentPopupBlockId);
@@ -1567,7 +1567,7 @@ async function addPhotosToRecord(input) {
     body: JSON.stringify({ children: [{ object: 'block', type: 'column_list', column_list: { children: columns } }] })
   });
 
-  // 팝업 사진 영역 업데이트
+  
   currentPopupPhotos = [...currentPopupPhotos, ...newUrls];
   const photosEl = document.getElementById('popup-photos');
   photosEl.className = 'popup-photos';
@@ -1576,7 +1576,7 @@ async function addPhotosToRecord(input) {
   ).join('');
   photosEl.style.display = '';
 
-  // 캐시 업데이트
+  
   const dateStr = formatDate(getDiaryDate());
   const cached = loadCacheForDate(dateStr) || [];
   const idx = cached.findIndex(r => r.blockId === currentPopupBlockId);
@@ -1599,10 +1599,10 @@ async function deleteRecord() {
       headers: { 'Content-Type': 'application/json' }
     });
 
-    // UI에서 제거
+    
     if (currentPopupItem) currentPopupItem.remove();
 
-    // 캐시 업데이트
+    
     const dateStr = formatDate(getDiaryDate());
     const cached = (loadCacheForDate(dateStr) || []).filter(r => r.blockId !== currentPopupBlockId);
     saveCacheForDate(dateStr, cached);
@@ -1623,7 +1623,7 @@ function closePopupDirect() {
   document.body.style.overflow = '';
 }
 
-// -- 아카이브 로드 --
+
 const MAKE_ARCHIVE_WEBHOOK = 'https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
 
 async function loadArchive() {
@@ -1694,7 +1694,7 @@ function openNotion(url) {
   window.open(url, '_blank');
 }
 
-// -- 토스트 --
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1702,7 +1702,7 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// -- 초기화 --
+
 function init() {
   const d = getDiaryDate();
   document.getElementById('current-date').textContent = formatDateDisplay(d);
@@ -1710,7 +1710,7 @@ function init() {
   loadTodayRecords();
 }
 
-// -- 시작 --
+
 window.onload = () => {
   const token = localStorage.getItem('notion_token');
   const db = localStorage.getItem('notion_db');
@@ -1721,7 +1721,7 @@ window.onload = () => {
   }
 };
 
-// -- 라이트박스 --
+
 let lbPhotos = [];
 let lbIndex = 0;
 let lbTouchStartX = 0;
@@ -1763,7 +1763,7 @@ function lightboxOverlayClick(e) {
   if (e.target === document.getElementById('lightbox')) closeLightbox();
 }
 
-// 스와이프
+
 document.addEventListener('DOMContentLoaded', () => {
   const inner = document.getElementById('lightbox-inner');
   inner.addEventListener('touchstart', e => { lbTouchStartX = e.touches[0].clientX; }, { passive: true });
@@ -1771,7 +1771,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const diff = lbTouchStartX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 40) lightboxNav(diff > 0 ? 1 : -1);
   });
-  // 키보드
+  
   document.addEventListener('keydown', e => {
     if (!document.getElementById('lightbox').classList.contains('open')) return;
     if (e.key === 'ArrowLeft') lightboxNav(-1);
