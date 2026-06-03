@@ -119,17 +119,30 @@
 
   /* MOOD */
   .emotion-section {
-    padding: 10px 22px;
+    padding: 8px 22px 10px;
     border-bottom: 1px solid var(--rule);
-    overflow-x: auto; scrollbar-width: none;
     flex-shrink: 0;
   }
-  .emotion-section::-webkit-scrollbar { display: none; }
   .emotion-label {
     font-family: 'Gothic A1', sans-serif;
     font-size: 11px; font-weight: 400;
     letter-spacing: 0.04em; color: var(--ink-muted);
-    margin-bottom: 7px;
+    margin-bottom: 6px;
+  }
+  .emotion-row {
+    display: flex; align-items: center;
+    gap: 0; margin-bottom: 5px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .emotion-row::-webkit-scrollbar { display: none; }
+  .emotion-row:last-child { margin-bottom: 0; }
+  .emotion-row-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 0.08em; color: var(--ink-muted);
+    white-space: nowrap; min-width: 54px;
+    padding-right: 8px; flex-shrink: 0;
+    text-transform: uppercase;
   }
   .emotion-tags { display: flex; gap: 5px; width: max-content; }
   .tag {
@@ -244,6 +257,114 @@
     width: calc(20% - 3px); aspect-ratio: 1;
     object-fit: cover; border-radius: 2px;
   }
+
+  /* RECORD DETAIL POPUP */
+  .popup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(17,17,17,0.55);
+    z-index: 400;
+    display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .popup-overlay.open {
+    opacity: 1; pointer-events: all;
+  }
+  .popup-sheet {
+    width: 100%; max-width: 430px; margin: 0 auto;
+    background: var(--paper);
+    border-radius: 6px 6px 0 0;
+    padding: 0 0 32px;
+    transform: translateY(30px);
+    transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
+    max-height: 88vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .popup-sheet::-webkit-scrollbar { display: none; }
+  .popup-overlay.open .popup-sheet {
+    transform: translateY(0);
+  }
+  .popup-handle {
+    width: 36px; height: 4px;
+    background: var(--rule); border-radius: 2px;
+    margin: 12px auto 0;
+  }
+  .popup-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 16px 22px 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .popup-time {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; color: var(--ink-muted);
+  }
+  .popup-close {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; color: var(--ink-muted);
+    background: none; border: none; cursor: pointer;
+    padding: 4px;
+  }
+  .popup-body { padding: 16px 22px; }
+  .popup-mood {
+    display: inline-block;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 600;
+    color: var(--ink); border: 1.5px solid var(--ink);
+    padding: 2px 10px; border-radius: 1px; margin-bottom: 12px;
+  }
+  .popup-text {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 14px; font-weight: 300;
+    line-height: 1.75; color: var(--ink);
+    white-space: pre-wrap; margin-bottom: 16px;
+  }
+  .popup-photos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px; margin-bottom: 20px;
+  }
+  .popup-photos img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover; border-radius: 2px;
+    display: block;
+  }
+  .popup-photos.single img { border-radius: 3px; aspect-ratio: 4/3; }
+  .popup-notion-btn {
+    display: block; width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; text-align: center;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 14px;
+    cursor: pointer; border-radius: 2px;
+    text-decoration: none;
+  }
+
+  .record-photo-more {
+    display: flex; align-items: center; justify-content: center;
+    width: calc(20% - 3px); aspect-ratio: 1;
+    background: var(--rule); border-radius: 2px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .record-item { cursor: pointer; }
+  .record-item:active { opacity: 0.65; }
+
+  .record-notion-link {
+    display: inline-block;
+    margin-top: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em; color: var(--ink-muted);
+    cursor: pointer; border-bottom: 1px solid var(--rule);
+    padding-bottom: 1px;
+    transition: color 0.15s;
+  }
+  .record-notion-link:hover { color: var(--ink); }
 
   .empty-state {
     padding: 40px 0; text-align: center;
@@ -426,17 +547,33 @@
     </div>
     <div class="emotion-section">
       <div class="emotion-label">MOOD</div>
-      <div class="emotion-tags" id="mood-tags">
-        <span class="tag" onclick="selectMood(this)">평온함</span>
-        <span class="tag" onclick="selectMood(this)">뿌듯함</span>
-        <span class="tag" onclick="selectMood(this)">불안</span>
-        <span class="tag" onclick="selectMood(this)">무기력</span>
-        <span class="tag" onclick="selectMood(this)">감사함</span>
-        <span class="tag" onclick="selectMood(this)">후련함</span>
-        <span class="tag" onclick="selectMood(this)">답답함</span>
-        <span class="tag" onclick="selectMood(this)">외로움</span>
-        <span class="tag" onclick="selectMood(this)">피곤함</span>
-        <span class="tag" onclick="selectMood(this)">설렘</span>
+      <div class="emotion-row">
+        <div class="emotion-row-label">긍정 Pos.</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">평온함</span>
+          <span class="tag" onclick="selectMood(this)">뿌듯함</span>
+          <span class="tag" onclick="selectMood(this)">감사함</span>
+          <span class="tag" onclick="selectMood(this)">후련함</span>
+          <span class="tag" onclick="selectMood(this)">설렘</span>
+        </div>
+      </div>
+      <div class="emotion-row">
+        <div class="emotion-row-label">부정 Neg.</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">불안</span>
+          <span class="tag" onclick="selectMood(this)">무기력</span>
+          <span class="tag" onclick="selectMood(this)">답답함</span>
+          <span class="tag" onclick="selectMood(this)">외로움</span>
+          <span class="tag" onclick="selectMood(this)">피곤함</span>
+        </div>
+      </div>
+      <div class="emotion-row">
+        <div class="emotion-row-label">그 외 Etc.</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">멍함</span>
+          <span class="tag" onclick="selectMood(this)">복잡함</span>
+          <span class="tag" onclick="selectMood(this)">모르겠음</span>
+        </div>
       </div>
     </div>
     <div class="input-section">
@@ -467,6 +604,23 @@
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('record', this)">Record</button>
     <button class="tab-btn" onclick="switchTab('archive', this)">Archive</button>
+  </div>
+</div>
+
+<!-- RECORD DETAIL POPUP -->
+<div class="popup-overlay" id="record-popup" onclick="closePopup(event)">
+  <div class="popup-sheet">
+    <div class="popup-handle"></div>
+    <div class="popup-header">
+      <div class="popup-time" id="popup-time"></div>
+      <button class="popup-close" onclick="closePopupDirect()">✕ CLOSE</button>
+    </div>
+    <div class="popup-body">
+      <div id="popup-mood"></div>
+      <div class="popup-text" id="popup-text"></div>
+      <div class="popup-photos" id="popup-photos"></div>
+      <a class="popup-notion-btn" id="popup-notion-btn" target="_blank">OPEN IN NOTION →</a>
+    </div>
   </div>
 </div>
 
@@ -707,7 +861,19 @@ async function saveRecord() {
     });
 
     if (res.ok) {
-      addRecordToUI(timeStr, selectedMood, text, photoUrls);
+      // 사진은 업로드된 URL이 있으면 그걸 쓰고, 없으면 로컬 미리보기 사용
+      const displayPhotos = photoUrls.length > 0
+        ? photoUrls
+        : selectedPhotos.map(p => p.dataUrl);
+
+      // Notion 페이지 URL 구성 (token 있을 때 페이지 ID 기반)
+      let notionUrl = null;
+      try {
+        const pageId = await getTodayPageId();
+        if (pageId) notionUrl = `https://notion.so/${pageId.replace(/-/g,'')}`;
+      } catch(e) {}
+
+      addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl);
       document.getElementById('memo-input').value = '';
       selectedMood = '';
       selectedPhotos = [];
@@ -727,7 +893,7 @@ async function saveRecord() {
 }
 
 // ── UI에 기록 추가 ──
-function addRecordToUI(time, mood, text, photoUrls) {
+function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
   const list = document.getElementById('record-list');
   const empty = list.querySelector('.empty-state');
   if (empty) empty.remove();
@@ -735,9 +901,10 @@ function addRecordToUI(time, mood, text, photoUrls) {
   const item = document.createElement('div');
   item.className = 'record-item';
 
-  let photosHtml = '';
-  if (photoUrls.length > 0) {
-    photosHtml = `<div class="record-photos">${photoUrls.map(u => `<img class="record-photo" src="${u}">`).join('')}</div>`;
+  // 썸네일: 첫 사진 1장만 미리보기로 표시
+  let thumbHtml = '';
+  if (photoUrls && photoUrls.length > 0) {
+    thumbHtml = `<div class="record-photos"><img class="record-photo" src="${photoUrls[0]}">${photoUrls.length > 1 ? `<span class="record-photo-more">+${photoUrls.length - 1}</span>` : ''}</div>`;
   }
 
   item.innerHTML = `
@@ -745,10 +912,52 @@ function addRecordToUI(time, mood, text, photoUrls) {
     <div>
       ${mood ? `<span class="record-tag">${mood}</span>` : ''}
       ${text ? `<div class="record-text">${text}</div>` : ''}
-      ${photosHtml}
+      ${thumbHtml}
     </div>`;
 
+  // 클릭 시 팝업
+  item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl));
+
   list.insertBefore(item, list.firstChild);
+}
+
+// ── 팝업 ──
+function openPopup(time, mood, text, photoUrls, notionUrl) {
+  document.getElementById('popup-time').textContent = time;
+
+  const moodEl = document.getElementById('popup-mood');
+  moodEl.innerHTML = mood ? `<div class="popup-mood">${mood}</div>` : '';
+
+  document.getElementById('popup-text').textContent = text || '';
+
+  const photosEl = document.getElementById('popup-photos');
+  if (photoUrls.length > 0) {
+    photosEl.className = 'popup-photos' + (photoUrls.length === 1 ? ' single' : '');
+    photosEl.innerHTML = photoUrls.map(u => `<img src="${u}" loading="lazy">`).join('');
+    photosEl.style.display = '';
+  } else {
+    photosEl.innerHTML = '';
+    photosEl.style.display = 'none';
+  }
+
+  const btn = document.getElementById('popup-notion-btn');
+  if (notionUrl) {
+    btn.href = notionUrl;
+    btn.style.display = '';
+  } else {
+    btn.style.display = 'none';
+  }
+
+  document.getElementById('record-popup').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePopup(e) {
+  if (e.target === document.getElementById('record-popup')) closePopupDirect();
+}
+function closePopupDirect() {
+  document.getElementById('record-popup').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 // ── 아카이브 로드 ──
