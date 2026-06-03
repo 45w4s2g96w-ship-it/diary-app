@@ -1200,15 +1200,7 @@ function parseNotionRecords(blocks) {
 
 async function loadTodayRecords() {
   const dateStr = formatDate(getDiaryDate());
-  
-  
-  const cached = loadCacheForDate(dateStr);
-  if (cached) {
-    cached.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], r.notionUrl || null, r.blockId || null));
-    return;
-  }
 
-  
   try {
     const pageId = await getTodayPageId();
     if (!pageId) return;
