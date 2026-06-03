@@ -1385,6 +1385,16 @@ function openPopup(time, mood, text, photoUrls, notionUrl, blockId, itemEl, phot
 
   var _sb = document.getElementById('popup-save-edit-btn'); if(_sb) _sb.style.display = 'none';
 
+  // edit 상태 완전 리셋
+  document.getElementById('popup-mood-edit').style.display = 'none';
+  moodEl.style.display = '';
+  textEl.style.display = '';
+  editingPhotos = [];
+  var epContainer = document.getElementById('popup-edit-photos-preview');
+  if (epContainer) { epContainer.innerHTML = ''; epContainer.style.display = 'none'; }
+  document.getElementById('mood-dropdown-label').textContent = '감정 선택';
+  closeMoodDropdown();
+
   const photosEl = document.getElementById('popup-photos');
   if (photoUrls && photoUrls.length > 0) {
     photosEl.className = 'popup-photos' + (photoUrls.length === 1 ? ' single' : '');
