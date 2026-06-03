@@ -138,11 +138,11 @@
   .emotion-row:last-child { margin-bottom: 0; }
   .emotion-row-label {
     font-family: 'Montserrat', sans-serif;
-    font-size: 8px; font-weight: 700;
-    letter-spacing: 0.08em; color: var(--ink-muted);
-    white-space: nowrap; min-width: 54px;
-    padding-right: 8px; flex-shrink: 0;
-    text-transform: uppercase;
+    font-size: 7.5px; font-weight: 700;
+    letter-spacing: 0.03em; color: var(--ink-muted);
+    white-space: normal; min-width: 46px; max-width: 46px;
+    padding-right: 6px; flex-shrink: 0;
+    text-transform: uppercase; line-height: 1.3;
   }
   .emotion-tags { display: flex; gap: 5px; width: max-content; }
   .tag {
@@ -548,17 +548,17 @@
     <div class="emotion-section">
       <div class="emotion-label">MOOD</div>
       <div class="emotion-row">
-        <div class="emotion-row-label">긍정 Pos.</div>
+        <div class="emotion-row-label">Positive</div>
         <div class="emotion-tags">
           <span class="tag" onclick="selectMood(this)">평온함</span>
           <span class="tag" onclick="selectMood(this)">뿌듯함</span>
           <span class="tag" onclick="selectMood(this)">감사함</span>
-          <span class="tag" onclick="selectMood(this)">후련함</span>
+          <span class="tag" onclick="selectMood(this)">행복함</span>
           <span class="tag" onclick="selectMood(this)">설렘</span>
         </div>
       </div>
       <div class="emotion-row">
-        <div class="emotion-row-label">부정 Neg.</div>
+        <div class="emotion-row-label">Negative</div>
         <div class="emotion-tags">
           <span class="tag" onclick="selectMood(this)">불안</span>
           <span class="tag" onclick="selectMood(this)">무기력</span>
@@ -568,7 +568,7 @@
         </div>
       </div>
       <div class="emotion-row">
-        <div class="emotion-row-label">그 외 Etc.</div>
+        <div class="emotion-row-label">Etc.</div>
         <div class="emotion-tags">
           <span class="tag" onclick="selectMood(this)">멍함</span>
           <span class="tag" onclick="selectMood(this)">복잡함</span>
