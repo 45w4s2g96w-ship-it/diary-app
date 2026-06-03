@@ -775,25 +775,27 @@
       <div class="popup-text" id="popup-text"></div>
       <div id="popup-mood-edit" style="display:none">
         <div class="popup-mood-edit-tags" id="popup-mood-edit-tags"></div>
-        <div style="display:flex;gap:6px;margin-top:6px;">
+        <div style="display:flex;gap:6px;margin-top:6px;margin-bottom:10px;">
           <input class="emotion-custom-input" id="popup-custom-mood" placeholder="직접 입력..." style="flex:1">
           <button class="emotion-custom-type" id="popup-custom-pos" onclick="popupSelectType('positive')">POS</button>
           <button class="emotion-custom-type" id="popup-custom-neg" onclick="popupSelectType('negative')">NEG</button>
           <button class="emotion-custom-type" id="popup-custom-etc" onclick="popupSelectType('etc')">ETC</button>
         </div>
-      </div>
-      <textarea class="popup-edit-input" id="popup-edit-input" style="display:none" rows="4"></textarea>
-      <div class="popup-photos" id="popup-photos"></div>
-      <div class="popup-actions" id="popup-actions" style="display:none">
-        <button class="popup-action-btn danger" id="popup-delete-btn" onclick="deleteRecord()">DELETE</button>
-        <button class="popup-action-btn" id="popup-edit-btn" onclick="toggleEdit()">EDIT</button>
-      </div>
-      <div id="popup-edit-photos-preview" style="display:none;margin-bottom:10px"></div>
-      <div style="display:none" id="popup-add-photo-btn">
+        <textarea class="popup-edit-input" id="popup-edit-input" rows="4" style="width:100%;font-family:Gothic A1,sans-serif;font-size:13px;font-weight:300;border:1.5px solid var(--ink);border-radius:2px;padding:10px;outline:none;resize:none;line-height:1.6;margin-bottom:10px;background:transparent;"></textarea>
+        <div id="popup-edit-photos-preview" style="display:none;margin-bottom:10px"></div>
         <button class="popup-action-btn" style="width:100%;margin-bottom:8px" onclick="document.getElementById('popup-photo-input').click()">+ PHOTO</button>
         <input type="file" id="popup-photo-input" accept="image/*" multiple style="display:none" onchange="handleEditPhotos(this)">
+        <button class="popup-save-edit-btn" id="popup-save-edit-btn" onclick="saveEdit()" style="display:block;width:100%;text-align:center;background:var(--ink);color:var(--paper);font-family:Montserrat,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.15em;padding:12px;border-radius:2px;border:none;cursor:pointer;margin-bottom:8px;">SAVE CHANGES</button>
+        <div class="popup-actions" style="margin-bottom:10px">
+          <button class="popup-action-btn danger" id="popup-delete-btn" onclick="deleteRecord()">DELETE</button>
+          <button class="popup-action-btn" id="popup-edit-btn-cancel" onclick="toggleEdit()">CANCEL</button>
+        </div>
       </div>
-      <button class="popup-save-edit-btn" id="popup-save-edit-btn" style="display:none" onclick="saveEdit()">SAVE CHANGES</button>
+      <div class="popup-photos" id="popup-photos"></div>
+      <div class="popup-actions" id="popup-actions" style="display:none">
+        <button class="popup-action-btn danger" onclick="deleteRecord()">DELETE</button>
+        <button class="popup-action-btn" id="popup-edit-btn" onclick="toggleEdit()">EDIT</button>
+      </div>
       <a class="popup-notion-btn" id="popup-notion-btn" target="_blank">OPEN IN NOTION →</a>
     </div>
   </div>
@@ -1577,8 +1579,6 @@ function toggleEdit() {
   const saveBtn = document.getElementById('popup-save-edit-btn');
   const editBtn = document.getElementById('popup-edit-btn');
 
-  const addPhotoBtn = document.getElementById('popup-add-photo-btn');
-  const editPhotosPreview = document.getElementById('popup-edit-photos-preview');
   if (isEditing) {
     editingMood = currentPopupMood;
     editingMoodType = '';
@@ -1587,22 +1587,17 @@ function toggleEdit() {
     moodEl.style.display = 'none';
     moodEditEl.style.display = '';
     buildPopupMoodTags();
-    editInput.style.display = '';
-    editInput.focus();
-    saveBtn.style.display = '';
-    editBtn.textContent = 'CANCEL';
-    if (addPhotoBtn) addPhotoBtn.style.display = '';
+    if (editInput) { editInput.value = document.getElementById('popup-text').textContent; }
     renderEditPhotosPreview();
+    var actionsEl = document.getElementById('popup-actions');
+    if (actionsEl) actionsEl.style.display = 'none';
   } else {
     textEl.style.display = '';
     moodEl.style.display = '';
     moodEditEl.style.display = 'none';
-    editInput.style.display = 'none';
-    saveBtn.style.display = 'none';
-    editBtn.textContent = 'EDIT';
-    if (addPhotoBtn) addPhotoBtn.style.display = 'none';
-    if (editPhotosPreview) editPhotosPreview.style.display = 'none';
     editingPhotos = [];
+    var actionsEl2 = document.getElementById('popup-actions');
+    if (actionsEl2 && currentPopupBlockId) actionsEl2.style.display = 'flex';
   }
 }
 
