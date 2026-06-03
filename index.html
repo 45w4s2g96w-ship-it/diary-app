@@ -880,9 +880,111 @@ async function getTodayPageId() {
   return createData.id;
 }
 
-// ── 기록 저장 ──
-const MAKE_WEBHOOK = 'https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
 
+
+// ── 감정 색상 매핑 ──
+const MOOD_COLORS = {
+  // 긍정 → 초록
+  '평온함': 'green', '뿌듯함': 'green', '감사함': 'green',
+  '행복함': 'green', '설렘': 'green',
+  // 부정 → 빨간
+  '불안': 'red', '무기력': 'red', '답답함': 'red',
+  '외로움': 'red', '피곤함': 'red',
+  // 그 외 → 노란 (yellow) + 회색 글씨는 annotations color로 처리
+  '멍함': 'yellow', '복잡함': 'yellow', '모르겠음': 'yellow'
+};
+
+function getMoodColor(mood) {
+  return MOOD_COLORS[mood] || 'default';
+}
+
+// ── 노션에 기록 블록 추가 (직접 API) ──
+async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
+  const token = localStorage.getItem('notion_token');
+  const moodColor = getMoodColor(mood);
+  const isNeutral = ['멍함','복잡함','모르겠음'].includes(mood);
+
+  const children = [];
+
+  // 블록 1: time + mood (한 paragraph, 두 텍스트 span)
+  const moodSpan = {
+    type: 'text',
+    text: { content: mood ? ` ${mood}` : '' },
+    annotations: {
+      color: isNeutral ? 'yellow' : moodColor,
+      bold: false
+    }
+  };
+  const timeSpan = {
+    type: 'text',
+    text: { content: timeStr },
+    annotations: { color: 'gray', bold: false }
+  };
+
+  children.push({
+    object: 'block',
+    type: 'paragraph',
+    paragraph: {
+      rich_text: mood ? [timeSpan, moodSpan] : [timeSpan]
+    }
+  });
+
+  // 블록 2: 본문 (볼드, 줄바꿈 처리)
+  if (text && text.trim()) {
+    children.push({
+      object: 'block',
+      type: 'paragraph',
+      paragraph: {
+        rich_text: [{
+          type: 'text',
+          text: { content: text },
+          annotations: { bold: true, color: 'default' }
+        }]
+      }
+    });
+  }
+
+  // 블록 3: 사진 column_list (있을 때만)
+  if (photoUrls && photoUrls.length > 0) {
+    const columns = photoUrls.map(url => ({
+      object: 'block',
+      type: 'column',
+      column: {
+        children: [{
+          object: 'block',
+          type: 'image',
+          image: { type: 'external', external: { url } }
+        }]
+      }
+    }));
+    children.push({
+      object: 'block',
+      type: 'column_list',
+      column_list: { children: columns }
+    });
+  }
+
+  // 블록 4: 빈 줄 구분
+  children.push({
+    object: 'block',
+    type: 'paragraph',
+    paragraph: {
+      rich_text: [{ type: 'text', text: { content: 'ㅤ' } }]
+    }
+  });
+
+  await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ children })
+  });
+}
+
+// ── 기록 저장 ──
 async function saveRecord() {
   const text = document.getElementById('memo-input').value.trim();
   if (!text && selectedPhotos.length === 0) { showToast('내용을 입력해주세요'); return; }
@@ -902,46 +1004,27 @@ async function saveRecord() {
       if (url) photoUrls.push(url);
     }
 
-    // Make 웹훅으로 전송
-    const payload = {
-      notion_token: localStorage.getItem('notion_token'),
-      notion_db: localStorage.getItem('notion_db'),
-      date: formatDate(getDiaryDate()),
-      time: timeStr,
-      mood: selectedMood,
-      text: text || " ",
-      photos: photoUrls
-    };
-
-    const res = await fetch(MAKE_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      // 사진은 업로드된 URL이 있으면 그걸 쓰고, 없으면 로컬 미리보기 사용
-      const displayPhotos = photoUrls.length > 0
-        ? photoUrls
-        : selectedPhotos.map(p => p.dataUrl);
-
-      // Notion 페이지 URL 구성 (token 있을 때 페이지 ID 기반)
-      let notionUrl = null;
-      try {
-        const pageId = await getTodayPageId();
-        if (pageId) notionUrl = `https://notion.so/${pageId.replace(/-/g,'')}`;
-      } catch(e) {}
-
-      addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl);
-      document.getElementById('memo-input').value = '';
-      selectedMood = '';
-      selectedPhotos = [];
-      renderPhotoPreview();
-      document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
-      showToast('저장됐어요');
-    } else {
-      showToast('저장 실패. 다시 시도해주세요');
+    // Notion 페이지 가져오거나 생성
+    const pageId = await getTodayPageId();
+    let notionUrl = null;
+    if (pageId) {
+      notionUrl = `https://notion.so/${pageId.replace(/-/g,'')}`;
+      await appendRecordToNotion(pageId, timeStr, selectedMood, text, photoUrls);
     }
+
+    // UI 업데이트
+    const displayPhotos = photoUrls.length > 0
+      ? photoUrls
+      : selectedPhotos.map(p => p.dataUrl);
+
+    addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl);
+    document.getElementById('memo-input').value = '';
+    selectedMood = '';
+    selectedPhotos = [];
+    renderPhotoPreview();
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+    showToast('저장됐어요');
+
   } catch(e) {
     showToast('오류가 발생했어요');
     console.error(e);
