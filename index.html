@@ -1169,7 +1169,7 @@ async function loadTodayRecords() {
   // 캐시 먼저 확인
   const cached = loadCacheForDate(dateStr);
   if (cached) {
-    [...cached].reverse().forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], r.notionUrl || null, r.blockId || null));
+    cached.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], r.notionUrl || null, r.blockId || null));
     return;
   }
 
@@ -1186,7 +1186,7 @@ async function loadTodayRecords() {
     const blocks = data.results || [];
 
     const records = parseNotionRecords(blocks);
-    [...records].reverse().forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId));
+    records.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId));
 
     // 캐시 저장
     saveCacheForDate(dateStr, records.map(r => ({ ...r, notionUrl })));
@@ -1413,7 +1413,7 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
   // 클릭 시 팝업
   item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl, blockId, item));
 
-  list.appendChild(item);
+  list.insertBefore(item, list.firstChild);
 }
 
 // -- 팝업 --
@@ -1675,7 +1675,7 @@ async function loadArchive() {
         ${insight ? `<div class="archive-insight">${insight}</div>` : ''}
         ${encourage ? `<div class="archive-encourage">"${encourage}"</div>` : (!analyzed ? '<div class="archive-insight" style="color:var(--ink-muted)">분석 전</div>' : '')}
       `;
-      list.appendChild(item);
+      list.insertBefore(item, list.firstChild);
     });
   } catch(e) {
     list.innerHTML = '<div class="archive-empty">불러오기 실패</div>';
