@@ -877,67 +877,65 @@ async function getTodayPageId() {
 const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
 
 // ── 감정 색상 매핑 ──
-const MOOD_COLORS = {
-  // 긍정 → 초록
-  '평온함': 'green', '뿌듯함': 'green', '감사함': 'green',
-  '행복함': 'green', '설렘': 'green',
-  // 부정 → 빨간
-  '불안': 'red', '무기력': 'red', '답답함': 'red',
-  '외로움': 'red', '피곤함': 'red',
-  // 그 외 → 노란 (yellow) + 회색 글씨는 annotations color로 처리
-  '멍함': 'yellow', '복잡함': 'yellow', '모르겠음': 'yellow'
+// Notion API 배경색: color 값에 '_background' 붙이면 배경색
+const MOOD_BG = {
+  '평온함': 'green_background', '뿌듯함': 'green_background',
+  '감사함': 'green_background', '행복함': 'green_background', '설렘': 'green_background',
+  '불안': 'red_background', '무기력': 'red_background', '답답함': 'red_background',
+  '외로움': 'red_background', '피곤함': 'red_background',
+  '멍함': 'yellow_background', '복잡함': 'yellow_background', '모르겠음': 'yellow_background'
 };
 
-function getMoodColor(mood) {
-  return MOOD_COLORS[mood] || 'default';
+function getMoodBg(mood) {
+  return MOOD_BG[mood] || 'default';
 }
 
 // ── 노션에 기록 블록 추가 (직접 API) ──
 async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
-  const moodColor = getMoodColor(mood);
-  const isNeutral = ['멍함','복잡함','모르겠음'].includes(mood);
-
   const children = [];
+  const moodBg = getMoodBg(mood);
 
-  // 블록 1: time + mood (한 paragraph, 두 텍스트 span)
-  const moodSpan = {
+  // 블록 1: 시간 
+ 감정 
+ 본문 — 한 블록, shift+enter 연결
+  // 블록 배경색 = 감정 색
+  const richText = [];
+
+  // 시간 (회색)
+  richText.push({
     type: 'text',
-    text: { content: mood ? ` ${mood}` : '' },
-    annotations: {
-      color: isNeutral ? 'yellow' : moodColor,
-      bold: false
-    }
-  };
-  const timeSpan = {
-    type: 'text',
-    text: { content: timeStr },
+    text: { content: timeStr + '\n' },
     annotations: { color: 'gray', bold: false }
-  };
+  });
+
+  // 감정 (회색 글자, 배경색은 블록 전체에)
+  if (mood) {
+    richText.push({
+      type: 'text',
+      text: { content: mood + '\n' },
+      annotations: { color: 'default', bold: false }
+    });
+  }
+
+  // 본문 (볼드)
+  if (text && text.trim()) {
+    richText.push({
+      type: 'text',
+      text: { content: text },
+      annotations: { bold: true, color: 'default' }
+    });
+  }
 
   children.push({
     object: 'block',
     type: 'paragraph',
     paragraph: {
-      rich_text: mood ? [timeSpan, moodSpan] : [timeSpan]
+      rich_text: richText,
+      color: moodBg
     }
   });
 
-  // 블록 2: 본문 (볼드, 줄바꿈 처리)
-  if (text && text.trim()) {
-    children.push({
-      object: 'block',
-      type: 'paragraph',
-      paragraph: {
-        rich_text: [{
-          type: 'text',
-          text: { content: text },
-          annotations: { bold: true, color: 'default' }
-        }]
-      }
-    });
-  }
-
-  // 블록 3: 사진 column_list (있을 때만)
+  // 블록 2: 사진 column_list (있을 때만, 별도 블록)
   if (photoUrls && photoUrls.length > 0) {
     const columns = photoUrls.map(url => ({
       object: 'block',
@@ -957,12 +955,12 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
     });
   }
 
-  // 블록 4: 빈 줄 구분
+  // 블록 3: 빈 줄
   children.push({
     object: 'block',
     type: 'paragraph',
     paragraph: {
-      rich_text: [{ type: 'text', text: { content: 'ㅤ' } }]
+      rich_text: [{ type: 'text', text: { content: ' ' } }]
     }
   });
 
