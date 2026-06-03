@@ -564,7 +564,7 @@
     display: flex; gap: 8px; margin-bottom: 12px;
   }
   .popup-action-btn {
-    flex: 1; padding: 5px 4px;
+    flex: 1; padding: 7px 4px;
     font-family: 'Montserrat', sans-serif;
     font-size: 9px; font-weight: 700;
     letter-spacing: 0.08em;
@@ -572,6 +572,9 @@
     background: transparent; color: var(--ink);
     cursor: pointer; border-radius: 2px;
     transition: all 0.12s;
+  }
+  .popup-notion-btn {
+    padding: 14px;
   }
   .popup-action-btn:hover { background: var(--ink); color: var(--paper); }
   .popup-action-btn.danger { border-color: #c0392b; color: #c0392b; }
@@ -784,9 +787,12 @@
       <div class="popup-actions" id="popup-actions" style="display:none">
         <button class="popup-action-btn danger" id="popup-delete-btn" onclick="deleteRecord()">DELETE</button>
         <button class="popup-action-btn" id="popup-edit-btn" onclick="toggleEdit()">EDIT</button>
-        <button class="popup-action-btn" onclick="document.getElementById('popup-photo-input').click()">+ PHOTO</button>
       </div>
-      <input type="file" id="popup-photo-input" accept="image/*" multiple style="display:none" onchange="addPhotosToRecord(this)">
+      <div id="popup-edit-photos-preview" style="display:none;margin-bottom:10px"></div>
+      <div style="display:none" id="popup-add-photo-btn">
+        <button class="popup-action-btn" style="width:100%;margin-bottom:8px" onclick="document.getElementById('popup-photo-input').click()">+ PHOTO</button>
+        <input type="file" id="popup-photo-input" accept="image/*" multiple style="display:none" onchange="handleEditPhotos(this)">
+      </div>
       <button class="popup-save-edit-btn" id="popup-save-edit-btn" style="display:none" onclick="saveEdit()">SAVE CHANGES</button>
       <a class="popup-notion-btn" id="popup-notion-btn" target="_blank">OPEN IN NOTION →</a>
     </div>
@@ -898,7 +904,10 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
   });
   const data = await res.json();
   console.log('notion append response:', JSON.stringify(data).slice(0, 200));
-  return data.results && data.results[0] ? data.results[0].id : null;
+  
+  const blockId = data.results && data.results[0] ? data.results[0].id : null;
+  const photoBlockId = data.results && data.results[1] ? data.results[1].id : null;
+  return { blockId, photoBlockId };
 }
 
 
@@ -1142,31 +1151,31 @@ function parseNotionRecords(blocks) {
     const texts = block.paragraph?.rich_text || [];
     if (!texts.length) { i++; continue; }
 
-    // 한 블록에 time\nmood\nbody 구조
+    
     const allContent = texts.map(t => t?.text?.content || '').join('');
     const lines = allContent.split('\n').map(l => l.trim()).filter(l => l);
 
     if (!lines.length) { i++; continue; }
 
-    // 첫 줄이 HH:MM 형식인지 확인
+    
     if (!/^\d{2}:\d{2}$/.test(lines[0])) { i++; continue; }
 
     const timeStr = lines[0];
     let mood = '';
     let text = '';
 
-    // 두 번째 줄: 이모지 + 감정 (이모지 제거)
+    
     if (lines[1]) {
       mood = lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u, '').trim();
       if (!mood) mood = lines[1].trim();
     }
 
-    // 세 번째 줄 이후: 본문
+    
     if (lines[2]) {
       text = lines.slice(2).join('\n');
     }
 
-    // column_list (사진) 스킵
+    
     let j = i + 1;
     while (j < blocks.length && blocks[j].type === 'column_list') { j++; }
     i = j;
@@ -1192,7 +1201,7 @@ async function loadTodayRecords() {
     const blocks = data.results || [];
 
     const records = parseNotionRecords(blocks);
-    records.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId));
+    records.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId, r.photoBlockId || null));
 
     
     saveCacheForDate(dateStr, records.map(r => ({ ...r, notionUrl })));
@@ -1202,9 +1211,9 @@ async function loadTodayRecords() {
 }
 
 
-function updateCache(dateStr, time, mood, text, photoUrls, notionUrl, blockId) {
+function updateCache(dateStr, time, mood, text, photoUrls, notionUrl, blockId, photoBlockId) {
   const cached = loadCacheForDate(dateStr) || [];
-  cached.unshift({ time, mood, text, photoUrls, notionUrl, blockId });
+  cached.unshift({ time, mood, text, photoUrls, notionUrl, blockId, photoBlockId });
   saveCacheForDate(dateStr, cached);
 }
 
@@ -1360,17 +1369,20 @@ async function saveRecord() {
     const pageId = await getTodayPageId();
     let notionUrl = null;
     let blockId = null;
+    let photoBlockId = null;
     if (pageId) {
       notionUrl = 'https://notion.so/' + pageId.replace(/-/g,'');
-      blockId = await appendRecordToNotion(pageId, timeStr, selectedMood, text, photoUrls);
+      const result = await appendRecordToNotion(pageId, timeStr, selectedMood, text, photoUrls);
+      blockId = result ? result.blockId : null;
+      photoBlockId = result ? result.photoBlockId : null;
     }
 
     const displayPhotos = photoUrls.length > 0
       ? photoUrls
       : selectedPhotos.map(p => p.dataUrl);
 
-    addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl, blockId);
-    updateCache(formatDate(getDiaryDate()), timeStr, selectedMood, text, photoUrls, notionUrl, blockId);
+    addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl, blockId, photoBlockId);
+    updateCache(formatDate(getDiaryDate()), timeStr, selectedMood, text, photoUrls, notionUrl, blockId, photoBlockId);
     document.getElementById('memo-input').value = '';
     // save custom mood history
     const customVal = document.getElementById('custom-mood-input').value.trim();
@@ -1393,7 +1405,7 @@ async function saveRecord() {
   document.getElementById('loading').classList.add('hidden');
 }
 
-function addRecordToUI(time, mood, text, photoUrls, notionUrl, recordBlockId) {
+function addRecordToUI(time, mood, text, photoUrls, notionUrl, recordBlockId, photoBlockId) {
   const list = document.getElementById('record-list');
   const empty = list.querySelector('.empty-state');
   if (empty) empty.remove();
@@ -1410,7 +1422,8 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl, recordBlockId) {
   item.innerHTML = '<div class="record-time">' + time + '</div><div>' + (mood ? '<span class="record-tag">' + mood + '</span>' : '') + (text ? '<div class="record-text">' + text + '</div>' : '') + thumbHtml + '</div>';
 
   var _blockId = recordBlockId;
-  item.addEventListener('click', function() { openPopup(time, mood, text, photoUrls || [], notionUrl, _blockId, item); });
+  var _photoBlockId = photoBlockId || null;
+  item.addEventListener('click', function() { openPopup(time, mood, text, photoUrls || [], notionUrl, _blockId, item, _photoBlockId); });
 
   list.insertBefore(item, list.firstChild);
 }
@@ -1422,7 +1435,9 @@ let currentPopupItem = null;
 let currentPopupMood = '';
 let isEditing = false;
 
-function openPopup(time, mood, text, photoUrls, notionUrl, blockId, itemEl) {
+let currentPhotoBlockId = null;
+function openPopup(time, mood, text, photoUrls, notionUrl, blockId, itemEl, photoBlockId) {
+  currentPhotoBlockId = photoBlockId || null;
   currentPopupPhotos = photoUrls || [];
   currentPopupBlockId = blockId || null;
   currentPopupItem = itemEl || null;
@@ -1475,6 +1490,47 @@ function openPopup(time, mood, text, photoUrls, notionUrl, blockId, itemEl) {
 }
 
 let editingMood = '';
+
+let editingPhotos = [];
+
+function renderEditPhotosPreview() {
+  const container = document.getElementById('popup-edit-photos-preview');
+  if (!container) return;
+  if (editingPhotos.length === 0) {
+    container.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  container.style.display = 'flex';
+  container.style.flexWrap = 'wrap';
+  container.style.gap = '6px';
+  container.style.marginBottom = '10px';
+  container.innerHTML = editingPhotos.map((url, i) =>
+    '<div style="position:relative;width:80px;height:80px;">' +
+    '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;border-radius:2px;">' +
+    '<button onclick="removeEditPhoto(' + i + ')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>' +
+    '</div>'
+  ).join('');
+}
+
+function removeEditPhoto(idx) {
+  editingPhotos.splice(idx, 1);
+  renderEditPhotosPreview();
+}
+
+async function handleEditPhotos(input) {
+  const files = Array.from(input.files);
+  for (const file of files) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      editingPhotos.push({ file, dataUrl: e.target.result });
+      renderEditPhotosPreview();
+    };
+    reader.readAsDataURL(file);
+  }
+  input.value = '';
+}
+
 let editingMoodType = '';
 
 function buildPopupMoodTags() {
@@ -1516,9 +1572,12 @@ function toggleEdit() {
   const saveBtn = document.getElementById('popup-save-edit-btn');
   const editBtn = document.getElementById('popup-edit-btn');
 
+  const addPhotoBtn = document.getElementById('popup-add-photo-btn');
+  const editPhotosPreview = document.getElementById('popup-edit-photos-preview');
   if (isEditing) {
     editingMood = currentPopupMood;
     editingMoodType = '';
+    editingPhotos = [...currentPopupPhotos];
     textEl.style.display = 'none';
     moodEl.style.display = 'none';
     moodEditEl.style.display = '';
@@ -1527,6 +1586,8 @@ function toggleEdit() {
     editInput.focus();
     saveBtn.style.display = '';
     editBtn.textContent = 'CANCEL';
+    if (addPhotoBtn) addPhotoBtn.style.display = '';
+    renderEditPhotosPreview();
   } else {
     textEl.style.display = '';
     moodEl.style.display = '';
@@ -1534,6 +1595,9 @@ function toggleEdit() {
     editInput.style.display = 'none';
     saveBtn.style.display = 'none';
     editBtn.textContent = 'EDIT';
+    if (addPhotoBtn) addPhotoBtn.style.display = 'none';
+    if (editPhotosPreview) editPhotosPreview.style.display = 'none';
+    editingPhotos = [];
   }
 }
 
@@ -1545,6 +1609,20 @@ async function saveEdit() {
   const finalMood = editingMood || currentPopupMood;
   const moodBg = getMoodBg(finalMood);
   const timeStr = document.getElementById('popup-time').textContent;
+
+  
+  const finalPhotoUrls = [];
+  for (const p of editingPhotos) {
+    if (typeof p === 'string') {
+      finalPhotoUrls.push(p);
+    } else if (p.file) {
+      const url = await uploadToCloudinary(p.file);
+      if (url) finalPhotoUrls.push(url);
+    } else if (p.dataUrl) {
+      const url = await uploadToCloudinary(p.file);
+      if (url) finalPhotoUrls.push(url);
+    }
+  }
 
   try {
     const richText = [];
@@ -1578,6 +1656,54 @@ async function saveEdit() {
     const cached = loadCacheForDate(dateStr) || [];
     const idx = cached.findIndex(r => r.blockId === currentPopupBlockId);
     if (idx !== -1) { cached[idx].text = newText; cached[idx].mood = finalMood; saveCacheForDate(dateStr, cached); }
+
+    
+    if (currentPhotoBlockId) {
+      await fetch(WORKER_URL + '/notion/blocks/' + currentPhotoBlockId, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      currentPhotoBlockId = null;
+    }
+    if (finalPhotoUrls.length > 0) {
+      const pageId = await getTodayPageId();
+      if (pageId) {
+        let photoChildren;
+        if (finalPhotoUrls.length === 1) {
+          photoChildren = [{ object: 'block', type: 'image', image: { type: 'external', external: { url: finalPhotoUrls[0] } } }];
+        } else {
+          const cols = finalPhotoUrls.map(url => ({
+            object: 'block', type: 'column',
+            column: { children: [{ object: 'block', type: 'image', image: { type: 'external', external: { url } } }] }
+          }));
+          photoChildren = [{ object: 'block', type: 'column_list', column_list: { children: cols } }];
+        }
+        const photoRes = await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ children: photoChildren })
+        });
+        const photoData = await photoRes.json();
+        if (photoData.results && photoData.results[0]) currentPhotoBlockId = photoData.results[0].id;
+      }
+    }
+
+    
+    currentPopupPhotos = finalPhotoUrls;
+    const photosEl = document.getElementById('popup-photos');
+    if (finalPhotoUrls.length > 0) {
+      photosEl.innerHTML = finalPhotoUrls.map((u, i) => '<img src="' + u + '" loading="lazy" onclick="openLightbox(currentPopupPhotos, ' + i + ')">').join('');
+      photosEl.style.display = '';
+    } else {
+      photosEl.innerHTML = '';
+      photosEl.style.display = 'none';
+    }
+
+    
+    const dateStr2 = formatDate(getDiaryDate());
+    const cached2 = loadCacheForDate(dateStr2) || [];
+    const idx2 = cached2.findIndex(function(r) { return r.blockId === currentPopupBlockId; });
+    if (idx2 !== -1) { cached2[idx2].photoUrls = finalPhotoUrls; cached2[idx2].photoBlockId = currentPhotoBlockId; saveCacheForDate(dateStr2, cached2); }
 
     toggleEdit();
     showToast('수정됐어요');
