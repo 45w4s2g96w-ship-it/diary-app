@@ -1180,6 +1180,7 @@ function init() {
 
 // ── 시작 ──
 window.onload = () => {
+  const token = localStorage.getItem('notion_token');
   const db = localStorage.getItem('notion_db');
   if (token && db) {
     document.getElementById('setup-screen').classList.add('hidden');
