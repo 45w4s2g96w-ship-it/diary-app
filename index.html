@@ -669,6 +669,8 @@ async function getTodayPageId() {
 }
 
 // ── 기록 저장 ──
+const MAKE_WEBHOOK = 'https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
+
 async function saveRecord() {
   const text = document.getElementById('memo-input').value.trim();
   if (!text && selectedPhotos.length === 0) { showToast('내용을 입력해주세요'); return; }
@@ -678,77 +680,34 @@ async function saveRecord() {
   document.getElementById('loading').classList.remove('hidden');
 
   try {
-    const pageId = await getTodayPageId();
-    const token = localStorage.getItem('notion_token');
     const now = new Date();
     const timeStr = formatTime(now);
 
-    // 사진 업로드
+    // 사진 업로드 (Cloudinary)
     let photoUrls = [];
     for (const p of selectedPhotos) {
       const url = await uploadToCloudinary(p.file);
       if (url) photoUrls.push(url);
     }
 
-    // 블록 구성
-    const blocks = [];
+    // Make 웹훅으로 전송
+    const payload = {
+      notion_token: localStorage.getItem('notion_token'),
+      notion_db: localStorage.getItem('notion_db'),
+      date: formatDate(getDiaryDate()),
+      time: timeStr,
+      mood: selectedMood,
+      text: text,
+      photos: photoUrls
+    };
 
-    // 시간 + 감정태그 + 텍스트
-    const richText = [];
-    richText.push({ text: { content: `${timeStr}  ` }, annotations: { color: 'gray', bold: false } });
-    if (selectedMood) {
-      richText.push({ text: { content: `[${selectedMood}]  ` }, annotations: { color: 'brown', bold: true } });
-    }
-    if (text) {
-      richText.push({ text: { content: text } });
-    }
-    blocks.push({ object: 'block', type: 'paragraph', paragraph: { rich_text: richText } });
-
-    // 사진
-    if (photoUrls.length > 0) {
-      for (const url of photoUrls) {
-        blocks.push({
-          object: 'block', type: 'image',
-          image: { type: 'external', external: { url } }
-        });
-      }
-    }
-
-    // ✏️ 틈틈이 기록 헤딩 블록 찾기
-    const pageBlocksRes = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Notion-Version': '2022-06-28'
-      }
-    });
-    const pageBlocksData = await pageBlocksRes.json();
-    let targetBlockId = null;
-    if (pageBlocksData.results) {
-      for (const block of pageBlocksData.results) {
-        if (
-          (block.type === 'heading_3' || block.type === 'heading_2' || block.type === 'heading_1') &&
-          block[block.type]?.rich_text?.some(t => t.plain_text?.includes('틈틈이 기록'))
-        ) {
-          targetBlockId = block.id;
-          break;
-        }
-      }
-    }
-
-    // 틈틈이 기록 섹션 찾으면 그 블록의 children에 추가, 못 찾으면 페이지 맨 위에 추가
-    const insertId = targetBlockId || pageId;
-    const blocksRes = await fetch(`https://api.notion.com/v1/blocks/${insertId}/children`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ children: blocks })
+    const res = await fetch(MAKE_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
 
-    if (blocksRes.ok) {
-      // 로컬 렌더링
+    if (res.ok) {
       addRecordToUI(timeStr, selectedMood, text, photoUrls);
       document.getElementById('memo-input').value = '';
       selectedMood = '';
@@ -794,27 +753,24 @@ function addRecordToUI(time, mood, text, photoUrls) {
 }
 
 // ── 아카이브 로드 ──
+const MAKE_ARCHIVE_WEBHOOK = 'https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
+
 async function loadArchive() {
-  const token = localStorage.getItem('notion_token');
-  const db = localStorage.getItem('notion_db');
   const list = document.getElementById('archive-list');
   list.innerHTML = '<div class="archive-empty">불러오는 중...</div>';
 
   try {
-    const res = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+    const res = await fetch(MAKE_ARCHIVE_WEBHOOK, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        sorts: [{ property: '날짜', direction: 'descending' }],
-        page_size: 20
+        action: 'load_archive',
+        notion_token: localStorage.getItem('notion_token'),
+        notion_db: localStorage.getItem('notion_db')
       })
     });
-    const data = await res.json();
 
+    const data = await res.json();
     if (!data.results || data.results.length === 0) {
       list.innerHTML = '<div class="archive-empty">아직 기록이 없어요.</div>';
       return;
@@ -826,7 +782,7 @@ async function loadArchive() {
       const dateStr = props['날짜']?.date?.start || '';
       if (!dateStr) return;
 
-      const d = new Date(dateStr);
+      const d = new Date(dateStr + 'T00:00:00');
       const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
       const mm = String(d.getMonth()+1).padStart(2,'0');
       const dd = String(d.getDate()).padStart(2,'0');
