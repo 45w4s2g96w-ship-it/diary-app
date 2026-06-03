@@ -774,21 +774,32 @@
       <div id="popup-mood"></div>
       <div class="popup-text" id="popup-text"></div>
       <div id="popup-mood-edit" style="display:none">
-        <div class="popup-mood-edit-tags" id="popup-mood-edit-tags"></div>
-        <div style="display:flex;gap:6px;margin-top:6px;margin-bottom:10px;">
-          <input class="emotion-custom-input" id="popup-custom-mood" placeholder="직접 입력..." style="flex:1">
-          <button class="emotion-custom-type" id="popup-custom-pos" onclick="popupSelectType('positive')">POS</button>
-          <button class="emotion-custom-type" id="popup-custom-neg" onclick="popupSelectType('negative')">NEG</button>
-          <button class="emotion-custom-type" id="popup-custom-etc" onclick="popupSelectType('etc')">ETC</button>
+        <!-- 감정 드롭다운 -->
+        <div style="position:relative;margin-bottom:10px;">
+          <button id="mood-dropdown-btn" onclick="toggleMoodDropdown(event)" style="width:100%;padding:8px 12px;font-family:'Gothic A1',sans-serif;font-size:12px;font-weight:600;border:1.5px solid var(--ink);border-radius:2px;background:transparent;color:var(--ink);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;">
+            <span id="mood-dropdown-label">감정 선택</span><span style="font-size:10px;">▾</span>
+          </button>
+          <div id="mood-dropdown-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--paper);border:1.5px solid var(--ink);border-top:none;border-radius:0 0 2px 2px;z-index:50;max-height:220px;overflow-y:auto;">
+            <div id="mood-dropdown-tags" style="display:flex;flex-wrap:wrap;gap:4px;padding:8px;border-bottom:1px solid var(--rule);"></div>
+            <div style="padding:8px;">
+              <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);margin-bottom:6px;letter-spacing:0.08em;text-transform:uppercase;">직접 입력</div>
+              <div style="display:flex;gap:5px;">
+                <input class="emotion-custom-input" id="popup-custom-mood" placeholder="입력..." style="flex:1" oninput="handlePopupCustomMood(this)">
+                <button class="emotion-custom-type" id="popup-custom-pos" onclick="popupSelectType('positive')">POS</button>
+                <button class="emotion-custom-type" id="popup-custom-neg" onclick="popupSelectType('negative')">NEG</button>
+                <button class="emotion-custom-type" id="popup-custom-etc" onclick="popupSelectType('etc')">ETC</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <textarea class="popup-edit-input" id="popup-edit-input" rows="4" style="width:100%;font-family:Gothic A1,sans-serif;font-size:13px;font-weight:300;border:1.5px solid var(--ink);border-radius:2px;padding:10px;outline:none;resize:none;line-height:1.6;margin-bottom:10px;background:transparent;"></textarea>
+        <textarea id="popup-edit-input" rows="4" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:300;border:1.5px solid var(--ink);border-radius:2px;padding:10px;outline:none;resize:none;line-height:1.6;margin-bottom:10px;background:transparent;color:var(--ink);"></textarea>
         <div id="popup-edit-photos-preview" style="display:none;margin-bottom:10px"></div>
         <button class="popup-action-btn" style="width:100%;margin-bottom:8px" onclick="document.getElementById('popup-photo-input').click()">+ PHOTO</button>
         <input type="file" id="popup-photo-input" accept="image/*" multiple style="display:none" onchange="handleEditPhotos(this)">
-        <button class="popup-save-edit-btn" id="popup-save-edit-btn" onclick="saveEdit()" style="display:block;width:100%;text-align:center;background:var(--ink);color:var(--paper);font-family:Montserrat,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.15em;padding:12px;border-radius:2px;border:none;cursor:pointer;margin-bottom:8px;">SAVE CHANGES</button>
+        <button onclick="saveEdit()" style="display:block;width:100%;text-align:center;background:var(--ink);color:var(--paper);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.15em;padding:12px;border-radius:2px;border:none;cursor:pointer;margin-bottom:8px;">SAVE CHANGES</button>
         <div class="popup-actions" style="margin-bottom:10px">
-          <button class="popup-action-btn danger" id="popup-delete-btn" onclick="deleteRecord()">DELETE</button>
-          <button class="popup-action-btn" id="popup-edit-btn-cancel" onclick="toggleEdit()">CANCEL</button>
+          <button class="popup-action-btn danger" onclick="deleteRecord()">DELETE</button>
+          <button class="popup-action-btn" onclick="toggleEdit()">CANCEL</button>
         </div>
       </div>
       <div class="popup-photos" id="popup-photos"></div>
@@ -1231,8 +1242,9 @@ function restoreCustomTags() {
 }
 
 
-document.addEventListener('click', (e) => {
+document.addEventListener('click', function(e) {
   if (!e.target.closest('.emotion-custom-row')) hideMoodDropdown();
+  if (!e.target.closest('#mood-dropdown-btn') && !e.target.closest('#mood-dropdown-list')) closeMoodDropdown();
 });
 
 
@@ -1541,23 +1553,48 @@ async function handleEditPhotos(input) {
 let editingMoodType = '';
 
 function buildPopupMoodTags() {
-  const container = document.getElementById('popup-mood-edit-tags');
-  const allMoods = ['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음'];
-  const history = getCustomHistory ? getCustomHistory() : {};
-  const custom = Object.keys(history);
-  const moods = [...new Set([...allMoods, ...custom])];
+  var container = document.getElementById('mood-dropdown-tags');
+  if (!container) return;
+  var allMoods = ['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음'];
+  var history = getCustomHistory ? getCustomHistory() : {};
+  var custom = Object.keys(history);
+  var moods = allMoods.concat(custom.filter(function(m) { return allMoods.indexOf(m) === -1; }));
   container.innerHTML = moods.map(function(m) {
     var sel = m === editingMood ? ' selected' : '';
     return '<button class="popup-mood-tag-btn' + sel + '" onclick="popupSelectMood(this.textContent)">' + m + '</button>';
   }).join('');
 }
 
+function toggleMoodDropdown(e) {
+  if (e) e.stopPropagation();
+  var list = document.getElementById('mood-dropdown-list');
+  if (!list) return;
+  list.style.display = list.style.display === 'none' ? '' : 'none';
+  if (list.style.display !== 'none') buildPopupMoodTags();
+}
+
+function closeMoodDropdown() {
+  var list = document.getElementById('mood-dropdown-list');
+  if (list) list.style.display = 'none';
+}
+
+function handlePopupCustomMood(input) {
+  var val = input.value.trim();
+  if (val) {
+    editingMood = val;
+    document.getElementById('mood-dropdown-label').textContent = val;
+    document.querySelectorAll('.popup-mood-tag-btn').forEach(function(b) { b.classList.remove('selected'); });
+  }
+}
+
 function popupSelectMood(mood) {
   editingMood = mood;
   document.getElementById('popup-custom-mood').value = '';
   editingMoodType = '';
-  document.querySelectorAll('#popup-custom-pos,#popup-custom-neg,#popup-custom-etc').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#popup-custom-pos,#popup-custom-neg,#popup-custom-etc').forEach(function(b) { b.classList.remove('selected'); });
+  document.getElementById('mood-dropdown-label').textContent = getMoodEmoji(mood) + ' ' + mood;
   buildPopupMoodTags();
+  closeMoodDropdown();
 }
 
 function popupSelectType(type) {
@@ -1603,7 +1640,7 @@ function toggleEdit() {
 
 async function saveEdit() {
   if (!currentPopupBlockId) return;
-  const newText = document.getElementById('popup-edit-input').value.trim();
+  var newText = document.getElementById('popup-edit-input') ? document.getElementById('popup-edit-input').value.trim() : '';
   const customMoodInput = document.getElementById('popup-custom-mood').value.trim();
   if (customMoodInput) editingMood = customMoodInput;
   const finalMood = editingMood || currentPopupMood;
