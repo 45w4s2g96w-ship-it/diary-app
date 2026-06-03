@@ -539,6 +539,42 @@
     color: rgba(255,255,255,0.5);
   }
   .popup-photos img { cursor: zoom-in; }
+  .popup-actions {
+    display: flex; gap: 8px; margin-bottom: 12px;
+  }
+  .popup-action-btn {
+    flex: 1; padding: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em;
+    border: 1.5px solid var(--ink);
+    background: transparent; color: var(--ink);
+    cursor: pointer; border-radius: 2px;
+    transition: all 0.12s;
+  }
+  .popup-action-btn:hover { background: var(--ink); color: var(--paper); }
+  .popup-action-btn.danger { border-color: #c0392b; color: #c0392b; }
+  .popup-action-btn.danger:hover { background: #c0392b; color: white; }
+  .popup-edit-input {
+    width: 100%;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 14px; font-weight: 300;
+    color: var(--ink); background: transparent;
+    border: 1.5px solid var(--ink);
+    border-radius: 2px; padding: 10px;
+    outline: none; resize: none;
+    line-height: 1.6; margin-bottom: 12px;
+  }
+  .popup-save-edit-btn {
+    display: block; width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; text-align: center;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 12px;
+    cursor: pointer; border-radius: 2px;
+    margin-bottom: 10px;
+  }
 
   .emotion-dropdown {
     position: absolute;
@@ -736,7 +772,13 @@
     <div class="popup-body">
       <div id="popup-mood"></div>
       <div class="popup-text" id="popup-text"></div>
+      <textarea class="popup-edit-input" id="popup-edit-input" style="display:none" rows="4"></textarea>
       <div class="popup-photos" id="popup-photos"></div>
+      <div class="popup-actions" id="popup-actions" style="display:none">
+        <button class="popup-action-btn danger" id="popup-delete-btn" onclick="deleteRecord()">DELETE</button>
+        <button class="popup-action-btn" id="popup-edit-btn" onclick="toggleEdit()">EDIT</button>
+      </div>
+      <button class="popup-save-edit-btn" id="popup-save-edit-btn" style="display:none" onclick="saveEdit()">SAVE CHANGES</button>
       <a class="popup-notion-btn" id="popup-notion-btn" target="_blank">OPEN IN NOTION →</a>
     </div>
   </div>
@@ -779,45 +821,44 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
   const children = [];
   const moodBg = getMoodBg(mood);
 
-  // block 1: time
+  // block 1: time + mood + body — 한 블록, 배경색 전체 적용
+  const richText = [];
+  // time: italic, gray
+  richText.push({
+    type: 'text',
+    text: { content: timeStr + '\n' },
+    annotations: { color: 'gray', bold: false, italic: true }
+  });
+  // mood: normal, with #
+  if (mood) {
+    richText.push({
+      type: 'text',
+      text: { content: '#' + mood + '\n' },
+      annotations: { color: 'default', bold: false, italic: false }
+    });
+  }
+  // body: bold
+  if (text && text.trim()) {
+    richText.push({
+      type: 'text',
+      text: { content: text },
+      annotations: { bold: true, italic: false, color: 'default' }
+    });
+  }
   children.push({
     object: 'block',
     type: 'paragraph',
-    paragraph: {
-      rich_text: [{ type: 'text', text: { content: timeStr }, annotations: { color: 'gray', bold: false } }]
-    }
+    paragraph: { rich_text: richText, color: moodBg }
   });
 
-  // block 2: mood (with background color)
-  if (mood) {
-    children.push({
-      object: 'block',
-      type: 'paragraph',
-      paragraph: {
-        rich_text: [{ type: 'text', text: { content: mood }, annotations: { color: 'default', bold: false } }],
-        color: moodBg
-      }
-    });
-  }
-
-  // block 3: body text (bold)
-  if (text && text.trim()) {
-    children.push({
-      object: 'block',
-      type: 'paragraph',
-      paragraph: {
-        rich_text: [{ type: 'text', text: { content: text }, annotations: { bold: true, color: 'default' } }]
-      }
-    });
-  }
-
-  // block 4: photos (3-column layout, 2 rows if > 3)
+  // block 2: photos (최대 3장, 3열)
   if (photoUrls && photoUrls.length > 0) {
-    const makeRow = (urls) => ({
+    const row = photoUrls.slice(0, 3);
+    children.push({
       object: 'block',
       type: 'column_list',
       column_list: {
-        children: urls.map(url => ({
+        children: row.map(url => ({
           object: 'block',
           type: 'column',
           column: {
@@ -830,14 +871,9 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
         }))
       }
     });
-
-    const row1 = photoUrls.slice(0, 3);
-    const row2 = photoUrls.slice(3);
-    children.push(makeRow(row1));
-    if (row2.length > 0) children.push(makeRow(row2));
   }
 
-  // block 5: empty line
+  // block 3: empty line
   children.push({
     object: 'block',
     type: 'paragraph',
@@ -846,11 +882,14 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
     }
   });
 
-  await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
+  const res = await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ children })
   });
+  const data = await res.json();
+  // return first block ID (time+mood+body block)
+  return data.results && data.results[0] ? data.results[0].id : null;
 }
 
 
@@ -1110,7 +1149,7 @@ function parseNotionRecords(blocks) {
       break;
     }
 
-    records.push({ time: timeStr, mood, text, photoUrls });
+    records.push({ time: timeStr, mood, text, photoUrls, blockId: block.id });
   }
 
   return records;
@@ -1122,7 +1161,7 @@ async function loadTodayRecords() {
   // 캐시 먼저 확인
   const cached = loadCacheForDate(dateStr);
   if (cached) {
-    cached.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], r.notionUrl || null));
+    cached.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], r.notionUrl || null, r.blockId || null));
     return;
   }
 
@@ -1139,7 +1178,7 @@ async function loadTodayRecords() {
     const blocks = data.results || [];
 
     const records = parseNotionRecords(blocks);
-    records.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl));
+    records.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId));
 
     // 캐시 저장
     saveCacheForDate(dateStr, records.map(r => ({ ...r, notionUrl })));
@@ -1149,9 +1188,9 @@ async function loadTodayRecords() {
 }
 
 // 기록 저장 시 캐시도 업데이트
-function updateCache(dateStr, time, mood, text, photoUrls, notionUrl) {
+function updateCache(dateStr, time, mood, text, photoUrls, notionUrl, blockId) {
   const cached = loadCacheForDate(dateStr) || [];
-  cached.unshift({ time, mood, text, photoUrls, notionUrl });
+  cached.unshift({ time, mood, text, photoUrls, notionUrl, blockId });
   saveCacheForDate(dateStr, cached);
 }
 
@@ -1171,7 +1210,7 @@ document.addEventListener('click', (e) => {
 let selectedPhotos = [];
 function handlePhotos(input) {
   const files = Array.from(input.files);
-  const remaining = 5 - selectedPhotos.length;
+  const remaining = 3 - selectedPhotos.length;
   const toAdd = files.slice(0, remaining);
   toAdd.forEach(file => {
     const reader = new FileReader();
@@ -1307,17 +1346,18 @@ async function saveRecord() {
 
     const pageId = await getTodayPageId();
     let notionUrl = null;
+    let blockId = null;
     if (pageId) {
       notionUrl = 'https://notion.so/' + pageId.replace(/-/g,'');
-      await appendRecordToNotion(pageId, timeStr, selectedMood, text, photoUrls);
+      blockId = await appendRecordToNotion(pageId, timeStr, selectedMood, text, photoUrls);
     }
 
     const displayPhotos = photoUrls.length > 0
       ? photoUrls
       : selectedPhotos.map(p => p.dataUrl);
 
-    addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl);
-    updateCache(formatDate(getDiaryDate()), timeStr, selectedMood, text, photoUrls, notionUrl);
+    addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl, blockId);
+    updateCache(formatDate(getDiaryDate()), timeStr, selectedMood, text, photoUrls, notionUrl, blockId);
     document.getElementById('memo-input').value = '';
     // save custom mood history
     const customVal = document.getElementById('custom-mood-input').value.trim();
@@ -1370,23 +1410,49 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
 
 // -- 팝업 --
 let currentPopupPhotos = [];
-function openPopup(time, mood, text, photoUrls, notionUrl) {
+let currentPopupBlockId = null;
+let currentPopupItem = null;
+let currentPopupMood = '';
+let isEditing = false;
+
+function openPopup(time, mood, text, photoUrls, notionUrl, blockId, itemEl) {
   currentPopupPhotos = photoUrls || [];
+  currentPopupBlockId = blockId || null;
+  currentPopupItem = itemEl || null;
+  currentPopupMood = mood || '';
+  isEditing = false;
+
   document.getElementById('popup-time').textContent = time;
 
   const moodEl = document.getElementById('popup-mood');
   moodEl.innerHTML = mood ? `<div class="popup-mood">${mood}</div>` : '';
 
-  document.getElementById('popup-text').textContent = text || '';
+  const textEl = document.getElementById('popup-text');
+  textEl.textContent = text || '';
+  textEl.style.display = '';
+
+  const editInput = document.getElementById('popup-edit-input');
+  editInput.value = text || '';
+  editInput.style.display = 'none';
+
+  document.getElementById('popup-save-edit-btn').style.display = 'none';
 
   const photosEl = document.getElementById('popup-photos');
-  if (photoUrls.length > 0) {
+  if (photoUrls && photoUrls.length > 0) {
     photosEl.className = 'popup-photos' + (photoUrls.length === 1 ? ' single' : '');
-    photosEl.innerHTML = photoUrls.map(u => `<img src="${u}" loading="lazy">`).join('');
+    photosEl.innerHTML = photoUrls.map((u, i) => `<img src="${u}" loading="lazy" onclick="openLightbox(currentPopupPhotos, ${i})">`).join('');
     photosEl.style.display = '';
   } else {
     photosEl.innerHTML = '';
     photosEl.style.display = 'none';
+  }
+
+  // 오늘 기록이고 blockId 있으면 수정/삭제 버튼 표시
+  const actionsEl = document.getElementById('popup-actions');
+  if (blockId) {
+    actionsEl.style.display = 'flex';
+  } else {
+    actionsEl.style.display = 'none';
   }
 
   const btn = document.getElementById('popup-notion-btn');
@@ -1399,6 +1465,96 @@ function openPopup(time, mood, text, photoUrls, notionUrl) {
 
   document.getElementById('record-popup').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function toggleEdit() {
+  isEditing = !isEditing;
+  const textEl = document.getElementById('popup-text');
+  const editInput = document.getElementById('popup-edit-input');
+  const saveBtn = document.getElementById('popup-save-edit-btn');
+  const editBtn = document.getElementById('popup-edit-btn');
+
+  if (isEditing) {
+    textEl.style.display = 'none';
+    editInput.style.display = '';
+    editInput.focus();
+    saveBtn.style.display = '';
+    editBtn.textContent = 'CANCEL';
+  } else {
+    textEl.style.display = '';
+    editInput.style.display = 'none';
+    saveBtn.style.display = 'none';
+    editBtn.textContent = 'EDIT';
+  }
+}
+
+async function saveEdit() {
+  if (!currentPopupBlockId) return;
+  const newText = document.getElementById('popup-edit-input').value.trim();
+  const moodBg = getMoodBg(currentPopupMood);
+  const timeStr = document.getElementById('popup-time').textContent;
+
+  try {
+    const richText = [];
+    richText.push({ type: 'text', text: { content: timeStr + '\n' }, annotations: { color: 'gray', bold: false, italic: true } });
+    if (currentPopupMood) {
+      richText.push({ type: 'text', text: { content: '#' + currentPopupMood + '\n' }, annotations: { color: 'default', bold: false, italic: false } });
+    }
+    if (newText) {
+      richText.push({ type: 'text', text: { content: newText }, annotations: { bold: true, italic: false, color: 'default' } });
+    }
+
+    await fetch(WORKER_URL + '/notion/blocks/' + currentPopupBlockId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paragraph: { rich_text: richText, color: moodBg } })
+    });
+
+    // UI 업데이트
+    document.getElementById('popup-text').textContent = newText;
+    if (currentPopupItem) {
+      const textEl = currentPopupItem.querySelector('.record-text');
+      if (textEl) textEl.textContent = newText;
+    }
+
+    // 캐시 업데이트
+    const dateStr = formatDate(getDiaryDate());
+    const cached = loadCacheForDate(dateStr) || [];
+    const idx = cached.findIndex(r => r.blockId === currentPopupBlockId);
+    if (idx !== -1) { cached[idx].text = newText; saveCacheForDate(dateStr, cached); }
+
+    toggleEdit();
+    showToast('수정됐어요');
+  } catch(e) {
+    showToast('수정 실패');
+    console.error(e);
+  }
+}
+
+async function deleteRecord() {
+  if (!currentPopupBlockId) return;
+  if (!confirm('이 기록을 삭제할까요?')) return;
+
+  try {
+    await fetch(WORKER_URL + '/notion/blocks/' + currentPopupBlockId, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    // UI에서 제거
+    if (currentPopupItem) currentPopupItem.remove();
+
+    // 캐시 업데이트
+    const dateStr = formatDate(getDiaryDate());
+    const cached = (loadCacheForDate(dateStr) || []).filter(r => r.blockId !== currentPopupBlockId);
+    saveCacheForDate(dateStr, cached);
+
+    closePopupDirect();
+    showToast('삭제됐어요');
+  } catch(e) {
+    showToast('삭제 실패');
+    console.error(e);
+  }
 }
 
 function closePopup(e) {
