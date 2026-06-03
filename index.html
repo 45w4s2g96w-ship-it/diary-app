@@ -737,7 +737,7 @@
         <button class="attach-btn" onclick="document.getElementById('photo-input').click()">+ PHOTO</button>
         <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
       </div>
-      <input type="file" id="photo-input" accept="image/*" multiple capture="environment" onchange="handlePhotos(this)">
+      <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
     </div>
     <div class="record-list" id="record-list">
       <div class="empty-state">오늘 첫 기록을 남겨보세요.</div>
@@ -800,20 +800,26 @@
 <script>
 const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
 
-const MOOD_BG = {
-  '평온함': 'green_background', '빼듯함': 'green_background',
-  '감사함': 'green_background', '행복함': 'green_background', '설레임': 'green_background',
-  '불안': 'red_background', '무기력': 'red_background', '답답함': 'red_background',
-  '외로움': 'red_background', '피곤함': 'red_background',
-  '멑함': 'yellow_background', '복잡함': 'yellow_background', '모르갮음': 'yellow_background'
+const MOOD_EMOJI = {
+  positive: '🌿',
+  negative: '🌧️',
+  etc: '🌫️'
 };
 
+const MOOD_TYPE = {
+  '평온함': 'positive', '빼듯함': 'positive', '감사함': 'positive',
+  '행복함': 'positive', '설레임': 'positive',
+  '불안': 'negative', '무기력': 'negative', '답답함': 'negative',
+  '외로움': 'negative', '피곤함': 'negative',
+  '멑함': 'etc', '복잡함': 'etc', '모르갮음': 'etc'
+};
+
+function getMoodEmoji(mood) {
+  const type = MOOD_TYPE[mood] || selectedMoodType || 'etc';
+  return MOOD_EMOJI[type] || '🌫️';
+}
+
 function getMoodBg(mood) {
-  if (MOOD_BG[mood]) return MOOD_BG[mood];
-  // custom mood - use selectedMoodType
-  if (selectedMoodType === 'positive') return 'green_background';
-  if (selectedMoodType === 'negative') return 'red_background';
-  if (selectedMoodType === 'etc') return 'yellow_background';
   return 'default';
 }
 
@@ -833,7 +839,7 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
   if (mood) {
     richText.push({
       type: 'text',
-      text: { content: '#' + mood + '\n' },
+      text: { content: getMoodEmoji(mood) + ' #' + mood + '\n' },
       annotations: { color: 'default', bold: false, italic: false }
     });
   }
@@ -1210,7 +1216,7 @@ document.addEventListener('click', (e) => {
 let selectedPhotos = [];
 function handlePhotos(input) {
   const files = Array.from(input.files);
-  const remaining = 3 - selectedPhotos.length;
+  const remaining = 6 - selectedPhotos.length;
   const toAdd = files.slice(0, remaining);
   toAdd.forEach(file => {
     const reader = new FileReader();
@@ -1498,7 +1504,7 @@ async function saveEdit() {
     const richText = [];
     richText.push({ type: 'text', text: { content: timeStr + '\n' }, annotations: { color: 'gray', bold: false, italic: true } });
     if (currentPopupMood) {
-      richText.push({ type: 'text', text: { content: '#' + currentPopupMood + '\n' }, annotations: { color: 'default', bold: false, italic: false } });
+      richText.push({ type: 'text', text: { content: getMoodEmoji(currentPopupMood) + ' #' + currentPopupMood + '\n' }, annotations: { color: 'default', bold: false, italic: false } });
     }
     if (newText) {
       richText.push({ type: 'text', text: { content: newText }, annotations: { bold: true, italic: false, color: 'default' } });
