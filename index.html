@@ -1519,9 +1519,10 @@ function buildPopupMoodTags() {
   const history = getCustomHistory ? getCustomHistory() : {};
   const custom = Object.keys(history);
   const moods = [...new Set([...allMoods, ...custom])];
-  container.innerHTML = moods.map(m =>
-    '<button class="popup-mood-tag-btn' + (m === editingMood ? ' selected' : '') + '" onclick="popupSelectMood('' + m + '')">' + m + '</button>'
-  ).join('');
+  container.innerHTML = moods.map(function(m) {
+    var sel = m === editingMood ? ' selected' : '';
+    return '<button class="popup-mood-tag-btn' + sel + '" onclick="popupSelectMood(this.textContent)">' + m + '</button>';
+  }).join('');
 }
 
 function popupSelectMood(mood) {
