@@ -1540,7 +1540,7 @@ function toggleEdit() {
     moodEditEl.style.display = '';
     buildPopupMoodTags();
     // ★ BUG2 FIX: popup-text.textContent 대신 저장해둔 currentPopupText 사용
-    if (editInput) { editInput.value = currentPopupText; }
+    if (editInput) { editInput.value = currentPopupText; editInput.style.display = ''; }
     renderEditPhotosPreview();
     var actionsEl = document.getElementById('popup-actions');
     if (actionsEl) actionsEl.style.display = 'none';
@@ -1548,6 +1548,7 @@ function toggleEdit() {
     textEl.style.display = '';
     moodEl.style.display = '';
     moodEditEl.style.display = 'none';
+    if (editInput) editInput.style.display = 'none';
     editingPhotos = [];
     var actionsEl2 = document.getElementById('popup-actions');
     if (actionsEl2 && currentPopupBlockId) actionsEl2.style.display = 'flex';
