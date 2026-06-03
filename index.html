@@ -1605,15 +1605,21 @@ async function addPhotosToRecord(input) {
   const pageId = await getTodayPageId();
   if (!pageId) return;
 
-  const columns = newUrls.map(url => ({
-    object: 'block', type: 'column',
-    column: { children: [{ object: 'block', type: 'image', image: { type: 'external', external: { url } } }] }
-  }));
+  let photoBlocks;
+  if (newUrls.length === 1) {
+    photoBlocks = [{ object: 'block', type: 'image', image: { type: 'external', external: { url: newUrls[0] } } }];
+  } else {
+    const columns = newUrls.map(url => ({
+      object: 'block', type: 'column',
+      column: { children: [{ object: 'block', type: 'image', image: { type: 'external', external: { url } } }] }
+    }));
+    photoBlocks = [{ object: 'block', type: 'column_list', column_list: { children: columns } }];
+  }
 
   await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ children: [{ object: 'block', type: 'column_list', column_list: { children: columns } }] })
+    body: JSON.stringify({ children: photoBlocks })
   });
 
   
