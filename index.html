@@ -1475,7 +1475,7 @@ function openPopup(time, mood, text, photoUrls, notionUrl, blockId, itemEl, phot
   editInput.value = text || '';
   editInput.style.display = 'none';
 
-  document.getElementById('popup-save-edit-btn').style.display = 'none';
+  var _sb = document.getElementById('popup-save-edit-btn'); if(_sb) _sb.style.display = 'none';
 
   const photosEl = document.getElementById('popup-photos');
   if (photoUrls && photoUrls.length > 0) {
@@ -1613,7 +1613,7 @@ function toggleEdit() {
   const moodEl = document.getElementById('popup-mood');
   const moodEditEl = document.getElementById('popup-mood-edit');
   const editInput = document.getElementById('popup-edit-input');
-  const saveBtn = document.getElementById('popup-save-edit-btn');
+  var saveBtn = document.getElementById('popup-save-edit-btn');
   const editBtn = document.getElementById('popup-edit-btn');
 
   if (isEditing) {
