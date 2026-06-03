@@ -686,7 +686,85 @@
 <div class="toast" id="toast"></div>
 
 <script>
+const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
 
+const MOOD_BG = {
+  '평온함': 'green_background', '빼듯함': 'green_background',
+  '감사함': 'green_background', '행복함': 'green_background', '설레임': 'green_background',
+  '불안': 'red_background', '무기력': 'red_background', '답답함': 'red_background',
+  '외로움': 'red_background', '피곤함': 'red_background',
+  '멑함': 'yellow_background', '복잡함': 'yellow_background', '모르갮음': 'yellow_background'
+};
+
+function getMoodBg(mood) {
+  return MOOD_BG[mood] || 'default';
+}
+
+async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
+  const children = [];
+  const moodBg = getMoodBg(mood);
+  const richText = [];
+
+  richText.push({
+    type: 'text',
+    text: { content: timeStr + '\n' },
+    annotations: { color: 'gray', bold: false }
+  });
+
+  if (mood) {
+    richText.push({
+      type: 'text',
+      text: { content: mood + '\n' },
+      annotations: { color: 'default', bold: false }
+    });
+  }
+
+  if (text && text.trim()) {
+    richText.push({
+      type: 'text',
+      text: { content: text },
+      annotations: { bold: true, color: 'default' }
+    });
+  }
+
+  children.push({
+    object: 'block',
+    type: 'paragraph',
+    paragraph: {
+      rich_text: richText,
+      color: moodBg
+    }
+  });
+
+  if (photoUrls && photoUrls.length > 0) {
+    const columns = photoUrls.map(url => ({
+      object: 'block',
+      type: 'column',
+      column: {
+        children: [{
+          object: 'block',
+          type: 'image',
+          image: { type: 'external', external: { url } }
+        }]
+      }
+    }));
+    children.push({
+      object: 'block',
+      type: 'column_list',
+      column_list: { children: columns }
+    });
+  }
+
+  await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ children })
+  });
+}
+
+
+
+// -- 설정 --
 function saveSettings() {
   const token = document.getElementById('notion-token').value.trim();
   const db = document.getElementById('notion-db').value.trim();
@@ -716,7 +794,7 @@ function openSettings() {
   document.getElementById('setup-screen').classList.remove('hidden');
 }
 
-
+// -- 날짜 (오전 7시 기준) --
 function getDiaryDate() {
   const now = new Date();
   if (now.getHours() < 7) now.setDate(now.getDate() - 1);
@@ -740,7 +818,7 @@ function formatTime(d) {
   return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-
+// -- 탭 전환 --
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -749,7 +827,7 @@ function switchTab(tab, btn) {
   if (tab === 'archive') loadArchive();
 }
 
-
+// -- 감정 선택 --
 let selectedMood = '';
 function selectMood(el) {
   document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
@@ -757,7 +835,7 @@ function selectMood(el) {
   selectedMood = el.textContent;
 }
 
-
+// -- 사진 처리 --
 let selectedPhotos = [];
 function handlePhotos(input) {
   const files = Array.from(input.files);
@@ -790,7 +868,7 @@ function removePhoto(i) {
   renderPhotoPreview();
 }
 
-
+// -- Cloudinary 업로드 --
 async function uploadToCloudinary(file) {
   const cloudName = localStorage.getItem('cloud_name');
   const apiKey = localStorage.getItem('cloud_key');
@@ -798,7 +876,7 @@ async function uploadToCloudinary(file) {
   if (!cloudName || !apiKey || !apiSecret) return null;
 
   const timestamp = Math.round(Date.now() / 1000);
-  
+  // unsigned upload preset 사용 (secret 불필요)
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', 'diary_app');
@@ -813,12 +891,12 @@ async function uploadToCloudinary(file) {
   } catch { return null; }
 }
 
-
+// -- Notion: 오늘 페이지 찾기 or 생성 --
 async function getTodayPageId() {
   const db = localStorage.getItem('notion_db');
   const dateStr = formatDate(getDiaryDate());
 
-  
+  // 검색
   const searchRes = await fetch(`${WORKER_URL}/notion/databases/${db}/query`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -831,7 +909,7 @@ async function getTodayPageId() {
     return searchData.results[0].id;
   }
 
-  
+  // 없으면 생성
   const days = ['일','월','화','수','목','금','토'];
   const d = getDiaryDate();
   const title = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
@@ -846,17 +924,17 @@ async function getTodayPageId() {
         '날짜': { date: { start: dateStr } }
       },
       children: [
-        
+        // 섹션 1: 틈틈이 기록
         { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '✏️ 틈틈이 기록' } }], color: 'default' } },
         { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } },
-        
+        // 구분선
         { object: 'block', type: 'divider', divider: {} },
-        
+        // 섹션 2: 직접 쓰는 글
         { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '🖊 오늘의 생각' } }] } },
         { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } },
-        
+        // 구분선
         { object: 'block', type: 'divider', divider: {} },
-        
+        // 섹션 3: 감사일기
         { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '🌿 감사 일기' } }] } },
         { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘 감사한 일' } }], icon: { emoji: '🍀' } } },
         { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘의 칭찬' } }], icon: { emoji: '😊' } } },
@@ -871,98 +949,7 @@ async function getTodayPageId() {
   return createData.id;
 }
 
-
-
-
-const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
-
-
-
-const MOOD_BG = {
-  '평온함': 'green_background', '뿌듯함': 'green_background',
-  '감사함': 'green_background', '행복함': 'green_background', '설렘': 'green_background',
-  '불안': 'red_background', '무기력': 'red_background', '답답함': 'red_background',
-  '외로움': 'red_background', '피곤함': 'red_background',
-  '멍함': 'yellow_background', '복잡함': 'yellow_background', '모르겠음': 'yellow_background'
-};
-
-function getMoodBg(mood) {
-  return MOOD_BG[mood] || 'default';
-}
-
-
-async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
-  const children = [];
-  const moodBg = getMoodBg(mood);
-
-  
- 감정 
- 본문 - 한 블록, shift+enter 연결
-  
-  const richText = [];
-
-  
-  richText.push({
-    type: 'text',
-    text: { content: timeStr + '\n' },
-    annotations: { color: 'gray', bold: false }
-  });
-
-  
-  if (mood) {
-    richText.push({
-      type: 'text',
-      text: { content: mood + '\n' },
-      annotations: { color: 'default', bold: false }
-    });
-  }
-
-  
-  if (text && text.trim()) {
-    richText.push({
-      type: 'text',
-      text: { content: text },
-      annotations: { bold: true, color: 'default' }
-    });
-  }
-
-  children.push({
-    object: 'block',
-    type: 'paragraph',
-    paragraph: {
-      rich_text: richText,
-      color: moodBg
-    }
-  });
-
-  
-  if (photoUrls && photoUrls.length > 0) {
-    const columns = photoUrls.map(url => ({
-      object: 'block',
-      type: 'column',
-      column: {
-        children: [{
-          object: 'block',
-          type: 'image',
-          image: { type: 'external', external: { url } }
-        }]
-      }
-    }));
-    children.push({
-      object: 'block',
-      type: 'column_list',
-      column_list: { children: columns }
-    });
-  }
-
-
-
-  await fetch(`${WORKER_URL}/notion/blocks/${pageId}/children`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ children })
-  });
-}
+// -- 기록 저장 --
 
 
 async function saveRecord() {
@@ -977,22 +964,19 @@ async function saveRecord() {
     const now = new Date();
     const timeStr = formatTime(now);
 
-    
     let photoUrls = [];
     for (const p of selectedPhotos) {
       const url = await uploadToCloudinary(p.file);
       if (url) photoUrls.push(url);
     }
 
-    
     const pageId = await getTodayPageId();
     let notionUrl = null;
     if (pageId) {
-      notionUrl = `https://notion.so/${pageId.replace(/-/g,'')}`;
+      notionUrl = 'https://notion.so/' + pageId.replace(/-/g,'');
       await appendRecordToNotion(pageId, timeStr, selectedMood, text, photoUrls);
     }
 
-    
     const displayPhotos = photoUrls.length > 0
       ? photoUrls
       : selectedPhotos.map(p => p.dataUrl);
@@ -1014,7 +998,6 @@ async function saveRecord() {
   document.getElementById('loading').classList.add('hidden');
 }
 
-
 function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
   const list = document.getElementById('record-list');
   const empty = list.querySelector('.empty-state');
@@ -1023,7 +1006,7 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
   const item = document.createElement('div');
   item.className = 'record-item';
 
-  
+  // 썸네일: 첫 사진 1장만 미리보기로 표시
   let thumbHtml = '';
   if (photoUrls && photoUrls.length > 0) {
     thumbHtml = `<div class="record-photos"><img class="record-photo" src="${photoUrls[0]}">${photoUrls.length > 1 ? `<span class="record-photo-more">+${photoUrls.length - 1}</span>` : ''}</div>`;
@@ -1037,13 +1020,13 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
       ${thumbHtml}
     </div>`;
 
-  
+  // 클릭 시 팝업
   item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl));
 
   list.insertBefore(item, list.firstChild);
 }
 
-
+// -- 팝업 --
 let currentPopupPhotos = [];
 function openPopup(time, mood, text, photoUrls, notionUrl) {
   currentPopupPhotos = photoUrls || [];
@@ -1084,7 +1067,7 @@ function closePopupDirect() {
   document.body.style.overflow = '';
 }
 
-
+// -- 아카이브 로드 --
 const MAKE_ARCHIVE_WEBHOOK = 'https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
 
 async function loadArchive() {
@@ -1155,7 +1138,7 @@ function openNotion(url) {
   window.open(url, '_blank');
 }
 
-
+// -- 토스트 --
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1163,15 +1146,14 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-
+// -- 초기화 --
 function init() {
   const d = getDiaryDate();
   document.getElementById('current-date').textContent = formatDateDisplay(d);
 }
 
-
+// -- 시작 --
 window.onload = () => {
-  const token = localStorage.getItem('notion_token');
   const db = localStorage.getItem('notion_db');
   if (token && db) {
     document.getElementById('setup-screen').classList.add('hidden');
@@ -1180,7 +1162,7 @@ window.onload = () => {
   }
 };
 
-
+// -- 라이트박스 --
 let lbPhotos = [];
 let lbIndex = 0;
 let lbTouchStartX = 0;
@@ -1222,7 +1204,7 @@ function lightboxOverlayClick(e) {
   if (e.target === document.getElementById('lightbox')) closeLightbox();
 }
 
-
+// 스와이프
 document.addEventListener('DOMContentLoaded', () => {
   const inner = document.getElementById('lightbox-inner');
   inner.addEventListener('touchstart', e => { lbTouchStartX = e.touches[0].clientX; }, { passive: true });
@@ -1230,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const diff = lbTouchStartX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 40) lightboxNav(diff > 0 ? 1 : -1);
   });
-  
+  // 키보드
   document.addEventListener('keydown', e => {
     if (!document.getElementById('lightbox').classList.contains('open')) return;
     if (e.key === 'ArrowLeft') lightboxNav(-1);
