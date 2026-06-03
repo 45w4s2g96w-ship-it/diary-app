@@ -1177,6 +1177,1949 @@ function parseNotionRecords(blocks) {
 
     
     let j = i + 1;
+    let photoBlockId = null;
+    if (j < blocks.length && blocks[j].type === 'column_list') {
+      photoBlockId = blocks[j].id;
+      while (j < blocks.length && blocks[j].type === 'column_list') { j++; }
+    }
+    i = j;
+
+    records.push({ time: timeStr, mood, text, photoUrls: [], blockId: block.id, photoBlockId });
+  }
+
+  return records;
+}
+
+async function loadTodayRecords() {
+  const dateStr = formatDate(getDiaryDate());
+
+  try {
+    const pageId = await getTodayPageId();
+    if (!pageId) return;
+
+    const notionUrl = 'https://notion.so/' + pageId.replace(/-/g, '');
+    const res = await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children?page_size=100', {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    const blocks = data.results || [];
+
+    const records = parseNotionRecords(blocks);
+    records.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId, r.photoBlockId || null));
+
+    
+    saveCacheForDate(dateStr, records.map(r => ({ ...r, notionUrl })));
+  } catch(e) {
+    console.error('load today records failed', e);
+  }
+}
+
+
+function updateCache(dateStr, time, mood, text, photoUrls, notionUrl, blockId, photoBlockId) {
+  const cached = loadCacheForDate(dateStr) || [];
+  cached.unshift({ time, mood, text, photoUrls, notionUrl, blockId, photoBlockId });
+  saveCacheForDate(dateStr, cached);
+}
+
+function restoreCustomTags() {
+  const history = getCustomHistory();
+  Object.entries(history).forEach(([mood, data]) => {
+    if (data.count >= 3) addMoodToTags(mood, data.type);
+  });
+}
+
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.emotion-custom-row')) hideMoodDropdown();
+});
+
+
+let selectedPhotos = [];
+function handlePhotos(input) {
+  const files = Array.from(input.files);
+  const remaining = 6 - selectedPhotos.length;
+  const toAdd = files.slice(0, remaining);
+  toAdd.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      selectedPhotos.push({ file, dataUrl: e.target.result });
+      renderPhotoPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderPhotoPreview() {
+  const container = document.getElementById('photo-preview');
+  container.innerHTML = '';
+  selectedPhotos.forEach((p, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    thumb.innerHTML = `<img src="${p.dataUrl}"><button class="photo-remove" onclick="removePhoto(${i})">×</button>`;
+    container.appendChild(thumb);
+  });
+}
+
+function removePhoto(i) {
+  selectedPhotos.splice(i, 1);
+  renderPhotoPreview();
+}
+
+
+async function uploadToCloudinary(file) {
+  const cloudName = localStorage.getItem('cloud_name');
+  const apiKey = localStorage.getItem('cloud_key');
+  const apiSecret = localStorage.getItem('cloud_secret');
+  if (!cloudName || !apiKey || !apiSecret) return null;
+
+  const timestamp = Math.round(Date.now() / 1000);
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'diary_app');
+
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST', body: formData
+    });
+    const data = await res.json();
+    return data.secure_url || null;
+  } catch { return null; }
+}
+
+
+async function getTodayPageId() {
+  const db = localStorage.getItem('notion_db');
+  const dateStr = formatDate(getDiaryDate());
+
+  
+  const searchRes = await fetch(`${WORKER_URL}/notion/databases/${db}/query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      filter: { property: '날짜', date: { equals: dateStr } }
+    })
+  });
+  const searchData = await searchRes.json();
+  if (searchData.results && searchData.results.length > 0) {
+    return searchData.results[0].id;
+  }
+
+  
+  const days = ['일','월','화','수','목','금','토'];
+  const d = getDiaryDate();
+  const title = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+
+  const createRes = await fetch(`${WORKER_URL}/notion/pages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      parent: { database_id: db },
+      properties: {
+        '이름': { title: [{ text: { content: title } }] },
+        '날짜': { date: { start: dateStr } }
+      },
+      children: [
+        
+        { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '✏️ 틈틈이 기록' } }], color: 'default' } },
+        { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } },
+        
+        { object: 'block', type: 'divider', divider: {} },
+        
+        { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '🖊 오늘의 생각' } }] } },
+        { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } },
+        
+        { object: 'block', type: 'divider', divider: {} },
+        
+        { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '🌿 감사 일기' } }] } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘 감사한 일' } }], icon: { emoji: '🍀' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘의 칭찬' } }], icon: { emoji: '😊' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '나를 위해 한 일' } }], icon: { emoji: '⚡' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '가장 노력했던 일' } }], icon: { emoji: '✨' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘의 마무리 기분' } }], icon: { emoji: '🌙' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '내일 해야 할 일' } }], icon: { emoji: '✅' } } },
+      ]
+    })
+  });
+  const createData = await createRes.json();
+  return createData.id;
+}
+
+
+
+
+async function saveRecord() {
+  const text = document.getElementById('memo-input').value.trim();
+  if (!selectedMood) { showToast('감정을 선택하거나 입력해주세요'); return; }
+  const customMoodVal = document.getElementById('custom-mood-input').value.trim();
+  if (customMoodVal && !selectedMoodType) { showToast('직접 입력 시 긍정/부정/그외를 선택해주세요'); return; }
+  if (!text && selectedPhotos.length === 0) { showToast('내용을 입력해주세요'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  document.getElementById('loading').classList.remove('hidden');
+
+  try {
+    const now = new Date();
+    const timeStr = formatTime(now);
+
+    let photoUrls = [];
+    for (const p of selectedPhotos) {
+      const url = await uploadToCloudinary(p.file);
+      if (url) photoUrls.push(url);
+    }
+
+    const pageId = await getTodayPageId();
+    let notionUrl = null;
+    let blockId = null;
+    let photoBlockId = null;
+    if (pageId) {
+      notionUrl = 'https://notion.so/' + pageId.replace(/-/g,'');
+      const result = await appendRecordToNotion(pageId, timeStr, selectedMood, text, photoUrls);
+      blockId = result ? result.blockId : null;
+      photoBlockId = result ? result.photoBlockId : null;
+    }
+
+    const displayPhotos = photoUrls.length > 0
+      ? photoUrls
+      : selectedPhotos.map(p => p.dataUrl);
+
+    addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl, blockId, photoBlockId);
+    updateCache(formatDate(getDiaryDate()), timeStr, selectedMood, text, photoUrls, notionUrl, blockId, photoBlockId);
+    document.getElementById('memo-input').value = '';
+    // save custom mood history
+    const customVal = document.getElementById('custom-mood-input').value.trim();
+    if (customVal && selectedMoodType) recordCustomMoodHistory(customVal, selectedMoodType);
+    selectedMood = '';
+    selectedMoodType = '';
+    selectedPhotos = [];
+    renderPhotoPreview();
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+    document.getElementById('custom-mood-input').value = '';
+    document.querySelectorAll('.emotion-custom-type').forEach(b => b.classList.remove('selected'));
+    showToast('저장됐어요');
+
+  } catch(e) {
+    showToast('오류가 발생했어요');
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  document.getElementById('loading').classList.add('hidden');
+}
+
+function addRecordToUI(time, mood, text, photoUrls, notionUrl, recordBlockId, photoBlockId) {
+  const list = document.getElementById('record-list');
+  const empty = list.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  const item = document.createElement('div');
+  item.className = 'record-item';
+  if (recordBlockId) item.dataset.blockId = recordBlockId;
+
+  let thumbHtml = '';
+  if (photoUrls && photoUrls.length > 0) {
+    thumbHtml = '<div class="record-photos"><img class="record-photo" src="' + photoUrls[0] + '">' + (photoUrls.length > 1 ? '<span class="record-photo-more">+' + (photoUrls.length - 1) + '</span>' : '') + '</div>';
+  }
+
+  item.innerHTML = '<div class="record-time">' + time + '</div><div>' + (mood ? '<span class="record-tag">' + mood + '</span>' : '') + (text ? '<div class="record-text">' + text + '</div>' : '') + thumbHtml + '</div>';
+
+  var _blockId = recordBlockId;
+  var _photoBlockId = photoBlockId || null;
+  item.addEventListener('click', function() { openPopup(time, mood, text, photoUrls || [], notionUrl, _blockId, item, _photoBlockId); });
+
+  list.insertBefore(item, list.firstChild);
+}
+
+
+let currentPopupPhotos = [];
+let currentPopupBlockId = null;
+let currentPopupItem = null;
+let currentPopupMood = '';
+let isEditing = false;
+
+let currentPhotoBlockId = null;
+function openPopup(time, mood, text, photoUrls, notionUrl, blockId, itemEl, photoBlockId) {
+  currentPhotoBlockId = photoBlockId || null;
+  currentPopupPhotos = photoUrls || [];
+  currentPopupBlockId = blockId || null;
+  currentPopupItem = itemEl || null;
+  currentPopupMood = mood || '';
+  isEditing = false;
+
+  document.getElementById('popup-time').textContent = time;
+
+  const moodEl = document.getElementById('popup-mood');
+  moodEl.innerHTML = mood ? `<div class="popup-mood">${mood}</div>` : '';
+
+  const textEl = document.getElementById('popup-text');
+  textEl.textContent = text || '';
+  textEl.style.display = '';
+
+  const editInput = document.getElementById('popup-edit-input');
+  editInput.value = text || '';
+  editInput.style.display = 'none';
+
+  document.getElementById('popup-save-edit-btn').style.display = 'none';
+
+  const photosEl = document.getElementById('popup-photos');
+  if (photoUrls && photoUrls.length > 0) {
+    photosEl.className = 'popup-photos' + (photoUrls.length === 1 ? ' single' : '');
+    photosEl.innerHTML = photoUrls.map((u, i) => `<img src="${u}" loading="lazy" onclick="openLightbox(currentPopupPhotos, ${i})">`).join('');
+    photosEl.style.display = '';
+  } else {
+    photosEl.innerHTML = '';
+    photosEl.style.display = 'none';
+  }
+
+  
+  const actionsEl = document.getElementById('popup-actions');
+  if (blockId) {
+    actionsEl.style.display = 'flex';
+  } else {
+    actionsEl.style.display = 'none';
+  }
+
+  const btn = document.getElementById('popup-notion-btn');
+  if (notionUrl) {
+    btn.href = notionUrl;
+    btn.style.display = '';
+  } else {
+    btn.style.display = 'none';
+  }
+
+  document.getElementById('record-popup').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+let editingMood = '';
+
+let editingPhotos = [];
+
+function renderEditPhotosPreview() {
+  const container = document.getElementById('popup-edit-photos-preview');
+  if (!container) return;
+  if (editingPhotos.length === 0) {
+    container.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  container.style.display = 'flex';
+  container.style.flexWrap = 'wrap';
+  container.style.gap = '6px';
+  container.style.marginBottom = '10px';
+  container.innerHTML = editingPhotos.map(function(p, i) {
+    var src = typeof p === 'string' ? p : p.dataUrl;
+    return '<div style="position:relative;width:80px;height:80px;">' +
+    '<img src="' + src + '" style="width:100%;height:100%;object-fit:cover;border-radius:2px;">' +
+    '<button onclick="removeEditPhoto(' + i + ')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>' +
+    '</div>';
+  }).join('');
+}
+
+function removeEditPhoto(idx) {
+  editingPhotos.splice(idx, 1);
+  renderEditPhotosPreview();
+}
+
+async function handleEditPhotos(input) {
+  const files = Array.from(input.files);
+  for (const file of files) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      editingPhotos.push({ file, dataUrl: e.target.result });
+      renderEditPhotosPreview();
+    };
+    reader.readAsDataURL(file);
+  }
+  input.value = '';
+}
+
+let editingMoodType = '';
+
+function buildPopupMoodTags() {
+  const container = document.getElementById('popup-mood-edit-tags');
+  const allMoods = ['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음'];
+  const history = getCustomHistory ? getCustomHistory() : {};
+  const custom = Object.keys(history);
+  const moods = [...new Set([...allMoods, ...custom])];
+  container.innerHTML = moods.map(function(m) {
+    var sel = m === editingMood ? ' selected' : '';
+    return '<button class="popup-mood-tag-btn' + sel + '" onclick="popupSelectMood(this.textContent)">' + m + '</button>';
+  }).join('');
+}
+
+function popupSelectMood(mood) {
+  editingMood = mood;
+  document.getElementById('popup-custom-mood').value = '';
+  editingMoodType = '';
+  document.querySelectorAll('#popup-custom-pos,#popup-custom-neg,#popup-custom-etc').forEach(b => b.classList.remove('selected'));
+  buildPopupMoodTags();
+}
+
+function popupSelectType(type) {
+  editingMoodType = type;
+  document.querySelectorAll('#popup-custom-pos,#popup-custom-neg,#popup-custom-etc').forEach(b => b.classList.remove('selected'));
+  const map = { positive: 'popup-custom-pos', negative: 'popup-custom-neg', etc: 'popup-custom-etc' };
+  document.getElementById(map[type]).classList.add('selected');
+  const val = document.getElementById('popup-custom-mood').value.trim();
+  if (val) { editingMood = val; buildPopupMoodTags(); }
+  document.querySelectorAll('.popup-mood-tag-btn').forEach(b => b.classList.remove('selected'));
+}
+
+function toggleEdit() {
+  isEditing = !isEditing;
+  const textEl = document.getElementById('popup-text');
+  const moodEl = document.getElementById('popup-mood');
+  const moodEditEl = document.getElementById('popup-mood-edit');
+  const editInput = document.getElementById('popup-edit-input');
+  const saveBtn = document.getElementById('popup-save-edit-btn');
+  const editBtn = document.getElementById('popup-edit-btn');
+
+  const addPhotoBtn = document.getElementById('popup-add-photo-btn');
+  const editPhotosPreview = document.getElementById('popup-edit-photos-preview');
+  if (isEditing) {
+    editingMood = currentPopupMood;
+    editingMoodType = '';
+    editingPhotos = currentPopupPhotos.map(function(u) { return u; });
+    textEl.style.display = 'none';
+    moodEl.style.display = 'none';
+    moodEditEl.style.display = '';
+    buildPopupMoodTags();
+    editInput.style.display = '';
+    editInput.focus();
+    saveBtn.style.display = '';
+    editBtn.textContent = 'CANCEL';
+    if (addPhotoBtn) addPhotoBtn.style.display = '';
+    renderEditPhotosPreview();
+  } else {
+    textEl.style.display = '';
+    moodEl.style.display = '';
+    moodEditEl.style.display = 'none';
+    editInput.style.display = 'none';
+    saveBtn.style.display = 'none';
+    editBtn.textContent = 'EDIT';
+    if (addPhotoBtn) addPhotoBtn.style.display = 'none';
+    if (editPhotosPreview) editPhotosPreview.style.display = 'none';
+    editingPhotos = [];
+  }
+}
+
+async function saveEdit() {
+  if (!currentPopupBlockId) return;
+  const newText = document.getElementById('popup-edit-input').value.trim();
+  const customMoodInput = document.getElementById('popup-custom-mood').value.trim();
+  if (customMoodInput) editingMood = customMoodInput;
+  const finalMood = editingMood || currentPopupMood;
+  const moodBg = getMoodBg(finalMood);
+  const timeStr = document.getElementById('popup-time').textContent;
+
+  
+  const finalPhotoUrls = [];
+  for (var _pi = 0; _pi < editingPhotos.length; _pi++) {
+    var _p = editingPhotos[_pi];
+    if (typeof _p === 'string') {
+      finalPhotoUrls.push(_p);
+    } else if (_p.file) {
+      var _url = await uploadToCloudinary(_p.file);
+      if (_url) finalPhotoUrls.push(_url);
+    }
+  }
+
+  try {
+    const richText = [];
+    richText.push({ type: 'text', text: { content: timeStr + '\n' }, annotations: { color: 'gray', bold: false, italic: false } });
+    if (currentPopupMood) {
+      richText.push({ type: 'text', text: { content: getMoodEmoji(finalMood) + ' ' + finalMood + '\n' }, annotations: { color: 'default', bold: false, italic: true } });
+    }
+    if (newText) {
+      richText.push({ type: 'text', text: { content: newText }, annotations: { bold: true, italic: false, color: 'default' } });
+    }
+
+    await fetch(WORKER_URL + '/notion/blocks/' + currentPopupBlockId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paragraph: { rich_text: richText, color: moodBg } })
+    });
+
+    
+    currentPopupMood = finalMood;
+    document.getElementById('popup-mood').innerHTML = finalMood ? '<div class="popup-mood">' + finalMood + '</div>' : '';
+    document.getElementById('popup-text').textContent = newText;
+    if (currentPopupItem) {
+      const tagEl = currentPopupItem.querySelector('.record-tag');
+      if (tagEl) tagEl.textContent = finalMood;
+      const textEl = currentPopupItem.querySelector('.record-text');
+      if (textEl) textEl.textContent = newText;
+      const photoDiv = currentPopupItem.querySelector('.record-photos');
+      if (finalPhotoUrls.length > 0) {
+        const thumbHtml = '<div class="record-photos"><img class="record-photo" src="' + finalPhotoUrls[0] + '">' + (finalPhotoUrls.length > 1 ? '<span class="record-photo-more">+' + (finalPhotoUrls.length - 1) + '</span>' : '') + '</div>';
+        if (photoDiv) photoDiv.outerHTML = thumbHtml;
+        else currentPopupItem.querySelector('div:last-child').insertAdjacentHTML('beforeend', thumbHtml);
+      } else {
+        if (photoDiv) photoDiv.remove();
+      }
+    }
+
+    
+    const dateStr = formatDate(getDiaryDate());
+    const cached = loadCacheForDate(dateStr) || [];
+    const idx = cached.findIndex(r => r.blockId === currentPopupBlockId);
+    if (idx !== -1) { cached[idx].text = newText; cached[idx].mood = finalMood; saveCacheForDate(dateStr, cached); }
+
+    
+    if (currentPhotoBlockId) {
+      await fetch(WORKER_URL + '/notion/blocks/' + currentPhotoBlockId, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      currentPhotoBlockId = null;
+    }
+    if (finalPhotoUrls.length > 0) {
+      const pageId = await getTodayPageId();
+      if (pageId) {
+        var photoChildren = [];
+        for (var pi = 0; pi < finalPhotoUrls.length; pi += 3) {
+          var rowUrls = finalPhotoUrls.slice(pi, pi + 3);
+          var cols = rowUrls.map(function(url) {
+            return { object: 'block', type: 'column', column: { children: [{ object: 'block', type: 'image', image: { type: 'external', external: { url: url } } }] } };
+          });
+          while (cols.length < 3) {
+            cols.push({ object: 'block', type: 'column', column: { children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } }] } });
+          }
+          photoChildren.push({ object: 'block', type: 'column_list', column_list: { children: cols } });
+        }
+        const photoRes = await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ children: photoChildren })
+        });
+        const photoData = await photoRes.json();
+        if (photoData.results && photoData.results[0]) currentPhotoBlockId = photoData.results[0].id;
+      }
+    }
+
+    
+    currentPopupPhotos = finalPhotoUrls;
+    const photosEl = document.getElementById('popup-photos');
+    if (finalPhotoUrls.length > 0) {
+      photosEl.innerHTML = finalPhotoUrls.map((u, i) => '<img src="' + u + '" loading="lazy" onclick="openLightbox(currentPopupPhotos, ' + i + ')">').join('');
+      photosEl.style.display = '';
+    } else {
+      photosEl.innerHTML = '';
+      photosEl.style.display = 'none';
+    }
+
+    
+    const dateStr2 = formatDate(getDiaryDate());
+    const cached2 = loadCacheForDate(dateStr2) || [];
+    const idx2 = cached2.findIndex(function(r) { return r.blockId === currentPopupBlockId; });
+    if (idx2 !== -1) { cached2[idx2].photoUrls = finalPhotoUrls; cached2[idx2].photoBlockId = currentPhotoBlockId; saveCacheForDate(dateStr2, cached2); }
+
+    toggleEdit();
+    showToast('수정됐어요');
+  } catch(e) {
+    showToast('수정 실패');
+    console.error(e);
+  }
+}
+
+
+async function addPhotosToRecord(input) {
+  if (!currentPopupBlockId) return;
+  const files = Array.from(input.files).slice(0, 6);
+  if (!files.length) return;
+
+  showToast('사진 업로드 중...');
+  const newUrls = [];
+  for (const file of files) {
+    const url = await uploadToCloudinary(file);
+    if (url) newUrls.push(url);
+  }
+  if (!newUrls.length) { showToast('업로드 실패'); return; }
+
+  const pageId = await getTodayPageId();
+  if (!pageId) return;
+
+  let photoBlocks;
+  if (newUrls.length === 1) {
+    photoBlocks = [{ object: 'block', type: 'image', image: { type: 'external', external: { url: newUrls[0] } } }];
+  } else {
+    const columns = newUrls.map(url => ({
+      object: 'block', type: 'column',
+      column: { children: [{ object: 'block', type: 'image', image: { type: 'external', external: { url } } }] }
+    }));
+    photoBlocks = [{ object: 'block', type: 'column_list', column_list: { children: columns } }];
+  }
+
+  await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ children: photoBlocks })
+  });
+
+  
+  currentPopupPhotos = [...currentPopupPhotos, ...newUrls];
+  const photosEl = document.getElementById('popup-photos');
+  photosEl.className = 'popup-photos';
+  photosEl.innerHTML = currentPopupPhotos.map((u, i) =>
+    `<img src="${u}" loading="lazy" onclick="openLightbox(currentPopupPhotos, ${i})">`
+  ).join('');
+  photosEl.style.display = '';
+
+  
+  const dateStr = formatDate(getDiaryDate());
+  const cached = loadCacheForDate(dateStr) || [];
+  const idx = cached.findIndex(r => r.blockId === currentPopupBlockId);
+  if (idx !== -1) {
+    cached[idx].photoUrls = currentPopupPhotos;
+    saveCacheForDate(dateStr, cached);
+  }
+
+  input.value = '';
+  showToast('사진 추가됐어요');
+}
+
+async function deleteRecord() {
+  if (!currentPopupBlockId) return;
+  if (!confirm('이 기록을 삭제할까요?')) return;
+
+  try {
+    await fetch(WORKER_URL + '/notion/blocks/' + currentPopupBlockId, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (currentPhotoBlockId) {
+      await fetch(WORKER_URL + '/notion/blocks/' + currentPhotoBlockId, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    
+    if (currentPopupItem) currentPopupItem.remove();
+
+    
+    const dateStr = formatDate(getDiaryDate());
+    const cached = (loadCacheForDate(dateStr) || []).filter(r => r.blockId !== currentPopupBlockId);
+    saveCacheForDate(dateStr, cached);
+
+    closePopupDirect();
+    showToast('삭제됐어요');
+  } catch(e) {
+    showToast('삭제 실패');
+    console.error(e);
+  }
+}
+
+function closePopup(e) {
+  if (e.target === document.getElementById('record-popup')) closePopupDirect();
+}
+function closePopupDirect() {
+  document.getElementById('record-popup').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+
+const MAKE_ARCHIVE_WEBHOOK = 'https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
+
+async function loadArchive() {
+  const list = document.getElementById('archive-list');
+  list.innerHTML = '<div class="archive-empty">불러오는 중...</div>';
+
+  try {
+    const res = await fetch(MAKE_ARCHIVE_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'load_archive',
+        notion_token: localStorage.getItem('notion_token'),
+        notion_db: localStorage.getItem('notion_db')
+      })
+    });
+
+    const data = await res.json();
+    if (!data.results || data.results.length === 0) {
+      list.innerHTML = '<div class="archive-empty">아직 기록이 없어요.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    data.results.forEach(page => {
+      const props = page.properties;
+      const dateStr = props['날짜']?.date?.start || '';
+      if (!dateStr) return;
+
+      const d = new Date(dateStr + 'T00:00:00');
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      const dateDisplay = `${mm}.${dd} - ${days[d.getDay()]}`;
+
+      const energy = getTextProp(props, '에너지 레벨') || '';
+      const insight = getTextProp(props, '사고 흐름') || '';
+      const encourage = getTextProp(props, '격려') || '';
+      const analyzed = props['분석 완료']?.checkbox;
+
+      const item = document.createElement('div');
+      item.className = 'archive-item';
+      item.innerHTML = `
+        <div class="archive-item-header">
+          <div class="archive-date">${dateDisplay}</div>
+          <div class="archive-view" onclick="openNotion('${page.url}')">VIEW →</div>
+        </div>
+        ${energy ? `<span class="archive-energy">${energy}</span>` : ''}
+        ${insight ? `<div class="archive-insight">${insight}</div>` : ''}
+        ${encourage ? `<div class="archive-encourage">"${encourage}"</div>` : (!analyzed ? '<div class="archive-insight" style="color:var(--ink-muted)">분석 전</div>' : '')}
+      `;
+      list.insertBefore(item, list.firstChild);
+    });
+  } catch(e) {
+    list.innerHTML = '<div class="archive-empty">불러오기 실패</div>';
+  }
+}
+
+function getTextProp(props, key) {
+  const p = props[key];
+  if (!p) return '';
+  if (p.rich_text) return p.rich_text.map(t => t.plain_text).join('');
+  if (p.select) return p.select.name;
+  return '';
+}
+
+function openNotion(url) {
+  window.open(url, '_blank');
+}
+
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+
+function init() {
+  const d = getDiaryDate();
+  document.getElementById('current-date').textContent = formatDateDisplay(d);
+  restoreCustomTags();
+  loadTodayRecords();
+}
+
+
+window.onload = () => {
+  if (localStorage.getItem('app_authed') === '1' && localStorage.getItem('notion_token')) {
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    init();
+  }
+};
+
+
+let lbPhotos = [];
+let lbIndex = 0;
+let lbTouchStartX = 0;
+
+function openLightbox(photos, index) {
+  lbPhotos = photos;
+  lbIndex = index;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderLightbox() {
+  const img = document.getElementById('lightbox-img');
+  img.style.opacity = '0';
+  setTimeout(() => {
+    img.src = lbPhotos[lbIndex];
+    img.style.opacity = '1';
+  }, 80);
+  document.getElementById('lb-counter').textContent =
+    lbPhotos.length > 1 ? `${lbIndex + 1} / ${lbPhotos.length}` : '';
+  document.getElementById('lb-prev').classList.toggle('hidden', lbIndex === 0);
+  document.getElementById('lb-next').classList.toggle('hidden', lbIndex === lbPhotos.length - 1);
+}
+
+function lightboxNav(dir) {
+  const next = lbIndex + dir;
+  if (next < 0 || next >= lbPhotos.length) return;
+  lbIndex = next;
+  renderLightbox();
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lightboxOverlayClick(e) {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const inner = document.getElementById('lightbox-inner');
+  inner.addEventListener('touchstart', e => { lbTouchStartX = e.touches[0].clientX; }, { passive: true });
+  inner.addEventListener('touchend', e => {
+    const diff = lbTouchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) lightboxNav(diff > 0 ? 1 : -1);
+  });
+  
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') lightboxNav(-1);
+    if (e.key === 'ArrowRight') lightboxNav(1);
+    if (e.key === 'Escape') closeLightbox();
+  });
+});
+</script>
+</body>
+</html>
+  /* -- SETUP SCREEN -- */
+  #setup-screen {
+    position: fixed; inset: 0;
+    background: var(--paper);
+    z-index: 200;
+    display: flex; flex-direction: column;
+    padding: 60px 28px 40px;
+    overflow-y: auto;
+  }
+  #setup-screen.hidden { display: none; }
+
+  .setup-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 40px;
+    line-height: 0.95; letter-spacing: -0.02em;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .setup-sub {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 13px; font-weight: 300;
+    color: var(--ink-muted); margin-bottom: 40px;
+    line-height: 1.6;
+  }
+  .setup-section { margin-bottom: 28px; }
+  .setup-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.15em; color: var(--ink-muted);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .setup-input {
+    width: 100%;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 13px; font-weight: 400;
+    padding: 12px 14px;
+    border: 1.5px solid var(--rule);
+    background: transparent; color: var(--ink);
+    border-radius: 2px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .setup-input:focus { border-color: var(--ink); }
+  .setup-input::placeholder { color: var(--ink-muted); }
+  .setup-hint {
+    font-size: 11px; font-weight: 300;
+    color: var(--ink-muted); margin-top: 5px;
+    line-height: 1.5;
+  }
+  .setup-logout-btn {
+    width: 100%; margin-top: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.15em;
+    background: transparent; color: #c0392b;
+    border: 1.5px solid #c0392b; padding: 14px;
+    cursor: pointer; border-radius: 2px;
+  }
+  .setup-save-btn {
+    width: 100%; margin-top: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.15em;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 16px;
+    cursor: pointer; border-radius: 2px;
+  }
+  .setup-divider {
+    border: none; border-top: 1px solid var(--rule);
+    margin: 32px 0;
+  }
+
+  /* -- MAIN APP -- */
+  #app { display: flex; flex-direction: column; height: 100%; }
+  #app.hidden { display: none; }
+
+  /* 탭 컨텐츠 */
+  .tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .tab-content.active { display: flex; }
+
+  /* DATE HERO */
+  .date-hero {
+    padding: 14px 22px 12px;
+    border-bottom: 2px solid var(--ink);
+    flex-shrink: 0;
+  }
+  .date-big {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 32px;
+    line-height: 1; color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+
+  /* MOOD */
+  .emotion-section {
+    padding: 8px 22px 10px;
+    border-bottom: 1px solid var(--rule);
+    flex-shrink: 0;
+  }
+  .emotion-label {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    letter-spacing: 0.04em; color: var(--ink-muted);
+    margin-bottom: 6px;
+  }
+  .emotion-row {
+    display: flex; align-items: center;
+    gap: 0; margin-bottom: 5px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .emotion-row::-webkit-scrollbar { display: none; }
+  .emotion-row:last-child { margin-bottom: 0; }
+  .emotion-row-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 7.5px; font-weight: 700;
+    letter-spacing: 0.03em; color: var(--ink-muted);
+    white-space: normal; min-width: 46px; max-width: 46px;
+    padding-right: 6px; flex-shrink: 0;
+    text-transform: uppercase; line-height: 1.3;
+  }
+  .emotion-tags { display: flex; gap: 5px; width: max-content; }
+  .tag {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    padding: 3px 10px;
+    border: 1.5px solid var(--ink); border-radius: 1px;
+    cursor: pointer; white-space: nowrap;
+    color: var(--ink); background: transparent;
+    transition: all 0.12s;
+  }
+  .tag.selected { background: var(--ink); color: var(--paper); font-weight: 600; }
+
+  /* INPUT */
+  .input-section {
+    padding: 12px 22px 10px;
+    border-bottom: 1px solid var(--rule);
+    flex-shrink: 0;
+  }
+  .text-input {
+    width: 100%;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 13px; font-weight: 300;
+    color: var(--ink); background: transparent;
+    border: none; outline: none; resize: none;
+    line-height: 1.6; min-height: 52px;
+  }
+  .text-input::placeholder { color: var(--ink-muted); }
+
+  /* 사진 미리보기 */
+  .photo-preview {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    margin-top: 8px;
+  }
+  .photo-thumb {
+    position: relative;
+    flex: 1; min-width: calc(20% - 4px); max-width: calc(20% - 4px);
+    aspect-ratio: 1;
+  }
+  .photo-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover; border-radius: 2px;
+    display: block;
+  }
+  .photo-remove {
+    position: absolute; top: 2px; right: 2px;
+    width: 16px; height: 16px;
+    background: rgba(0,0,0,0.6); color: white;
+    border: none; border-radius: 50%;
+    font-size: 10px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+
+  .input-actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 10px;
+  }
+  .attach-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; color: var(--ink-muted);
+    cursor: pointer; background: none; border: none;
+    padding: 4px 0;
+  }
+  .submit-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.1em;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 8px 20px;
+    cursor: pointer; border-radius: 1px;
+    transition: opacity 0.15s;
+  }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  #photo-input { display: none; }
+
+  /* RECORD LIST */
+  .record-list {
+    flex: 1; overflow-y: auto;
+    padding: 0 22px;
+    scrollbar-width: none;
+  }
+  .record-list::-webkit-scrollbar { display: none; }
+  .record-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid; grid-template-columns: 36px 1fr;
+    gap: 8px; align-items: start;
+  }
+  .record-time {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    color: var(--ink-muted); padding-top: 2px;
+  }
+  .record-tag {
+    display: inline-block;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 10px; font-weight: 600;
+    color: var(--ink-soft); border: 1px solid var(--ink-soft);
+    padding: 1px 6px; border-radius: 1px; margin-bottom: 3px;
+  }
+  .record-text {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 12px; font-weight: 300;
+    line-height: 1.55; color: var(--ink);
+  }
+  .record-photos {
+    display: flex; gap: 3px; flex-wrap: wrap; margin-top: 5px;
+  }
+  .record-photo {
+    width: calc(20% - 3px); aspect-ratio: 1;
+    object-fit: cover; border-radius: 2px;
+  }
+
+  /* RECORD DETAIL POPUP */
+  .popup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(17,17,17,0.6);
+    z-index: 400;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .popup-overlay.open {
+    opacity: 1; pointer-events: all;
+  }
+  .popup-sheet {
+    width: 100%; max-width: 480px;
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 0 0 28px;
+    transform: translateY(16px) scale(0.97);
+    transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
+    max-height: 88vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  }
+  .popup-sheet::-webkit-scrollbar { display: none; }
+  .popup-overlay.open .popup-sheet {
+    transform: translateY(0) scale(1);
+  }
+  .popup-handle { display: none; }
+  .popup-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 16px 22px 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .popup-time {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; color: var(--ink-muted);
+  }
+  .popup-close {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; color: var(--ink-muted);
+    background: none; border: none; cursor: pointer;
+    padding: 4px;
+  }
+  .popup-body { padding: 16px 22px; }
+  .popup-mood {
+    display: inline-block;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 600;
+    color: var(--ink); border: 1.5px solid var(--ink);
+    padding: 2px 10px; border-radius: 1px; margin-bottom: 12px;
+  }
+  .popup-text {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 14px; font-weight: 300;
+    line-height: 1.75; color: var(--ink);
+    white-space: pre-wrap; margin-bottom: 16px;
+  }
+  .popup-photos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px; margin-bottom: 20px;
+  }
+  .popup-photos img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover; border-radius: 2px;
+    display: block;
+  }
+  .popup-photos.single img { border-radius: 3px; aspect-ratio: 4/3; }
+  .popup-notion-btn {
+    display: block; width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; text-align: center;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 14px;
+    cursor: pointer; border-radius: 2px;
+    text-decoration: none;
+  }
+
+  .record-photo-more {
+    display: flex; align-items: center; justify-content: center;
+    width: calc(20% - 3px); aspect-ratio: 1;
+    background: var(--rule); border-radius: 2px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .record-item { cursor: pointer; }
+  .record-item:active { opacity: 0.65; }
+
+  .record-notion-link {
+    display: inline-block;
+    margin-top: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em; color: var(--ink-muted);
+    cursor: pointer; border-bottom: 1px solid var(--rule);
+    padding-bottom: 1px;
+    transition: color 0.15s;
+  }
+  .record-notion-link:hover { color: var(--ink); }
+
+  .empty-state {
+    padding: 40px 0; text-align: center;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 12px; font-weight: 300;
+    color: var(--ink-muted); line-height: 1.8;
+  }
+
+  /* ARCHIVE */
+  .archive-header {
+    padding: 10px 22px 12px;
+    border-bottom: 2px solid var(--ink);
+    flex-shrink: 0;
+  }
+  .archive-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 37px;
+    line-height: 0.9; color: var(--ink);
+    letter-spacing: -0.03em;
+  }
+  .archive-list {
+    flex: 1; overflow-y: auto;
+    padding: 0 22px; scrollbar-width: none;
+  }
+  .archive-list::-webkit-scrollbar { display: none; }
+  .archive-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .archive-item-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .archive-date {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 18px;
+    color: var(--ink); letter-spacing: -0.03em;
+  }
+  .archive-view {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 0.12em; color: var(--ink-muted);
+    cursor: pointer;
+  }
+  .archive-energy {
+    display: inline-block;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 1px; margin-bottom: 6px;
+    background: #e0e0e0; color: #333; border: 1px solid #bbb;
+  }
+  .archive-insight {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    color: var(--ink-soft); line-height: 1.55; margin-bottom: 5px;
+  }
+  .archive-encourage {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 300; font-style: italic;
+    color: var(--ink-soft); line-height: 1.5;
+    padding: 5px 8px; border-left: 2px solid var(--ink-soft);
+    margin-top: 4px;
+  }
+  .archive-empty {
+    padding: 40px 0; text-align: center;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 12px; font-weight: 300;
+    color: var(--ink-muted); line-height: 1.8;
+  }
+
+  /* TAB BAR */
+  .tab-bar {
+    display: flex;
+    border-top: 2px solid var(--ink);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .tab-btn {
+    flex: 1; padding: 13px 0; text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 11px;
+    letter-spacing: 0.12em; color: var(--ink-muted);
+    cursor: pointer; border: none; background: transparent;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--ink); color: var(--paper); }
+  .tab-btn:first-child { border-right: 1px solid var(--rule); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--ink); color: var(--paper);
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 12px; font-weight: 400;
+    padding: 10px 20px; border-radius: 2px;
+    opacity: 0; transition: all 0.25s;
+    pointer-events: none; white-space: nowrap; z-index: 300;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 설정 버튼 */
+  .settings-btn {
+    position: absolute; top: 14px; right: 22px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; color: var(--ink-muted);
+    cursor: pointer; background: none; border: none;
+    z-index: 10;
+  }
+
+  /* 로딩 */
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(239,239,237,0.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 250;
+  }
+  .loading-overlay.hidden { display: none; }
+  .loading-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.2em; color: var(--ink);
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* LIGHTBOX */
+  .lightbox-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 600;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .lightbox-overlay.open { opacity: 1; pointer-events: all; }
+  .lightbox-inner {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: pan-y;
+  }
+  .lightbox-img {
+    max-width: 92vw; max-height: 88vh;
+    object-fit: contain; border-radius: 3px;
+    user-select: none; -webkit-user-drag: none;
+    transition: opacity 0.15s;
+  }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.7);
+    background: none; border: none; cursor: pointer;
+  }
+  .lightbox-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    background: none; border: none; cursor: pointer;
+    padding: 20px 16px; z-index: 10;
+    transition: color 0.15s;
+  }
+  .lightbox-arrow:hover { color: white; }
+  .lightbox-arrow.prev { left: 0; }
+  .lightbox-arrow.next { right: 0; }
+  .lightbox-arrow.hidden { display: none; }
+  .lightbox-counter {
+    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+  }
+  .popup-photos img { cursor: zoom-in; }
+  .popup-mood-edit-tags {
+    display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 4px;
+  }
+  .popup-mood-tag-btn {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    padding: 3px 10px;
+    border: 1.5px solid var(--ink); border-radius: 1px;
+    cursor: pointer; background: transparent; color: var(--ink);
+    transition: all 0.12s;
+  }
+  .popup-mood-tag-btn.selected { background: var(--ink); color: var(--paper); font-weight: 600; }
+  .popup-actions {
+    display: flex; gap: 8px; margin-bottom: 12px;
+  }
+  .popup-action-btn {
+    flex: 1; padding: 7px 4px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--ink);
+    background: transparent; color: var(--ink);
+    cursor: pointer; border-radius: 2px;
+    transition: all 0.12s;
+  }
+  .popup-notion-btn {
+    padding: 14px;
+  }
+  .popup-action-btn:hover { background: var(--ink); color: var(--paper); }
+  .popup-action-btn.danger { border-color: #c0392b; color: #c0392b; }
+  .popup-action-btn.danger:hover { background: #c0392b; color: white; }
+  .popup-edit-input {
+    width: 100%;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 14px; font-weight: 300;
+    color: var(--ink); background: transparent;
+    border: 1.5px solid var(--ink);
+    border-radius: 2px; padding: 10px;
+    outline: none; resize: none;
+    line-height: 1.6; margin-bottom: 12px;
+  }
+  .popup-save-edit-btn {
+    display: block; width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; text-align: center;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 12px;
+    cursor: pointer; border-radius: 2px;
+    margin-bottom: 10px;
+  }
+
+  .emotion-dropdown {
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 2px 2px;
+    z-index: 50;
+    max-height: 140px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .emotion-dropdown::-webkit-scrollbar { display: none; }
+  .emotion-dropdown-item {
+    padding: 6px 8px;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    color: var(--ink); cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--rule);
+  }
+  .emotion-dropdown-item:last-child { border-bottom: none; }
+  .emotion-dropdown-item:hover { background: rgba(0,0,0,0.04); }
+  .emotion-dropdown-item .dd-count {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 8px; font-weight: 600;
+    color: var(--ink-muted);
+  }
+  .emotion-custom-row { position: relative; }
+  .emotion-custom-row {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 6px; padding-top: 6px;
+    border-top: 1px solid var(--rule);
+  }
+  .emotion-custom-input {
+    flex: 1;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    padding: 3px 8px;
+    border: 1.5px solid var(--rule);
+    border-radius: 1px;
+    background: transparent; color: var(--ink);
+    outline: none;
+    transition: border-color 0.12s;
+  }
+  .emotion-custom-input:focus { border-color: var(--ink); }
+  .emotion-custom-input::placeholder { color: var(--ink-muted); }
+  .emotion-custom-type {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 8px; font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 3px 7px;
+    border: 1.5px solid var(--rule);
+    border-radius: 1px;
+    background: transparent; color: var(--ink-muted);
+    cursor: pointer; white-space: nowrap;
+    transition: all 0.12s;
+  }
+  .emotion-custom-type.selected {
+    background: var(--ink); color: var(--paper);
+    border-color: var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<!-- 로딩 -->
+<div class="loading-overlay hidden" id="loading">
+  <div class="loading-text">SAVING...</div>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="setup-title">daily<br>note</div>
+  <div class="setup-sub">처음 한 번만 설정하면<br>다음부터는 자동으로 연결돼요.</div>
+
+  <div class="setup-section">
+    <div class="setup-label">Password</div>
+    <input class="setup-input" id="app-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')saveSettings()">
+  </div>
+
+  <button class="setup-save-btn" onclick="saveSettings()">START →</button>
+  <button class="setup-logout-btn" onclick="logout()">LOGOUT</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <button class="settings-btn" onclick="openSettings()">⚙</button>
+
+  <!-- RECORD TAB -->
+  <div class="tab-content active" id="tab-record">
+    <div class="date-hero">
+      <div class="date-big" id="current-date">06.03 - WED</div>
+    </div>
+    <div class="emotion-section">
+            <div class="emotion-row">
+        <div class="emotion-row-label">Positive</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">평온함</span>
+          <span class="tag" onclick="selectMood(this)">뿌듯함</span>
+          <span class="tag" onclick="selectMood(this)">감사함</span>
+          <span class="tag" onclick="selectMood(this)">행복함</span>
+          <span class="tag" onclick="selectMood(this)">설렘</span>
+        </div>
+      </div>
+      <div class="emotion-row">
+        <div class="emotion-row-label">Negative</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">불안</span>
+          <span class="tag" onclick="selectMood(this)">무기력</span>
+          <span class="tag" onclick="selectMood(this)">답답함</span>
+          <span class="tag" onclick="selectMood(this)">외로움</span>
+          <span class="tag" onclick="selectMood(this)">피곤함</span>
+        </div>
+      </div>
+      <div class="emotion-row">
+        <div class="emotion-row-label">Etc.</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">멍함</span>
+          <span class="tag" onclick="selectMood(this)">복잡함</span>
+          <span class="tag" onclick="selectMood(this)">모르겠음</span>
+        </div>
+      </div>
+      <div class="emotion-custom-row">
+        <input class="emotion-custom-input" id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off">
+        <div class="emotion-dropdown" id="mood-dropdown" style="display:none"></div>
+        <button class="emotion-custom-type" id="custom-type-pos" onclick="selectCustomType('positive')">POS</button>
+        <button class="emotion-custom-type" id="custom-type-neg" onclick="selectCustomType('negative')">NEG</button>
+        <button class="emotion-custom-type" id="custom-type-etc" onclick="selectCustomType('etc')">ETC</button>
+      </div>
+    </div>
+    <div class="input-section">
+      <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3"></textarea>
+      <div class="photo-preview" id="photo-preview"></div>
+      <div class="input-actions">
+        <button class="attach-btn" onclick="document.getElementById('photo-input').click()">+ PHOTO</button>
+        <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
+    </div>
+    <div class="record-list" id="record-list">
+      <div class="empty-state">오늘 첫 기록을 남겨보세요.</div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE TAB -->
+  <div class="tab-content" id="tab-archive">
+    <div class="archive-header">
+      <div class="archive-title">Archive</div>
+    </div>
+    <div class="archive-list" id="archive-list">
+      <div class="archive-empty">기록을 불러오는 중...</div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('record', this)">Record</button>
+    <button class="tab-btn" onclick="switchTab('archive', this)">Archive</button>
+  </div>
+</div>
+
+<!-- RECORD DETAIL POPUP -->
+<div class="popup-overlay" id="record-popup" onclick="closePopup(event)">
+  <div class="popup-sheet">
+    <div class="popup-handle"></div>
+    <div class="popup-header">
+      <div class="popup-time" id="popup-time"></div>
+      <button class="popup-close" onclick="closePopupDirect()">✕ CLOSE</button>
+    </div>
+    <div class="popup-body">
+      <div id="popup-mood"></div>
+      <div class="popup-text" id="popup-text"></div>
+      <div id="popup-mood-edit" style="display:none">
+        <div class="popup-mood-edit-tags" id="popup-mood-edit-tags"></div>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <input class="emotion-custom-input" id="popup-custom-mood" placeholder="직접 입력..." style="flex:1">
+          <button class="emotion-custom-type" id="popup-custom-pos" onclick="popupSelectType('positive')">POS</button>
+          <button class="emotion-custom-type" id="popup-custom-neg" onclick="popupSelectType('negative')">NEG</button>
+          <button class="emotion-custom-type" id="popup-custom-etc" onclick="popupSelectType('etc')">ETC</button>
+        </div>
+      </div>
+      <textarea class="popup-edit-input" id="popup-edit-input" style="display:none" rows="4"></textarea>
+      <div class="popup-photos" id="popup-photos"></div>
+      <div class="popup-actions" id="popup-actions" style="display:none">
+        <button class="popup-action-btn danger" id="popup-delete-btn" onclick="deleteRecord()">DELETE</button>
+        <button class="popup-action-btn" id="popup-edit-btn" onclick="toggleEdit()">EDIT</button>
+      </div>
+      <div id="popup-edit-photos-preview" style="display:none;margin-bottom:10px"></div>
+      <div style="display:none" id="popup-add-photo-btn">
+        <button class="popup-action-btn" style="width:100%;margin-bottom:8px" onclick="document.getElementById('popup-photo-input').click()">+ PHOTO</button>
+        <input type="file" id="popup-photo-input" accept="image/*" multiple style="display:none" onchange="handleEditPhotos(this)">
+      </div>
+      <button class="popup-save-edit-btn" id="popup-save-edit-btn" style="display:none" onclick="saveEdit()">SAVE CHANGES</button>
+      <a class="popup-notion-btn" id="popup-notion-btn" target="_blank">OPEN IN NOTION →</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightbox" onclick="lightboxOverlayClick(event)">
+  <div class="lightbox-inner" id="lightbox-inner">
+    <button class="lightbox-close" onclick="closeLightbox()">✕ CLOSE</button>
+    <button class="lightbox-arrow prev" id="lb-prev" onclick="lightboxNav(-1)">‹</button>
+    <img class="lightbox-img" id="lightbox-img" src="" draggable="false">
+    <button class="lightbox-arrow next" id="lb-next" onclick="lightboxNav(1)">›</button>
+    <div class="lightbox-counter" id="lb-counter"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
+
+const MOOD_EMOJI = {
+  positive: '🌿',
+  negative: '🌧️',
+  etc: '🌫️'
+};
+
+const MOOD_TYPE = {
+  '평온함': 'positive', '뿌듯함': 'positive', '감사함': 'positive',
+  '행복함': 'positive', '설렘': 'positive',
+  '불안': 'negative', '무기력': 'negative', '답답함': 'negative',
+  '외로움': 'negative', '피곤함': 'negative',
+  '멍함': 'etc', '복잡함': 'etc', '모르겠음': 'etc'
+};
+
+function getMoodEmoji(mood) {
+  const type = MOOD_TYPE[mood] || selectedMoodType || 'etc';
+  return MOOD_EMOJI[type] || '🌫️';
+}
+
+function getMoodBg(mood) {
+  return 'default';
+}
+
+async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
+  const children = [];
+  const moodBg = getMoodBg(mood);
+
+  
+  const richText = [];
+  // time: italic, gray
+  richText.push({
+    type: 'text',
+    text: { content: timeStr + '\n' },
+    annotations: { color: 'gray', bold: false, italic: false }
+  });
+  // mood: normal, with #
+  if (mood) {
+    richText.push({
+      type: 'text',
+      text: { content: getMoodEmoji(mood) + ' ' + mood + '\n' },
+      annotations: { color: 'default', bold: false, italic: true }
+    });
+  }
+  // body: bold
+  if (text && text.trim()) {
+    richText.push({
+      type: 'text',
+      text: { content: text },
+      annotations: { bold: true, italic: false, color: 'default' }
+    });
+  }
+  children.push({
+    object: 'block',
+    type: 'paragraph',
+    paragraph: { rich_text: richText, color: moodBg }
+  });
+
+  
+  if (photoUrls && photoUrls.length > 0) {
+    const row = photoUrls.slice(0, 3);
+    children.push({
+      object: 'block',
+      type: 'column_list',
+      column_list: {
+        children: row.map(url => ({
+          object: 'block',
+          type: 'column',
+          column: {
+            children: [{
+              object: 'block',
+              type: 'image',
+              image: { type: 'external', external: { url } }
+            }]
+          }
+        }))
+      }
+    });
+  }
+
+  // block 3: empty line
+
+
+  const res = await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ children })
+  });
+  const data = await res.json();
+  console.log('notion append response:', JSON.stringify(data).slice(0, 200));
+  
+  const blockId = data.results && data.results[0] ? data.results[0].id : null;
+  const photoBlockId = data.results && data.results[1] ? data.results[1].id : null;
+  return { blockId, photoBlockId };
+}
+
+
+
+
+function logout() {
+  if (!confirm('로그아웃 할까요? 저장된 설정이 모두 지워져요.')) return;
+  localStorage.clear();
+  location.reload();
+}
+
+async function saveSettings() {
+  const pw = document.getElementById('app-password').value.trim();
+  if (!pw) { showToast('비밀번호를 입력해주세요'); return; }
+
+  const btn = document.querySelector('.setup-save-btn');
+  btn.textContent = '확인 중...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(WORKER_URL + '/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+
+    if (!res.ok) {
+      showToast('비밀번호가 틀렸어요');
+      btn.textContent = 'START →';
+      btn.disabled = false;
+      return;
+    }
+
+    const data = await res.json();
+    localStorage.setItem('notion_token', data.notion_token);
+    localStorage.setItem('notion_db', data.notion_db);
+    localStorage.setItem('cloud_name', data.cloud_name);
+    localStorage.setItem('cloud_key', data.cloud_key);
+    localStorage.setItem('cloud_secret', data.cloud_secret);
+    localStorage.setItem('app_authed', '1');
+
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    init();
+  } catch(e) {
+    showToast('연결 오류');
+    btn.textContent = 'START →';
+    btn.disabled = false;
+  }
+}
+
+function openSettings() {
+  document.getElementById('app-password').value = '';
+  document.getElementById('setup-screen').classList.remove('hidden');
+}
+
+
+function getDiaryDate() {
+  const now = new Date();
+  if (now.getHours() < 7) now.setDate(now.getDate() - 1);
+  return now;
+}
+
+function formatDate(d) {
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+function formatDateDisplay(d) {
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  return `${mm}.${dd} - ${days[d.getDay()]}`;
+}
+
+function formatTime(d) {
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'archive') loadArchive();
+}
+
+
+let selectedMood = '';
+let selectedMoodType = '';
+
+function selectMood(el) {
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMood = el.textContent;
+  selectedMoodType = '';
+  // clear custom input
+  document.getElementById('custom-mood-input').value = '';
+  document.querySelectorAll('.emotion-custom-type').forEach(b => b.classList.remove('selected'));
+}
+
+// custom mood history: { mood: { type, count } }
+function getCustomHistory() {
+  try { return JSON.parse(localStorage.getItem('custom_moods') || '{}'); } catch { return {}; }
+}
+function saveCustomHistory(history) {
+  localStorage.setItem('custom_moods', JSON.stringify(history));
+}
+
+function handleCustomMood(input) {
+  const val = input.value.trim();
+  if (val) {
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+    selectedMood = val;
+    showMoodDropdown(val);
+  } else {
+    selectedMood = '';
+    selectedMoodType = '';
+    document.querySelectorAll('.emotion-custom-type').forEach(b => b.classList.remove('selected'));
+    hideMoodDropdown();
+  }
+}
+
+function showMoodDropdown(query) {
+  const history = getCustomHistory();
+  const dd = document.getElementById('mood-dropdown');
+  const matches = Object.entries(history)
+    .filter(([k]) => k.includes(query) && k !== query)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 6);
+
+  if (matches.length === 0) { hideMoodDropdown(); return; }
+
+  dd.innerHTML = matches.map(([mood, data]) =>
+    `<div class="emotion-dropdown-item" onclick="pickDropdownMood('${mood}', '${data.type}')">
+      <span>${mood}</span>
+      <span class="dd-count">${data.count}x</span>
+    </div>`
+  ).join('');
+  dd.style.display = '';
+}
+
+function hideMoodDropdown() {
+  document.getElementById('mood-dropdown').style.display = 'none';
+}
+
+function pickDropdownMood(mood, type) {
+  document.getElementById('custom-mood-input').value = mood;
+  selectedMood = mood;
+  selectedMoodType = type;
+  document.querySelectorAll('.emotion-custom-type').forEach(b => b.classList.remove('selected'));
+  const map = { positive: 'custom-type-pos', negative: 'custom-type-neg', etc: 'custom-type-etc' };
+  if (map[type]) document.getElementById(map[type]).classList.add('selected');
+  hideMoodDropdown();
+}
+
+function selectCustomType(type) {
+  selectedMoodType = type;
+  document.querySelectorAll('.emotion-custom-type').forEach(b => b.classList.remove('selected'));
+  const map = { positive: 'custom-type-pos', negative: 'custom-type-neg', etc: 'custom-type-etc' };
+  document.getElementById(map[type]).classList.add('selected');
+  
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+  
+  const customVal = document.getElementById('custom-mood-input').value.trim();
+  if (!customVal) selectedMood = type === 'positive' ? '긍정' : type === 'negative' ? '부정' : '기타';
+}
+
+function recordCustomMoodHistory(mood, type) {
+  if (!mood || !type) return;
+  const history = getCustomHistory();
+  if (!history[mood]) history[mood] = { type, count: 0 };
+  history[mood].count += 1;
+  history[mood].type = type;
+  saveCustomHistory(history);
+
+  
+  if (history[mood].count === 3) {
+    addMoodToTags(mood, type);
+  }
+}
+
+function addMoodToTags(mood, type) {
+  const rowMap = { positive: 0, negative: 1, etc: 2 };
+  const rows = document.querySelectorAll('.emotion-tags');
+  const targetRow = rows[rowMap[type]];
+  if (!targetRow) return;
+
+  
+  const existing = Array.from(targetRow.querySelectorAll('.tag')).map(t => t.textContent);
+  if (existing.includes(mood)) return;
+
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.textContent = mood;
+  tag.onclick = function() { selectMood(this); };
+  targetRow.appendChild(tag);
+}
+
+
+
+
+const CACHE_PREFIX = 'diary_cache_';
+
+function getCacheKey(dateStr) {
+  return CACHE_PREFIX + dateStr;
+}
+
+function loadCacheForDate(dateStr) {
+  try {
+    const raw = localStorage.getItem(getCacheKey(dateStr));
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveCacheForDate(dateStr, records) {
+  try {
+    
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX));
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 90);
+    keys.forEach(key => {
+      const d = key.replace(CACHE_PREFIX, '');
+      if (new Date(d) < cutoff) localStorage.removeItem(key);
+    });
+    localStorage.setItem(getCacheKey(dateStr), JSON.stringify(records));
+  } catch(e) { console.error('cache save failed', e); }
+}
+
+
+function parseNotionRecords(blocks) {
+  const records = [];
+  let i = 0;
+
+  while (i < blocks.length) {
+    const block = blocks[i];
+    if (block.type !== 'paragraph') { i++; continue; }
+
+    const texts = block.paragraph?.rich_text || [];
+    if (!texts.length) { i++; continue; }
+
+    
+    const allContent = texts.map(t => t?.text?.content || '').join('');
+    const lines = allContent.split('\n').map(l => l.trim()).filter(l => l);
+
+    if (!lines.length) { i++; continue; }
+
+    
+    if (!/^\d{2}:\d{2}$/.test(lines[0])) { i++; continue; }
+
+    const timeStr = lines[0];
+    let mood = '';
+    let text = '';
+
+    
+    if (lines[1]) {
+      mood = lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u, '').trim();
+      if (!mood) mood = lines[1].trim();
+    }
+
+    
+    if (lines[2]) {
+      text = lines.slice(2).join('\n');
+    }
+
+    
+    let j = i + 1;
     while (j < blocks.length && blocks[j].type === 'column_list') { j++; }
     i = j;
 
