@@ -777,7 +777,9 @@
       <div class="popup-actions" id="popup-actions" style="display:none">
         <button class="popup-action-btn danger" id="popup-delete-btn" onclick="deleteRecord()">DELETE</button>
         <button class="popup-action-btn" id="popup-edit-btn" onclick="toggleEdit()">EDIT</button>
+        <button class="popup-action-btn" onclick="document.getElementById('popup-photo-input').click()">+ PHOTO</button>
       </div>
+      <input type="file" id="popup-photo-input" accept="image/*" multiple style="display:none" onchange="addPhotosToRecord(this)">
       <button class="popup-save-edit-btn" id="popup-save-edit-btn" style="display:none" onclick="saveEdit()">SAVE CHANGES</button>
       <a class="popup-notion-btn" id="popup-notion-btn" target="_blank">OPEN IN NOTION →</a>
     </div>
@@ -833,14 +835,14 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
   richText.push({
     type: 'text',
     text: { content: timeStr + '\n' },
-    annotations: { color: 'gray', bold: false, italic: true }
+    annotations: { color: 'gray', bold: false, italic: false }
   });
   // mood: normal, with #
   if (mood) {
     richText.push({
       type: 'text',
       text: { content: getMoodEmoji(mood) + ' #' + mood + '\n' },
-      annotations: { color: 'default', bold: false, italic: false }
+      annotations: { color: 'default', bold: false, italic: true }
     });
   }
   // body: bold
@@ -894,7 +896,7 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
     body: JSON.stringify({ children })
   });
   const data = await res.json();
-  // return first block ID (time+mood+body block)
+  console.log('notion append response:', JSON.stringify(data).slice(0, 200));
   return data.results && data.results[0] ? data.results[0].id : null;
 }
 
@@ -1411,7 +1413,7 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
   // 클릭 시 팝업
   item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl));
 
-  list.insertBefore(item, list.firstChild);
+  list.appendChild(item);
 }
 
 // -- 팝업 --
@@ -1502,9 +1504,9 @@ async function saveEdit() {
 
   try {
     const richText = [];
-    richText.push({ type: 'text', text: { content: timeStr + '\n' }, annotations: { color: 'gray', bold: false, italic: true } });
+    richText.push({ type: 'text', text: { content: timeStr + '\n' }, annotations: { color: 'gray', bold: false, italic: false } });
     if (currentPopupMood) {
-      richText.push({ type: 'text', text: { content: getMoodEmoji(currentPopupMood) + ' #' + currentPopupMood + '\n' }, annotations: { color: 'default', bold: false, italic: false } });
+      richText.push({ type: 'text', text: { content: getMoodEmoji(currentPopupMood) + ' #' + currentPopupMood + '\n' }, annotations: { color: 'default', bold: false, italic: true } });
     }
     if (newText) {
       richText.push({ type: 'text', text: { content: newText }, annotations: { bold: true, italic: false, color: 'default' } });
@@ -1535,6 +1537,56 @@ async function saveEdit() {
     showToast('수정 실패');
     console.error(e);
   }
+}
+
+
+async function addPhotosToRecord(input) {
+  if (!currentPopupBlockId) return;
+  const files = Array.from(input.files).slice(0, 6);
+  if (!files.length) return;
+
+  showToast('사진 업로드 중...');
+  const newUrls = [];
+  for (const file of files) {
+    const url = await uploadToCloudinary(file);
+    if (url) newUrls.push(url);
+  }
+  if (!newUrls.length) { showToast('업로드 실패'); return; }
+
+  const pageId = await getTodayPageId();
+  if (!pageId) return;
+
+  const columns = newUrls.map(url => ({
+    object: 'block', type: 'column',
+    column: { children: [{ object: 'block', type: 'image', image: { type: 'external', external: { url } } }] }
+  }));
+
+  await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ children: [{ object: 'block', type: 'column_list', column_list: { children: columns } }] })
+  });
+
+  // 팝업 사진 영역 업데이트
+  currentPopupPhotos = [...currentPopupPhotos, ...newUrls];
+  const photosEl = document.getElementById('popup-photos');
+  photosEl.className = 'popup-photos';
+  photosEl.innerHTML = currentPopupPhotos.map((u, i) =>
+    `<img src="${u}" loading="lazy" onclick="openLightbox(currentPopupPhotos, ${i})">`
+  ).join('');
+  photosEl.style.display = '';
+
+  // 캐시 업데이트
+  const dateStr = formatDate(getDiaryDate());
+  const cached = loadCacheForDate(dateStr) || [];
+  const idx = cached.findIndex(r => r.blockId === currentPopupBlockId);
+  if (idx !== -1) {
+    cached[idx].photoUrls = currentPopupPhotos;
+    saveCacheForDate(dateStr, cached);
+  }
+
+  input.value = '';
+  showToast('사진 추가됐어요');
 }
 
 async function deleteRecord() {
