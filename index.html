@@ -1038,9 +1038,9 @@ function selectCustomType(type) {
   document.querySelectorAll('.emotion-custom-type').forEach(b => b.classList.remove('selected'));
   const map = { positive: 'custom-type-pos', negative: 'custom-type-neg', etc: 'custom-type-etc' };
   document.getElementById(map[type]).classList.add('selected');
-  // 위 태그 선택 해제
+  
   document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
-  // 직접입력 값이 없으면 감정을 타입 이름으로
+  
   const customVal = document.getElementById('custom-mood-input').value.trim();
   if (!customVal) selectedMood = type === 'positive' ? '긍정' : type === 'negative' ? '부정' : '기타';
 }
@@ -1392,30 +1392,24 @@ async function saveRecord() {
   document.getElementById('loading').classList.add('hidden');
 }
 
-function addRecordToUI(time, mood, text, photoUrls, notionUrl, blockId) {
+function addRecordToUI(time, mood, text, photoUrls, notionUrl, recordBlockId) {
   const list = document.getElementById('record-list');
   const empty = list.querySelector('.empty-state');
   if (empty) empty.remove();
 
   const item = document.createElement('div');
   item.className = 'record-item';
+  if (recordBlockId) item.dataset.blockId = recordBlockId;
 
-  
   let thumbHtml = '';
   if (photoUrls && photoUrls.length > 0) {
-    thumbHtml = `<div class="record-photos"><img class="record-photo" src="${photoUrls[0]}">${photoUrls.length > 1 ? `<span class="record-photo-more">+${photoUrls.length - 1}</span>` : ''}</div>`;
+    thumbHtml = '<div class="record-photos"><img class="record-photo" src="' + photoUrls[0] + '">' + (photoUrls.length > 1 ? '<span class="record-photo-more">+' + (photoUrls.length - 1) + '</span>' : '') + '</div>';
   }
 
-  item.innerHTML = `
-    <div class="record-time">${time}</div>
-    <div>
-      ${mood ? `<span class="record-tag">${mood}</span>` : ''}
-      ${text ? `<div class="record-text">${text}</div>` : ''}
-      ${thumbHtml}
-    </div>`;
+  item.innerHTML = '<div class="record-time">' + time + '</div><div>' + (mood ? '<span class="record-tag">' + mood + '</span>' : '') + (text ? '<div class="record-text">' + text + '</div>' : '') + thumbHtml + '</div>';
 
-  
-  item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl, blockId, item));
+  var _blockId = recordBlockId;
+  item.addEventListener('click', function() { openPopup(time, mood, text, photoUrls || [], notionUrl, _blockId, item); });
 
   list.insertBefore(item, list.firstChild);
 }
