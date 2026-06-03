@@ -543,11 +543,11 @@
     display: flex; gap: 8px; margin-bottom: 12px;
   }
   .popup-action-btn {
-    flex: 1; padding: 10px;
+    flex: 1; padding: 5px 4px;
     font-family: 'Montserrat', sans-serif;
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.12em;
-    border: 1.5px solid var(--ink);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--ink);
     background: transparent; color: var(--ink);
     cursor: pointer; border-radius: 2px;
     transition: all 0.12s;
@@ -1169,7 +1169,7 @@ async function loadTodayRecords() {
   // 캐시 먼저 확인
   const cached = loadCacheForDate(dateStr);
   if (cached) {
-    cached.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], r.notionUrl || null, r.blockId || null));
+    [...cached].reverse().forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], r.notionUrl || null, r.blockId || null));
     return;
   }
 
@@ -1186,7 +1186,7 @@ async function loadTodayRecords() {
     const blocks = data.results || [];
 
     const records = parseNotionRecords(blocks);
-    records.forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId));
+    [...records].reverse().forEach(r => addRecordToUI(r.time, r.mood, r.text, r.photoUrls || [], notionUrl, r.blockId));
 
     // 캐시 저장
     saveCacheForDate(dateStr, records.map(r => ({ ...r, notionUrl })));
@@ -1411,7 +1411,7 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
     </div>`;
 
   // 클릭 시 팝업
-  item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl));
+  item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl, blockId, item));
 
   list.appendChild(item);
 }
@@ -1712,6 +1712,7 @@ function init() {
 
 // -- 시작 --
 window.onload = () => {
+  const token = localStorage.getItem('notion_token');
   const db = localStorage.getItem('notion_db');
   if (token && db) {
     document.getElementById('setup-screen').classList.add('hidden');
