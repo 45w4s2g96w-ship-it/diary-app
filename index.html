@@ -35,7 +35,7 @@
     pointer-events: none; z-index: 100; mix-blend-mode: multiply;
   }
 
-  /* ── SETUP SCREEN ── */
+  /* -- SETUP SCREEN -- */
   #setup-screen {
     position: fixed; inset: 0;
     background: var(--paper);
@@ -96,7 +96,7 @@
     margin: 32px 0;
   }
 
-  /* ── MAIN APP ── */
+  /* -- MAIN APP -- */
   #app { display: flex; flex-direction: column; height: 100%; }
   #app.hidden { display: none; }
 
@@ -591,7 +591,7 @@
   <!-- RECORD TAB -->
   <div class="tab-content active" id="tab-record">
     <div class="date-hero">
-      <div class="date-big" id="current-date">06.03 — WED</div>
+      <div class="date-big" id="current-date">06.03 - WED</div>
     </div>
     <div class="emotion-section">
       <div class="emotion-label">MOOD</div>
@@ -686,7 +686,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 설정 ──
+// -- 설정 --
 function saveSettings() {
   const token = document.getElementById('notion-token').value.trim();
   const db = document.getElementById('notion-db').value.trim();
@@ -716,7 +716,7 @@ function openSettings() {
   document.getElementById('setup-screen').classList.remove('hidden');
 }
 
-// ── 날짜 (오전 7시 기준) ──
+// -- 날짜 (오전 7시 기준) --
 function getDiaryDate() {
   const now = new Date();
   if (now.getHours() < 7) now.setDate(now.getDate() - 1);
@@ -733,14 +733,14 @@ function formatDateDisplay(d) {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  return `${mm}.${dd} — ${days[d.getDay()]}`;
+  return `${mm}.${dd} - ${days[d.getDay()]}`;
 }
 
 function formatTime(d) {
   return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 
-// ── 탭 전환 ──
+// -- 탭 전환 --
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -749,7 +749,7 @@ function switchTab(tab, btn) {
   if (tab === 'archive') loadArchive();
 }
 
-// ── 감정 선택 ──
+// -- 감정 선택 --
 let selectedMood = '';
 function selectMood(el) {
   document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
@@ -757,7 +757,7 @@ function selectMood(el) {
   selectedMood = el.textContent;
 }
 
-// ── 사진 처리 ──
+// -- 사진 처리 --
 let selectedPhotos = [];
 function handlePhotos(input) {
   const files = Array.from(input.files);
@@ -790,7 +790,7 @@ function removePhoto(i) {
   renderPhotoPreview();
 }
 
-// ── Cloudinary 업로드 ──
+// -- Cloudinary 업로드 --
 async function uploadToCloudinary(file) {
   const cloudName = localStorage.getItem('cloud_name');
   const apiKey = localStorage.getItem('cloud_key');
@@ -813,7 +813,7 @@ async function uploadToCloudinary(file) {
   } catch { return null; }
 }
 
-// ── Notion: 오늘 페이지 찾기 or 생성 ──
+// -- Notion: 오늘 페이지 찾기 or 생성 --
 async function getTodayPageId() {
   const db = localStorage.getItem('notion_db');
   const dateStr = formatDate(getDiaryDate());
@@ -873,10 +873,10 @@ async function getTodayPageId() {
 
 
 
-// ── Cloudflare Worker URL (배포 후 수정) ──
+// -- Cloudflare Worker URL (배포 후 수정) --
 const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
 
-// ── 감정 색상 매핑 ──
+// -- 감정 색상 매핑 --
 // Notion API 배경색: color 값에 '_background' 붙이면 배경색
 const MOOD_BG = {
   '평온함': 'green_background', '뿌듯함': 'green_background',
@@ -890,14 +890,14 @@ function getMoodBg(mood) {
   return MOOD_BG[mood] || 'default';
 }
 
-// ── 노션에 기록 블록 추가 (직접 API) ──
+// -- 노션에 기록 블록 추가 (직접 API) --
 async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
   const children = [];
   const moodBg = getMoodBg(mood);
 
   // 블록 1: 시간 
  감정 
- 본문 — 한 블록, shift+enter 연결
+ 본문 - 한 블록, shift+enter 연결
   // 블록 배경색 = 감정 색
   const richText = [];
 
@@ -955,14 +955,7 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
     });
   }
 
-  // 블록 3: 빈 줄
-  children.push({
-    object: 'block',
-    type: 'paragraph',
-    paragraph: {
-      rich_text: [{ type: 'text', text: { content: ' ' } }]
-    }
-  });
+
 
   await fetch(`${WORKER_URL}/notion/blocks/${pageId}/children`, {
     method: 'PATCH',
@@ -971,7 +964,7 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
   });
 }
 
-// ── 기록 저장 ──
+// -- 기록 저장 --
 async function saveRecord() {
   const text = document.getElementById('memo-input').value.trim();
   if (!text && selectedPhotos.length === 0) { showToast('내용을 입력해주세요'); return; }
@@ -1021,7 +1014,7 @@ async function saveRecord() {
   document.getElementById('loading').classList.add('hidden');
 }
 
-// ── UI에 기록 추가 ──
+// -- UI에 기록 추가 --
 function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
   const list = document.getElementById('record-list');
   const empty = list.querySelector('.empty-state');
@@ -1050,7 +1043,7 @@ function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
   list.insertBefore(item, list.firstChild);
 }
 
-// ── 팝업 ──
+// -- 팝업 --
 let currentPopupPhotos = [];
 function openPopup(time, mood, text, photoUrls, notionUrl) {
   currentPopupPhotos = photoUrls || [];
@@ -1091,7 +1084,7 @@ function closePopupDirect() {
   document.body.style.overflow = '';
 }
 
-// ── 아카이브 로드 ──
+// -- 아카이브 로드 --
 const MAKE_ARCHIVE_WEBHOOK = 'https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
 
 async function loadArchive() {
@@ -1125,7 +1118,7 @@ async function loadArchive() {
       const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
       const mm = String(d.getMonth()+1).padStart(2,'0');
       const dd = String(d.getDate()).padStart(2,'0');
-      const dateDisplay = `${mm}.${dd} — ${days[d.getDay()]}`;
+      const dateDisplay = `${mm}.${dd} - ${days[d.getDay()]}`;
 
       const energy = getTextProp(props, '에너지 레벨') || '';
       const insight = getTextProp(props, '사고 흐름') || '';
@@ -1162,7 +1155,7 @@ function openNotion(url) {
   window.open(url, '_blank');
 }
 
-// ── 토스트 ──
+// -- 토스트 --
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1170,13 +1163,13 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ── 초기화 ──
+// -- 초기화 --
 function init() {
   const d = getDiaryDate();
   document.getElementById('current-date').textContent = formatDateDisplay(d);
 }
 
-// ── 시작 ──
+// -- 시작 --
 window.onload = () => {
   const token = localStorage.getItem('notion_token');
   const db = localStorage.getItem('notion_db');
@@ -1187,7 +1180,7 @@ window.onload = () => {
   }
 };
 
-// ── 라이트박스 ──
+// -- 라이트박스 --
 let lbPhotos = [];
 let lbIndex = 0;
 let lbTouchStartX = 0;
