@@ -674,31 +674,8 @@
   <div class="setup-sub">처음 한 번만 설정하면<br>다음부터는 자동으로 연결돼요.</div>
 
   <div class="setup-section">
-    <div class="setup-label">Notion API Token</div>
-    <input class="setup-input" id="notion-token" type="password" placeholder="secret_xxxxxxxxxxxx">
-    <div class="setup-hint">notion.so/my-integrations → 액세스 토큰</div>
-  </div>
-
-  <div class="setup-section">
-    <div class="setup-label">Notion Database ID</div>
-    <input class="setup-input" id="notion-db" type="text" placeholder="32자리 DB ID">
-    <div class="setup-hint">일기 DB URL에서 notion.so/ 뒤 ?v= 앞까지</div>
-  </div>
-
-  <hr class="setup-divider">
-
-  <div class="setup-section">
-    <div class="setup-label">Cloudinary Cloud Name</div>
-    <input class="setup-input" id="cloud-name" type="text" placeholder="your-cloud-name">
-  </div>
-  <div class="setup-section">
-    <div class="setup-label">Cloudinary API Key</div>
-    <input class="setup-input" id="cloud-key" type="text" placeholder="123456789012345">
-  </div>
-  <div class="setup-section">
-    <div class="setup-label">Cloudinary API Secret</div>
-    <input class="setup-input" id="cloud-secret" type="password" placeholder="xxxxxxxxxxxxxxxxxxxx">
-    <div class="setup-hint">cloudinary.com 대시보드 → Product Environment Credentials</div>
+    <div class="setup-label">Password</div>
+    <input class="setup-input" id="app-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')saveSettings()">
   </div>
 
   <button class="setup-save-btn" onclick="saveSettings()">START →</button>
@@ -933,32 +910,48 @@ function logout() {
   location.reload();
 }
 
-function saveSettings() {
-  const token = document.getElementById('notion-token').value.trim();
-  const db = document.getElementById('notion-db').value.trim();
-  const cloudName = document.getElementById('cloud-name').value.trim();
-  const cloudKey = document.getElementById('cloud-key').value.trim();
-  const cloudSecret = document.getElementById('cloud-secret').value.trim();
+async function saveSettings() {
+  const pw = document.getElementById('app-password').value.trim();
+  if (!pw) { showToast('비밀번호를 입력해주세요'); return; }
 
-  if (!token || !db) { showToast('Notion 토큰과 DB ID는 필수예요'); return; }
+  const btn = document.querySelector('.setup-save-btn');
+  btn.textContent = '확인 중...';
+  btn.disabled = true;
 
-  localStorage.setItem('notion_token', token);
-  localStorage.setItem('notion_db', db);
-  if (cloudName) localStorage.setItem('cloud_name', cloudName);
-  if (cloudKey) localStorage.setItem('cloud_key', cloudKey);
-  if (cloudSecret) localStorage.setItem('cloud_secret', cloudSecret);
+  try {
+    const res = await fetch(WORKER_URL + '/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
 
-  document.getElementById('setup-screen').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  init();
+    if (!res.ok) {
+      showToast('비밀번호가 틀렸어요');
+      btn.textContent = 'START →';
+      btn.disabled = false;
+      return;
+    }
+
+    const data = await res.json();
+    localStorage.setItem('notion_token', data.notion_token);
+    localStorage.setItem('notion_db', data.notion_db);
+    localStorage.setItem('cloud_name', data.cloud_name);
+    localStorage.setItem('cloud_key', data.cloud_key);
+    localStorage.setItem('cloud_secret', data.cloud_secret);
+    localStorage.setItem('app_authed', '1');
+
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    init();
+  } catch(e) {
+    showToast('연결 오류');
+    btn.textContent = 'START →';
+    btn.disabled = false;
+  }
 }
 
 function openSettings() {
-  document.getElementById('notion-token').value = localStorage.getItem('notion_token') || '';
-  document.getElementById('notion-db').value = localStorage.getItem('notion_db') || '';
-  document.getElementById('cloud-name').value = localStorage.getItem('cloud_name') || '';
-  document.getElementById('cloud-key').value = localStorage.getItem('cloud_key') || '';
-  document.getElementById('cloud-secret').value = localStorage.getItem('cloud_secret') || '';
+  document.getElementById('app-password').value = '';
   document.getElementById('setup-screen').classList.remove('hidden');
 }
 
@@ -1149,50 +1142,36 @@ function parseNotionRecords(blocks) {
     const texts = block.paragraph?.rich_text || [];
     if (!texts.length) { i++; continue; }
 
-    const firstText = texts[0]?.text?.content || '';
-    
-    if (!/^\d{2}:\d{2}$/.test(firstText.trim())) { i++; continue; }
+    // 한 블록에 time\nmood\nbody 구조
+    const allContent = texts.map(t => t?.text?.content || '').join('');
+    const lines = allContent.split('\n').map(l => l.trim()).filter(l => l);
 
-    const timeStr = firstText.trim();
+    if (!lines.length) { i++; continue; }
+
+    // 첫 줄이 HH:MM 형식인지 확인
+    if (!/^\d{2}:\d{2}$/.test(lines[0])) { i++; continue; }
+
+    const timeStr = lines[0];
     let mood = '';
     let text = '';
-    let photoUrls = [];
 
-    
-    i++;
-    
-    if (i < blocks.length && blocks[i].type === 'paragraph') {
-      const moodTexts = blocks[i].paragraph?.rich_text || [];
-      const moodContent = moodTexts[0]?.text?.content || '';
-      if (moodContent && !/^\d{2}:\d{2}$/.test(moodContent.trim())) {
-        mood = moodContent.trim();
-        i++;
-      }
-    }
-    
-    if (i < blocks.length && blocks[i].type === 'paragraph') {
-      const textTexts = blocks[i].paragraph?.rich_text || [];
-      const textContent = textTexts[0]?.text?.content || '';
-      
-      if (textContent && textContent.trim() !== 'ㅤ' && !/^\d{2}:\d{2}$/.test(textContent.trim())) {
-        text = textContent;
-        i++;
-      }
-    }
-    
-    while (i < blocks.length && blocks[i].type === 'column_list') {
-      
-      
-      i++;
-    }
-    
-    while (i < blocks.length && blocks[i].type === 'paragraph') {
-      const t = (blocks[i].paragraph?.rich_text || [])[0]?.text?.content || '';
-      if (t.trim() === '' || t.trim() === 'ㅤ') { i++; break; }
-      break;
+    // 두 번째 줄: 이모지 + 감정 (이모지 제거)
+    if (lines[1]) {
+      mood = lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u, '').trim();
+      if (!mood) mood = lines[1].trim();
     }
 
-    records.push({ time: timeStr, mood, text, photoUrls, blockId: block.id });
+    // 세 번째 줄 이후: 본문
+    if (lines[2]) {
+      text = lines.slice(2).join('\n');
+    }
+
+    // column_list (사진) 스킵
+    let j = i + 1;
+    while (j < blocks.length && blocks[j].type === 'column_list') { j++; }
+    i = j;
+
+    records.push({ time: timeStr, mood, text, photoUrls: [], blockId: block.id });
   }
 
   return records;
@@ -1782,9 +1761,7 @@ function init() {
 
 
 window.onload = () => {
-  const token = localStorage.getItem('notion_token');
-  const db = localStorage.getItem('notion_db');
-  if (token && db) {
+  if (localStorage.getItem('app_authed') === '1' && localStorage.getItem('notion_token')) {
     document.getElementById('setup-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     init();
