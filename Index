@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>daily note</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Gothic+A1:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #efefed;
+    --ink: #111111;
+    --ink-soft: #444;
+    --ink-muted: #888;
+    --rule: #c8c4bc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--paper);
+    font-family: 'Gothic A1', sans-serif;
+    display: flex;
+    flex-direction: column;
+    max-width: 430px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* 신문지 텍스처 */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.012) 3px, rgba(0,0,0,0.012) 4px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 100; mix-blend-mode: multiply;
+  }
+
+  /* ── SETUP SCREEN ── */
+  #setup-screen {
+    position: fixed; inset: 0;
+    background: var(--paper);
+    z-index: 200;
+    display: flex; flex-direction: column;
+    padding: 60px 28px 40px;
+    overflow-y: auto;
+  }
+  #setup-screen.hidden { display: none; }
+
+  .setup-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 40px;
+    line-height: 0.95; letter-spacing: -0.02em;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .setup-sub {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 13px; font-weight: 300;
+    color: var(--ink-muted); margin-bottom: 40px;
+    line-height: 1.6;
+  }
+  .setup-section { margin-bottom: 28px; }
+  .setup-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.15em; color: var(--ink-muted);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .setup-input {
+    width: 100%;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 13px; font-weight: 400;
+    padding: 12px 14px;
+    border: 1.5px solid var(--rule);
+    background: transparent; color: var(--ink);
+    border-radius: 2px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .setup-input:focus { border-color: var(--ink); }
+  .setup-input::placeholder { color: var(--ink-muted); }
+  .setup-hint {
+    font-size: 11px; font-weight: 300;
+    color: var(--ink-muted); margin-top: 5px;
+    line-height: 1.5;
+  }
+  .setup-save-btn {
+    width: 100%; margin-top: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.15em;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 16px;
+    cursor: pointer; border-radius: 2px;
+  }
+  .setup-divider {
+    border: none; border-top: 1px solid var(--rule);
+    margin: 32px 0;
+  }
+
+  /* ── MAIN APP ── */
+  #app { display: flex; flex-direction: column; height: 100%; }
+  #app.hidden { display: none; }
+
+  /* 탭 컨텐츠 */
+  .tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .tab-content.active { display: flex; }
+
+  /* DATE HERO */
+  .date-hero {
+    padding: 14px 22px 12px;
+    border-bottom: 2px solid var(--ink);
+    flex-shrink: 0;
+  }
+  .date-big {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 32px;
+    line-height: 1; color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+
+  /* MOOD */
+  .emotion-section {
+    padding: 8px 22px 10px;
+    border-bottom: 1px solid var(--rule);
+    flex-shrink: 0;
+  }
+  .emotion-label {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    letter-spacing: 0.04em; color: var(--ink-muted);
+    margin-bottom: 6px;
+  }
+  .emotion-row {
+    display: flex; align-items: center;
+    gap: 0; margin-bottom: 5px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .emotion-row::-webkit-scrollbar { display: none; }
+  .emotion-row:last-child { margin-bottom: 0; }
+  .emotion-row-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 7.5px; font-weight: 700;
+    letter-spacing: 0.03em; color: var(--ink-muted);
+    white-space: normal; min-width: 46px; max-width: 46px;
+    padding-right: 6px; flex-shrink: 0;
+    text-transform: uppercase; line-height: 1.3;
+  }
+  .emotion-tags { display: flex; gap: 5px; width: max-content; }
+  .tag {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    padding: 3px 10px;
+    border: 1.5px solid var(--ink); border-radius: 1px;
+    cursor: pointer; white-space: nowrap;
+    color: var(--ink); background: transparent;
+    transition: all 0.12s;
+  }
+  .tag.selected { background: var(--ink); color: var(--paper); font-weight: 600; }
+
+  /* INPUT */
+  .input-section {
+    padding: 12px 22px 10px;
+    border-bottom: 1px solid var(--rule);
+    flex-shrink: 0;
+  }
+  .text-input {
+    width: 100%;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 13px; font-weight: 300;
+    color: var(--ink); background: transparent;
+    border: none; outline: none; resize: none;
+    line-height: 1.6; min-height: 52px;
+  }
+  .text-input::placeholder { color: var(--ink-muted); }
+
+  /* 사진 미리보기 */
+  .photo-preview {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    margin-top: 8px;
+  }
+  .photo-thumb {
+    position: relative;
+    flex: 1; min-width: calc(20% - 4px); max-width: calc(20% - 4px);
+    aspect-ratio: 1;
+  }
+  .photo-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover; border-radius: 2px;
+    display: block;
+  }
+  .photo-remove {
+    position: absolute; top: 2px; right: 2px;
+    width: 16px; height: 16px;
+    background: rgba(0,0,0,0.6); color: white;
+    border: none; border-radius: 50%;
+    font-size: 10px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+
+  .input-actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 10px;
+  }
+  .attach-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; color: var(--ink-muted);
+    cursor: pointer; background: none; border: none;
+    padding: 4px 0;
+  }
+  .submit-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.1em;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 8px 20px;
+    cursor: pointer; border-radius: 1px;
+    transition: opacity 0.15s;
+  }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  #photo-input { display: none; }
+
+  /* RECORD LIST */
+  .record-list {
+    flex: 1; overflow-y: auto;
+    padding: 0 22px;
+    scrollbar-width: none;
+  }
+  .record-list::-webkit-scrollbar { display: none; }
+  .record-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid; grid-template-columns: 36px 1fr;
+    gap: 8px; align-items: start;
+  }
+  .record-time {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    color: var(--ink-muted); padding-top: 2px;
+  }
+  .record-tag {
+    display: inline-block;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 10px; font-weight: 600;
+    color: var(--ink-soft); border: 1px solid var(--ink-soft);
+    padding: 1px 6px; border-radius: 1px; margin-bottom: 3px;
+  }
+  .record-text {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 12px; font-weight: 300;
+    line-height: 1.55; color: var(--ink);
+  }
+  .record-photos {
+    display: flex; gap: 3px; flex-wrap: wrap; margin-top: 5px;
+  }
+  .record-photo {
+    width: calc(20% - 3px); aspect-ratio: 1;
+    object-fit: cover; border-radius: 2px;
+  }
+
+  /* RECORD DETAIL POPUP */
+  .popup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(17,17,17,0.6);
+    z-index: 400;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .popup-overlay.open {
+    opacity: 1; pointer-events: all;
+  }
+  .popup-sheet {
+    width: 100%; max-width: 480px;
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 0 0 28px;
+    transform: translateY(16px) scale(0.97);
+    transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
+    max-height: 88vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  }
+  .popup-sheet::-webkit-scrollbar { display: none; }
+  .popup-overlay.open .popup-sheet {
+    transform: translateY(0) scale(1);
+  }
+  .popup-handle { display: none; }
+  .popup-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 16px 22px 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .popup-time {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; color: var(--ink-muted);
+  }
+  .popup-close {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; color: var(--ink-muted);
+    background: none; border: none; cursor: pointer;
+    padding: 4px;
+  }
+  .popup-body { padding: 16px 22px; }
+  .popup-mood {
+    display: inline-block;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 600;
+    color: var(--ink); border: 1.5px solid var(--ink);
+    padding: 2px 10px; border-radius: 1px; margin-bottom: 12px;
+  }
+  .popup-text {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 14px; font-weight: 300;
+    line-height: 1.75; color: var(--ink);
+    white-space: pre-wrap; margin-bottom: 16px;
+  }
+  .popup-photos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px; margin-bottom: 20px;
+  }
+  .popup-photos img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover; border-radius: 2px;
+    display: block;
+  }
+  .popup-photos.single img { border-radius: 3px; aspect-ratio: 4/3; }
+  .popup-notion-btn {
+    display: block; width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.15em; text-align: center;
+    background: var(--ink); color: var(--paper);
+    border: none; padding: 14px;
+    cursor: pointer; border-radius: 2px;
+    text-decoration: none;
+  }
+
+  .record-photo-more {
+    display: flex; align-items: center; justify-content: center;
+    width: calc(20% - 3px); aspect-ratio: 1;
+    background: var(--rule); border-radius: 2px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .record-item { cursor: pointer; }
+  .record-item:active { opacity: 0.65; }
+
+  .record-notion-link {
+    display: inline-block;
+    margin-top: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.12em; color: var(--ink-muted);
+    cursor: pointer; border-bottom: 1px solid var(--rule);
+    padding-bottom: 1px;
+    transition: color 0.15s;
+  }
+  .record-notion-link:hover { color: var(--ink); }
+
+  .empty-state {
+    padding: 40px 0; text-align: center;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 12px; font-weight: 300;
+    color: var(--ink-muted); line-height: 1.8;
+  }
+
+  /* ARCHIVE */
+  .archive-header {
+    padding: 10px 22px 12px;
+    border-bottom: 2px solid var(--ink);
+    flex-shrink: 0;
+  }
+  .archive-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 37px;
+    line-height: 0.9; color: var(--ink);
+    letter-spacing: -0.03em;
+  }
+  .archive-list {
+    flex: 1; overflow-y: auto;
+    padding: 0 22px; scrollbar-width: none;
+  }
+  .archive-list::-webkit-scrollbar { display: none; }
+  .archive-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .archive-item-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .archive-date {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900; font-size: 18px;
+    color: var(--ink); letter-spacing: -0.03em;
+  }
+  .archive-view {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 0.12em; color: var(--ink-muted);
+    cursor: pointer;
+  }
+  .archive-energy {
+    display: inline-block;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 1px; margin-bottom: 6px;
+    background: #e0e0e0; color: #333; border: 1px solid #bbb;
+  }
+  .archive-insight {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 400;
+    color: var(--ink-soft); line-height: 1.55; margin-bottom: 5px;
+  }
+  .archive-encourage {
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 11px; font-weight: 300; font-style: italic;
+    color: var(--ink-soft); line-height: 1.5;
+    padding: 5px 8px; border-left: 2px solid var(--ink-soft);
+    margin-top: 4px;
+  }
+  .archive-empty {
+    padding: 40px 0; text-align: center;
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 12px; font-weight: 300;
+    color: var(--ink-muted); line-height: 1.8;
+  }
+
+  /* TAB BAR */
+  .tab-bar {
+    display: flex;
+    border-top: 2px solid var(--ink);
+    background: var(--paper);
+    flex-shrink: 0;
+  }
+  .tab-btn {
+    flex: 1; padding: 13px 0; text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; font-size: 11px;
+    letter-spacing: 0.12em; color: var(--ink-muted);
+    cursor: pointer; border: none; background: transparent;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--ink); color: var(--paper); }
+  .tab-btn:first-child { border-right: 1px solid var(--rule); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--ink); color: var(--paper);
+    font-family: 'Gothic A1', sans-serif;
+    font-size: 12px; font-weight: 400;
+    padding: 10px 20px; border-radius: 2px;
+    opacity: 0; transition: all 0.25s;
+    pointer-events: none; white-space: nowrap; z-index: 300;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 설정 버튼 */
+  .settings-btn {
+    position: absolute; top: 14px; right: 22px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em; color: var(--ink-muted);
+    cursor: pointer; background: none; border: none;
+    z-index: 10;
+  }
+
+  /* 로딩 */
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(239,239,237,0.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 250;
+  }
+  .loading-overlay.hidden { display: none; }
+  .loading-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.2em; color: var(--ink);
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* LIGHTBOX */
+  .lightbox-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 600;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .lightbox-overlay.open { opacity: 1; pointer-events: all; }
+  .lightbox-inner {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: pan-y;
+  }
+  .lightbox-img {
+    max-width: 92vw; max-height: 88vh;
+    object-fit: contain; border-radius: 3px;
+    user-select: none; -webkit-user-drag: none;
+    transition: opacity 0.15s;
+  }
+  .lightbox-close {
+    position: absolute; top: 20px; right: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.7);
+    background: none; border: none; cursor: pointer;
+  }
+  .lightbox-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    background: none; border: none; cursor: pointer;
+    padding: 20px 16px; z-index: 10;
+    transition: color 0.15s;
+  }
+  .lightbox-arrow:hover { color: white; }
+  .lightbox-arrow.prev { left: 0; }
+  .lightbox-arrow.next { right: 0; }
+  .lightbox-arrow.hidden { display: none; }
+  .lightbox-counter {
+    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+  }
+  .popup-photos img { cursor: zoom-in; }
+</style>
+</head>
+<body>
+
+<!-- 로딩 -->
+<div class="loading-overlay hidden" id="loading">
+  <div class="loading-text">SAVING...</div>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="setup-title">daily<br>note</div>
+  <div class="setup-sub">처음 한 번만 설정하면<br>다음부터는 자동으로 연결돼요.</div>
+
+  <div class="setup-section">
+    <div class="setup-label">Notion API Token</div>
+    <input class="setup-input" id="notion-token" type="password" placeholder="secret_xxxxxxxxxxxx">
+    <div class="setup-hint">notion.so/my-integrations → 액세스 토큰</div>
+  </div>
+
+  <div class="setup-section">
+    <div class="setup-label">Notion Database ID</div>
+    <input class="setup-input" id="notion-db" type="text" placeholder="32자리 DB ID">
+    <div class="setup-hint">일기 DB URL에서 notion.so/ 뒤 ?v= 앞까지</div>
+  </div>
+
+  <hr class="setup-divider">
+
+  <div class="setup-section">
+    <div class="setup-label">Cloudinary Cloud Name</div>
+    <input class="setup-input" id="cloud-name" type="text" placeholder="your-cloud-name">
+  </div>
+  <div class="setup-section">
+    <div class="setup-label">Cloudinary API Key</div>
+    <input class="setup-input" id="cloud-key" type="text" placeholder="123456789012345">
+  </div>
+  <div class="setup-section">
+    <div class="setup-label">Cloudinary API Secret</div>
+    <input class="setup-input" id="cloud-secret" type="password" placeholder="xxxxxxxxxxxxxxxxxxxx">
+    <div class="setup-hint">cloudinary.com 대시보드 → Product Environment Credentials</div>
+  </div>
+
+  <button class="setup-save-btn" onclick="saveSettings()">START →</button>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <button class="settings-btn" onclick="openSettings()">⚙</button>
+
+  <!-- RECORD TAB -->
+  <div class="tab-content active" id="tab-record">
+    <div class="date-hero">
+      <div class="date-big" id="current-date">06.03 — WED</div>
+    </div>
+    <div class="emotion-section">
+      <div class="emotion-label">MOOD</div>
+      <div class="emotion-row">
+        <div class="emotion-row-label">Positive</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">평온함</span>
+          <span class="tag" onclick="selectMood(this)">뿌듯함</span>
+          <span class="tag" onclick="selectMood(this)">감사함</span>
+          <span class="tag" onclick="selectMood(this)">행복함</span>
+          <span class="tag" onclick="selectMood(this)">설렘</span>
+        </div>
+      </div>
+      <div class="emotion-row">
+        <div class="emotion-row-label">Negative</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">불안</span>
+          <span class="tag" onclick="selectMood(this)">무기력</span>
+          <span class="tag" onclick="selectMood(this)">답답함</span>
+          <span class="tag" onclick="selectMood(this)">외로움</span>
+          <span class="tag" onclick="selectMood(this)">피곤함</span>
+        </div>
+      </div>
+      <div class="emotion-row">
+        <div class="emotion-row-label">Etc.</div>
+        <div class="emotion-tags">
+          <span class="tag" onclick="selectMood(this)">멍함</span>
+          <span class="tag" onclick="selectMood(this)">복잡함</span>
+          <span class="tag" onclick="selectMood(this)">모르겠음</span>
+        </div>
+      </div>
+    </div>
+    <div class="input-section">
+      <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3"></textarea>
+      <div class="photo-preview" id="photo-preview"></div>
+      <div class="input-actions">
+        <button class="attach-btn" onclick="document.getElementById('photo-input').click()">+ PHOTO</button>
+        <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" multiple capture="environment" onchange="handlePhotos(this)">
+    </div>
+    <div class="record-list" id="record-list">
+      <div class="empty-state">오늘 첫 기록을 남겨보세요.</div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE TAB -->
+  <div class="tab-content" id="tab-archive">
+    <div class="archive-header">
+      <div class="archive-title">Archive</div>
+    </div>
+    <div class="archive-list" id="archive-list">
+      <div class="archive-empty">기록을 불러오는 중...</div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('record', this)">Record</button>
+    <button class="tab-btn" onclick="switchTab('archive', this)">Archive</button>
+  </div>
+</div>
+
+<!-- RECORD DETAIL POPUP -->
+<div class="popup-overlay" id="record-popup" onclick="closePopup(event)">
+  <div class="popup-sheet">
+    <div class="popup-handle"></div>
+    <div class="popup-header">
+      <div class="popup-time" id="popup-time"></div>
+      <button class="popup-close" onclick="closePopupDirect()">✕ CLOSE</button>
+    </div>
+    <div class="popup-body">
+      <div id="popup-mood"></div>
+      <div class="popup-text" id="popup-text"></div>
+      <div class="popup-photos" id="popup-photos"></div>
+      <a class="popup-notion-btn" id="popup-notion-btn" target="_blank">OPEN IN NOTION →</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightbox" onclick="lightboxOverlayClick(event)">
+  <div class="lightbox-inner" id="lightbox-inner">
+    <button class="lightbox-close" onclick="closeLightbox()">✕ CLOSE</button>
+    <button class="lightbox-arrow prev" id="lb-prev" onclick="lightboxNav(-1)">‹</button>
+    <img class="lightbox-img" id="lightbox-img" src="" draggable="false">
+    <button class="lightbox-arrow next" id="lb-next" onclick="lightboxNav(1)">›</button>
+    <div class="lightbox-counter" id="lb-counter"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 설정 ──
+function saveSettings() {
+  const token = document.getElementById('notion-token').value.trim();
+  const db = document.getElementById('notion-db').value.trim();
+  const cloudName = document.getElementById('cloud-name').value.trim();
+  const cloudKey = document.getElementById('cloud-key').value.trim();
+  const cloudSecret = document.getElementById('cloud-secret').value.trim();
+
+  if (!token || !db) { showToast('Notion 토큰과 DB ID는 필수예요'); return; }
+
+  localStorage.setItem('notion_token', token);
+  localStorage.setItem('notion_db', db);
+  if (cloudName) localStorage.setItem('cloud_name', cloudName);
+  if (cloudKey) localStorage.setItem('cloud_key', cloudKey);
+  if (cloudSecret) localStorage.setItem('cloud_secret', cloudSecret);
+
+  document.getElementById('setup-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  init();
+}
+
+function openSettings() {
+  document.getElementById('notion-token').value = localStorage.getItem('notion_token') || '';
+  document.getElementById('notion-db').value = localStorage.getItem('notion_db') || '';
+  document.getElementById('cloud-name').value = localStorage.getItem('cloud_name') || '';
+  document.getElementById('cloud-key').value = localStorage.getItem('cloud_key') || '';
+  document.getElementById('cloud-secret').value = localStorage.getItem('cloud_secret') || '';
+  document.getElementById('setup-screen').classList.remove('hidden');
+}
+
+// ── 날짜 (오전 7시 기준) ──
+function getDiaryDate() {
+  const now = new Date();
+  if (now.getHours() < 7) now.setDate(now.getDate() - 1);
+  return now;
+}
+
+function formatDate(d) {
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+
+function formatDateDisplay(d) {
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  return `${mm}.${dd} — ${days[d.getDay()]}`;
+}
+
+function formatTime(d) {
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+// ── 탭 전환 ──
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'archive') loadArchive();
+}
+
+// ── 감정 선택 ──
+let selectedMood = '';
+function selectMood(el) {
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMood = el.textContent;
+}
+
+// ── 사진 처리 ──
+let selectedPhotos = [];
+function handlePhotos(input) {
+  const files = Array.from(input.files);
+  const remaining = 5 - selectedPhotos.length;
+  const toAdd = files.slice(0, remaining);
+  toAdd.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      selectedPhotos.push({ file, dataUrl: e.target.result });
+      renderPhotoPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderPhotoPreview() {
+  const container = document.getElementById('photo-preview');
+  container.innerHTML = '';
+  selectedPhotos.forEach((p, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    thumb.innerHTML = `<img src="${p.dataUrl}"><button class="photo-remove" onclick="removePhoto(${i})">×</button>`;
+    container.appendChild(thumb);
+  });
+}
+
+function removePhoto(i) {
+  selectedPhotos.splice(i, 1);
+  renderPhotoPreview();
+}
+
+// ── Cloudinary 업로드 ──
+async function uploadToCloudinary(file) {
+  const cloudName = localStorage.getItem('cloud_name');
+  const apiKey = localStorage.getItem('cloud_key');
+  const apiSecret = localStorage.getItem('cloud_secret');
+  if (!cloudName || !apiKey || !apiSecret) return null;
+
+  const timestamp = Math.round(Date.now() / 1000);
+  // unsigned upload preset 사용 (secret 불필요)
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'diary_app');
+  formData.append('api_key', apiKey);
+
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST', body: formData
+    });
+    const data = await res.json();
+    return data.secure_url || null;
+  } catch { return null; }
+}
+
+// ── Notion: 오늘 페이지 찾기 or 생성 ──
+async function getTodayPageId() {
+  const token = localStorage.getItem('notion_token');
+  const db = localStorage.getItem('notion_db');
+  const dateStr = formatDate(getDiaryDate());
+
+  // 검색
+  const searchRes = await fetch(`https://api.notion.com/v1/databases/${db}/query`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      filter: { property: '날짜', date: { equals: dateStr } }
+    })
+  });
+  const searchData = await searchRes.json();
+  if (searchData.results && searchData.results.length > 0) {
+    return searchData.results[0].id;
+  }
+
+  // 없으면 생성
+  const days = ['일','월','화','수','목','금','토'];
+  const d = getDiaryDate();
+  const title = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+
+  const createRes = await fetch('https://api.notion.com/v1/pages', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      parent: { database_id: db },
+      properties: {
+        '이름': { title: [{ text: { content: title } }] },
+        '날짜': { date: { start: dateStr } }
+      },
+      children: [
+        // 섹션 1: 틈틈이 기록
+        { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '✏️ 틈틈이 기록' } }], color: 'default' } },
+        { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } },
+        // 구분선
+        { object: 'block', type: 'divider', divider: {} },
+        // 섹션 2: 직접 쓰는 글
+        { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '🖊 오늘의 생각' } }] } },
+        { object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } },
+        // 구분선
+        { object: 'block', type: 'divider', divider: {} },
+        // 섹션 3: 감사일기
+        { object: 'block', type: 'heading_3', heading_3: { rich_text: [{ text: { content: '🌿 감사 일기' } }] } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘 감사한 일' } }], icon: { emoji: '🍀' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘의 칭찬' } }], icon: { emoji: '😊' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '나를 위해 한 일' } }], icon: { emoji: '⚡' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '가장 노력했던 일' } }], icon: { emoji: '✨' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '오늘의 마무리 기분' } }], icon: { emoji: '🌙' } } },
+        { object: 'block', type: 'callout', callout: { rich_text: [{ text: { content: '내일 해야 할 일' } }], icon: { emoji: '✅' } } },
+      ]
+    })
+  });
+  const createData = await createRes.json();
+  return createData.id;
+}
+
+
+
+// ── 감정 색상 매핑 ──
+const MOOD_COLORS = {
+  // 긍정 → 초록
+  '평온함': 'green', '뿌듯함': 'green', '감사함': 'green',
+  '행복함': 'green', '설렘': 'green',
+  // 부정 → 빨간
+  '불안': 'red', '무기력': 'red', '답답함': 'red',
+  '외로움': 'red', '피곤함': 'red',
+  // 그 외 → 노란 (yellow) + 회색 글씨는 annotations color로 처리
+  '멍함': 'yellow', '복잡함': 'yellow', '모르겠음': 'yellow'
+};
+
+function getMoodColor(mood) {
+  return MOOD_COLORS[mood] || 'default';
+}
+
+// ── 노션에 기록 블록 추가 (직접 API) ──
+async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
+  const token = localStorage.getItem('notion_token');
+  const moodColor = getMoodColor(mood);
+  const isNeutral = ['멍함','복잡함','모르겠음'].includes(mood);
+
+  const children = [];
+
+  // 블록 1: time + mood (한 paragraph, 두 텍스트 span)
+  const moodSpan = {
+    type: 'text',
+    text: { content: mood ? ` ${mood}` : '' },
+    annotations: {
+      color: isNeutral ? 'yellow' : moodColor,
+      bold: false
+    }
+  };
+  const timeSpan = {
+    type: 'text',
+    text: { content: timeStr },
+    annotations: { color: 'gray', bold: false }
+  };
+
+  children.push({
+    object: 'block',
+    type: 'paragraph',
+    paragraph: {
+      rich_text: mood ? [timeSpan, moodSpan] : [timeSpan]
+    }
+  });
+
+  // 블록 2: 본문 (볼드, 줄바꿈 처리)
+  if (text && text.trim()) {
+    children.push({
+      object: 'block',
+      type: 'paragraph',
+      paragraph: {
+        rich_text: [{
+          type: 'text',
+          text: { content: text },
+          annotations: { bold: true, color: 'default' }
+        }]
+      }
+    });
+  }
+
+  // 블록 3: 사진 column_list (있을 때만)
+  if (photoUrls && photoUrls.length > 0) {
+    const columns = photoUrls.map(url => ({
+      object: 'block',
+      type: 'column',
+      column: {
+        children: [{
+          object: 'block',
+          type: 'image',
+          image: { type: 'external', external: { url } }
+        }]
+      }
+    }));
+    children.push({
+      object: 'block',
+      type: 'column_list',
+      column_list: { children: columns }
+    });
+  }
+
+  // 블록 4: 빈 줄 구분
+  children.push({
+    object: 'block',
+    type: 'paragraph',
+    paragraph: {
+      rich_text: [{ type: 'text', text: { content: 'ㅤ' } }]
+    }
+  });
+
+  await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ children })
+  });
+}
+
+// ── 기록 저장 ──
+async function saveRecord() {
+  const text = document.getElementById('memo-input').value.trim();
+  if (!text && selectedPhotos.length === 0) { showToast('내용을 입력해주세요'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  document.getElementById('loading').classList.remove('hidden');
+
+  try {
+    const now = new Date();
+    const timeStr = formatTime(now);
+
+    // 사진 업로드 (Cloudinary)
+    let photoUrls = [];
+    for (const p of selectedPhotos) {
+      const url = await uploadToCloudinary(p.file);
+      if (url) photoUrls.push(url);
+    }
+
+    // Notion 페이지 가져오거나 생성
+    const pageId = await getTodayPageId();
+    let notionUrl = null;
+    if (pageId) {
+      notionUrl = `https://notion.so/${pageId.replace(/-/g,'')}`;
+      await appendRecordToNotion(pageId, timeStr, selectedMood, text, photoUrls);
+    }
+
+    // UI 업데이트
+    const displayPhotos = photoUrls.length > 0
+      ? photoUrls
+      : selectedPhotos.map(p => p.dataUrl);
+
+    addRecordToUI(timeStr, selectedMood, text, displayPhotos, notionUrl);
+    document.getElementById('memo-input').value = '';
+    selectedMood = '';
+    selectedPhotos = [];
+    renderPhotoPreview();
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+    showToast('저장됐어요');
+
+  } catch(e) {
+    showToast('오류가 발생했어요');
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  document.getElementById('loading').classList.add('hidden');
+}
+
+// ── UI에 기록 추가 ──
+function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
+  const list = document.getElementById('record-list');
+  const empty = list.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  const item = document.createElement('div');
+  item.className = 'record-item';
+
+  // 썸네일: 첫 사진 1장만 미리보기로 표시
+  let thumbHtml = '';
+  if (photoUrls && photoUrls.length > 0) {
+    thumbHtml = `<div class="record-photos"><img class="record-photo" src="${photoUrls[0]}">${photoUrls.length > 1 ? `<span class="record-photo-more">+${photoUrls.length - 1}</span>` : ''}</div>`;
+  }
+
+  item.innerHTML = `
+    <div class="record-time">${time}</div>
+    <div>
+      ${mood ? `<span class="record-tag">${mood}</span>` : ''}
+      ${text ? `<div class="record-text">${text}</div>` : ''}
+      ${thumbHtml}
+    </div>`;
+
+  // 클릭 시 팝업
+  item.addEventListener('click', () => openPopup(time, mood, text, photoUrls || [], notionUrl));
+
+  list.insertBefore(item, list.firstChild);
+}
+
+// ── 팝업 ──
+let currentPopupPhotos = [];
+function openPopup(time, mood, text, photoUrls, notionUrl) {
+  currentPopupPhotos = photoUrls || [];
+  document.getElementById('popup-time').textContent = time;
+
+  const moodEl = document.getElementById('popup-mood');
+  moodEl.innerHTML = mood ? `<div class="popup-mood">${mood}</div>` : '';
+
+  document.getElementById('popup-text').textContent = text || '';
+
+  const photosEl = document.getElementById('popup-photos');
+  if (photoUrls.length > 0) {
+    photosEl.className = 'popup-photos' + (photoUrls.length === 1 ? ' single' : '');
+    photosEl.innerHTML = photoUrls.map(u => `<img src="${u}" loading="lazy">`).join('');
+    photosEl.style.display = '';
+  } else {
+    photosEl.innerHTML = '';
+    photosEl.style.display = 'none';
+  }
+
+  const btn = document.getElementById('popup-notion-btn');
+  if (notionUrl) {
+    btn.href = notionUrl;
+    btn.style.display = '';
+  } else {
+    btn.style.display = 'none';
+  }
+
+  document.getElementById('record-popup').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePopup(e) {
+  if (e.target === document.getElementById('record-popup')) closePopupDirect();
+}
+function closePopupDirect() {
+  document.getElementById('record-popup').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── 아카이브 로드 ──
+const MAKE_ARCHIVE_WEBHOOK = 'https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
+
+async function loadArchive() {
+  const list = document.getElementById('archive-list');
+  list.innerHTML = '<div class="archive-empty">불러오는 중...</div>';
+
+  try {
+    const res = await fetch(MAKE_ARCHIVE_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'load_archive',
+        notion_token: localStorage.getItem('notion_token'),
+        notion_db: localStorage.getItem('notion_db')
+      })
+    });
+
+    const data = await res.json();
+    if (!data.results || data.results.length === 0) {
+      list.innerHTML = '<div class="archive-empty">아직 기록이 없어요.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    data.results.forEach(page => {
+      const props = page.properties;
+      const dateStr = props['날짜']?.date?.start || '';
+      if (!dateStr) return;
+
+      const d = new Date(dateStr + 'T00:00:00');
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      const dateDisplay = `${mm}.${dd} — ${days[d.getDay()]}`;
+
+      const energy = getTextProp(props, '에너지 레벨') || '';
+      const insight = getTextProp(props, '사고 흐름') || '';
+      const encourage = getTextProp(props, '격려') || '';
+      const analyzed = props['분석 완료']?.checkbox;
+
+      const item = document.createElement('div');
+      item.className = 'archive-item';
+      item.innerHTML = `
+        <div class="archive-item-header">
+          <div class="archive-date">${dateDisplay}</div>
+          <div class="archive-view" onclick="openNotion('${page.url}')">VIEW →</div>
+        </div>
+        ${energy ? `<span class="archive-energy">${energy}</span>` : ''}
+        ${insight ? `<div class="archive-insight">${insight}</div>` : ''}
+        ${encourage ? `<div class="archive-encourage">"${encourage}"</div>` : (!analyzed ? '<div class="archive-insight" style="color:var(--ink-muted)">분석 전</div>' : '')}
+      `;
+      list.appendChild(item);
+    });
+  } catch(e) {
+    list.innerHTML = '<div class="archive-empty">불러오기 실패</div>';
+  }
+}
+
+function getTextProp(props, key) {
+  const p = props[key];
+  if (!p) return '';
+  if (p.rich_text) return p.rich_text.map(t => t.plain_text).join('');
+  if (p.select) return p.select.name;
+  return '';
+}
+
+function openNotion(url) {
+  window.open(url, '_blank');
+}
+
+// ── 토스트 ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── 초기화 ──
+function init() {
+  const d = getDiaryDate();
+  document.getElementById('current-date').textContent = formatDateDisplay(d);
+}
+
+// ── 시작 ──
+window.onload = () => {
+  const token = localStorage.getItem('notion_token');
+  const db = localStorage.getItem('notion_db');
+  if (token && db) {
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    init();
+  }
+};
+
+// ── 라이트박스 ──
+let lbPhotos = [];
+let lbIndex = 0;
+let lbTouchStartX = 0;
+
+function openLightbox(photos, index) {
+  lbPhotos = photos;
+  lbIndex = index;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderLightbox() {
+  const img = document.getElementById('lightbox-img');
+  img.style.opacity = '0';
+  setTimeout(() => {
+    img.src = lbPhotos[lbIndex];
+    img.style.opacity = '1';
+  }, 80);
+  document.getElementById('lb-counter').textContent =
+    lbPhotos.length > 1 ? `${lbIndex + 1} / ${lbPhotos.length}` : '';
+  document.getElementById('lb-prev').classList.toggle('hidden', lbIndex === 0);
+  document.getElementById('lb-next').classList.toggle('hidden', lbIndex === lbPhotos.length - 1);
+}
+
+function lightboxNav(dir) {
+  const next = lbIndex + dir;
+  if (next < 0 || next >= lbPhotos.length) return;
+  lbIndex = next;
+  renderLightbox();
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lightboxOverlayClick(e) {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+}
+
+// 스와이프
+document.addEventListener('DOMContentLoaded', () => {
+  const inner = document.getElementById('lightbox-inner');
+  inner.addEventListener('touchstart', e => { lbTouchStartX = e.touches[0].clientX; }, { passive: true });
+  inner.addEventListener('touchend', e => {
+    const diff = lbTouchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) lightboxNav(diff > 0 ? 1 : -1);
+  });
+  // 키보드
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') lightboxNav(-1);
+    if (e.key === 'ArrowRight') lightboxNav(1);
+    if (e.key === 'Escape') closeLightbox();
+  });
+});
+</script>
+</body>
+</html>
