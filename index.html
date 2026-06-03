@@ -850,7 +850,7 @@ async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
   if (mood) {
     richText.push({
       type: 'text',
-      text: { content: getMoodEmoji(mood) + ' #' + mood + '\n' },
+      text: { content: getMoodEmoji(mood) + ' ' + mood + '\n' },
       annotations: { color: 'default', bold: false, italic: true }
     });
   }
@@ -1520,7 +1520,7 @@ async function saveEdit() {
     const richText = [];
     richText.push({ type: 'text', text: { content: timeStr + '\n' }, annotations: { color: 'gray', bold: false, italic: false } });
     if (currentPopupMood) {
-      richText.push({ type: 'text', text: { content: getMoodEmoji(currentPopupMood) + ' #' + currentPopupMood + '\n' }, annotations: { color: 'default', bold: false, italic: true } });
+      richText.push({ type: 'text', text: { content: getMoodEmoji(currentPopupMood) + ' ' + currentPopupMood + '\n' }, annotations: { color: 'default', bold: false, italic: true } });
     }
     if (newText) {
       richText.push({ type: 'text', text: { content: newText }, annotations: { bold: true, italic: false, color: 'default' } });
