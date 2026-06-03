@@ -1649,6 +1649,14 @@ async function saveEdit() {
       if (tagEl) tagEl.textContent = finalMood;
       const textEl = currentPopupItem.querySelector('.record-text');
       if (textEl) textEl.textContent = newText;
+      const photoDiv = currentPopupItem.querySelector('.record-photos');
+      if (finalPhotoUrls.length > 0) {
+        const thumbHtml = '<div class="record-photos"><img class="record-photo" src="' + finalPhotoUrls[0] + '">' + (finalPhotoUrls.length > 1 ? '<span class="record-photo-more">+' + (finalPhotoUrls.length - 1) + '</span>' : '') + '</div>';
+        if (photoDiv) photoDiv.outerHTML = thumbHtml;
+        else currentPopupItem.querySelector('div:last-child').insertAdjacentHTML('beforeend', thumbHtml);
+      } else {
+        if (photoDiv) photoDiv.remove();
+      }
     }
 
     
@@ -1668,15 +1676,16 @@ async function saveEdit() {
     if (finalPhotoUrls.length > 0) {
       const pageId = await getTodayPageId();
       if (pageId) {
-        let photoChildren;
-        if (finalPhotoUrls.length === 1) {
-          photoChildren = [{ object: 'block', type: 'image', image: { type: 'external', external: { url: finalPhotoUrls[0] } } }];
-        } else {
-          const cols = finalPhotoUrls.map(url => ({
-            object: 'block', type: 'column',
-            column: { children: [{ object: 'block', type: 'image', image: { type: 'external', external: { url } } }] }
-          }));
-          photoChildren = [{ object: 'block', type: 'column_list', column_list: { children: cols } }];
+        var photoChildren = [];
+        for (var pi = 0; pi < finalPhotoUrls.length; pi += 3) {
+          var rowUrls = finalPhotoUrls.slice(pi, pi + 3);
+          var cols = rowUrls.map(function(url) {
+            return { object: 'block', type: 'column', column: { children: [{ object: 'block', type: 'image', image: { type: 'external', external: { url: url } } }] } };
+          });
+          while (cols.length < 3) {
+            cols.push({ object: 'block', type: 'column', column: { children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [{ type: 'text', text: { content: ' ' } }] } }] } });
+          }
+          photoChildren.push({ object: 'block', type: 'column_list', column_list: { children: cols } });
         }
         const photoRes = await fetch(WORKER_URL + '/notion/blocks/' + pageId + '/children', {
           method: 'PATCH',
@@ -1778,6 +1787,12 @@ async function deleteRecord() {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' }
     });
+    if (currentPhotoBlockId) {
+      await fetch(WORKER_URL + '/notion/blocks/' + currentPhotoBlockId, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     
     if (currentPopupItem) currentPopupItem.remove();
