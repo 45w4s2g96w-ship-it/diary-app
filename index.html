@@ -693,8 +693,7 @@
       <div class="date-big" id="current-date">06.03 - WED</div>
     </div>
     <div class="emotion-section">
-      <div class="emotion-label">MOOD</div>
-      <div class="emotion-row">
+            <div class="emotion-row">
         <div class="emotion-row-label">Positive</div>
         <div class="emotion-tags">
           <span class="tag" onclick="selectMood(this)">평온함</span>
@@ -809,11 +808,11 @@ const MOOD_EMOJI = {
 };
 
 const MOOD_TYPE = {
-  '평온함': 'positive', '빼듯함': 'positive', '감사함': 'positive',
-  '행복함': 'positive', '설레임': 'positive',
+  '평온함': 'positive', '뿌듯함': 'positive', '감사함': 'positive',
+  '행복함': 'positive', '설렘': 'positive',
   '불안': 'negative', '무기력': 'negative', '답답함': 'negative',
   '외로움': 'negative', '피곤함': 'negative',
-  '멑함': 'etc', '복잡함': 'etc', '모르갮음': 'etc'
+  '멍함': 'etc', '복잡함': 'etc', '모르겠음': 'etc'
 };
 
 function getMoodEmoji(mood) {
@@ -1039,6 +1038,11 @@ function selectCustomType(type) {
   document.querySelectorAll('.emotion-custom-type').forEach(b => b.classList.remove('selected'));
   const map = { positive: 'custom-type-pos', negative: 'custom-type-neg', etc: 'custom-type-etc' };
   document.getElementById(map[type]).classList.add('selected');
+  // 위 태그 선택 해제
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('selected'));
+  // 직접입력 값이 없으면 감정을 타입 이름으로
+  const customVal = document.getElementById('custom-mood-input').value.trim();
+  if (!customVal) selectedMood = type === 'positive' ? '긍정' : type === 'negative' ? '부정' : '기타';
 }
 
 function recordCustomMoodHistory(mood, type) {
@@ -1388,7 +1392,7 @@ async function saveRecord() {
   document.getElementById('loading').classList.add('hidden');
 }
 
-function addRecordToUI(time, mood, text, photoUrls, notionUrl) {
+function addRecordToUI(time, mood, text, photoUrls, notionUrl, blockId) {
   const list = document.getElementById('record-list');
   const empty = list.querySelector('.empty-state');
   if (empty) empty.remove();
