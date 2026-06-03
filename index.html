@@ -1602,9 +1602,7 @@ async function addPhotosToRecord(input) {
   }
   if (!newUrls.length) { showToast('업로드 실패'); return; }
 
-  const notionBtnHref = document.getElementById('popup-notion-btn').href || '';
-  const pageIdFromUrl = notionBtnHref.replace('https://notion.so/', '').replace(/-/g, '');
-  const pageId = pageIdFromUrl || await getTodayPageId();
+  const pageId = await getTodayPageId();
   if (!pageId) return;
 
   const columns = newUrls.map(url => ({
