@@ -84,8 +84,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .record-time { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: var(--ink-muted); padding-top: 2px; }
 .record-tag { display: inline-block; font-size: 10px; font-weight: 600; color: var(--ink-soft); border: 1px solid var(--ink-soft); padding: 1px 6px; border-radius: 1px; margin-bottom: 3px; }
 .record-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.55; color: var(--ink); }
-.record-photos { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 5px; }
-.record-photo { width: calc(33.3% - 3px); aspect-ratio: 1; object-fit: cover; border-radius: 2px; }
+.record-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 5px; justify-items: center; }
+.record-photo { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 2px; }
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
 /* Quadrant (Todo & Cart) */
@@ -235,7 +235,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-body { padding: 14px 22px; }
 .rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: var(--ink); border: 1.5px solid var(--ink); padding: 2px 10px; border-radius: 1px; margin-bottom: 10px; }
 .rp-text { font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300; line-height: 1.75; color: var(--ink); white-space: pre-wrap; margin-bottom: 12px; }
-.rp-photos { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin-bottom: 14px; }
+.rp-photos { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin-bottom: 14px; justify-items: center; }
 .rp-photos-edit { margin-bottom: 10px; }
 .rp-edit-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--ink); border-radius: 2px; padding: 10px; outline: none; resize: none; line-height: 1.6; margin-bottom: 10px; overflow: hidden; }
 .rp-actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--rule); }
@@ -747,10 +747,34 @@ async function loadTodayRecords(){
       const content=texts.map(t=>t?.text?.content||'').join('');const lines=content.split('\n').map(l=>l.trim()).filter(l=>l);if(!lines.length){i++;continue;}
       if(!/^\d{2}:\d{2}$/.test(lines[0])){i++;continue;}
       const timeStr=lines[0];let mood='',text='';
-      if(lines[1])mood=lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
-      if(lines[2])text=lines.slice(2).join('\n');
+      if(lines[1]&&/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(lines[1])){
+        mood=lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
+        if(lines[2])text=lines.slice(2).join('\n');
+      }else{
+        if(lines[1])text=lines.slice(1).join('\n');
+      }
       let photoUrls=[],photoBlockId=null;
-      if(i+1<allBlocks.length&&allBlocks[i+1].type==='column_list'){photoBlockId=allBlocks[i+1].id;i++;}
+      if(i+1<allBlocks.length&&allBlocks[i+1].type==='column_list'){
+        photoBlockId=allBlocks[i+1].id;
+        // column_list의 각 column children에서 이미지 URL 추출
+        try{
+          const colRes=await fetch(WORKER_URL+'/notion/blocks/'+photoBlockId+'/children',{headers:{'Content-Type':'application/json'}});
+          const colData=await colRes.json();
+          for(const col of colData.results||[]){
+            if(col.type==='column'){
+              const imgRes=await fetch(WORKER_URL+'/notion/blocks/'+col.id+'/children',{headers:{'Content-Type':'application/json'}});
+              const imgData=await imgRes.json();
+              for(const imgBlock of imgData.results||[]){
+                if(imgBlock.type==='image'){
+                  const url=imgBlock.image?.external?.url||imgBlock.image?.file?.url||'';
+                  if(url)photoUrls.push(url);
+                }
+              }
+            }
+          }
+        }catch(e){console.error('photo fetch failed',e);}
+        i++;
+      }
       addRecordToUI(timeStr,mood,text,photoUrls,notionUrl,block.id,photoBlockId);i++;
     }
   }catch(e){console.error('load records failed',e);}
