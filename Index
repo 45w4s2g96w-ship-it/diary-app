@@ -1943,12 +1943,15 @@ async function confirmAddReview() {
   renderReviews();
   renderBookList();
   saveBookToStorage();
-  // 노션 페이지 본문에 블록 추가
+  // 노션 페이지 본문에 블록 추가 — 날짜 / 내 생각 / 필사 구조
   if(book.notionId) {
     try {
       const children = [
-        { object:'block', type:'heading_3', heading_3:{ rich_text:[{type:'text',text:{content:dateLabel}}] } },
-        { object:'block', type:'paragraph', paragraph:{ rich_text:[{type:'text',text:{content:text},annotations:{bold:false}}] } },
+        { object:'block', type:'heading_3', heading_3:{ rich_text:[{type:'text',text:{content:'📅 '+dateLabel}}] } },
+        { object:'block', type:'heading_3', heading_3:{ rich_text:[{type:'text',text:{content:'💭 내 생각'}}] } },
+        { object:'block', type:'paragraph', paragraph:{ rich_text:[{type:'text',text:{content:text}}] } },
+        { object:'block', type:'heading_3', heading_3:{ rich_text:[{type:'text',text:{content:'✍️ 필사'}}] } },
+        { object:'block', type:'callout', callout:{ rich_text:[{type:'text',text:{content:'필사 내용을 여기에 입력하거나 사진을 첨부하세요.'}}], icon:{emoji:'✍️'}, color:'gray_background' } },
         { object:'block', type:'divider', divider:{} }
       ];
       await fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children', {
