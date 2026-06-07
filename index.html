@@ -4,597 +4,343 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>daily note</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="daily note">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#111111">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Gothic+A1:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --paper: #efefed;
-    --ink: #111111;
-    --ink-soft: #444;
-    --ink-muted: #888;
-    --rule: #c8c4bc;
-    --content-width: 430px;
-    --pad-h: 22px;
-  }
+:root {
+  --paper: #efefed;
+  --ink: #111111;
+  --ink-soft: #444;
+  --ink-muted: #888;
+  --rule: #c8c4bc;
+  --content-width: 430px;
+  --pad-h: 22px;
+}
+@media (min-width: 768px) { :root { --content-width: 680px; --pad-h: 32px; } }
+@media (min-width: 1280px) { :root { --content-width: 860px; --pad-h: 48px; } }
 
-  /* ── 반응형 너비 ── */
-  @media (min-width: 768px) {
-    :root {
-      --content-width: 680px;
-      --pad-h: 32px;
-    }
-  }
-  @media (min-width: 1280px) {
-    :root {
-      --content-width: 860px;
-      --pad-h: 48px;
-    }
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  background: var(--paper); font-family: 'Gothic A1', sans-serif;
+  display: flex; flex-direction: column;
+  width: 100%; max-width: var(--content-width);
+  margin: 0 auto; position: relative; min-height: 100%;
+}
+@media (max-width: 767px) { html, body { overflow: hidden; } body { height: 100%; } }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; }
-  body {
-    background: var(--paper);
-    font-family: 'Gothic A1', sans-serif;
-    display: flex;
-    flex-direction: column;
-    /* 모바일: 꽉 채움 / 태블릿·PC: 중앙 고정 */
-    width: 100%;
-    max-width: var(--content-width);
-    margin: 0 auto;
-    position: relative;
-    /* PC에서 최소 높이만 100%, overflow는 허용 */
-    min-height: 100%;
-  }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.012) 3px, rgba(0,0,0,0.012) 4px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 100; mix-blend-mode: multiply;
+}
 
-  /* 모바일만 overflow hidden (스크롤 앱처럼) */
-  @media (max-width: 767px) {
-    html, body { overflow: hidden; }
-    body { height: 100%; }
-  }
+/* ── Setup ── */
+#setup-screen {
+  position: fixed; inset: 0; background: var(--paper); z-index: 200;
+  display: flex; flex-direction: column;
+  padding: 60px var(--pad-h) 40px; overflow-y: auto;
+  max-width: var(--content-width); margin: 0 auto;
+  left: 50%; transform: translateX(-50%); width: 100%;
+}
+#setup-screen.hidden { display: none; }
+.setup-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 40px; line-height: 0.95; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px; }
+.setup-sub { font-size: 13px; font-weight: 300; color: var(--ink-muted); margin-bottom: 40px; line-height: 1.6; }
+.setup-section { margin-bottom: 28px; }
+.setup-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.15em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 8px; }
+.setup-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 400; padding: 12px 14px; border: 1.5px solid var(--rule); background: transparent; color: var(--ink); border-radius: 2px; outline: none; transition: border-color 0.15s; }
+.setup-input:focus { border-color: var(--ink); }
+.setup-input::placeholder { color: var(--ink-muted); }
+.setup-save-btn { width: 100%; margin-top: 20px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.15em; background: var(--ink); color: var(--paper); border: none; padding: 16px; cursor: pointer; border-radius: 2px; }
+.setup-logout-btn { width: 100%; margin-top: 10px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.15em; background: transparent; color: #c0392b; border: 1.5px solid #c0392b; padding: 14px; cursor: pointer; border-radius: 2px; }
 
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.012) 3px, rgba(0,0,0,0.012) 4px),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 100; mix-blend-mode: multiply;
-  }
+/* ── App shell ── */
+#app { display: flex; flex-direction: column; height: 100%; }
+#app.hidden { display: none; }
+@media (min-width: 768px) { #app { height: auto; min-height: 100vh; } }
 
-  /* ── Setup ── */
-  #setup-screen {
-    position: fixed; inset: 0;
-    background: var(--paper);
-    z-index: 200;
-    display: flex; flex-direction: column;
-    padding: 60px var(--pad-h) 40px;
-    overflow-y: auto;
-    max-width: var(--content-width);
-    margin: 0 auto;
-    left: 50%; transform: translateX(-50%);
-    width: 100%;
-  }
-  #setup-screen.hidden { display: none; }
+.tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.tab-content.active { display: flex; }
+@media (min-width: 768px) { .tab-content { overflow: visible; } .tab-content.active { display: block; } }
 
-  .setup-title {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900; font-size: 40px;
-    line-height: 0.95; letter-spacing: -0.02em;
-    color: var(--ink); margin-bottom: 8px;
-  }
-  .setup-sub {
-    font-family: 'Gothic A1', sans-serif;
-    font-size: 13px; font-weight: 300;
-    color: var(--ink-muted); margin-bottom: 40px; line-height: 1.6;
-  }
-  .setup-section { margin-bottom: 28px; }
-  .setup-label {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.15em; color: var(--ink-muted);
-    text-transform: uppercase; margin-bottom: 8px;
-  }
-  .setup-input {
-    width: 100%;
-    font-family: 'Gothic A1', sans-serif;
-    font-size: 13px; font-weight: 400;
-    padding: 12px 14px;
-    border: 1.5px solid var(--rule);
-    background: transparent; color: var(--ink);
-    border-radius: 2px; outline: none;
-    transition: border-color 0.15s;
-  }
-  .setup-input:focus { border-color: var(--ink); }
-  .setup-input::placeholder { color: var(--ink-muted); }
-  .setup-logout-btn {
-    width: 100%; margin-top: 10px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 13px; font-weight: 700;
-    letter-spacing: 0.15em;
-    background: transparent; color: #c0392b;
-    border: 1.5px solid #c0392b; padding: 14px;
-    cursor: pointer; border-radius: 2px;
-  }
-  .setup-save-btn {
-    width: 100%; margin-top: 20px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 13px; font-weight: 700;
-    letter-spacing: 0.15em;
-    background: var(--ink); color: var(--paper);
-    border: none; padding: 16px;
-    cursor: pointer; border-radius: 2px;
-  }
+/* ── Tab bar ── */
+.tab-bar {
+  display: flex; border-top: 2px solid var(--ink);
+  background: var(--paper); flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .tab-bar { position: sticky; top: 0; z-index: 50; border-top: none; border-bottom: 2px solid var(--ink); order: -1; }
+}
+.tab-btn {
+  flex: 1; padding: 11px 0; text-align: center;
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 9px;
+  letter-spacing: 0.1em; color: var(--ink-muted);
+  cursor: pointer; border: none; background: transparent; transition: all 0.15s;
+  border-right: 1px solid var(--rule);
+}
+.tab-btn:last-child { border-right: none; }
+.tab-btn.active { background: var(--ink); color: var(--paper); }
 
-  /* ── App shell ── */
-  #app { display: flex; flex-direction: column; height: 100%; }
-  #app.hidden { display: none; }
+/* ── Section header ── */
+.section-header { padding: 14px var(--pad-h) 12px; border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; }
+.section-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 32px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+.settings-btn { position: absolute; top: 14px; right: var(--pad-h); font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; }
 
-  /* 모바일: height 100%, 탭 고정 / 태블릿·PC: 자연 흐름 */
-  @media (min-width: 768px) {
-    #app { height: auto; min-height: 100vh; }
-  }
+/* ── Emotion ── */
+.emotion-section { padding: 8px var(--pad-h) 10px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
+.emotion-optional-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--rule); text-transform: uppercase; margin-bottom: 6px; }
+.emotion-row { display: flex; align-items: center; margin-bottom: 5px; overflow-x: auto; scrollbar-width: none; }
+.emotion-row::-webkit-scrollbar { display: none; }
+.emotion-row-label { font-family: 'Montserrat', sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 0.03em; color: var(--ink-muted); min-width: 46px; max-width: 46px; padding-right: 6px; flex-shrink: 0; text-transform: uppercase; line-height: 1.3; }
+.emotion-tags { display: flex; gap: 5px; width: max-content; }
+.tag { font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 400; padding: 3px 10px; border: 1.5px solid var(--ink); border-radius: 1px; cursor: pointer; white-space: nowrap; color: var(--ink); background: transparent; transition: all 0.12s; }
+.tag.selected { background: var(--ink); color: var(--paper); font-weight: 600; }
 
-  .tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-  .tab-content.active { display: flex; }
+/* ── Input section ── */
+.input-section { padding: 12px var(--pad-h) 10px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
+.text-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); background: transparent; border: none; outline: none; resize: none; line-height: 1.6; min-height: 52px; overflow: hidden; display: block; }
+.text-input::placeholder { color: var(--ink-muted); }
+.input-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.attach-btn { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; padding: 4px 0; }
+.submit-btn { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; background: var(--ink); color: var(--paper); border: none; padding: 8px 20px; cursor: pointer; border-radius: 1px; }
+#photo-input { display: none; }
 
-  @media (min-width: 768px) {
-    .tab-content { overflow: visible; }
-    .tab-content.active { display: block; }
-  }
+/* ── Record list ── */
+.record-list { flex: 1; overflow-y: auto; padding: 0 var(--pad-h); scrollbar-width: none; }
+.record-list::-webkit-scrollbar { display: none; }
+.record-item { padding: 10px 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 36px 1fr; gap: 8px; cursor: pointer; }
+.record-item:active { opacity: 0.65; }
+.record-time { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: var(--ink-muted); padding-top: 2px; }
+.record-tag { display: inline-block; font-size: 10px; font-weight: 600; color: var(--ink-soft); border: 1px solid var(--ink-soft); padding: 1px 6px; border-radius: 1px; margin-bottom: 3px; }
+.record-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.55; color: var(--ink); }
+.empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
-  /* ── Date hero ── */
-  .date-hero {
-    padding: 14px var(--pad-h) 12px;
-    border-bottom: 2px solid var(--ink);
-    flex-shrink: 0;
-  }
-  .date-big {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900; font-size: 32px;
-    line-height: 1; color: var(--ink);
-    letter-spacing: -0.02em;
-  }
-  @media (min-width: 768px) {
-    .date-big { font-size: 40px; }
-  }
-  @media (min-width: 1280px) {
-    .date-big { font-size: 48px; }
-  }
+/* ── Todo quadrant ── */
+.quadrant-grid {
+  flex: 1; overflow-y: auto; padding: var(--pad-h);
+  display: grid; grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0; align-content: start; scrollbar-width: none;
+  border: 1.5px solid var(--ink); margin: var(--pad-h);
+  border-radius: 2px;
+}
+.quadrant-grid::-webkit-scrollbar { display: none; }
+.quadrant {
+  border: none; padding: 12px 10px; cursor: pointer;
+  min-height: 140px; display: flex; flex-direction: column;
+  transition: background 0.12s; position: relative;
+}
+.quadrant:nth-child(1) { border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.quadrant:nth-child(2) { border-bottom: 1px solid var(--ink); }
+.quadrant:nth-child(3) { border-right: 1px solid var(--ink); }
+.quadrant:active { background: rgba(0,0,0,0.03); }
+.quad-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 2px; }
+.quad-due { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); letter-spacing: 0.04em; margin-bottom: 8px; }
+.quad-items { flex: 1; display: flex; flex-direction: column; }
+.quad-item { display: flex; align-items: flex-start; gap: 5px; padding: 4px 0; border-bottom: 1px solid var(--rule); }
+.quad-item:last-child { border-bottom: none; }
+.quad-check { width: 11px; height: 11px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+.quad-check.done { background: var(--ink); border-color: var(--ink); }
+.quad-check.done::after { content: ''; display: block; width: 5px; height: 3px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
+.quad-text { font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 300; line-height: 1.45; color: var(--ink); flex: 1; word-break: break-all; }
+.quad-text.done { text-decoration: line-through; color: var(--ink-muted); }
+.quad-overdue { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #c0392b; display: block; }
+.quad-add { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); margin-top: 8px; }
 
-  /* ── Emotion section ── */
-  .emotion-section {
-    padding: 8px var(--pad-h) 10px;
-    border-bottom: 1px solid var(--rule);
-    flex-shrink: 0;
-  }
-  .emotion-row {
-    display: flex; align-items: center;
-    gap: 0; margin-bottom: 5px;
-    overflow-x: auto; scrollbar-width: none;
-  }
-  .emotion-row::-webkit-scrollbar { display: none; }
-  .emotion-row:last-child { margin-bottom: 0; }
-  .emotion-row-label {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 7.5px; font-weight: 700;
-    letter-spacing: 0.03em; color: var(--ink-muted);
-    white-space: normal; min-width: 46px; max-width: 46px;
-    padding-right: 6px; flex-shrink: 0;
-    text-transform: uppercase; line-height: 1.3;
-  }
-  .emotion-tags { display: flex; gap: 5px; width: max-content; }
-  .tag {
-    font-family: 'Gothic A1', sans-serif;
-    font-size: 11px; font-weight: 400;
-    padding: 3px 10px;
-    border: 1.5px solid var(--ink); border-radius: 1px;
-    cursor: pointer; white-space: nowrap;
-    color: var(--ink); background: transparent;
-    transition: all 0.12s;
-  }
-  .tag.selected { background: var(--ink); color: var(--paper); font-weight: 600; }
+/* ── Cart ── */
+.cart-grid {
+  flex: 1; overflow-y: auto; padding: var(--pad-h);
+  display: grid; grid-template-columns: 1fr;
+  gap: 0; scrollbar-width: none;
+}
+.cart-grid::-webkit-scrollbar { display: none; }
+.cart-section { border: 1.5px solid var(--ink); border-radius: 2px; margin-bottom: 10px; overflow: hidden; }
+.cart-section-header {
+  padding: 10px 14px; border-bottom: 1px solid var(--rule);
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; background: var(--paper);
+}
+.cart-section-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); }
+.cart-section-count { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; color: var(--rule); }
+.cart-items { padding: 0 14px; }
+.cart-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.cart-item:last-child { border-bottom: none; }
+.cart-check { width: 12px; height: 12px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; margin-top: 2px; cursor: pointer; transition: all 0.12s; display: flex; align-items: center; justify-content: center; }
+.cart-check.done { background: var(--ink); border-color: var(--ink); }
+.cart-check.done::after { content: ''; display: block; width: 5px; height: 3px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
+.cart-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.5; color: var(--ink); flex: 1; }
+.cart-text.done { text-decoration: line-through; color: var(--ink-muted); }
+.cart-add-btn { width: 100%; padding: 8px 14px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); background: none; border: none; border-top: 1px solid var(--rule); cursor: pointer; text-align: left; }
 
-  @media (min-width: 768px) {
-    .emotion-row { overflow-x: visible; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
-    .emotion-tags { width: auto; flex-wrap: wrap; }
-    .tag { font-size: 12px; padding: 4px 12px; }
-  }
+/* ── Braindump ── */
+.brain-header { padding: 12px var(--pad-h) 10px; border-bottom: 2px solid var(--ink); flex-shrink: 0; display: flex; justify-content: space-between; align-items: flex-end; }
+.brain-reset-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: #c0392b; border: 1px solid #c0392b; padding: 6px 12px; background: none; cursor: pointer; border-radius: 1px; }
+.brain-input-wrap { padding: 10px var(--pad-h); border-bottom: 1px solid var(--rule); flex-shrink: 0; }
+.brain-textarea { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); background: transparent; border: none; outline: none; resize: none; line-height: 1.7; min-height: 60px; overflow: hidden; display: block; }
+.brain-textarea::placeholder { color: var(--ink-muted); }
+.brain-add-btn { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; background: var(--ink); color: var(--paper); border: none; padding: 8px 20px; cursor: pointer; border-radius: 1px; margin-top: 8px; }
+.brain-list { flex: 1; overflow-y: auto; padding: 0 var(--pad-h); scrollbar-width: none; }
+.brain-list::-webkit-scrollbar { display: none; }
 
-  /* ── Input section ── */
-  .input-section {
-    padding: 12px var(--pad-h) 10px;
-    border-bottom: 1px solid var(--rule);
-    flex-shrink: 0;
-  }
+/* ── Brain item ── */
+.brain-item {
+  padding: 10px 0; border-bottom: 1px solid var(--rule);
+  position: relative; user-select: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.brain-item.dragging {
+  opacity: 0.5; transform: scale(0.98);
+}
+.brain-item.lifting {
+  background: var(--paper); z-index: 50;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  border-radius: 4px; padding: 10px 12px;
+  position: fixed; width: calc(var(--content-width) - var(--pad-h) * 2);
+  pointer-events: none;
+}
+.brain-item-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.6; color: var(--ink); margin-bottom: 6px; }
+.brain-tag { display: inline-block; font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 1px; margin-bottom: 5px; }
+.brain-tag.record { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
+.brain-tag.todo { border: 1px solid var(--ink); color: var(--ink); }
+.brain-tag.cart { border: 1px solid var(--ink-soft); color: var(--ink-soft); }
+.brain-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+.brain-action-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; padding: 4px 9px; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 1px; transition: all 0.12s; }
+.brain-action-btn:active { background: var(--ink); color: var(--paper); }
+.brain-action-btn.del-btn { border-color: var(--rule); color: var(--ink-muted); }
+.brain-hold-hint { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; letter-spacing: 0.06em; color: var(--rule); margin-top: 5px; }
 
-  /* 자동 높이 textarea */
-  .text-input {
-    width: 100%;
-    font-family: 'Gothic A1', sans-serif;
-    font-size: 13px; font-weight: 300;
-    color: var(--ink); background: transparent;
-    border: none; outline: none; resize: none;
-    line-height: 1.6;
-    min-height: 52px;
-    overflow: hidden; /* 스크롤바 숨김, 높이로 늘어남 */
-    display: block;
-  }
-  @media (min-width: 768px) {
-    .text-input { font-size: 14px; min-height: 64px; }
-  }
-  @media (min-width: 1280px) {
-    .text-input { font-size: 15px; min-height: 72px; }
-  }
-  .text-input::placeholder { color: var(--ink-muted); }
+/* ── Drag drop zones ── */
+.drag-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  display: none; flex-direction: column; justify-content: flex-end;
+  pointer-events: none;
+}
+.drag-overlay.active { display: flex; pointer-events: all; }
+.drag-zones {
+  display: flex; border-top: 2px solid var(--ink);
+  background: var(--paper); height: 100px;
+}
+.drag-zone {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  border-right: 1px solid var(--rule); cursor: pointer;
+  transition: background 0.15s;
+}
+.drag-zone:last-child { border-right: none; }
+.drag-zone.hovered { background: var(--ink); }
+.drag-zone.hovered .dz-label { color: var(--paper); }
+.drag-zone.hovered .dz-icon { color: var(--paper); }
+.dz-icon { font-size: 20px; }
+.dz-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); }
+.drag-ghost { position: fixed; z-index: 400; pointer-events: none; background: var(--paper); border: 1.5px solid var(--ink); border-radius: 4px; padding: 8px 12px; font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink); max-width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0.95; display: none; }
 
-  .photo-preview {
-    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;
-  }
-  .photo-thumb {
-    position: relative;
-    flex: 1; min-width: calc(20% - 4px); max-width: calc(20% - 4px);
-    aspect-ratio: 1;
-  }
-  @media (min-width: 768px) {
-    .photo-thumb { min-width: 80px; max-width: 80px; }
-  }
-  .photo-thumb img {
-    width: 100%; height: 100%; object-fit: cover; border-radius: 2px; display: block;
-  }
-  .photo-remove {
-    position: absolute; top: 2px; right: 2px;
-    width: 16px; height: 16px;
-    background: rgba(0,0,0,0.6); color: white;
-    border: none; border-radius: 50%;
-    font-size: 10px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; line-height: 1;
-  }
-  .input-actions {
-    display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
-  }
-  .attach-btn {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 10px; font-weight: 600;
-    letter-spacing: 0.1em; color: var(--ink-muted);
-    cursor: pointer; background: none; border: none; padding: 4px 0;
-  }
-  .submit-btn {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 12px; font-weight: 600;
-    letter-spacing: 0.1em;
-    background: var(--ink); color: var(--paper);
-    border: none; padding: 8px 20px;
-    cursor: pointer; border-radius: 1px; transition: opacity 0.15s;
-  }
-  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  #photo-input { display: none; }
+/* ── Inbox ── */
+.inbox-list { flex: 1; overflow-y: auto; padding: 0 var(--pad-h) 20px; scrollbar-width: none; }
+.inbox-list::-webkit-scrollbar { display: none; }
+.inbox-date-divider { text-align: center; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-muted); padding: 20px 0 12px; }
+.inbox-bubble {
+  background: var(--ink); color: var(--paper);
+  border-radius: 16px 16px 16px 4px;
+  padding: 14px 16px; margin-bottom: 8px;
+  max-width: 88%;
+}
+.inbox-bubble-summary { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.65; margin-bottom: 10px; opacity: 0.85; }
+.inbox-bubble-encourage { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; line-height: 1.65; margin-bottom: 12px; }
+.inbox-bubble-divider { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 10px 0; }
+.inbox-bubble-suggest-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6; margin-bottom: 6px; }
+.inbox-bubble-suggest { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.65; }
+.inbox-empty { padding: 60px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
-  /* ── Record list ── */
-  .record-list {
-    flex: 1; overflow-y: auto;
-    padding: 0 var(--pad-h);
-    scrollbar-width: none;
-  }
-  .record-list::-webkit-scrollbar { display: none; }
+/* ── Popups ── */
+.popup-overlay {
+  position: fixed; inset: 0; background: rgba(17,17,17,0.55);
+  z-index: 400; display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.popup-overlay.open { opacity: 1; pointer-events: all; }
+.popup-sheet {
+  width: 100%; max-width: var(--content-width); background: var(--paper);
+  border-radius: 10px 10px 0 0; padding: 22px var(--pad-h) 36px;
+  transform: translateY(30px);
+  transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
+}
+.popup-overlay.open .popup-sheet { transform: translateY(0); }
+.popup-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
+.popup-due { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 16px; }
+.popup-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 15px; font-weight: 300; color: var(--ink); background: transparent; border: none; border-bottom: 1.5px solid var(--ink); outline: none; padding: 8px 0; line-height: 1.6; margin-bottom: 18px; }
+.popup-input::placeholder { color: var(--ink-muted); }
+.popup-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.popup-cancel { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; background: transparent; color: var(--ink-muted); border: 1px solid var(--rule); padding: 10px 16px; cursor: pointer; border-radius: 1px; }
+.popup-ok { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; background: var(--ink); color: var(--paper); border: none; padding: 10px 28px; cursor: pointer; border-radius: 1px; }
 
-  @media (min-width: 768px) {
-    .record-list { overflow-y: visible; flex: none; }
-  }
+/* Sub-popup for drag destination */
+.sub-popup-overlay {
+  position: fixed; inset: 0; background: rgba(17,17,17,0.55);
+  z-index: 500; display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.sub-popup-overlay.open { opacity: 1; pointer-events: all; }
+.sub-popup-sheet {
+  width: 100%; max-width: var(--content-width); background: var(--paper);
+  border-radius: 10px 10px 0 0; padding: 22px var(--pad-h) 36px;
+  transform: translateY(30px);
+  transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
+}
+.sub-popup-overlay.open .sub-popup-sheet { transform: translateY(0); }
+.sub-popup-title { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+.sub-popup-text { font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); padding: 10px 0; border-bottom: 1px solid var(--rule); margin-bottom: 16px; line-height: 1.5; }
+.sub-choices { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.sub-choice {
+  padding: 12px 14px; border: 1.5px solid var(--rule); border-radius: 2px;
+  font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 400;
+  color: var(--ink); cursor: pointer; transition: all 0.12s; background: transparent;
+  text-align: left;
+}
+.sub-choice:active, .sub-choice.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+/* For record: emotion row in sub-popup */
+.sub-emotion-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
 
-  .record-item {
-    padding: 10px 0;
-    border-bottom: 1px solid var(--rule);
-    display: grid; grid-template-columns: 36px 1fr;
-    gap: 8px; align-items: start;
-    cursor: pointer;
-  }
-  .record-item:active { opacity: 0.65; }
-  @media (min-width: 768px) {
-    .record-item { grid-template-columns: 48px 1fr; gap: 12px; padding: 14px 0; }
-  }
-  .record-time {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 10px; font-weight: 600;
-    color: var(--ink-muted); padding-top: 2px;
-  }
-  .record-tag {
-    display: inline-block;
-    font-family: 'Gothic A1', sans-serif;
-    font-size: 10px; font-weight: 600;
-    color: var(--ink-soft); border: 1px solid var(--ink-soft);
-    padding: 1px 6px; border-radius: 1px; margin-bottom: 3px;
-  }
-  .record-text {
-    font-family: 'Gothic A1', sans-serif;
-    font-size: 12px; font-weight: 300;
-    line-height: 1.55; color: var(--ink);
-  }
-  @media (min-width: 768px) {
-    .record-text { font-size: 13px; }
-  }
-  .record-photos { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 5px; }
-  .record-photo { width: calc(20% - 3px); aspect-ratio: 1; object-fit: cover; border-radius: 2px; }
-  .record-photo-more {
-    display: flex; align-items: center; justify-content: center;
-    width: calc(20% - 3px); aspect-ratio: 1;
-    background: var(--rule); border-radius: 2px;
-    font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; color: var(--ink-soft);
-  }
+/* ── Record popup (view) ── */
+.record-popup-overlay {
+  position: fixed; inset: 0; background: rgba(17,17,17,0.6);
+  z-index: 400; display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.record-popup-overlay.open { opacity: 1; pointer-events: all; }
+.record-popup-sheet {
+  width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px;
+  padding: 0 0 28px;
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
+  max-height: 88vh; overflow-y: auto; scrollbar-width: none;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+}
+.record-popup-sheet::-webkit-scrollbar { display: none; }
+.record-popup-overlay.open .record-popup-sheet { transform: translateY(0) scale(1); }
+.rp-header { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 22px 12px; border-bottom: 1px solid var(--rule); }
+.rp-time { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); }
+.rp-close { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
+.rp-body { padding: 16px 22px; }
+.rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: var(--ink); border: 1.5px solid var(--ink); padding: 2px 10px; border-radius: 1px; margin-bottom: 12px; }
+.rp-text { font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300; line-height: 1.75; color: var(--ink); white-space: pre-wrap; }
 
-  .empty-state {
-    padding: 40px 0; text-align: center;
-    font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300;
-    color: var(--ink-muted); line-height: 1.8;
-  }
+/* ── Toast ── */
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--paper); font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 600; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ── Archive ── */
-  .archive-header {
-    padding: 10px var(--pad-h) 12px;
-    border-bottom: 2px solid var(--ink); flex-shrink: 0;
-  }
-  .archive-title {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900; font-size: 37px;
-    line-height: 0.9; color: var(--ink); letter-spacing: -0.03em;
-  }
-  @media (min-width: 768px) { .archive-title { font-size: 48px; } }
-  .archive-list {
-    flex: 1; overflow-y: auto;
-    padding: 0 var(--pad-h); scrollbar-width: none;
-  }
-  .archive-list::-webkit-scrollbar { display: none; }
-  @media (min-width: 768px) { .archive-list { overflow-y: visible; flex: none; } }
-  .archive-item { padding: 12px 0; border-bottom: 1px solid var(--rule); }
-  .archive-item-header {
-    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;
-  }
-  .archive-date {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900; font-size: 18px;
-    color: var(--ink); letter-spacing: -0.03em;
-  }
-  .archive-view {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 9px; font-weight: 600;
-    letter-spacing: 0.12em; color: var(--ink-muted); cursor: pointer;
-  }
-  .archive-energy {
-    display: inline-block;
-    font-family: 'Gothic A1', sans-serif; font-size: 10px; font-weight: 700;
-    padding: 2px 8px; border-radius: 1px; margin-bottom: 6px;
-    background: #e0e0e0; color: #333; border: 1px solid #bbb;
-  }
-  .archive-insight {
-    font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 400;
-    color: var(--ink-soft); line-height: 1.55; margin-bottom: 5px;
-  }
-  .archive-encourage {
-    font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 300; font-style: italic;
-    color: var(--ink-soft); line-height: 1.5;
-    padding: 5px 8px; border-left: 2px solid var(--ink-soft); margin-top: 4px;
-  }
-  .archive-empty {
-    padding: 40px 0; text-align: center;
-    font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300;
-    color: var(--ink-muted); line-height: 1.8;
-  }
-
-  /* ── Tab bar ── */
-  .tab-bar {
-    display: flex;
-    border-top: 2px solid var(--ink);
-    background: var(--paper);
-    flex-shrink: 0;
-  }
-  @media (min-width: 768px) {
-    .tab-bar {
-      position: sticky; top: 0; z-index: 50;
-      border-top: none; border-bottom: 2px solid var(--ink);
-      order: -1; /* 위로 올리기 */
-    }
-  }
-  .tab-btn {
-    flex: 1; padding: 13px 0; text-align: center;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700; font-size: 11px;
-    letter-spacing: 0.12em; color: var(--ink-muted);
-    cursor: pointer; border: none; background: transparent; transition: all 0.15s;
-  }
-  .tab-btn.active { background: var(--ink); color: var(--paper); }
-  .tab-btn:first-child { border-right: 1px solid var(--rule); }
-
-  /* ── Popup ── */
-  .popup-overlay {
-    position: fixed; inset: 0;
-    background: rgba(17,17,17,0.6);
-    z-index: 400;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  }
-  .popup-overlay.open { opacity: 1; pointer-events: all; }
-  .popup-sheet {
-    width: 100%; max-width: 560px;
-    background: var(--paper); border-radius: 10px;
-    padding: 0 0 28px;
-    transform: translateY(16px) scale(0.97);
-    transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
-    max-height: 88vh; overflow-y: auto; scrollbar-width: none;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
-  }
-  .popup-sheet::-webkit-scrollbar { display: none; }
-  .popup-overlay.open .popup-sheet { transform: translateY(0) scale(1); }
-  .popup-handle { display: none; }
-  .popup-header {
-    display: flex; justify-content: space-between; align-items: baseline;
-    padding: 16px 22px 12px; border-bottom: 1px solid var(--rule);
-  }
-  .popup-time {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted);
-  }
-  .popup-close {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: var(--ink-muted);
-    background: none; border: none; cursor: pointer; padding: 4px;
-  }
-  .popup-body { padding: 16px 22px; }
-  .popup-mood {
-    display: inline-block;
-    font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 600;
-    color: var(--ink); border: 1.5px solid var(--ink);
-    padding: 2px 10px; border-radius: 1px; margin-bottom: 12px;
-  }
-  .popup-text {
-    font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300;
-    line-height: 1.75; color: var(--ink); white-space: pre-wrap; margin-bottom: 16px;
-  }
-  .popup-photos {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 3px; margin-bottom: 20px;
-  }
-  .popup-photos img {
-    width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 2px; display: block; cursor: zoom-in;
-  }
-  .popup-photos.single img { border-radius: 3px; aspect-ratio: 4/3; }
-  .popup-notion-btn {
-    display: block; width: 100%;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 0.15em; text-align: center;
-    background: var(--ink); color: var(--paper);
-    border: none; padding: 14px; cursor: pointer; border-radius: 2px; text-decoration: none;
-  }
-  .popup-actions { display: flex; gap: 8px; margin-bottom: 12px; }
-  .popup-action-btn {
-    flex: 1; padding: 7px 4px;
-    font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
-    border: 1px solid var(--ink); background: transparent; color: var(--ink);
-    cursor: pointer; border-radius: 2px; transition: all 0.12s;
-  }
-  .popup-action-btn:hover { background: var(--ink); color: var(--paper); }
-  .popup-action-btn.danger { border-color: #c0392b; color: #c0392b; }
-  .popup-action-btn.danger:hover { background: #c0392b; color: white; }
-  .popup-edit-input {
-    width: 100%;
-    font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300;
-    color: var(--ink); background: transparent;
-    border: 1.5px solid var(--ink); border-radius: 2px; padding: 10px;
-    outline: none; resize: none; line-height: 1.6; margin-bottom: 12px;
-  }
-
-  /* Mood dropdown in popup */
-  .popup-mood-tag-btn {
-    font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 400;
-    padding: 3px 10px; border: 1.5px solid var(--ink); border-radius: 1px;
-    cursor: pointer; background: transparent; color: var(--ink); transition: all 0.12s;
-  }
-  .popup-mood-tag-btn.selected { background: var(--ink); color: var(--paper); font-weight: 600; }
-  .emotion-custom-row { position: relative; }
-  .emotion-custom-row {
-    display: flex; align-items: center; gap: 6px;
-    margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--rule);
-  }
-  .emotion-custom-input {
-    flex: 1; font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 400;
-    padding: 3px 8px; border: 1.5px solid var(--rule); border-radius: 1px;
-    background: transparent; color: var(--ink); outline: none; transition: border-color 0.12s;
-  }
-  .emotion-custom-input:focus { border-color: var(--ink); }
-  .emotion-custom-input::placeholder { color: var(--ink-muted); }
-  .emotion-custom-type {
-    font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.06em;
-    padding: 3px 7px; border: 1.5px solid var(--rule); border-radius: 1px;
-    background: transparent; color: var(--ink-muted); cursor: pointer; white-space: nowrap; transition: all 0.12s;
-  }
-  .emotion-custom-type.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .emotion-dropdown {
-    position: absolute; top: 100%; left: 0; right: 0;
-    background: var(--paper); border: 1.5px solid var(--ink); border-top: none;
-    border-radius: 0 0 2px 2px; z-index: 50; max-height: 140px; overflow-y: auto; scrollbar-width: none;
-  }
-  .emotion-dropdown::-webkit-scrollbar { display: none; }
-  .emotion-dropdown-item {
-    padding: 6px 8px; font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 400;
-    color: var(--ink); cursor: pointer;
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid var(--rule);
-  }
-  .emotion-dropdown-item:last-child { border-bottom: none; }
-  .emotion-dropdown-item:hover { background: rgba(0,0,0,0.04); }
-  .emotion-dropdown-item .dd-count {
-    font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; color: var(--ink-muted);
-  }
-
-  /* ── Toast ── */
-  .toast {
-    position: fixed; bottom: 80px; left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background: var(--ink); color: var(--paper);
-    font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400;
-    padding: 10px 20px; border-radius: 2px;
-    opacity: 0; transition: all 0.25s;
-    pointer-events: none; white-space: nowrap; z-index: 300;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* ── Settings btn ── */
-  .settings-btn {
-    position: absolute; top: 14px; right: var(--pad-h);
-    font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600;
-    letter-spacing: 0.1em; color: var(--ink-muted);
-    cursor: pointer; background: none; border: none; z-index: 10;
-  }
-  @media (min-width: 768px) { .settings-btn { top: 18px; } }
-
-  /* ── Loading ── */
-  .loading-overlay {
-    position: fixed; inset: 0;
-    background: rgba(239,239,237,0.85);
-    display: flex; align-items: center; justify-content: center; z-index: 250;
-  }
-  .loading-overlay.hidden { display: none; }
-  .loading-text {
-    font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.2em; color: var(--ink); animation: pulse 1.2s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  /* ── Lightbox ── */
-  .lightbox-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 600;
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  }
-  .lightbox-overlay.open { opacity: 1; pointer-events: all; }
-  .lightbox-inner {
-    position: relative; width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center; touch-action: pan-y;
-  }
-  .lightbox-img {
-    max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 3px;
-    user-select: none; -webkit-user-drag: none; transition: opacity 0.15s;
-  }
-  .lightbox-close {
-    position: absolute; top: 20px; right: 20px;
-    font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.7); background: none; border: none; cursor: pointer;
-  }
-  .lightbox-arrow {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 700;
-    color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer;
-    padding: 20px 16px; z-index: 10; transition: color 0.15s;
-  }
-  .lightbox-arrow:hover { color: white; }
-  .lightbox-arrow.prev { left: 0; }
-  .lightbox-arrow.next { right: 0; }
-  .lightbox-arrow.hidden { display: none; }
-  .lightbox-counter {
-    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
-    font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.5);
-  }
+/* ── Loading ── */
+.loading-overlay { position: fixed; inset: 0; background: rgba(239,239,237,0.85); display: flex; align-items: center; justify-content: center; z-index: 250; }
+.loading-overlay.hidden { display: none; }
+.loading-text { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--ink); animation: pulse 1.2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 </style>
 </head>
 <body>
@@ -603,6 +349,7 @@
   <div class="loading-text">SAVING...</div>
 </div>
 
+<!-- Setup -->
 <div id="setup-screen">
   <div class="setup-title">daily<br>note</div>
   <div class="setup-sub">처음 한 번만 설정하면<br>다음부터는 자동으로 연결돼요.</div>
@@ -615,20 +362,26 @@
 </div>
 
 <div id="app" class="hidden">
-  <button class="settings-btn" onclick="openSettings()">⚙</button>
 
+  <!-- Tab bar -->
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('record', this)">Record</button>
-    <button class="tab-btn" onclick="switchTab('archive', this)">Archive</button>
+    <button class="tab-btn active" onclick="switchTab('record',this)">Record</button>
+    <button class="tab-btn" onclick="switchTab('dump',this)">Dump</button>
+    <button class="tab-btn" onclick="switchTab('todo',this)">Todo</button>
+    <button class="tab-btn" onclick="switchTab('cart',this)">Cart</button>
+    <button class="tab-btn" onclick="switchTab('inbox',this)">Inbox</button>
   </div>
 
+  <!-- Record Tab -->
   <div class="tab-content active" id="tab-record">
-    <div class="date-hero">
-      <div class="date-big" id="current-date">06.03 - WED</div>
+    <div class="section-header">
+      <div class="section-title" id="current-date">06.07 — SUN</div>
+      <button class="settings-btn" onclick="openSettings()">⚙</button>
     </div>
     <div class="emotion-section">
+      <div class="emotion-optional-label">감정 — OPTIONAL</div>
       <div class="emotion-row">
-        <div class="emotion-row-label">Positive</div>
+        <div class="emotion-row-label">Pos.</div>
         <div class="emotion-tags">
           <span class="tag" onclick="selectMood(this)">평온함</span>
           <span class="tag" onclick="selectMood(this)">뿌듯함</span>
@@ -637,8 +390,8 @@
           <span class="tag" onclick="selectMood(this)">설렘</span>
         </div>
       </div>
-      <div class="emotion-row">
-        <div class="emotion-row-label">Negative</div>
+      <div class="emotion-row" style="margin-top:4px;">
+        <div class="emotion-row-label">Neg.</div>
         <div class="emotion-tags">
           <span class="tag" onclick="selectMood(this)">불안</span>
           <span class="tag" onclick="selectMood(this)">무기력</span>
@@ -647,7 +400,7 @@
           <span class="tag" onclick="selectMood(this)">피곤함</span>
         </div>
       </div>
-      <div class="emotion-row">
+      <div class="emotion-row" style="margin-top:4px;">
         <div class="emotion-row-label">Etc.</div>
         <div class="emotion-tags">
           <span class="tag" onclick="selectMood(this)">멍함</span>
@@ -655,17 +408,9 @@
           <span class="tag" onclick="selectMood(this)">모르겠음</span>
         </div>
       </div>
-      <div class="emotion-custom-row">
-        <input class="emotion-custom-input" id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off">
-        <div class="emotion-dropdown" id="mood-dropdown" style="display:none"></div>
-        <button class="emotion-custom-type" id="custom-type-pos" onclick="selectCustomType('positive')">POS</button>
-        <button class="emotion-custom-type" id="custom-type-neg" onclick="selectCustomType('negative')">NEG</button>
-        <button class="emotion-custom-type" id="custom-type-etc" onclick="selectCustomType('etc')">ETC</button>
-      </div>
     </div>
     <div class="input-section">
       <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
-      <div class="photo-preview" id="photo-preview"></div>
       <div class="input-actions">
         <button class="attach-btn" onclick="document.getElementById('photo-input').click()">+ PHOTO</button>
         <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
@@ -677,73 +422,167 @@
     </div>
   </div>
 
-  <div class="tab-content" id="tab-archive">
-    <div class="archive-header">
-      <div class="archive-title">Archive</div>
+  <!-- Dump Tab -->
+  <div class="tab-content" id="tab-dump">
+    <div class="brain-header">
+      <div class="section-title">Brain<br>Dump</div>
+      <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
     </div>
-    <div class="archive-list" id="archive-list">
-      <div class="archive-empty">기록을 불러오는 중...</div>
+    <div class="brain-input-wrap">
+      <textarea class="brain-textarea" id="brain-input" placeholder="지금 머릿속에 있는 거 다 꺼내봐요." oninput="autoResize(this)"></textarea>
+      <button class="brain-add-btn" onclick="addBrainItem()">ADD</button>
+    </div>
+    <div class="brain-list" id="brain-list">
+      <div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>
+    </div>
+  </div>
+
+  <!-- Todo Tab -->
+  <div class="tab-content" id="tab-todo">
+    <div class="section-header">
+      <div class="section-title">Todo</div>
+    </div>
+    <div class="quadrant-grid" id="quadrant-grid">
+      <div class="quadrant" onclick="openTodoPopup('today')">
+        <div class="quad-label">오늘</div>
+        <div class="quad-due" id="due-today"></div>
+        <div class="quad-items" id="items-today"></div>
+        <div class="quad-add">+ 추가</div>
+      </div>
+      <div class="quadrant" onclick="openTodoPopup('week')">
+        <div class="quad-label">이번 주</div>
+        <div class="quad-due" id="due-week"></div>
+        <div class="quad-items" id="items-week"></div>
+        <div class="quad-add">+ 추가</div>
+      </div>
+      <div class="quadrant" onclick="openTodoPopup('month')">
+        <div class="quad-label">이번 달</div>
+        <div class="quad-due" id="due-month"></div>
+        <div class="quad-items" id="items-month"></div>
+        <div class="quad-add">+ 추가</div>
+      </div>
+      <div class="quadrant" onclick="openTodoPopup('someday')">
+        <div class="quad-label">하면 좋을 거</div>
+        <div class="quad-due" style="color:var(--rule);">마감 없음</div>
+        <div class="quad-items" id="items-someday"></div>
+        <div class="quad-add">+ 추가</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Tab -->
+  <div class="tab-content" id="tab-cart">
+    <div class="section-header">
+      <div class="section-title">Cart</div>
+    </div>
+    <div class="cart-grid">
+      <div class="cart-section">
+        <div class="cart-section-header" onclick="openCartPopup('need-now')">
+          <span class="cart-section-label">필요하고 사고 싶음</span>
+          <span class="cart-section-count" id="count-need-now">0</span>
+        </div>
+        <div class="cart-items" id="items-need-now"></div>
+        <button class="cart-add-btn" onclick="openCartPopup('need-now')">+ 추가</button>
+      </div>
+      <div class="cart-section">
+        <div class="cart-section-header" onclick="openCartPopup('need-later')">
+          <span class="cart-section-label">필요한데 나중에</span>
+          <span class="cart-section-count" id="count-need-later">0</span>
+        </div>
+        <div class="cart-items" id="items-need-later"></div>
+        <button class="cart-add-btn" onclick="openCartPopup('need-later')">+ 추가</button>
+      </div>
+      <div class="cart-section">
+        <div class="cart-section-header" onclick="openCartPopup('want')">
+          <span class="cart-section-label">그냥 사고 싶음</span>
+          <span class="cart-section-count" id="count-want">0</span>
+        </div>
+        <div class="cart-items" id="items-want"></div>
+        <button class="cart-add-btn" onclick="openCartPopup('want')">+ 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inbox Tab -->
+  <div class="tab-content" id="tab-inbox">
+    <div class="section-header">
+      <div class="section-title">Inbox</div>
+    </div>
+    <div class="inbox-list" id="inbox-list">
+      <div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>
     </div>
   </div>
 </div>
 
-<!-- Popup -->
-<div class="popup-overlay" id="record-popup" onclick="closePopup(event)">
+<!-- Todo Popup -->
+<div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
   <div class="popup-sheet">
-    <div class="popup-handle"></div>
-    <div class="popup-header">
-      <div class="popup-time" id="popup-time"></div>
-      <button class="popup-close" onclick="closePopupDirect()">✕ CLOSE</button>
-    </div>
-    <div class="popup-body">
-      <div id="popup-mood"></div>
-      <div class="popup-text" id="popup-text"></div>
-      <div id="popup-mood-edit" style="display:none">
-        <div style="position:relative;margin-bottom:10px;">
-          <button id="mood-dropdown-btn" onclick="toggleMoodDropdown(event)" style="width:100%;padding:8px 12px;font-family:'Gothic A1',sans-serif;font-size:12px;font-weight:600;border:1.5px solid var(--ink);border-radius:2px;background:transparent;color:var(--ink);cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;">
-            <span id="mood-dropdown-label">감정 선택</span><span style="font-size:10px;">▾</span>
-          </button>
-          <div id="mood-dropdown-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--paper);border:1.5px solid var(--ink);border-top:none;border-radius:0 0 2px 2px;z-index:50;max-height:220px;overflow-y:auto;">
-            <div id="mood-dropdown-tags" style="display:flex;flex-wrap:wrap;gap:4px;padding:8px;border-bottom:1px solid var(--rule);"></div>
-            <div style="padding:8px;">
-              <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);margin-bottom:6px;letter-spacing:0.08em;text-transform:uppercase;">직접 입력</div>
-              <div style="display:flex;gap:5px;">
-                <input class="emotion-custom-input" id="popup-custom-mood" placeholder="입력..." style="flex:1" oninput="handlePopupCustomMood(this)">
-                <button class="emotion-custom-type" id="popup-custom-pos" onclick="popupSelectType('positive')">POS</button>
-                <button class="emotion-custom-type" id="popup-custom-neg" onclick="popupSelectType('negative')">NEG</button>
-                <button class="emotion-custom-type" id="popup-custom-etc" onclick="popupSelectType('etc')">ETC</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <textarea id="popup-edit-input" rows="4" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:300;border:1.5px solid var(--ink);border-radius:2px;padding:10px;outline:none;resize:none;line-height:1.6;margin-bottom:10px;background:transparent;color:var(--ink);overflow:hidden;" oninput="autoResize(this)"></textarea>
-        <div id="popup-edit-photos-preview" style="display:none;margin-bottom:10px"></div>
-        <button class="popup-action-btn" style="width:100%;margin-bottom:8px" onclick="document.getElementById('popup-photo-input').click()">+ PHOTO</button>
-        <input type="file" id="popup-photo-input" accept="image/*" multiple style="display:none" onchange="handleEditPhotos(this)">
-        <button onclick="saveEdit()" style="display:block;width:100%;text-align:center;background:var(--ink);color:var(--paper);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.15em;padding:12px;border-radius:2px;border:none;cursor:pointer;margin-bottom:8px;">SAVE CHANGES</button>
-        <div class="popup-actions" style="margin-bottom:10px">
-          <button class="popup-action-btn danger" onclick="deleteRecord()">DELETE</button>
-          <button class="popup-action-btn" onclick="toggleEdit()">CANCEL</button>
-        </div>
-      </div>
-      <div class="popup-photos" id="popup-photos"></div>
-      <div class="popup-actions" id="popup-actions" style="display:none">
-        <button class="popup-action-btn danger" onclick="deleteRecord()">DELETE</button>
-        <button class="popup-action-btn" id="popup-edit-btn" onclick="toggleEdit()">EDIT</button>
-      </div>
-      <a class="popup-notion-btn" id="popup-notion-btn" target="_blank">OPEN IN NOTION →</a>
+    <div class="popup-label" id="todo-popup-label"></div>
+    <div class="popup-due" id="todo-popup-due"></div>
+    <input class="popup-input" id="todo-input" placeholder="할 일을 입력하세요." onkeydown="if(event.key==='Enter')confirmTodo()">
+    <div class="popup-btns">
+      <button class="popup-cancel" onclick="closeTodoPopup()">CANCEL</button>
+      <button class="popup-ok" onclick="confirmTodo()">OK</button>
     </div>
   </div>
 </div>
 
-<!-- Lightbox -->
-<div class="lightbox-overlay" id="lightbox" onclick="lightboxOverlayClick(event)">
-  <div class="lightbox-inner" id="lightbox-inner">
-    <button class="lightbox-close" onclick="closeLightbox()">✕ CLOSE</button>
-    <button class="lightbox-arrow prev" id="lb-prev" onclick="lightboxNav(-1)">‹</button>
-    <img class="lightbox-img" id="lightbox-img" src="" draggable="false">
-    <button class="lightbox-arrow next" id="lb-next" onclick="lightboxNav(1)">›</button>
-    <div class="lightbox-counter" id="lb-counter"></div>
+<!-- Cart Popup -->
+<div class="popup-overlay" id="cart-popup" onclick="if(event.target===this)closeCartPopup()">
+  <div class="popup-sheet">
+    <div class="popup-label" id="cart-popup-label"></div>
+    <input class="popup-input" id="cart-input" placeholder="아이템을 입력하세요." onkeydown="if(event.key==='Enter')confirmCart()">
+    <div class="popup-btns">
+      <button class="popup-cancel" onclick="closeCartPopup()">CANCEL</button>
+      <button class="popup-ok" onclick="confirmCart()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drag sub-popup -->
+<div class="sub-popup-overlay" id="sub-popup" onclick="if(event.target===this)closeSubPopup()">
+  <div class="sub-popup-sheet">
+    <div class="sub-popup-title" id="sub-popup-title"></div>
+    <div class="sub-popup-text" id="sub-popup-text"></div>
+    <div class="sub-choices" id="sub-choices"></div>
+    <div class="popup-btns">
+      <button class="popup-cancel" onclick="closeSubPopup()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- Record view popup -->
+<div class="record-popup-overlay" id="record-popup" onclick="if(event.target===this)closeRecordPopup()">
+  <div class="record-popup-sheet">
+    <div class="rp-header">
+      <div class="rp-time" id="rp-time"></div>
+      <button class="rp-close" onclick="closeRecordPopup()">✕ CLOSE</button>
+    </div>
+    <div class="rp-body">
+      <div id="rp-mood"></div>
+      <div class="rp-text" id="rp-text"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Drag ghost -->
+<div class="drag-ghost" id="drag-ghost"></div>
+
+<!-- Drag overlay zones -->
+<div class="drag-overlay" id="drag-overlay">
+  <div class="drag-zones">
+    <div class="drag-zone" id="dz-record" data-zone="record">
+      <div class="dz-icon">✏️</div>
+      <div class="dz-label">RECORD</div>
+    </div>
+    <div class="drag-zone" id="dz-todo" data-zone="todo">
+      <div class="dz-icon">✓</div>
+      <div class="dz-label">TODO</div>
+    </div>
+    <div class="drag-zone" id="dz-cart" data-zone="cart">
+      <div class="dz-icon">🛒</div>
+      <div class="dz-label">CART</div>
+    </div>
   </div>
 </div>
 
@@ -751,99 +590,29 @@
 
 <script>
 const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
+const BRAIN_DB = '37751f4140c580e4b680c979ee1d0f2a';
+const CART_DB  = '37751f4140c580598f09f7903db2248f';
 
-const MOOD_EMOJI = { positive: '🌿', negative: '🌧️', etc: '🌫️' };
 const MOOD_TYPE = {
   '평온함':'positive','뿌듯함':'positive','감사함':'positive','행복함':'positive','설렘':'positive',
   '불안':'negative','무기력':'negative','답답함':'negative','외로움':'negative','피곤함':'negative',
   '멍함':'etc','복잡함':'etc','모르겠음':'etc'
 };
+const MOOD_EMOJI = { positive:'🌿', negative:'🌧️', etc:'🌫️' };
+function getMoodEmoji(mood) { return MOOD_EMOJI[MOOD_TYPE[mood]||'etc']||'🌫️'; }
 
-function getMoodEmoji(mood) {
-  const type = MOOD_TYPE[mood] || selectedMoodType || 'etc';
-  return MOOD_EMOJI[type] || '🌫️';
-}
-function getMoodBg(mood) { return 'default'; }
+function autoResize(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
 
-/* ── textarea 자동 높이 ── */
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
-}
-
-/* ── Notion 연동 ── */
-async function appendRecordToNotion(pageId, timeStr, mood, text, photoUrls) {
-  const children = [];
-  const richText = [];
-  richText.push({ type:'text', text:{content: timeStr+'\n'}, annotations:{color:'gray',bold:false,italic:false} });
-  if (mood) richText.push({ type:'text', text:{content: getMoodEmoji(mood)+' '+mood+'\n'}, annotations:{color:'default',bold:false,italic:true} });
-  if (text && text.trim()) richText.push({ type:'text', text:{content:text}, annotations:{bold:true,italic:false,color:'default'} });
-  children.push({ object:'block', type:'paragraph', paragraph:{rich_text:richText, color:'default'} });
-
-  if (photoUrls && photoUrls.length > 0) {
-    const row = photoUrls.slice(0,3);
-    children.push({ object:'block', type:'column_list', column_list:{ children: row.map(url=>({ object:'block', type:'column', column:{ children:[{ object:'block', type:'image', image:{type:'external',external:{url}} }] } })) } });
-  }
-
-  const res = await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children', {
-    method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({children})
-  });
-  const data = await res.json();
-  const blockId = data.results && data.results[0] ? data.results[0].id : null;
-  const photoBlockId = data.results && data.results[1] ? data.results[1].id : null;
-  return { blockId, photoBlockId };
-}
-
-/* ── Auth ── */
-function logout() {
-  if (!confirm('로그아웃 할까요? 저장된 설정이 모두 지워져요.')) return;
-  localStorage.clear(); location.reload();
-}
-
-async function saveSettings() {
-  const pw = document.getElementById('app-password').value.trim();
-  if (!pw) { showToast('비밀번호를 입력해주세요'); return; }
-  const btn = document.querySelector('.setup-save-btn');
-  btn.textContent = '확인 중...'; btn.disabled = true;
-  try {
-    const res = await fetch(WORKER_URL+'/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pw}) });
-    if (!res.ok) { showToast('비밀번호가 틀렸어요'); btn.textContent='START →'; btn.disabled=false; return; }
-    const data = await res.json();
-    localStorage.setItem('notion_token', data.notion_token);
-    localStorage.setItem('notion_db', data.notion_db);
-    localStorage.setItem('cloud_name', data.cloud_name);
-    localStorage.setItem('cloud_key', data.cloud_key);
-    localStorage.setItem('cloud_secret', data.cloud_secret);
-    localStorage.setItem('app_authed', '1');
-    document.getElementById('setup-screen').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    init();
-  } catch(e) { showToast('연결 오류'); btn.textContent='START →'; btn.disabled=false; }
-}
-
-function openSettings() {
-  document.getElementById('app-password').value = '';
-  document.getElementById('setup-screen').classList.remove('hidden');
-}
-
-/* ── Date helpers ── */
-function getDiaryDate() {
-  const now = new Date();
-  if (now.getHours() < 7) now.setDate(now.getDate()-1);
-  return now;
-}
-function formatDate(d) {
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
-  return `${d.getFullYear()}-${mm}-${dd}`;
-}
+/* ── Date ── */
+function getDiaryDate() { const n=new Date(); if(n.getHours()<7) n.setDate(n.getDate()-1); return n; }
+function formatDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function formatDateShort(d) { return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; }
 function formatDateDisplay(d) {
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
-  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  return `${mm}.${dd} - ${days[d.getDay()]}`;
+  const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} — ${days[d.getDay()]}`;
 }
 function formatTime(d) { return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function getOffsetDate(n) { const d=new Date(); d.setDate(d.getDate()+n); return d; }
 
 /* ── Tab ── */
 function switchTab(tab, btn) {
@@ -851,464 +620,553 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
-  if (tab==='archive') loadArchive();
+  if (tab==='inbox') loadInbox();
 }
+
+/* ── Auth ── */
+function logout() { if(!confirm('로그아웃 할까요?')) return; localStorage.clear(); location.reload(); }
+async function saveSettings() {
+  const pw=document.getElementById('app-password').value.trim();
+  if(!pw){showToast('비밀번호를 입력해주세요');return;}
+  const btn=document.querySelector('.setup-save-btn'); btn.textContent='확인 중...'; btn.disabled=true;
+  try {
+    const res=await fetch(WORKER_URL+'/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    if(!res.ok){showToast('비밀번호가 틀렸어요');btn.textContent='START →';btn.disabled=false;return;}
+    const data=await res.json();
+    localStorage.setItem('notion_token',data.notion_token);
+    localStorage.setItem('notion_db',data.notion_db);
+    localStorage.setItem('cloud_name',data.cloud_name);
+    localStorage.setItem('cloud_key',data.cloud_key);
+    localStorage.setItem('app_authed','1');
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    init();
+  } catch(e){showToast('연결 오류');btn.textContent='START →';btn.disabled=false;}
+}
+function openSettings() { document.getElementById('app-password').value=''; document.getElementById('setup-screen').classList.remove('hidden'); }
 
 /* ── Mood ── */
-let selectedMood = '';
-let selectedMoodType = '';
-
+let selectedMood='';
 function selectMood(el) {
-  document.querySelectorAll('.tag').forEach(t=>t.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedMood = el.textContent;
-  selectedMoodType = '';
-  document.getElementById('custom-mood-input').value = '';
-  document.querySelectorAll('.emotion-custom-type').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));
+  el.classList.add('selected'); selectedMood=el.textContent;
 }
-
-function getCustomHistory() { try { return JSON.parse(localStorage.getItem('custom_moods')||'{}'); } catch { return {}; } }
-function saveCustomHistory(h) { localStorage.setItem('custom_moods', JSON.stringify(h)); }
-
-function handleCustomMood(input) {
-  const val = input.value.trim();
-  if (val) { document.querySelectorAll('.tag').forEach(t=>t.classList.remove('selected')); selectedMood=val; showMoodDropdown(val); }
-  else { selectedMood=''; selectedMoodType=''; document.querySelectorAll('.emotion-custom-type').forEach(b=>b.classList.remove('selected')); hideMoodDropdown(); }
-}
-
-function showMoodDropdown(query) {
-  const history = getCustomHistory();
-  const dd = document.getElementById('mood-dropdown');
-  const matches = Object.entries(history).filter(([k])=>k.includes(query)&&k!==query).sort((a,b)=>b[1].count-a[1].count).slice(0,6);
-  if (!matches.length) { hideMoodDropdown(); return; }
-  dd.innerHTML = matches.map(([mood,data])=>`<div class="emotion-dropdown-item" onclick="pickDropdownMood('${mood}','${data.type}')"><span>${mood}</span><span class="dd-count">${data.count}x</span></div>`).join('');
-  dd.style.display='';
-}
-function hideMoodDropdown() { document.getElementById('mood-dropdown').style.display='none'; }
-function pickDropdownMood(mood, type) {
-  document.getElementById('custom-mood-input').value=mood; selectedMood=mood; selectedMoodType=type;
-  document.querySelectorAll('.emotion-custom-type').forEach(b=>b.classList.remove('selected'));
-  const map={positive:'custom-type-pos',negative:'custom-type-neg',etc:'custom-type-etc'};
-  if(map[type]) document.getElementById(map[type]).classList.add('selected');
-  hideMoodDropdown();
-}
-function selectCustomType(type) {
-  selectedMoodType=type;
-  document.querySelectorAll('.emotion-custom-type').forEach(b=>b.classList.remove('selected'));
-  const map={positive:'custom-type-pos',negative:'custom-type-neg',etc:'custom-type-etc'};
-  document.getElementById(map[type]).classList.add('selected');
-  document.querySelectorAll('.tag').forEach(t=>t.classList.remove('selected'));
-  const customVal=document.getElementById('custom-mood-input').value.trim();
-  if(!customVal) selectedMood=type==='positive'?'긍정':type==='negative'?'부정':'기타';
-}
-function recordCustomMoodHistory(mood, type) {
-  if(!mood||!type) return;
-  const h=getCustomHistory();
-  if(!h[mood]) h[mood]={type,count:0};
-  h[mood].count++; h[mood].type=type; saveCustomHistory(h);
-  if(h[mood].count===3) addMoodToTags(mood,type);
-}
-function addMoodToTags(mood, type) {
-  const rowMap={positive:0,negative:1,etc:2};
-  const rows=document.querySelectorAll('.emotion-tags');
-  const targetRow=rows[rowMap[type]];
-  if(!targetRow) return;
-  if(Array.from(targetRow.querySelectorAll('.tag')).map(t=>t.textContent).includes(mood)) return;
-  const tag=document.createElement('span'); tag.className='tag'; tag.textContent=mood;
-  tag.onclick=function(){selectMood(this);}; targetRow.appendChild(tag);
-}
-
-/* ── Cache ── */
-const CACHE_PREFIX='diary_cache_';
-function getCacheKey(d){ return CACHE_PREFIX+d; }
-function loadCacheForDate(d){ try{ const r=localStorage.getItem(getCacheKey(d)); return r?JSON.parse(r):null; }catch{return null;} }
-function saveCacheForDate(d, records){
-  try{
-    const keys=Object.keys(localStorage).filter(k=>k.startsWith(CACHE_PREFIX));
-    const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-90);
-    keys.forEach(k=>{ const dt=k.replace(CACHE_PREFIX,''); if(new Date(dt)<cutoff) localStorage.removeItem(k); });
-    localStorage.setItem(getCacheKey(d), JSON.stringify(records));
-  }catch(e){console.error('cache save failed',e);}
-}
-
-/* ── Notion page ID cache ── */
-let cachedPageId = null;
-let cachedPageDate = null;
-
-async function getTodayPageId() {
-  const db = localStorage.getItem('notion_db');
-  const dateStr = formatDate(getDiaryDate());
-
-  // 오늘 날짜와 같으면 캐시 반환 (중복 페이지 방지)
-  if (cachedPageId && cachedPageDate === dateStr) return cachedPageId;
-
-  const searchRes = await fetch(`${WORKER_URL}/notion/databases/${db}/query`, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ filter:{property:'날짜',date:{equals:dateStr}} })
-  });
-  const searchData = await searchRes.json();
-  if (searchData.results && searchData.results.length > 0) {
-    cachedPageId = searchData.results[0].id;
-    cachedPageDate = dateStr;
-    return cachedPageId;
-  }
-
-  const days=['일','월','화','수','목','금','토'];
-  const d=getDiaryDate();
-  const title=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
-
-  const createRes = await fetch(`${WORKER_URL}/notion/pages`, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      parent:{database_id:db},
-      properties:{
-        '이름':{title:[{text:{content:title}}]},
-        '날짜':{date:{start:dateStr}}
-      },
-      children:[
-        {object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}],color:'default'}},
-        {object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},
-        {object:'block',type:'divider',divider:{}},
-        {object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🖊 오늘의 생각'}}]}},
-        {object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},
-        {object:'block',type:'divider',divider:{}},
-        {object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},
-        {object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},
-        {object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},
-        {object:'block',type:'callout',callout:{rich_text:[{text:{content:'나를 위해 한 일'}}],icon:{emoji:'⚡'}}},
-        {object:'block',type:'callout',callout:{rich_text:[{text:{content:'가장 노력했던 일'}}],icon:{emoji:'✨'}}},
-        {object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 마무리 기분'}}],icon:{emoji:'🌙'}}},
-        {object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}},
-      ]
-    })
-  });
-  const createData = await createRes.json();
-  cachedPageId = createData.id;
-  cachedPageDate = dateStr;
-  return cachedPageId;
-}
-
-/* ── Parse Notion blocks ── */
-function parseNotionRecords(blocks) {
-  const records=[]; let i=0;
-  while(i<blocks.length){
-    const block=blocks[i];
-    if(block.type!=='paragraph'){i++;continue;}
-    const texts=block.paragraph?.rich_text||[];
-    if(!texts.length){i++;continue;}
-    const allContent=texts.map(t=>t?.text?.content||'').join('');
-    const lines=allContent.split('\n').map(l=>l.trim()).filter(l=>l);
-    if(!lines.length){i++;continue;}
-    if(!/^\d{2}:\d{2}$/.test(lines[0])){i++;continue;}
-    const timeStr=lines[0]; let mood='',text='';
-    if(lines[1]){ mood=lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim(); if(!mood) mood=lines[1].trim(); }
-    if(lines[2]) text=lines.slice(2).join('\n');
-    let j=i+1; var photoBlockId=null;
-    if(j<blocks.length&&blocks[j].type==='column_list'){ photoBlockId=blocks[j].id; while(j<blocks.length&&blocks[j].type==='column_list'){j++;} }
-    i=j;
-    records.push({time:timeStr,mood,text,photoUrls:[],blockId:block.id,photoBlockId});
-  }
-  return records;
-}
-
-async function loadTodayRecords() {
-  const dateStr=formatDate(getDiaryDate());
-  try {
-    const pageId=await getTodayPageId();
-    if(!pageId) return;
-    const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
-    const res=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children?page_size=100', {headers:{'Content-Type':'application/json'}});
-    const data=await res.json();
-    const blocks=data.results||[];
-    const records=parseNotionRecords(blocks);
-    records.forEach(r=>addRecordToUI(r.time,r.mood,r.text,r.photoUrls||[],notionUrl,r.blockId,r.photoBlockId||null));
-    saveCacheForDate(dateStr, records.map(r=>({...r,notionUrl})));
-  } catch(e){ console.error('load today records failed',e); }
-}
-
-function updateCache(dateStr,time,mood,text,photoUrls,notionUrl,blockId,photoBlockId){
-  const cached=loadCacheForDate(dateStr)||[];
-  cached.unshift({time,mood,text,photoUrls,notionUrl,blockId,photoBlockId});
-  saveCacheForDate(dateStr,cached);
-}
-
-function restoreCustomTags(){
-  const history=getCustomHistory();
-  Object.entries(history).forEach(([mood,data])=>{ if(data.count>=3) addMoodToTags(mood,data.type); });
-}
-
-document.addEventListener('click', function(e){
-  if(!e.target.closest('.emotion-custom-row')) hideMoodDropdown();
-  if(!e.target.closest('#mood-dropdown-btn')&&!e.target.closest('#mood-dropdown-list')) closeMoodDropdown();
-});
 
 /* ── Photos ── */
 let selectedPhotos=[];
-function handlePhotos(input){
-  const files=Array.from(input.files); const remaining=6-selectedPhotos.length;
-  files.slice(0,remaining).forEach(file=>{
-    const reader=new FileReader(); reader.onload=e=>{selectedPhotos.push({file,dataUrl:e.target.result});renderPhotoPreview();}; reader.readAsDataURL(file);
+function handlePhotos(input) {
+  Array.from(input.files).slice(0,6-selectedPhotos.length).forEach(file=>{
+    const r=new FileReader(); r.onload=e=>{selectedPhotos.push({file,dataUrl:e.target.result});}; r.readAsDataURL(file);
   }); input.value='';
 }
-function renderPhotoPreview(){
-  const container=document.getElementById('photo-preview'); container.innerHTML='';
-  selectedPhotos.forEach((p,i)=>{
-    const thumb=document.createElement('div'); thumb.className='photo-thumb';
-    thumb.innerHTML=`<img src="${p.dataUrl}"><button class="photo-remove" onclick="removePhoto(${i})">×</button>`;
-    container.appendChild(thumb);
-  });
-}
-function removePhoto(i){ selectedPhotos.splice(i,1); renderPhotoPreview(); }
-
-async function uploadToCloudinary(file){
-  const cloudName=localStorage.getItem('cloud_name');
-  const apiKey=localStorage.getItem('cloud_key');
-  if(!cloudName||!apiKey) return null;
-  const formData=new FormData(); formData.append('file',file); formData.append('upload_preset','diary_app');
-  try{
-    const res=await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,{method:'POST',body:formData});
-    const data=await res.json(); return data.secure_url||null;
-  }catch{return null;}
+async function uploadToCloudinary(file) {
+  const cn=localStorage.getItem('cloud_name'); if(!cn) return null;
+  const fd=new FormData(); fd.append('file',file); fd.append('upload_preset','diary_app');
+  try { const r=await fetch(`https://api.cloudinary.com/v1_1/${cn}/image/upload`,{method:'POST',body:fd}); const d=await r.json(); return d.secure_url||null; } catch{return null;}
 }
 
-/* ── Save record ── */
-async function saveRecord(){
+/* ── Cache ── */
+const CP='diary_cache_';
+function loadCache(d){try{const r=localStorage.getItem(CP+d);return r?JSON.parse(r):null;}catch{return null;}}
+function saveCache(d,recs){try{localStorage.setItem(CP+d,JSON.stringify(recs));}catch(e){}}
+
+/* ── Notion page ── */
+let cachedPageId=null,cachedPageDate=null;
+async function getTodayPageId() {
+  const db=localStorage.getItem('notion_db'); const dateStr=formatDate(getDiaryDate());
+  if(cachedPageId&&cachedPageDate===dateStr) return cachedPageId;
+  const sr=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}}})});
+  const sd=await sr.json();
+  if(sd.results&&sd.results.length>0){cachedPageId=sd.results[0].id;cachedPageDate=dateStr;return cachedPageId;}
+  const days=['일','월','화','수','목','금','토']; const d=getDiaryDate();
+  const title=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+  const cr=await fetch(`${WORKER_URL}/notion/pages`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:title}}]},'날짜':{date:{start:dateStr}}},children:[{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},{object:'block',type:'divider',divider:{}},{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}}]})});
+  const cd=await cr.json(); cachedPageId=cd.id; cachedPageDate=dateStr; return cachedPageId;
+}
+
+/* ── Record save ── */
+async function saveRecord() {
   const text=document.getElementById('memo-input').value.trim();
-  if(!selectedMood){showToast('감정을 선택하거나 입력해주세요');return;}
-  const customMoodVal=document.getElementById('custom-mood-input').value.trim();
-  if(customMoodVal&&!selectedMoodType){showToast('직접 입력 시 긍정/부정/그외를 선택해주세요');return;}
   if(!text&&selectedPhotos.length===0){showToast('내용을 입력해주세요');return;}
-
   const btn=document.getElementById('save-btn'); btn.disabled=true;
   document.getElementById('loading').classList.remove('hidden');
-
-  try{
+  try {
     const now=new Date(); const timeStr=formatTime(now);
     let photoUrls=[];
-    for(const p of selectedPhotos){ const url=await uploadToCloudinary(p.file); if(url) photoUrls.push(url); }
+    for(const p of selectedPhotos){const u=await uploadToCloudinary(p.file);if(u)photoUrls.push(u);}
     const pageId=await getTodayPageId();
-    let notionUrl=null,blockId=null,photoBlockId=null;
+    let notionUrl=null,blockId=null;
     if(pageId){
       notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
-      const result=await appendRecordToNotion(pageId,timeStr,selectedMood,text,photoUrls);
-      blockId=result?result.blockId:null; photoBlockId=result?result.photoBlockId:null;
+      const rich=[]; 
+      rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});
+      if(selectedMood) rich.push({type:'text',text:{content:getMoodEmoji(selectedMood)+' '+selectedMood+'\n'},annotations:{italic:true}});
+      if(text) rich.push({type:'text',text:{content:text},annotations:{bold:true}});
+      const children=[{object:'block',type:'paragraph',paragraph:{rich_text:rich}}];
+      if(photoUrls.length>0) children.push({object:'block',type:'column_list',column_list:{children:photoUrls.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
+      const ar=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children})});
+      const ad=await ar.json(); blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
     }
-    const displayPhotos=photoUrls.length>0?photoUrls:selectedPhotos.map(p=>p.dataUrl);
-    addRecordToUI(timeStr,selectedMood,text,displayPhotos,notionUrl,blockId,photoBlockId);
-    updateCache(formatDate(getDiaryDate()),timeStr,selectedMood,text,photoUrls,notionUrl,blockId,photoBlockId);
-
-    const memoEl=document.getElementById('memo-input');
-    memoEl.value=''; memoEl.style.height=''; // 높이 리셋
-    const customVal=document.getElementById('custom-mood-input').value.trim();
-    if(customVal&&selectedMoodType) recordCustomMoodHistory(customVal,selectedMoodType);
-    selectedMood=''; selectedMoodType=''; selectedPhotos=[]; renderPhotoPreview();
-    document.querySelectorAll('.tag').forEach(t=>t.classList.remove('selected'));
-    document.getElementById('custom-mood-input').value='';
-    document.querySelectorAll('.emotion-custom-type').forEach(b=>b.classList.remove('selected'));
+    addRecordToUI(timeStr,selectedMood,text,photoUrls,notionUrl,blockId);
+    document.getElementById('memo-input').value=''; document.getElementById('memo-input').style.height='';
+    selectedMood=''; selectedPhotos=[];
+    document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));
     showToast('저장됐어요');
-  }catch(e){ showToast('오류가 발생했어요'); console.error(e); }
-
+  } catch(e){showToast('오류 발생');console.error(e);}
   btn.disabled=false; document.getElementById('loading').classList.add('hidden');
 }
 
-/* ── UI record item ── */
-function addRecordToUI(time,mood,text,photoUrls,notionUrl,recordBlockId,photoBlockId){
+function addRecordToUI(time,mood,text,photoUrls,notionUrl,blockId) {
   const list=document.getElementById('record-list');
   const empty=list.querySelector('.empty-state'); if(empty) empty.remove();
   const item=document.createElement('div'); item.className='record-item';
-  if(recordBlockId) item.dataset.blockId=recordBlockId;
-  let thumbHtml='';
-  if(photoUrls&&photoUrls.length>0) thumbHtml='<div class="record-photos"><img class="record-photo" src="'+photoUrls[0]+'">'+(photoUrls.length>1?'<span class="record-photo-more">+'+(photoUrls.length-1)+'</span>':'')+'</div>';
-  item.innerHTML='<div class="record-time">'+time+'</div><div>'+(mood?'<span class="record-tag">'+mood+'</span>':'')+(text?'<div class="record-text">'+text+'</div>':'')+thumbHtml+'</div>';
-  var _blockId=recordBlockId, _photoBlockId=photoBlockId||null;
-  item.addEventListener('click',function(){ openPopup(time,mood,text,photoUrls||[],notionUrl,_blockId,item,_photoBlockId); });
+  item.innerHTML=`<div class="record-time">${time}</div><div>${mood?'<span class="record-tag">'+mood+'</span>':''}<div class="record-text">${text}</div></div>`;
+  item.addEventListener('click',()=>{
+    document.getElementById('rp-time').textContent=time;
+    document.getElementById('rp-mood').innerHTML=mood?'<div class="rp-mood">'+mood+'</div>':'';
+    document.getElementById('rp-text').textContent=text;
+    document.getElementById('record-popup').classList.add('open');
+  });
   list.insertBefore(item,list.firstChild);
 }
+function closeRecordPopup(){document.getElementById('record-popup').classList.remove('open');}
 
-/* ── Popup ── */
-let currentPopupPhotos=[],currentPopupBlockId=null,currentPopupItem=null;
-let currentPopupMood='',currentPopupText='',isEditing=false,currentPhotoBlockId=null;
-
-function openPopup(time,mood,text,photoUrls,notionUrl,blockId,itemEl,photoBlockId){
-  currentPhotoBlockId=photoBlockId||null; currentPopupPhotos=photoUrls||[];
-  currentPopupBlockId=blockId||null; currentPopupItem=itemEl||null;
-  currentPopupMood=mood||''; currentPopupText=text||''; isEditing=false;
-  document.getElementById('popup-time').textContent=time;
-  document.getElementById('popup-mood').innerHTML=mood?`<div class="popup-mood">${mood}</div>`:'';
-  const textEl=document.getElementById('popup-text'); textEl.textContent=text||''; textEl.style.display='';
-  const editInput=document.getElementById('popup-edit-input'); editInput.value=text||''; editInput.style.display='none';
-  document.getElementById('popup-mood-edit').style.display='none';
-  document.getElementById('popup-mood').style.display='';
-  editingPhotos=[];
-  const epContainer=document.getElementById('popup-edit-photos-preview'); if(epContainer){epContainer.innerHTML='';epContainer.style.display='none';}
-  document.getElementById('mood-dropdown-label').textContent='감정 선택'; closeMoodDropdown();
-  const photosEl=document.getElementById('popup-photos');
-  if(photoUrls&&photoUrls.length>0){
-    photosEl.className='popup-photos'+(photoUrls.length===1?' single':'');
-    photosEl.innerHTML=photoUrls.map((u,i)=>`<img src="${u}" loading="lazy" onclick="openLightbox(currentPopupPhotos,${i})">`).join('');
-    photosEl.style.display='';
-  }else{ photosEl.innerHTML=''; photosEl.style.display='none'; }
-  const actionsEl=document.getElementById('popup-actions');
-  actionsEl.style.display=blockId?'flex':'none';
-  const btn=document.getElementById('popup-notion-btn');
-  if(notionUrl){btn.href=notionUrl;btn.style.display='';}else{btn.style.display='none';}
-  document.getElementById('record-popup').classList.add('open');
-  document.body.style.overflow='hidden';
+async function loadTodayRecords() {
+  try {
+    const pageId=await getTodayPageId(); if(!pageId) return;
+    const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
+    const res=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children?page_size=100',{headers:{'Content-Type':'application/json'}});
+    const data=await res.json(); const blocks=data.results||[];
+    let i=0;
+    while(i<blocks.length){
+      const block=blocks[i];
+      if(block.type!=='paragraph'){i++;continue;}
+      const texts=block.paragraph?.rich_text||[]; if(!texts.length){i++;continue;}
+      const content=texts.map(t=>t?.text?.content||'').join('');
+      const lines=content.split('\n').map(l=>l.trim()).filter(l=>l); if(!lines.length){i++;continue;}
+      if(!/^\d{2}:\d{2}$/.test(lines[0])){i++;continue;}
+      const timeStr=lines[0];
+      let mood='',text='';
+      if(lines[1]){mood=lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();}
+      if(lines[2]) text=lines.slice(2).join('\n');
+      addRecordToUI(timeStr,mood,text,[],notionUrl,block.id);
+      i++;
+    }
+  } catch(e){console.error('load records failed',e);}
 }
 
-let editingMood='',editingPhotos=[],editingMoodType='';
+/* ── Todo ── */
+const QUAD_CFG = {
+  today:{label:'오늘',offset:0},
+  week:{label:'이번 주',offset:7},
+  month:{label:'이번 달',offset:30},
+  someday:{label:'하면 좋을 거',offset:null}
+};
+let todoData={today:[],week:[],month:[],someday:[]};
+let currentQuad='';
 
-function renderEditPhotosPreview(){
-  const container=document.getElementById('popup-edit-photos-preview'); if(!container) return;
-  if(!editingPhotos.length){container.style.display='none';container.innerHTML='';return;}
-  container.style.display='flex'; container.style.flexWrap='wrap'; container.style.gap='6px'; container.style.marginBottom='10px';
-  container.innerHTML=editingPhotos.map((p,i)=>{
-    const src=typeof p==='string'?p:p.dataUrl;
-    return '<div style="position:relative;width:80px;height:80px;"><img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"><button onclick="removeEditPhoto('+i+')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button></div>';
+function initQuadDates(){
+  document.getElementById('due-today').textContent='오늘  '+formatDateShort(new Date());
+  document.getElementById('due-week').textContent='+7일  '+formatDateShort(getOffsetDate(7));
+  document.getElementById('due-month').textContent='+30일  '+formatDateShort(getOffsetDate(30));
+}
+function openTodoPopup(q) {
+  currentQuad=q;
+  const cfg=QUAD_CFG[q];
+  document.getElementById('todo-popup-label').textContent=cfg.label;
+  document.getElementById('todo-popup-due').textContent=cfg.offset===null?'마감일 없이 저장':cfg.offset===0?'오늘 자정까지':'입력일 기준 +'+cfg.offset+'일';
+  document.getElementById('todo-input').value='';
+  document.getElementById('todo-popup').classList.add('open');
+  setTimeout(()=>document.getElementById('todo-input').focus(),300);
+}
+function closeTodoPopup(){document.getElementById('todo-popup').classList.remove('open');}
+function confirmTodo(){
+  const text=document.getElementById('todo-input').value.trim(); if(!text) return;
+  const cfg=QUAD_CFG[currentQuad];
+  let dueDate=null;
+  if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}
+  todoData[currentQuad].push({text,dueDate,done:false,addedAt:new Date()});
+  closeTodoPopup(); renderAllQuads(); showToast('추가됐어요');
+  saveTodoToStorage();
+}
+function toggleTodo(q,idx,e){
+  e.stopPropagation();
+  todoData[q][idx].done=!todoData[q][idx].done;
+  autoMoveTodos(); renderAllQuads(); saveTodoToStorage();
+}
+function autoMoveTodos(){
+  const now=new Date();
+  ['month','week'].forEach(q=>{
+    const keep=[];
+    todoData[q].forEach(item=>{
+      if(item.done||!item.dueDate){keep.push(item);return;}
+      const days=(item.dueDate-now)/86400000;
+      if(q==='month'&&days<=7){item.movedFrom='month';todoData.week.push(item);}
+      else if(q==='week'&&days<=0){item.movedFrom='week';todoData.today.push(item);}
+      else keep.push(item);
+    });
+    todoData[q]=keep;
+  });
+}
+function renderQuad(q){
+  const c=document.getElementById('items-'+q); const now=new Date();
+  if(!todoData[q].length){c.innerHTML='';return;}
+  c.innerHTML=todoData[q].map((item,i)=>{
+    const od=item.dueDate&&!item.done&&item.dueDate<now;
+    return `<div class="quad-item"><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${item.text}${od?'<span class="quad-overdue"> 기한초과</span>':''}</div></div>`;
   }).join('');
 }
-function removeEditPhoto(idx){ editingPhotos.splice(idx,1); renderEditPhotosPreview(); }
-async function handleEditPhotos(input){
-  Array.from(input.files).forEach(file=>{
-    const reader=new FileReader(); reader.onload=e=>{editingPhotos.push({file,dataUrl:e.target.result});renderEditPhotosPreview();}; reader.readAsDataURL(file);
-  }); input.value='';
+function renderAllQuads(){['today','week','month','someday'].forEach(renderQuad);}
+function saveTodoToStorage(){localStorage.setItem('todo_data',JSON.stringify(todoData));}
+function loadTodoFromStorage(){
+  try{const d=localStorage.getItem('todo_data');if(d){const p=JSON.parse(d);Object.keys(p).forEach(q=>{if(todoData[q])todoData[q]=p[q].map(i=>({...i,dueDate:i.dueDate?new Date(i.dueDate):null}));});}}catch(e){}
 }
 
-function buildPopupMoodTags(){
-  const container=document.getElementById('mood-dropdown-tags'); if(!container) return;
-  const allMoods=['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음'];
-  const history=getCustomHistory(); const custom=Object.keys(history);
-  const moods=allMoods.concat(custom.filter(m=>!allMoods.includes(m)));
-  container.innerHTML=moods.map(m=>'<button class="popup-mood-tag-btn'+(m===editingMood?' selected':'')+'" onclick="popupSelectMood(this.textContent)">'+m+'</button>').join('');
-}
-function toggleMoodDropdown(e){ if(e) e.stopPropagation(); const list=document.getElementById('mood-dropdown-list'); if(!list)return; list.style.display=list.style.display==='none'?'':'none'; if(list.style.display!=='none') buildPopupMoodTags(); }
-function closeMoodDropdown(){ const list=document.getElementById('mood-dropdown-list'); if(list) list.style.display='none'; }
-function handlePopupCustomMood(input){ const val=input.value.trim(); if(val){editingMood=val;document.getElementById('mood-dropdown-label').textContent=val;document.querySelectorAll('.popup-mood-tag-btn').forEach(b=>b.classList.remove('selected'));} }
-function popupSelectMood(mood){ editingMood=mood; document.getElementById('popup-custom-mood').value=''; editingMoodType=''; document.querySelectorAll('#popup-custom-pos,#popup-custom-neg,#popup-custom-etc').forEach(b=>b.classList.remove('selected')); document.getElementById('mood-dropdown-label').textContent=getMoodEmoji(mood)+' '+mood; buildPopupMoodTags(); closeMoodDropdown(); }
-function popupSelectType(type){ editingMoodType=type; document.querySelectorAll('#popup-custom-pos,#popup-custom-neg,#popup-custom-etc').forEach(b=>b.classList.remove('selected')); const map={positive:'popup-custom-pos',negative:'popup-custom-neg',etc:'popup-custom-etc'}; document.getElementById(map[type]).classList.add('selected'); const val=document.getElementById('popup-custom-mood').value.trim(); if(val){editingMood=val;buildPopupMoodTags();} document.querySelectorAll('.popup-mood-tag-btn').forEach(b=>b.classList.remove('selected')); }
+/* ── Cart ── */
+const CART_SECTIONS={
+  'need-now':{label:'필요하고 사고 싶음'},
+  'need-later':{label:'필요한데 나중에'},
+  'want':{label:'그냥 사고 싶음'}
+};
+let cartData={'need-now':[],'need-later':[],'want':[]};
+let currentCartSection='';
 
-function toggleEdit(){
-  isEditing=!isEditing;
-  const textEl=document.getElementById('popup-text'); const moodEl=document.getElementById('popup-mood');
-  const moodEditEl=document.getElementById('popup-mood-edit'); const editInput=document.getElementById('popup-edit-input');
-  if(isEditing){
-    editingMood=currentPopupMood; editingMoodType=''; editingPhotos=currentPopupPhotos.slice();
-    textEl.style.display='none'; moodEl.style.display='none'; moodEditEl.style.display='';
-    buildPopupMoodTags();
-    if(editInput){editInput.value=currentPopupText;editInput.style.display='';setTimeout(()=>autoResize(editInput),0);}
-    renderEditPhotosPreview();
-    document.getElementById('popup-actions').style.display='none';
-  }else{
-    textEl.style.display=''; moodEl.style.display=''; moodEditEl.style.display='none';
-    if(editInput) editInput.style.display='none';
-    editingPhotos=[];
-    if(currentPopupBlockId) document.getElementById('popup-actions').style.display='flex';
+function openCartPopup(section) {
+  currentCartSection=section;
+  document.getElementById('cart-popup-label').textContent=CART_SECTIONS[section].label;
+  document.getElementById('cart-input').value='';
+  document.getElementById('cart-popup').classList.add('open');
+  setTimeout(()=>document.getElementById('cart-input').focus(),300);
+}
+function closeCartPopup(){document.getElementById('cart-popup').classList.remove('open');}
+function confirmCart(){
+  const text=document.getElementById('cart-input').value.trim(); if(!text) return;
+  cartData[currentCartSection].push({text,done:false,addedAt:new Date()});
+  closeCartPopup(); renderCart(); showToast('추가됐어요');
+  saveCartToNotion(currentCartSection,text);
+  saveCartToStorage();
+}
+function toggleCart(section,idx,e){
+  e.stopPropagation();
+  cartData[section][idx].done=!cartData[section][idx].done;
+  renderCart(); saveCartToStorage();
+}
+function renderCartSection(section){
+  const c=document.getElementById('items-'+section);
+  const cnt=document.getElementById('count-'+section);
+  const items=cartData[section];
+  cnt.textContent=items.filter(i=>!i.done).length||'';
+  if(!items.length){c.innerHTML='';return;}
+  c.innerHTML=items.map((item,i)=>`<div class="cart-item"><div class="cart-check${item.done?' done':''}" onclick="toggleCart('${section}',${i},event)"></div><div class="cart-text${item.done?' done':''}">${item.text}</div></div>`).join('');
+}
+function renderCart(){Object.keys(CART_SECTIONS).forEach(renderCartSection);}
+function saveCartToStorage(){localStorage.setItem('cart_data',JSON.stringify(cartData));}
+function loadCartFromStorage(){try{const d=localStorage.getItem('cart_data');if(d)cartData=JSON.parse(d);}catch(e){}}
+
+async function saveCartToNotion(section,text){
+  try{
+    const sectionLabel=CART_SECTIONS[section].label;
+    await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:CART_DB},properties:{'이름':{title:[{text:{content:text}}]},'유형':{select:{name:sectionLabel}},'추가일':{date:{start:formatDate(new Date())}}}})});
+  }catch(e){console.error('cart notion save failed',e);}
+}
+
+/* ── Braindump ── */
+let brainItems=[];
+let dragItem=null,dragIdx=-1,holdTimer=null;
+let isDragging=false,dragStartY=0;
+const ghost=document.getElementById('drag-ghost');
+const dragOverlay=document.getElementById('drag-overlay');
+
+function addBrainItem(){
+  const text=document.getElementById('brain-input').value.trim(); if(!text) return;
+  brainItems.unshift({text,tag:null,id:Date.now()});
+  document.getElementById('brain-input').value='';
+  document.getElementById('brain-input').style.height='';
+  renderBrainList();
+  saveBrainToNotion(text);
+}
+
+async function saveBrainToNotion(text){
+  try{
+    await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});
+  }catch(e){console.error('brain notion save failed',e);}
+}
+
+function renderBrainList(){
+  const list=document.getElementById('brain-list');
+  if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}
+  list.innerHTML=brainItems.map((item,idx)=>`
+    <div class="brain-item" id="bi-${item.id}" data-idx="${idx}">
+      ${item.tag?`<span class="brain-tag ${item.tag}">${{record:'레코드',todo:'할일',cart:'장바구니'}[item.tag]}</span>`:''}
+      <div class="brain-item-text">${item.text}</div>
+      <div class="brain-hold-hint">꾹 누르면 분류할 수 있어요</div>
+      <div class="brain-actions">
+        <button class="brain-action-btn del-btn" onclick="deleteBrainItem(${idx})">삭제</button>
+      </div>
+    </div>
+  `).join('');
+  // attach hold listeners
+  brainItems.forEach((item,idx)=>{
+    const el=document.getElementById('bi-'+item.id);
+    if(!el) return;
+    el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});
+    el.addEventListener('mousedown',e=>startHold(e,idx,item));
+  });
+}
+
+function startHold(e,idx,item){
+  holdTimer=setTimeout(()=>{
+    isDragging=true; dragIdx=idx; dragItem=item;
+    const touch=e.touches?e.touches[0]:e;
+    ghost.textContent=item.text; ghost.style.display='block';
+    ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';
+    ghost.style.top=(touch.clientY-40)+'px';
+    dragOverlay.classList.add('active');
+    const el=document.getElementById('bi-'+item.id);
+    if(el) el.classList.add('dragging');
+    if(navigator.vibrate) navigator.vibrate(40);
+  },500);
+}
+
+document.addEventListener('touchmove',e=>{
+  if(!isDragging) return;
+  const touch=e.touches[0];
+  ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';
+  ghost.style.top=(touch.clientY-40)+'px';
+  // highlight zone
+  const zones=document.querySelectorAll('.drag-zone');
+  zones.forEach(z=>{
+    const r=z.getBoundingClientRect();
+    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){
+      z.classList.add('hovered');
+    } else z.classList.remove('hovered');
+  });
+},{passive:true});
+
+document.addEventListener('touchend',e=>{
+  clearTimeout(holdTimer);
+  if(!isDragging) return;
+  const touch=e.changedTouches[0];
+  let landed=null;
+  document.querySelectorAll('.drag-zone').forEach(z=>{
+    const r=z.getBoundingClientRect();
+    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){
+      landed=z.dataset.zone;
+    }
+    z.classList.remove('hovered');
+  });
+  endDrag(landed);
+});
+
+document.addEventListener('mouseup',e=>{
+  clearTimeout(holdTimer);
+  if(!isDragging) return;
+  let landed=null;
+  document.querySelectorAll('.drag-zone').forEach(z=>{
+    const r=z.getBoundingClientRect();
+    if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
+      landed=z.dataset.zone;
+    }
+    z.classList.remove('hovered');
+  });
+  endDrag(landed);
+});
+
+function endDrag(zone){
+  isDragging=false;
+  ghost.style.display='none';
+  dragOverlay.classList.remove('active');
+  const el=dragItem?document.getElementById('bi-'+dragItem.id):null;
+  if(el) el.classList.remove('dragging');
+  if(zone&&dragItem) openSubPopup(zone,dragItem,dragIdx);
+  dragItem=null; dragIdx=-1;
+}
+
+/* ── Sub popup (after drag) ── */
+let subDragZone='',subDragItem=null,subDragIdx=-1;
+
+function openSubPopup(zone,item,idx){
+  subDragZone=zone; subDragItem=item; subDragIdx=idx;
+  document.getElementById('sub-popup-text').textContent=item.text;
+  const choices=document.getElementById('sub-choices');
+  choices.innerHTML='';
+
+  if(zone==='record'){
+    document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';
+    const moods=['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'];
+    moods.forEach(m=>{
+      const btn=document.createElement('button'); btn.className='sub-choice';
+      btn.textContent=m; btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);
+      choices.appendChild(btn);
+    });
+  } else if(zone==='todo'){
+    document.getElementById('sub-popup-title').textContent='TODO — 사분면 선택';
+    Object.entries(QUAD_CFG).forEach(([q,cfg])=>{
+      const btn=document.createElement('button'); btn.className='sub-choice';
+      btn.textContent=cfg.label+(cfg.offset!==null?` (+${cfg.offset||0}일)`:'');
+      btn.onclick=()=>confirmSubTodo(q);
+      choices.appendChild(btn);
+    });
+  } else if(zone==='cart'){
+    document.getElementById('sub-popup-title').textContent='CART — 분류 선택';
+    Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{
+      const btn=document.createElement('button'); btn.className='sub-choice';
+      btn.textContent=cfg.label; btn.onclick=()=>confirmSubCart(s);
+      choices.appendChild(btn);
+    });
   }
+  document.getElementById('sub-popup').classList.add('open');
 }
 
-async function saveEdit(){
-  if(!currentPopupBlockId) return;
-  const newText=document.getElementById('popup-edit-input')?document.getElementById('popup-edit-input').value.trim():'';
-  const customMoodInput=document.getElementById('popup-custom-mood').value.trim();
-  if(customMoodInput) editingMood=customMoodInput;
-  const finalMood=editingMood||currentPopupMood;
-  const timeStr=document.getElementById('popup-time').textContent;
-  const finalPhotoUrls=[];
-  for(const _p of editingPhotos){
-    if(typeof _p==='string'){finalPhotoUrls.push(_p);}
-    else if(_p.file){const url=await uploadToCloudinary(_p.file);if(url)finalPhotoUrls.push(url);}
-  }
+function closeSubPopup(){document.getElementById('sub-popup').classList.remove('open');}
+
+async function confirmSubRecord(mood){
+  closeSubPopup();
+  const text=subDragItem.text;
+  const now=new Date(); const timeStr=formatTime(now);
   try{
-    const richText=[];
-    richText.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray',bold:false,italic:false}});
-    if(finalMood) richText.push({type:'text',text:{content:getMoodEmoji(finalMood)+' '+finalMood+'\n'},annotations:{color:'default',bold:false,italic:true}});
-    if(newText) richText.push({type:'text',text:{content:newText},annotations:{bold:true,italic:false,color:'default'}});
-    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({paragraph:{rich_text:richText,color:'default'}})});
-    currentPopupMood=finalMood; currentPopupText=newText;
-    document.getElementById('popup-mood').innerHTML=finalMood?'<div class="popup-mood">'+finalMood+'</div>':'';
-    document.getElementById('popup-text').textContent=newText;
-    if(currentPopupItem){
-      const tagEl=currentPopupItem.querySelector('.record-tag'); if(tagEl) tagEl.textContent=finalMood;
-      const textEl2=currentPopupItem.querySelector('.record-text'); if(textEl2) textEl2.textContent=newText;
-    }
-    const dateStr=formatDate(getDiaryDate()); const cached=loadCacheForDate(dateStr)||[];
-    const idx=cached.findIndex(r=>r.blockId===currentPopupBlockId);
-    if(idx!==-1){cached[idx].text=newText;cached[idx].mood=finalMood;saveCacheForDate(dateStr,cached);}
-    if(currentPhotoBlockId){
-      await fetch(WORKER_URL+'/notion/blocks/'+currentPhotoBlockId,{method:'DELETE',headers:{'Content-Type':'application/json'}});
-      currentPhotoBlockId=null;
-    }
-    if(finalPhotoUrls.length>0){
-      const photoChildren=[];
-      for(let pi=0;pi<finalPhotoUrls.length;pi+=3){
-        const rowUrls=finalPhotoUrls.slice(pi,pi+3);
-        const cols=rowUrls.map(url=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url}}}]}}));
-        while(cols.length<3) cols.push({object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}}]}});
-        photoChildren.push({object:'block',type:'column_list',column_list:{children:cols}});
-      }
-      const photoRes=await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children:photoChildren})});
-      const photoData=await photoRes.json();
-      if(photoData.results&&photoData.results[0]) currentPhotoBlockId=photoData.results[0].id;
-    }
-    currentPopupPhotos=finalPhotoUrls;
-    const photosEl=document.getElementById('popup-photos');
-    if(finalPhotoUrls.length>0){
-      photosEl.innerHTML=finalPhotoUrls.map((u,i)=>'<img src="'+u+'" loading="lazy" onclick="openLightbox(currentPopupPhotos,'+i+')">').join(''); photosEl.style.display='';
-    }else{photosEl.innerHTML='';photosEl.style.display='none';}
-    const cached2=loadCacheForDate(formatDate(getDiaryDate()))||[];
-    const idx2=cached2.findIndex(r=>r.blockId===currentPopupBlockId);
-    if(idx2!==-1){cached2[idx2].photoUrls=finalPhotoUrls;cached2[idx2].photoBlockId=currentPhotoBlockId;saveCacheForDate(formatDate(getDiaryDate()),cached2);}
-    toggleEdit(); showToast('수정됐어요');
-  }catch(e){showToast('수정 실패');console.error(e);}
+    const pageId=await getTodayPageId();
+    const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;
+    const rich=[];
+    rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});
+    if(mood) rich.push({type:'text',text:{content:getMoodEmoji(mood)+' '+mood+'\n'},annotations:{italic:true}});
+    rich.push({type:'text',text:{content:text},annotations:{bold:true}});
+    if(pageId) await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children:[{object:'block',type:'paragraph',paragraph:{rich_text:rich}}]})});
+    addRecordToUI(timeStr,mood,text,[],notionUrl,null);
+    markBrainDone(subDragIdx,'record');
+    showToast('Record에 저장됐어요');
+  }catch(e){showToast('저장 실패');}
 }
 
-async function deleteRecord(){
-  if(!currentPopupBlockId) return;
-  if(!confirm('이 기록을 삭제할까요?')) return;
-  try{
-    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'DELETE',headers:{'Content-Type':'application/json'}});
-    if(currentPhotoBlockId) await fetch(WORKER_URL+'/notion/blocks/'+currentPhotoBlockId,{method:'DELETE',headers:{'Content-Type':'application/json'}});
-    if(currentPopupItem) currentPopupItem.remove();
-    const dateStr=formatDate(getDiaryDate());
-    saveCacheForDate(dateStr,(loadCacheForDate(dateStr)||[]).filter(r=>r.blockId!==currentPopupBlockId));
-    closePopupDirect(); showToast('삭제됐어요');
-  }catch(e){showToast('삭제 실패');console.error(e);}
+function confirmSubTodo(q){
+  closeSubPopup();
+  const cfg=QUAD_CFG[q];
+  let dueDate=null;
+  if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}
+  todoData[q].push({text:subDragItem.text,dueDate,done:false,addedAt:new Date()});
+  renderAllQuads(); saveTodoToStorage();
+  markBrainDone(subDragIdx,'todo');
+  showToast('Todo에 추가됐어요');
 }
 
-function closePopup(e){ if(e.target===document.getElementById('record-popup')) closePopupDirect(); }
-function closePopupDirect(){ document.getElementById('record-popup').classList.remove('open'); document.body.style.overflow=''; }
+function confirmSubCart(section){
+  closeSubPopup();
+  cartData[section].push({text:subDragItem.text,done:false,addedAt:new Date()});
+  renderCart(); saveCartToStorage();
+  saveCartToNotion(section,subDragItem.text);
+  markBrainDone(subDragIdx,'cart');
+  showToast('Cart에 추가됐어요');
+}
 
-/* ── Archive ── */
-const MAKE_ARCHIVE_WEBHOOK='https://hook.us2.make.com/dkuyawbyvfskfrim5nu64l2k361q6vmh';
-async function loadArchive(){
-  const list=document.getElementById('archive-list'); list.innerHTML='<div class="archive-empty">불러오는 중...</div>';
+function markBrainDone(idx,tag){
+  brainItems[idx].tag=tag;
+  renderBrainList();
+}
+
+function deleteBrainItem(idx){brainItems.splice(idx,1);renderBrainList();}
+function resetBrain(){
+  if(!brainItems.length) return;
+  if(!confirm('브레인덤프를 전부 지울까요?')) return;
+  brainItems=[]; renderBrainList(); showToast('리셋됐어요');
+}
+
+/* ── Inbox ── */
+async function loadInbox(){
+  const list=document.getElementById('inbox-list');
+  list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';
   try{
-    const res=await fetch(MAKE_ARCHIVE_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'load_archive',notion_token:localStorage.getItem('notion_token'),notion_db:localStorage.getItem('notion_db')})});
+    const db=localStorage.getItem('notion_db');
+    const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'descending'}],page_size:30})
+    });
     const data=await res.json();
-    if(!data.results||!data.results.length){list.innerHTML='<div class="archive-empty">아직 기록이 없어요.</div>';return;}
+    if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>';return;}
     list.innerHTML='';
     data.results.forEach(page=>{
-      const props=page.properties; const dateStr=props['날짜']?.date?.start||''; if(!dateStr) return;
-      const d=new Date(dateStr+'T00:00:00'); const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      const mm=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0');
-      const dateDisplay=`${mm}.${dd} - ${days[d.getDay()]}`;
-      const energy=getTextProp(props,'에너지 레벨')||''; const insight=getTextProp(props,'사고 흐름')||''; const encourage=getTextProp(props,'격려')||''; const analyzed=props['분석 완료']?.checkbox;
-      const item=document.createElement('div'); item.className='archive-item';
-      item.innerHTML=`<div class="archive-item-header"><div class="archive-date">${dateDisplay}</div><div class="archive-view" onclick="openNotion('${page.url}')">VIEW →</div></div>${energy?`<span class="archive-energy">${energy}</span>`:''} ${insight?`<div class="archive-insight">${insight}</div>`:''} ${encourage?`<div class="archive-encourage">"${encourage}"</div>`:(!analyzed?'<div class="archive-insight" style="color:var(--ink-muted)">분석 전</div>':'')}`;
-      list.insertBefore(item,list.firstChild);
+      const props=page.properties;
+      const dateStr=props['날짜']?.date?.start||''; if(!dateStr) return;
+      const d=new Date(dateStr+'T00:00:00');
+      const days=['일','월','화','수','목','금','토'];
+      const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+      const summary=getTextProp(props,'일기 요약')||'';
+      const encourage=getTextProp(props,'격려')||'';
+      const suggest=getTextProp(props,'제언')||'';
+
+      // 2문장 자르기
+      const cut2=(text)=>{
+        if(!text) return '';
+        const sentences=text.match(/[^.!?。]+[.!?。]?/g)||[text];
+        return sentences.slice(0,2).join('').trim();
+      };
+
+      const divider=document.createElement('div'); divider.className='inbox-date-divider'; divider.textContent=dateLabel;
+      list.appendChild(divider);
+
+      const bubble=document.createElement('div'); bubble.className='inbox-bubble';
+      bubble.innerHTML=`
+        ${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}
+        ${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}
+        ${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${suggest}</div>`:''}
+      `;
+      list.appendChild(bubble);
     });
-  }catch(e){list.innerHTML='<div class="archive-empty">불러오기 실패</div>';}
+  }catch(e){list.innerHTML='<div class="inbox-empty">불러오기 실패</div>';console.error(e);}
 }
-function getTextProp(props,key){ const p=props[key]; if(!p) return ''; if(p.rich_text) return p.rich_text.map(t=>t.plain_text).join(''); if(p.select) return p.select.name; return ''; }
-function openNotion(url){ window.open(url,'_blank'); }
 
-/* ── Toast & utils ── */
-function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+function getTextProp(props,key){
+  const p=props[key]; if(!p) return '';
+  if(p.rich_text) return p.rich_text.map(t=>t.plain_text).join('');
+  if(p.select) return p.select.name; return '';
+}
 
+/* ── Toast ── */
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ── PWA ── */
+async function registerSW(){
+  if(!('serviceWorker' in navigator)) return;
+  try{
+    const reg=await navigator.serviceWorker.register('./sw.js');
+    console.log('SW registered');
+    // 푸시 알림 권한 요청
+    if('Notification' in window && Notification.permission==='default'){
+      const perm=await Notification.requestPermission();
+      if(perm==='granted') subscribeForPush(reg);
+    } else if(Notification.permission==='granted'){
+      subscribeForPush(reg);
+    }
+  }catch(e){console.error('SW registration failed',e);}
+}
+
+async function subscribeForPush(reg){
+  try{
+    // VAPID 공개키 — Worker에서 관리 (여기선 placeholder)
+    const existing=await reg.pushManager.getSubscription();
+    if(existing) return;
+    // 실제 운영 시 VAPID 공개키로 교체 필요
+    // const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
+    // await fetch(WORKER_URL+'/push/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sub)});
+    console.log('Push subscription ready (VAPID key needed)');
+  }catch(e){console.error('Push subscription failed',e);}
+}
+
+/* ── Init ── */
 function init(){
-  const d=getDiaryDate();
-  document.getElementById('current-date').textContent=formatDateDisplay(d);
-  restoreCustomTags(); loadTodayRecords();
+  document.getElementById('current-date').textContent=formatDateDisplay(getDiaryDate());
+  initQuadDates();
+  loadTodoFromStorage();
+  loadCartFromStorage();
+  autoMoveTodos();
+  renderAllQuads();
+  renderCart();
+  renderBrainList();
+  loadTodayRecords();
+  registerSW();
+  setInterval(autoMoveTodos,60000);
 }
 
 window.onload=()=>{
@@ -1318,27 +1176,6 @@ window.onload=()=>{
     init();
   }
 };
-
-/* ── Lightbox ── */
-let lbPhotos=[],lbIndex=0,lbTouchStartX=0;
-function openLightbox(photos,index){ lbPhotos=photos; lbIndex=index; renderLightbox(); document.getElementById('lightbox').classList.add('open'); document.body.style.overflow='hidden'; }
-function renderLightbox(){
-  const img=document.getElementById('lightbox-img'); img.style.opacity='0';
-  setTimeout(()=>{img.src=lbPhotos[lbIndex];img.style.opacity='1';},80);
-  document.getElementById('lb-counter').textContent=lbPhotos.length>1?`${lbIndex+1} / ${lbPhotos.length}`:'';
-  document.getElementById('lb-prev').classList.toggle('hidden',lbIndex===0);
-  document.getElementById('lb-next').classList.toggle('hidden',lbIndex===lbPhotos.length-1);
-}
-function lightboxNav(dir){ const next=lbIndex+dir; if(next<0||next>=lbPhotos.length) return; lbIndex=next; renderLightbox(); }
-function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow=''; }
-function lightboxOverlayClick(e){ if(e.target===document.getElementById('lightbox')) closeLightbox(); }
-
-document.addEventListener('DOMContentLoaded',()=>{
-  const inner=document.getElementById('lightbox-inner');
-  inner.addEventListener('touchstart',e=>{lbTouchStartX=e.touches[0].clientX;},{passive:true});
-  inner.addEventListener('touchend',e=>{ const diff=lbTouchStartX-e.changedTouches[0].clientX; if(Math.abs(diff)>40) lightboxNav(diff>0?1:-1); });
-  document.addEventListener('keydown',e=>{ if(!document.getElementById('lightbox').classList.contains('open')) return; if(e.key==='ArrowLeft') lightboxNav(-1); if(e.key==='ArrowRight') lightboxNav(1); if(e.key==='Escape') closeLightbox(); });
-});
 </script>
 </body>
 </html>
