@@ -45,11 +45,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .tab-content.active { display: flex; }
 @media (min-width: 768px) { .tab-content { overflow: visible; } .tab-content.active { display: block; } }
 
-/* Tab bar — bottom */
-.tab-bar { display: flex; border-top: 2px solid var(--ink); background: var(--paper); flex-shrink: 0; order: 2; }
-.tab-btn { flex: 1; padding: 13px 0; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 9px; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; border: none; background: transparent; transition: all 0.15s; border-right: 1px solid var(--rule); }
+/* Tab bar — bottom with safe area */
+.tab-bar { display: flex; border-top: 2px solid var(--ink); background: var(--paper); flex-shrink: 0; order: 2; padding-bottom: env(safe-area-inset-bottom); }
+.tab-btn { flex: 1; padding: 10px 0 8px; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 8px; letter-spacing: 0.08em; color: var(--ink-muted); cursor: pointer; border: none; background: transparent; transition: all 0.15s; border-right: 1px solid var(--rule); display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .tab-btn:last-child { border-right: none; }
 .tab-btn.active { background: var(--ink); color: var(--paper); }
+.tab-btn svg { stroke: var(--ink-muted); transition: stroke 0.15s; fill: none; }
+.tab-btn.active svg { stroke: var(--paper); }
 
 /* Section header */
 .section-header { padding: 14px var(--pad-h) 12px; border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; }
@@ -104,6 +106,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-text { font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 300; line-height: 1.45; color: var(--ink); flex: 1; word-break: break-all; }
 .quad-text.done { text-decoration: line-through; color: var(--ink-muted); }
 .quad-overdue { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #c0392b; display: block; }
+.quad-sub-count { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; color: var(--ink-muted); margin-left: 4px; }
 .quad-add { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); margin-top: 8px; }
 
 /* Cart */
@@ -217,6 +220,126 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-action-btn.danger:active { background: #c0392b; color: white; }
 .rp-edit-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--ink); border-radius: 2px; padding: 10px; outline: none; resize: none; line-height: 1.6; margin-bottom: 10px; overflow: hidden; }
 
+
+
+/* Todo Detail */
+let currentDetailQuad='', currentDetailIdx=-1;
+
+function openTodoDetail(q, idx) {
+  currentDetailQuad=q; currentDetailIdx=idx;
+  const item=todoData[q][idx];
+  const cfg=QUAD_CFG[q];
+  document.getElementById('td-quad-tag').textContent=cfg.label;
+  document.getElementById('td-title').textContent=item.text;
+  document.getElementById('td-memo').textContent=item.memo||'';
+  document.getElementById('td-due').textContent=item.dueDate?'Due: '+formatDateShort(new Date(item.dueDate)):'No deadline';
+  renderSubList();
+  document.getElementById('td-sub-input').value='';
+  document.getElementById('todo-detail-popup').classList.add('open');
+}
+function closeTodoDetail() { document.getElementById('todo-detail-popup').classList.remove('open'); }
+
+function renderSubList() {
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  const list=document.getElementById('td-sub-list');
+  if(!item.subs||!item.subs.length){list.innerHTML='';return;}
+  list.innerHTML=item.subs.map((s,i)=>`
+    <div class="td-sub-item">
+      <div class="td-sub-check${s.done?' done':''}" onclick="toggleSubTodo(${i})"></div>
+      <div class="td-sub-text${s.done?' done':''}">${s.text}</div>
+    </div>`).join('');
+}
+
+function toggleSubTodo(subIdx) {
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  item.subs[subIdx].done=!item.subs[subIdx].done;
+  if(item.subs[subIdx].notionId) updateTodoNotionDone(item.subs[subIdx].notionId, item.subs[subIdx].done);
+  renderSubList(); renderAllQuads(); saveTodoToStorage();
+}
+
+function addSubTodo() {
+  const text=document.getElementById('td-sub-input').value.trim(); if(!text) return;
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  if(!item.subs) item.subs=[];
+  const sub={text,done:false,notionId:null};
+  item.subs.push(sub);
+  document.getElementById('td-sub-input').value='';
+  renderSubList(); renderAllQuads(); saveTodoToStorage();
+  saveSubTodoToNotion(text, item.notionId).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});
+}
+
+function deleteTodoItem() {
+  if(!confirm('삭제할까요?')) return;
+  todoData[currentDetailQuad].splice(currentDetailIdx,1);
+  closeTodoDetail(); renderAllQuads(); saveTodoToStorage(); showToast('삭제됐어요');
+}
+
+
+/* Todo Notion */
+async function saveTodoToNotion(quad,text,dueDate){
+  try{
+    const cfg=QUAD_CFG[quad];
+    const props={
+      '이름':{title:[{text:{content:text}}]},
+      '사분면':{select:{name:cfg.label}},
+      '추가일':{date:{start:formatDate(new Date())}},
+      '완료':{checkbox:false}
+    };
+    if(dueDate) props['마감일']={date:{start:formatDate(dueDate)}};
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
+    const data=await res.json();
+    return data.id||null;
+  }catch(e){console.error('todo notion save failed',e);return null;}
+}
+async function saveSubTodoToNotion(text,parentId){
+  try{
+    const props={
+      '이름':{title:[{text:{content:text}}]},
+      '완료':{checkbox:false},
+      '추가일':{date:{start:formatDate(new Date())}}
+    };
+    if(parentId) props['상위항목']={relation:[{id:parentId}]};
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
+    const data=await res.json();
+    return data.id||null;
+  }catch(e){console.error('sub todo notion save failed',e);return null;}
+}
+async function updateTodoNotionDone(notionId,done){
+  try{
+    await fetch(WORKER_URL+'/notion/pages/'+notionId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({properties:{'완료':{checkbox:done}}})});
+  }catch(e){console.error('todo notion update failed',e);}
+}
+
+
+/* Todo detail popup */
+.todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 450; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.todo-detail-overlay.open { opacity: 1; pointer-events: all; }
+.todo-detail-sheet { width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px; padding: 0 0 24px; transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 88vh; overflow-y: auto; scrollbar-width: none; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
+.todo-detail-sheet::-webkit-scrollbar { display: none; }
+.todo-detail-overlay.open .todo-detail-sheet { transform: translateY(0) scale(1); }
+.td-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 12px; border-bottom: 1px solid var(--rule); }
+.td-quad-tag { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; }
+.td-close { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
+.td-body { padding: 14px 20px; }
+.td-title { font-family: 'Gothic A1', sans-serif; font-size: 16px; font-weight: 400; color: var(--ink); margin-bottom: 6px; line-height: 1.4; }
+.td-memo { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink-muted); margin-bottom: 14px; }
+.td-due { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.06em; margin-bottom: 14px; }
+.td-sub-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; border-top: 1px solid var(--rule); padding-top: 12px; }
+.td-sub-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+.td-sub-item:last-child { border-bottom: none; }
+.td-sub-check { width: 11px; height: 11px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+.td-sub-check.done { background: var(--ink); border-color: var(--ink); }
+.td-sub-check.done::after { content: ''; display: block; width: 5px; height: 3px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
+.td-sub-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink); flex: 1; }
+.td-sub-text.done { text-decoration: line-through; color: var(--ink-muted); }
+.td-add-sub { display: flex; gap: 8px; margin-top: 10px; }
+.td-add-sub-input { flex: 1; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); background: transparent; border: none; border-bottom: 1px solid var(--rule); outline: none; padding: 6px 0; }
+.td-add-sub-input::placeholder { color: var(--rule); }
+.td-add-sub-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; background: var(--ink); color: var(--paper); border: none; padding: 6px 14px; cursor: pointer; border-radius: 1px; }
+.td-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.td-action-btn { flex: 1; padding: 9px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 2px; }
+.td-action-btn.danger { border-color: #c0392b; color: #c0392b; }
+
 /* Toast */
 .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--paper); font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 600; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -245,11 +368,26 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 <div id="app" class="hidden">
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('record',this)">Record</button>
-    <button class="tab-btn" onclick="switchTab('dump',this)">Dump</button>
-    <button class="tab-btn" onclick="switchTab('todo',this)">To-Do</button>
-    <button class="tab-btn" onclick="switchTab('cart',this)">Cart</button>
-    <button class="tab-btn" onclick="switchTab('inbox',this)">Inbox</button>
+    <button class="tab-btn active" onclick="switchTab('record',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Record
+    </button>
+    <button class="tab-btn" onclick="switchTab('dump',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>
+      Dump
+    </button>
+    <button class="tab-btn" onclick="switchTab('todo',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      To-Do
+    </button>
+    <button class="tab-btn" onclick="switchTab('cart',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Cart
+    </button>
+    <button class="tab-btn" onclick="switchTab('inbox',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      Inbox
+    </button>
   </div>
 
   <!-- Record -->
@@ -441,6 +579,31 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
+
+<!-- Todo Detail Popup -->
+<div class="todo-detail-overlay" id="todo-detail-popup" onclick="if(event.target===this)closeTodoDetail()">
+  <div class="todo-detail-sheet">
+    <div class="td-header">
+      <div class="td-quad-tag" id="td-quad-tag"></div>
+      <button class="td-close" onclick="closeTodoDetail()">✕ CLOSE</button>
+    </div>
+    <div class="td-body">
+      <div class="td-title" id="td-title"></div>
+      <div class="td-memo" id="td-memo"></div>
+      <div class="td-due" id="td-due"></div>
+      <div class="td-sub-label">하위 업무</div>
+      <div id="td-sub-list"></div>
+      <div class="td-add-sub">
+        <input class="td-add-sub-input" id="td-sub-input" placeholder="하위 업무 추가..." onkeydown="if(event.key==='Enter')addSubTodo()">
+        <button class="td-add-sub-btn" onclick="addSubTodo()">ADD</button>
+      </div>
+      <div class="td-actions">
+        <button class="td-action-btn" onclick="deleteTodoItem()">삭제</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="drag-ghost" id="drag-ghost"></div>
 <div class="drag-overlay" id="drag-overlay">
   <div class="drag-zones">
@@ -456,6 +619,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
 const BRAIN_DB = '37751f4140c580e4b680c979ee1d0f2a';
 const CART_DB  = '37751f4140c580598f09f7903db2248f';
+const TODO_DB  = '37651f4140c5805e875cdc92a5715d21';
 
 const MOOD_TYPE = {'평온함':'positive','뿌듯함':'positive','감사함':'positive','행복함':'positive','설렘':'positive','불안':'negative','무기력':'negative','답답함':'negative','외로움':'negative','피곤함':'negative','멍함':'etc','복잡함':'etc','모르겠음':'etc'};
 const MOOD_EMOJI = { positive:'🌿', negative:'🌧️', etc:'🌫️' };
@@ -693,12 +857,15 @@ function confirmTodo(){
   const cfg=QUAD_CFG[currentQuad];
   let dueDate=null;
   if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}
-  todoData[currentQuad].push({text,dueDate,done:false,addedAt:new Date()});
+  const item={text,dueDate,done:false,addedAt:new Date(),notionId:null};
+  todoData[currentQuad].push(item);
   closeTodoPopup(); renderAllQuads(); showToast('Added!'); saveTodoToStorage();
+  saveTodoToNotion(currentQuad,text,dueDate).then(id=>{if(id){item.notionId=id;saveTodoToStorage();}});
 }
 function toggleTodo(q,idx,e){
   e.stopPropagation();
   todoData[q][idx].done=!todoData[q][idx].done;
+  if(todoData[q][idx].notionId) updateTodoNotionDone(todoData[q][idx].notionId, todoData[q][idx].done);
   autoMoveTodos(); renderAllQuads(); saveTodoToStorage();
 }
 function autoMoveTodos(){
@@ -720,7 +887,11 @@ function renderQuad(q){
   if(!todoData[q].length){c.innerHTML='';return;}
   c.innerHTML=todoData[q].map((item,i)=>{
     const od=item.dueDate&&!item.done&&item.dueDate<now;
-    return `<div class="quad-item"><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}</div></div>`;
+    const subCount=item.subs?item.subs.filter(s=>!s.done).length:0;
+    return `<div class="quad-item" onclick="openTodoDetail('${q}',${i})">
+      <div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div>
+      <div class="quad-text${item.done?' done':''}">${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}${subCount>0?'<span class="quad-sub-count"> +'+subCount+'</span>':''}</div>
+    </div>`;
   }).join('');
 }
 function renderAllQuads(){['today','week','month','someday'].forEach(renderQuad);}
@@ -997,6 +1168,126 @@ function getTextProp(props,key){
   if(p.rich_text) return p.rich_text.map(t=>t.plain_text).join('');
   if(p.select) return p.select.name; return '';
 }
+
+
+
+/* Todo Detail */
+let currentDetailQuad='', currentDetailIdx=-1;
+
+function openTodoDetail(q, idx) {
+  currentDetailQuad=q; currentDetailIdx=idx;
+  const item=todoData[q][idx];
+  const cfg=QUAD_CFG[q];
+  document.getElementById('td-quad-tag').textContent=cfg.label;
+  document.getElementById('td-title').textContent=item.text;
+  document.getElementById('td-memo').textContent=item.memo||'';
+  document.getElementById('td-due').textContent=item.dueDate?'Due: '+formatDateShort(new Date(item.dueDate)):'No deadline';
+  renderSubList();
+  document.getElementById('td-sub-input').value='';
+  document.getElementById('todo-detail-popup').classList.add('open');
+}
+function closeTodoDetail() { document.getElementById('todo-detail-popup').classList.remove('open'); }
+
+function renderSubList() {
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  const list=document.getElementById('td-sub-list');
+  if(!item.subs||!item.subs.length){list.innerHTML='';return;}
+  list.innerHTML=item.subs.map((s,i)=>`
+    <div class="td-sub-item">
+      <div class="td-sub-check${s.done?' done':''}" onclick="toggleSubTodo(${i})"></div>
+      <div class="td-sub-text${s.done?' done':''}">${s.text}</div>
+    </div>`).join('');
+}
+
+function toggleSubTodo(subIdx) {
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  item.subs[subIdx].done=!item.subs[subIdx].done;
+  if(item.subs[subIdx].notionId) updateTodoNotionDone(item.subs[subIdx].notionId, item.subs[subIdx].done);
+  renderSubList(); renderAllQuads(); saveTodoToStorage();
+}
+
+function addSubTodo() {
+  const text=document.getElementById('td-sub-input').value.trim(); if(!text) return;
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  if(!item.subs) item.subs=[];
+  const sub={text,done:false,notionId:null};
+  item.subs.push(sub);
+  document.getElementById('td-sub-input').value='';
+  renderSubList(); renderAllQuads(); saveTodoToStorage();
+  saveSubTodoToNotion(text, item.notionId).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});
+}
+
+function deleteTodoItem() {
+  if(!confirm('삭제할까요?')) return;
+  todoData[currentDetailQuad].splice(currentDetailIdx,1);
+  closeTodoDetail(); renderAllQuads(); saveTodoToStorage(); showToast('삭제됐어요');
+}
+
+
+/* Todo Notion */
+async function saveTodoToNotion(quad,text,dueDate){
+  try{
+    const cfg=QUAD_CFG[quad];
+    const props={
+      '이름':{title:[{text:{content:text}}]},
+      '사분면':{select:{name:cfg.label}},
+      '추가일':{date:{start:formatDate(new Date())}},
+      '완료':{checkbox:false}
+    };
+    if(dueDate) props['마감일']={date:{start:formatDate(dueDate)}};
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
+    const data=await res.json();
+    return data.id||null;
+  }catch(e){console.error('todo notion save failed',e);return null;}
+}
+async function saveSubTodoToNotion(text,parentId){
+  try{
+    const props={
+      '이름':{title:[{text:{content:text}}]},
+      '완료':{checkbox:false},
+      '추가일':{date:{start:formatDate(new Date())}}
+    };
+    if(parentId) props['상위항목']={relation:[{id:parentId}]};
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
+    const data=await res.json();
+    return data.id||null;
+  }catch(e){console.error('sub todo notion save failed',e);return null;}
+}
+async function updateTodoNotionDone(notionId,done){
+  try{
+    await fetch(WORKER_URL+'/notion/pages/'+notionId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({properties:{'완료':{checkbox:done}}})});
+  }catch(e){console.error('todo notion update failed',e);}
+}
+
+
+/* Todo detail popup */
+.todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 450; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.todo-detail-overlay.open { opacity: 1; pointer-events: all; }
+.todo-detail-sheet { width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px; padding: 0 0 24px; transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 88vh; overflow-y: auto; scrollbar-width: none; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
+.todo-detail-sheet::-webkit-scrollbar { display: none; }
+.todo-detail-overlay.open .todo-detail-sheet { transform: translateY(0) scale(1); }
+.td-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 12px; border-bottom: 1px solid var(--rule); }
+.td-quad-tag { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; }
+.td-close { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
+.td-body { padding: 14px 20px; }
+.td-title { font-family: 'Gothic A1', sans-serif; font-size: 16px; font-weight: 400; color: var(--ink); margin-bottom: 6px; line-height: 1.4; }
+.td-memo { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink-muted); margin-bottom: 14px; }
+.td-due { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.06em; margin-bottom: 14px; }
+.td-sub-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; border-top: 1px solid var(--rule); padding-top: 12px; }
+.td-sub-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+.td-sub-item:last-child { border-bottom: none; }
+.td-sub-check { width: 11px; height: 11px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+.td-sub-check.done { background: var(--ink); border-color: var(--ink); }
+.td-sub-check.done::after { content: ''; display: block; width: 5px; height: 3px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
+.td-sub-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink); flex: 1; }
+.td-sub-text.done { text-decoration: line-through; color: var(--ink-muted); }
+.td-add-sub { display: flex; gap: 8px; margin-top: 10px; }
+.td-add-sub-input { flex: 1; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); background: transparent; border: none; border-bottom: 1px solid var(--rule); outline: none; padding: 6px 0; }
+.td-add-sub-input::placeholder { color: var(--rule); }
+.td-add-sub-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; background: var(--ink); color: var(--paper); border: none; padding: 6px 14px; cursor: pointer; border-radius: 1px; }
+.td-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.td-action-btn { flex: 1; padding: 9px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 2px; }
+.td-action-btn.danger { border-color: #c0392b; color: #c0392b; }
 
 /* Toast */
 function showToast(msg){
