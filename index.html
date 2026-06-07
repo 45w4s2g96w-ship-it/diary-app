@@ -13,43 +13,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Gothic+A1:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --paper: #efefed;
-  --ink: #111111;
-  --ink-soft: #444;
-  --ink-muted: #888;
-  --rule: #c8c4bc;
-  --content-width: 430px;
-  --pad-h: 22px;
+  --paper: #efefed; --ink: #111111; --ink-soft: #444; --ink-muted: #888;
+  --rule: #c8c4bc; --content-width: 430px; --pad-h: 22px;
 }
 @media (min-width: 768px) { :root { --content-width: 680px; --pad-h: 32px; } }
 @media (min-width: 1280px) { :root { --content-width: 860px; --pad-h: 48px; } }
-
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
-body {
-  background: var(--paper); font-family: 'Gothic A1', sans-serif;
-  display: flex; flex-direction: column;
-  width: 100%; max-width: var(--content-width);
-  margin: 0 auto; position: relative; min-height: 100%;
-}
+body { background: var(--paper); font-family: 'Gothic A1', sans-serif; display: flex; flex-direction: column; width: 100%; max-width: var(--content-width); margin: 0 auto; position: relative; min-height: 100%; }
 @media (max-width: 767px) { html, body { overflow: hidden; } body { height: 100%; } }
+body::before { content: ''; position: fixed; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.012) 3px, rgba(0,0,0,0.012) 4px), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); pointer-events: none; z-index: 100; mix-blend-mode: multiply; }
 
-body::before {
-  content: ''; position: fixed; inset: 0;
-  background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.012) 3px, rgba(0,0,0,0.012) 4px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 100; mix-blend-mode: multiply;
-}
-
-/* ── Setup ── */
-#setup-screen {
-  position: fixed; inset: 0; background: var(--paper); z-index: 200;
-  display: flex; flex-direction: column;
-  padding: 60px var(--pad-h) 40px; overflow-y: auto;
-  max-width: var(--content-width); margin: 0 auto;
-  left: 50%; transform: translateX(-50%); width: 100%;
-}
+/* Setup */
+#setup-screen { position: fixed; inset: 0; background: var(--paper); z-index: 200; display: flex; flex-direction: column; padding: 60px var(--pad-h) 40px; overflow-y: auto; max-width: var(--content-width); margin: 0 auto; left: 50%; transform: translateX(-50%); width: 100%; }
 #setup-screen.hidden { display: none; }
 .setup-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 40px; line-height: 0.95; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px; }
 .setup-sub { font-size: 13px; font-weight: 300; color: var(--ink-muted); margin-bottom: 40px; line-height: 1.6; }
@@ -61,39 +37,26 @@ body::before {
 .setup-save-btn { width: 100%; margin-top: 20px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.15em; background: var(--ink); color: var(--paper); border: none; padding: 16px; cursor: pointer; border-radius: 2px; }
 .setup-logout-btn { width: 100%; margin-top: 10px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.15em; background: transparent; color: #c0392b; border: 1.5px solid #c0392b; padding: 14px; cursor: pointer; border-radius: 2px; }
 
-/* ── App shell ── */
+/* App */
 #app { display: flex; flex-direction: column; height: 100%; }
 #app.hidden { display: none; }
 @media (min-width: 768px) { #app { height: auto; min-height: 100vh; } }
-
 .tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
 .tab-content.active { display: flex; }
 @media (min-width: 768px) { .tab-content { overflow: visible; } .tab-content.active { display: block; } }
 
-/* ── Tab bar ── */
-.tab-bar {
-  display: flex; border-top: 2px solid var(--ink);
-  background: var(--paper); flex-shrink: 0;
-}
-@media (min-width: 768px) {
-  .tab-bar { position: sticky; top: 0; z-index: 50; border-top: none; border-bottom: 2px solid var(--ink); order: -1; }
-}
-.tab-btn {
-  flex: 1; padding: 11px 0; text-align: center;
-  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 9px;
-  letter-spacing: 0.1em; color: var(--ink-muted);
-  cursor: pointer; border: none; background: transparent; transition: all 0.15s;
-  border-right: 1px solid var(--rule);
-}
+/* Tab bar — bottom */
+.tab-bar { display: flex; border-top: 2px solid var(--ink); background: var(--paper); flex-shrink: 0; order: 2; }
+.tab-btn { flex: 1; padding: 13px 0; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 9px; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; border: none; background: transparent; transition: all 0.15s; border-right: 1px solid var(--rule); }
 .tab-btn:last-child { border-right: none; }
 .tab-btn.active { background: var(--ink); color: var(--paper); }
 
-/* ── Section header ── */
+/* Section header */
 .section-header { padding: 14px var(--pad-h) 12px; border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; }
 .section-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 32px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
 .settings-btn { position: absolute; top: 14px; right: var(--pad-h); font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; }
 
-/* ── Emotion ── */
+/* Emotion */
 .emotion-section { padding: 8px var(--pad-h) 10px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
 .emotion-optional-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--rule); text-transform: uppercase; margin-bottom: 6px; }
 .emotion-row { display: flex; align-items: center; margin-bottom: 5px; overflow-x: auto; scrollbar-width: none; }
@@ -103,7 +66,7 @@ body::before {
 .tag { font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 400; padding: 3px 10px; border: 1.5px solid var(--ink); border-radius: 1px; cursor: pointer; white-space: nowrap; color: var(--ink); background: transparent; transition: all 0.12s; }
 .tag.selected { background: var(--ink); color: var(--paper); font-weight: 600; }
 
-/* ── Input section ── */
+/* Input */
 .input-section { padding: 12px var(--pad-h) 10px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
 .text-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); background: transparent; border: none; outline: none; resize: none; line-height: 1.6; min-height: 52px; overflow: hidden; display: block; }
 .text-input::placeholder { color: var(--ink-muted); }
@@ -112,7 +75,7 @@ body::before {
 .submit-btn { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; background: var(--ink); color: var(--paper); border: none; padding: 8px 20px; cursor: pointer; border-radius: 1px; }
 #photo-input { display: none; }
 
-/* ── Record list ── */
+/* Record list */
 .record-list { flex: 1; overflow-y: auto; padding: 0 var(--pad-h); scrollbar-width: none; }
 .record-list::-webkit-scrollbar { display: none; }
 .record-item { padding: 10px 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 36px 1fr; gap: 8px; cursor: pointer; }
@@ -122,21 +85,10 @@ body::before {
 .record-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.55; color: var(--ink); }
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
-/* ── Todo quadrant ── */
-.quadrant-grid {
-  flex: 1; overflow-y: auto; padding: var(--pad-h);
-  display: grid; grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 0; align-content: start; scrollbar-width: none;
-  border: 1.5px solid var(--ink); margin: var(--pad-h);
-  border-radius: 2px;
-}
+/* Todo */
+.quadrant-grid { flex: 1; overflow-y: auto; margin: var(--pad-h); border: 1.5px solid var(--ink); border-radius: 2px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; scrollbar-width: none; }
 .quadrant-grid::-webkit-scrollbar { display: none; }
-.quadrant {
-  border: none; padding: 12px 10px; cursor: pointer;
-  min-height: 140px; display: flex; flex-direction: column;
-  transition: background 0.12s; position: relative;
-}
+.quadrant { padding: 12px 10px; cursor: pointer; min-height: 140px; display: flex; flex-direction: column; transition: background 0.12s; }
 .quadrant:nth-child(1) { border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
 .quadrant:nth-child(2) { border-bottom: 1px solid var(--ink); }
 .quadrant:nth-child(3) { border-right: 1px solid var(--ink); }
@@ -154,32 +106,26 @@ body::before {
 .quad-overdue { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #c0392b; display: block; }
 .quad-add { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); margin-top: 8px; }
 
-/* ── Cart ── */
-.cart-grid {
-  flex: 1; overflow-y: auto; padding: var(--pad-h);
-  display: grid; grid-template-columns: 1fr;
-  gap: 0; scrollbar-width: none;
-}
+/* Cart */
+.cart-grid { flex: 1; overflow-y: auto; padding: var(--pad-h); scrollbar-width: none; }
 .cart-grid::-webkit-scrollbar { display: none; }
 .cart-section { border: 1.5px solid var(--ink); border-radius: 2px; margin-bottom: 10px; overflow: hidden; }
-.cart-section-header {
-  padding: 10px 14px; border-bottom: 1px solid var(--rule);
-  display: flex; justify-content: space-between; align-items: center;
-  cursor: pointer; background: var(--paper);
-}
-.cart-section-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); }
+.cart-section-header { padding: 10px 14px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.cart-section-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); }
 .cart-section-count { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; color: var(--rule); }
 .cart-items { padding: 0 14px; }
-.cart-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.cart-item { padding: 8px 0; border-bottom: 1px solid var(--rule); }
 .cart-item:last-child { border-bottom: none; }
+.cart-item-row { display: flex; align-items: flex-start; gap: 8px; }
 .cart-check { width: 12px; height: 12px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; margin-top: 2px; cursor: pointer; transition: all 0.12s; display: flex; align-items: center; justify-content: center; }
 .cart-check.done { background: var(--ink); border-color: var(--ink); }
 .cart-check.done::after { content: ''; display: block; width: 5px; height: 3px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
-.cart-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.5; color: var(--ink); flex: 1; }
+.cart-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--ink); flex: 1; }
 .cart-text.done { text-decoration: line-through; color: var(--ink-muted); }
+.cart-memo { font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 300; color: var(--ink-muted); margin-top: 2px; margin-left: 20px; line-height: 1.4; }
 .cart-add-btn { width: 100%; padding: 8px 14px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); background: none; border: none; border-top: 1px solid var(--rule); cursor: pointer; text-align: left; }
 
-/* ── Braindump ── */
+/* Braindump */
 .brain-header { padding: 12px var(--pad-h) 10px; border-bottom: 2px solid var(--ink); flex-shrink: 0; display: flex; justify-content: space-between; align-items: flex-end; }
 .brain-reset-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: #c0392b; border: 1px solid #c0392b; padding: 6px 12px; background: none; cursor: pointer; border-radius: 1px; }
 .brain-input-wrap { padding: 10px var(--pad-h); border-bottom: 1px solid var(--rule); flex-shrink: 0; }
@@ -188,155 +134,94 @@ body::before {
 .brain-add-btn { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; background: var(--ink); color: var(--paper); border: none; padding: 8px 20px; cursor: pointer; border-radius: 1px; margin-top: 8px; }
 .brain-list { flex: 1; overflow-y: auto; padding: 0 var(--pad-h); scrollbar-width: none; }
 .brain-list::-webkit-scrollbar { display: none; }
-
-/* ── Brain item ── */
-.brain-item {
-  padding: 10px 0; border-bottom: 1px solid var(--rule);
-  position: relative; user-select: none;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.brain-item.dragging {
-  opacity: 0.5; transform: scale(0.98);
-}
-.brain-item.lifting {
-  background: var(--paper); z-index: 50;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  border-radius: 4px; padding: 10px 12px;
-  position: fixed; width: calc(var(--content-width) - var(--pad-h) * 2);
-  pointer-events: none;
-}
-.brain-item-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.6; color: var(--ink); margin-bottom: 6px; }
-.brain-tag { display: inline-block; font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 1px; margin-bottom: 5px; }
+.brain-item { padding: 10px 0; border-bottom: 1px solid var(--rule); position: relative; user-select: none; transition: opacity 0.15s; }
+.brain-item.dragging { opacity: 0.4; }
+.brain-item-text { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.6; color: var(--ink); margin-bottom: 5px; }
+.brain-tag { display: inline-block; font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 1px; margin-bottom: 4px; }
 .brain-tag.record { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
 .brain-tag.todo { border: 1px solid var(--ink); color: var(--ink); }
 .brain-tag.cart { border: 1px solid var(--ink-soft); color: var(--ink-soft); }
-.brain-actions { display: flex; gap: 5px; flex-wrap: wrap; }
-.brain-action-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; padding: 4px 9px; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 1px; transition: all 0.12s; }
-.brain-action-btn:active { background: var(--ink); color: var(--paper); }
-.brain-action-btn.del-btn { border-color: var(--rule); color: var(--ink-muted); }
-.brain-hold-hint { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; letter-spacing: 0.06em; color: var(--rule); margin-top: 5px; }
+.brain-hold-hint { font-family: 'Montserrat', sans-serif; font-size: 8px; color: var(--rule); margin-bottom: 4px; letter-spacing: 0.04em; }
+.brain-actions { display: flex; gap: 5px; }
+.brain-action-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; padding: 4px 9px; border: 1px solid var(--rule); background: transparent; color: var(--ink-muted); cursor: pointer; border-radius: 1px; }
 
-/* ── Drag drop zones ── */
-.drag-overlay {
-  position: fixed; inset: 0; z-index: 300;
-  display: none; flex-direction: column; justify-content: flex-end;
-  pointer-events: none;
-}
+/* Drag zones */
+.drag-overlay { position: fixed; inset: 0; z-index: 300; display: none; flex-direction: column; justify-content: flex-end; pointer-events: none; }
 .drag-overlay.active { display: flex; pointer-events: all; }
-.drag-zones {
-  display: flex; border-top: 2px solid var(--ink);
-  background: var(--paper); height: 100px;
-}
-.drag-zone {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 4px;
-  border-right: 1px solid var(--rule); cursor: pointer;
-  transition: background 0.15s;
-}
+.drag-zones { display: flex; border-top: 2px solid var(--ink); background: var(--paper); height: 110px; }
+.drag-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-right: 1px solid var(--rule); transition: background 0.15s; }
 .drag-zone:last-child { border-right: none; }
 .drag-zone.hovered { background: var(--ink); }
 .drag-zone.hovered .dz-label { color: var(--paper); }
-.drag-zone.hovered .dz-icon { color: var(--paper); }
-.dz-icon { font-size: 20px; }
+.dz-icon { font-size: 22px; }
 .dz-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); }
-.drag-ghost { position: fixed; z-index: 400; pointer-events: none; background: var(--paper); border: 1.5px solid var(--ink); border-radius: 4px; padding: 8px 12px; font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink); max-width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0.95; display: none; }
+.drag-ghost { position: fixed; z-index: 400; pointer-events: none; background: var(--paper); border: 1.5px solid var(--ink); border-radius: 4px; padding: 8px 12px; font-family: 'Gothic A1', sans-serif; font-size: 12px; color: var(--ink); max-width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: none; }
 
-/* ── Inbox ── */
+/* Inbox */
 .inbox-list { flex: 1; overflow-y: auto; padding: 0 var(--pad-h) 20px; scrollbar-width: none; }
 .inbox-list::-webkit-scrollbar { display: none; }
 .inbox-date-divider { text-align: center; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-muted); padding: 20px 0 12px; }
-.inbox-bubble {
-  background: var(--ink); color: var(--paper);
-  border-radius: 16px 16px 16px 4px;
-  padding: 14px 16px; margin-bottom: 8px;
-  max-width: 88%;
-}
-.inbox-bubble-summary { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.65; margin-bottom: 10px; opacity: 0.85; }
-.inbox-bubble-encourage { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; line-height: 1.65; margin-bottom: 12px; }
+.inbox-bubble { background: var(--ink); color: var(--paper); border-radius: 16px 16px 16px 4px; padding: 14px 16px; margin-bottom: 8px; max-width: 92%; }
+.inbox-bubble-summary { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.7; margin-bottom: 8px; opacity: 0.85; }
+.inbox-bubble-encourage { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; line-height: 1.7; margin-bottom: 10px; }
 .inbox-bubble-divider { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 10px 0; }
-.inbox-bubble-suggest-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6; margin-bottom: 6px; }
-.inbox-bubble-suggest { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.65; }
+.inbox-bubble-suggest-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6; margin-bottom: 8px; }
+.inbox-bubble-suggest { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.9; white-space: pre-line; }
 .inbox-empty { padding: 60px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
-/* ── Popups ── */
-.popup-overlay {
-  position: fixed; inset: 0; background: rgba(17,17,17,0.55);
-  z-index: 400; display: flex; align-items: flex-end; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s;
-}
+/* Popups */
+.popup-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.55); z-index: 400; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .popup-overlay.open { opacity: 1; pointer-events: all; }
-.popup-sheet {
-  width: 100%; max-width: var(--content-width); background: var(--paper);
-  border-radius: 10px 10px 0 0; padding: 22px var(--pad-h) 36px;
-  transform: translateY(30px);
-  transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
-}
+.popup-sheet { width: 100%; max-width: var(--content-width); background: var(--paper); border-radius: 10px 10px 0 0; padding: 22px var(--pad-h) 36px; transform: translateY(30px); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); box-shadow: 0 -8px 40px rgba(0,0,0,0.12); }
 .popup-overlay.open .popup-sheet { transform: translateY(0); }
 .popup-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
 .popup-due { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 16px; }
-.popup-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 15px; font-weight: 300; color: var(--ink); background: transparent; border: none; border-bottom: 1.5px solid var(--ink); outline: none; padding: 8px 0; line-height: 1.6; margin-bottom: 18px; }
+.popup-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 15px; font-weight: 300; color: var(--ink); background: transparent; border: none; border-bottom: 1.5px solid var(--ink); outline: none; padding: 8px 0; line-height: 1.6; margin-bottom: 12px; }
 .popup-input::placeholder { color: var(--ink-muted); }
+.popup-input-memo { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink-soft); background: transparent; border: none; border-bottom: 1px solid var(--rule); outline: none; padding: 6px 0; line-height: 1.6; margin-bottom: 18px; }
+.popup-input-memo::placeholder { color: var(--rule); }
 .popup-btns { display: flex; gap: 8px; justify-content: flex-end; }
 .popup-cancel { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; background: transparent; color: var(--ink-muted); border: 1px solid var(--rule); padding: 10px 16px; cursor: pointer; border-radius: 1px; }
 .popup-ok { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; background: var(--ink); color: var(--paper); border: none; padding: 10px 28px; cursor: pointer; border-radius: 1px; }
 
-/* Sub-popup for drag destination */
-.sub-popup-overlay {
-  position: fixed; inset: 0; background: rgba(17,17,17,0.55);
-  z-index: 500; display: flex; align-items: flex-end; justify-content: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s;
-}
+/* Sub popup */
+.sub-popup-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.55); z-index: 500; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .sub-popup-overlay.open { opacity: 1; pointer-events: all; }
-.sub-popup-sheet {
-  width: 100%; max-width: var(--content-width); background: var(--paper);
-  border-radius: 10px 10px 0 0; padding: 22px var(--pad-h) 36px;
-  transform: translateY(30px);
-  transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
-}
+.sub-popup-sheet { width: 100%; max-width: var(--content-width); background: var(--paper); border-radius: 10px 10px 0 0; padding: 22px var(--pad-h) 36px; transform: translateY(30px); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 80vh; overflow-y: auto; }
 .sub-popup-overlay.open .sub-popup-sheet { transform: translateY(0); }
-.sub-popup-title { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
-.sub-popup-text { font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); padding: 10px 0; border-bottom: 1px solid var(--rule); margin-bottom: 16px; line-height: 1.5; }
-.sub-choices { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.sub-choice {
-  padding: 12px 14px; border: 1.5px solid var(--rule); border-radius: 2px;
-  font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 400;
-  color: var(--ink); cursor: pointer; transition: all 0.12s; background: transparent;
-  text-align: left;
-}
-.sub-choice:active, .sub-choice.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-/* For record: emotion row in sub-popup */
-.sub-emotion-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.sub-popup-title { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 10px; }
+.sub-popup-text { font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); padding: 8px 0; border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
+.sub-choices { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.sub-choice { padding: 11px 14px; border: 1.5px solid var(--rule); border-radius: 2px; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 400; color: var(--ink); cursor: pointer; background: transparent; text-align: left; transition: all 0.12s; }
+.sub-choice:active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.sub-mood-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.sub-mood-btn { font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; padding: 5px 12px; border: 1.5px solid var(--ink); border-radius: 1px; cursor: pointer; background: transparent; color: var(--ink); transition: all 0.12s; }
+.sub-mood-btn:active, .sub-mood-btn.selected { background: var(--ink); color: var(--paper); }
 
-/* ── Record popup (view) ── */
-.record-popup-overlay {
-  position: fixed; inset: 0; background: rgba(17,17,17,0.6);
-  z-index: 400; display: flex; align-items: center; justify-content: center;
-  padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
-}
+/* Record popup */
+.record-popup-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .record-popup-overlay.open { opacity: 1; pointer-events: all; }
-.record-popup-sheet {
-  width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px;
-  padding: 0 0 28px;
-  transform: translateY(16px) scale(0.97);
-  transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
-  max-height: 88vh; overflow-y: auto; scrollbar-width: none;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
-}
+.record-popup-sheet { width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px; padding: 0 0 24px; transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 88vh; overflow-y: auto; scrollbar-width: none; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
 .record-popup-sheet::-webkit-scrollbar { display: none; }
 .record-popup-overlay.open .record-popup-sheet { transform: translateY(0) scale(1); }
 .rp-header { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 22px 12px; border-bottom: 1px solid var(--rule); }
 .rp-time { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); }
 .rp-close { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
-.rp-body { padding: 16px 22px; }
-.rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: var(--ink); border: 1.5px solid var(--ink); padding: 2px 10px; border-radius: 1px; margin-bottom: 12px; }
-.rp-text { font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300; line-height: 1.75; color: var(--ink); white-space: pre-wrap; }
+.rp-body { padding: 14px 22px; }
+.rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: var(--ink); border: 1.5px solid var(--ink); padding: 2px 10px; border-radius: 1px; margin-bottom: 10px; }
+.rp-text { font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300; line-height: 1.75; color: var(--ink); white-space: pre-wrap; margin-bottom: 16px; }
+.rp-actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.rp-action-btn { flex: 1; padding: 9px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 2px; transition: all 0.12s; }
+.rp-action-btn:active { background: var(--ink); color: var(--paper); }
+.rp-action-btn.danger { border-color: #c0392b; color: #c0392b; }
+.rp-action-btn.danger:active { background: #c0392b; color: white; }
+.rp-edit-input { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 14px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--ink); border-radius: 2px; padding: 10px; outline: none; resize: none; line-height: 1.6; margin-bottom: 10px; overflow: hidden; }
 
-/* ── Toast ── */
+/* Toast */
 .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--paper); font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 600; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ── Loading ── */
+/* Loading */
 .loading-overlay { position: fixed; inset: 0; background: rgba(239,239,237,0.85); display: flex; align-items: center; justify-content: center; z-index: 250; }
 .loading-overlay.hidden { display: none; }
 .loading-text { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--ink); animation: pulse 1.2s infinite; }
@@ -345,11 +230,8 @@ body::before {
 </head>
 <body>
 
-<div class="loading-overlay hidden" id="loading">
-  <div class="loading-text">SAVING...</div>
-</div>
+<div class="loading-overlay hidden" id="loading"><div class="loading-text">SAVING...</div></div>
 
-<!-- Setup -->
 <div id="setup-screen">
   <div class="setup-title">daily<br>note</div>
   <div class="setup-sub">처음 한 번만 설정하면<br>다음부터는 자동으로 연결돼요.</div>
@@ -362,20 +244,18 @@ body::before {
 </div>
 
 <div id="app" class="hidden">
-
-  <!-- Tab bar -->
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('record',this)">Record</button>
     <button class="tab-btn" onclick="switchTab('dump',this)">Dump</button>
-    <button class="tab-btn" onclick="switchTab('todo',this)">Todo</button>
+    <button class="tab-btn" onclick="switchTab('todo',this)">To-Do</button>
     <button class="tab-btn" onclick="switchTab('cart',this)">Cart</button>
     <button class="tab-btn" onclick="switchTab('inbox',this)">Inbox</button>
   </div>
 
-  <!-- Record Tab -->
+  <!-- Record -->
   <div class="tab-content active" id="tab-record">
     <div class="section-header">
-      <div class="section-title" id="current-date">06.07 — SUN</div>
+      <div class="section-title" id="current-date"></div>
       <button class="settings-btn" onclick="openSettings()">⚙</button>
     </div>
     <div class="emotion-section">
@@ -383,29 +263,19 @@ body::before {
       <div class="emotion-row">
         <div class="emotion-row-label">Pos.</div>
         <div class="emotion-tags">
-          <span class="tag" onclick="selectMood(this)">평온함</span>
-          <span class="tag" onclick="selectMood(this)">뿌듯함</span>
-          <span class="tag" onclick="selectMood(this)">감사함</span>
-          <span class="tag" onclick="selectMood(this)">행복함</span>
-          <span class="tag" onclick="selectMood(this)">설렘</span>
+          <span class="tag" onclick="selectMood(this)">평온함</span><span class="tag" onclick="selectMood(this)">뿌듯함</span><span class="tag" onclick="selectMood(this)">감사함</span><span class="tag" onclick="selectMood(this)">행복함</span><span class="tag" onclick="selectMood(this)">설렘</span>
         </div>
       </div>
       <div class="emotion-row" style="margin-top:4px;">
         <div class="emotion-row-label">Neg.</div>
         <div class="emotion-tags">
-          <span class="tag" onclick="selectMood(this)">불안</span>
-          <span class="tag" onclick="selectMood(this)">무기력</span>
-          <span class="tag" onclick="selectMood(this)">답답함</span>
-          <span class="tag" onclick="selectMood(this)">외로움</span>
-          <span class="tag" onclick="selectMood(this)">피곤함</span>
+          <span class="tag" onclick="selectMood(this)">불안</span><span class="tag" onclick="selectMood(this)">무기력</span><span class="tag" onclick="selectMood(this)">답답함</span><span class="tag" onclick="selectMood(this)">외로움</span><span class="tag" onclick="selectMood(this)">피곤함</span>
         </div>
       </div>
       <div class="emotion-row" style="margin-top:4px;">
         <div class="emotion-row-label">Etc.</div>
         <div class="emotion-tags">
-          <span class="tag" onclick="selectMood(this)">멍함</span>
-          <span class="tag" onclick="selectMood(this)">복잡함</span>
-          <span class="tag" onclick="selectMood(this)">모르겠음</span>
+          <span class="tag" onclick="selectMood(this)">멍함</span><span class="tag" onclick="selectMood(this)">복잡함</span><span class="tag" onclick="selectMood(this)">모르겠음</span>
         </div>
       </div>
     </div>
@@ -417,12 +287,10 @@ body::before {
       </div>
       <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
     </div>
-    <div class="record-list" id="record-list">
-      <div class="empty-state">오늘 첫 기록을 남겨보세요.</div>
-    </div>
+    <div class="record-list" id="record-list"><div class="empty-state">오늘 첫 기록을 남겨보세요.</div></div>
   </div>
 
-  <!-- Dump Tab -->
+  <!-- Dump -->
   <div class="tab-content" id="tab-dump">
     <div class="brain-header">
       <div class="section-title">Brain<br>Dump</div>
@@ -432,85 +300,83 @@ body::before {
       <textarea class="brain-textarea" id="brain-input" placeholder="지금 머릿속에 있는 거 다 꺼내봐요." oninput="autoResize(this)"></textarea>
       <button class="brain-add-btn" onclick="addBrainItem()">ADD</button>
     </div>
-    <div class="brain-list" id="brain-list">
-      <div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>
-    </div>
+    <div class="brain-list" id="brain-list"><div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div></div>
   </div>
 
-  <!-- Todo Tab -->
+  <!-- To-Do -->
   <div class="tab-content" id="tab-todo">
-    <div class="section-header">
-      <div class="section-title">Todo</div>
-    </div>
-    <div class="quadrant-grid" id="quadrant-grid">
+    <div class="section-header"><div class="section-title">To-Do</div></div>
+    <div class="quadrant-grid">
       <div class="quadrant" onclick="openTodoPopup('today')">
-        <div class="quad-label">오늘</div>
+        <div class="quad-label">Today</div>
         <div class="quad-due" id="due-today"></div>
         <div class="quad-items" id="items-today"></div>
-        <div class="quad-add">+ 추가</div>
+        <div class="quad-add">+ Add</div>
       </div>
       <div class="quadrant" onclick="openTodoPopup('week')">
-        <div class="quad-label">이번 주</div>
+        <div class="quad-label">This Week</div>
         <div class="quad-due" id="due-week"></div>
         <div class="quad-items" id="items-week"></div>
-        <div class="quad-add">+ 추가</div>
+        <div class="quad-add">+ Add</div>
       </div>
       <div class="quadrant" onclick="openTodoPopup('month')">
-        <div class="quad-label">이번 달</div>
+        <div class="quad-label">This Month</div>
         <div class="quad-due" id="due-month"></div>
         <div class="quad-items" id="items-month"></div>
-        <div class="quad-add">+ 추가</div>
+        <div class="quad-add">+ Add</div>
       </div>
       <div class="quadrant" onclick="openTodoPopup('someday')">
-        <div class="quad-label">하면 좋을 거</div>
-        <div class="quad-due" style="color:var(--rule);">마감 없음</div>
+        <div class="quad-label">Someday</div>
+        <div class="quad-due" style="color:var(--rule);">No deadline</div>
         <div class="quad-items" id="items-someday"></div>
-        <div class="quad-add">+ 추가</div>
+        <div class="quad-add">+ Add</div>
       </div>
     </div>
   </div>
 
-  <!-- Cart Tab -->
+  <!-- Cart -->
   <div class="tab-content" id="tab-cart">
-    <div class="section-header">
-      <div class="section-title">Cart</div>
-    </div>
+    <div class="section-header"><div class="section-title">Cart</div></div>
     <div class="cart-grid">
       <div class="cart-section">
-        <div class="cart-section-header" onclick="openCartPopup('need-now')">
-          <span class="cart-section-label">필요하고 사고 싶음</span>
-          <span class="cart-section-count" id="count-need-now">0</span>
+        <div class="cart-section-header" onclick="openCartPopup('need-buy')">
+          <span class="cart-section-label">필요하고 사야함</span>
+          <span class="cart-section-count" id="count-need-buy"></span>
         </div>
-        <div class="cart-items" id="items-need-now"></div>
-        <button class="cart-add-btn" onclick="openCartPopup('need-now')">+ 추가</button>
+        <div class="cart-items" id="items-need-buy"></div>
+        <button class="cart-add-btn" onclick="openCartPopup('need-buy')">+ Add</button>
+      </div>
+      <div class="cart-section">
+        <div class="cart-section-header" onclick="openCartPopup('need-want')">
+          <span class="cart-section-label">필요하고 사고싶음</span>
+          <span class="cart-section-count" id="count-need-want"></span>
+        </div>
+        <div class="cart-items" id="items-need-want"></div>
+        <button class="cart-add-btn" onclick="openCartPopup('need-want')">+ Add</button>
       </div>
       <div class="cart-section">
         <div class="cart-section-header" onclick="openCartPopup('need-later')">
           <span class="cart-section-label">필요한데 나중에</span>
-          <span class="cart-section-count" id="count-need-later">0</span>
+          <span class="cart-section-count" id="count-need-later"></span>
         </div>
         <div class="cart-items" id="items-need-later"></div>
-        <button class="cart-add-btn" onclick="openCartPopup('need-later')">+ 추가</button>
+        <button class="cart-add-btn" onclick="openCartPopup('need-later')">+ Add</button>
       </div>
       <div class="cart-section">
         <div class="cart-section-header" onclick="openCartPopup('want')">
-          <span class="cart-section-label">그냥 사고 싶음</span>
-          <span class="cart-section-count" id="count-want">0</span>
+          <span class="cart-section-label">그냥 사고싶음</span>
+          <span class="cart-section-count" id="count-want"></span>
         </div>
         <div class="cart-items" id="items-want"></div>
-        <button class="cart-add-btn" onclick="openCartPopup('want')">+ 추가</button>
+        <button class="cart-add-btn" onclick="openCartPopup('want')">+ Add</button>
       </div>
     </div>
   </div>
 
-  <!-- Inbox Tab -->
+  <!-- Inbox -->
   <div class="tab-content" id="tab-inbox">
-    <div class="section-header">
-      <div class="section-title">Inbox</div>
-    </div>
-    <div class="inbox-list" id="inbox-list">
-      <div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>
-    </div>
+    <div class="section-header"><div class="section-title">Inbox</div></div>
+    <div class="inbox-list" id="inbox-list"><div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div></div>
   </div>
 </div>
 
@@ -519,7 +385,7 @@ body::before {
   <div class="popup-sheet">
     <div class="popup-label" id="todo-popup-label"></div>
     <div class="popup-due" id="todo-popup-due"></div>
-    <input class="popup-input" id="todo-input" placeholder="할 일을 입력하세요." onkeydown="if(event.key==='Enter')confirmTodo()">
+    <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')confirmTodo()">
     <div class="popup-btns">
       <button class="popup-cancel" onclick="closeTodoPopup()">CANCEL</button>
       <button class="popup-ok" onclick="confirmTodo()">OK</button>
@@ -531,7 +397,8 @@ body::before {
 <div class="popup-overlay" id="cart-popup" onclick="if(event.target===this)closeCartPopup()">
   <div class="popup-sheet">
     <div class="popup-label" id="cart-popup-label"></div>
-    <input class="popup-input" id="cart-input" placeholder="아이템을 입력하세요." onkeydown="if(event.key==='Enter')confirmCart()">
+    <input class="popup-input" id="cart-input" placeholder="Item name" onkeydown="if(event.key==='Enter')document.getElementById('cart-memo').focus()">
+    <input class="popup-input-memo" id="cart-memo" placeholder="Memo (link, store, note...)" onkeydown="if(event.key==='Enter')confirmCart()">
     <div class="popup-btns">
       <button class="popup-cancel" onclick="closeCartPopup()">CANCEL</button>
       <button class="popup-ok" onclick="confirmCart()">OK</button>
@@ -539,15 +406,13 @@ body::before {
   </div>
 </div>
 
-<!-- Drag sub-popup -->
+<!-- Sub popup (drag) -->
 <div class="sub-popup-overlay" id="sub-popup" onclick="if(event.target===this)closeSubPopup()">
   <div class="sub-popup-sheet">
     <div class="sub-popup-title" id="sub-popup-title"></div>
     <div class="sub-popup-text" id="sub-popup-text"></div>
-    <div class="sub-choices" id="sub-choices"></div>
-    <div class="popup-btns">
-      <button class="popup-cancel" onclick="closeSubPopup()">CANCEL</button>
-    </div>
+    <div id="sub-choices-wrap"></div>
+    <div class="popup-btns"><button class="popup-cancel" onclick="closeSubPopup()">CANCEL</button></div>
   </div>
 </div>
 
@@ -561,28 +426,27 @@ body::before {
     <div class="rp-body">
       <div id="rp-mood"></div>
       <div class="rp-text" id="rp-text"></div>
+      <div id="rp-edit-wrap" style="display:none">
+        <textarea class="rp-edit-input" id="rp-edit-input" rows="4" oninput="autoResize(this)"></textarea>
+      </div>
+      <div class="rp-actions" id="rp-actions">
+        <button class="rp-action-btn" onclick="toggleRecordEdit()">EDIT</button>
+        <button class="rp-action-btn danger" onclick="deleteRecord()">DELETE</button>
+      </div>
+      <div class="rp-actions" id="rp-save-actions" style="display:none">
+        <button class="rp-action-btn" onclick="saveRecordEdit()">SAVE</button>
+        <button class="rp-action-btn" onclick="toggleRecordEdit()">CANCEL</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Drag ghost -->
 <div class="drag-ghost" id="drag-ghost"></div>
-
-<!-- Drag overlay zones -->
 <div class="drag-overlay" id="drag-overlay">
   <div class="drag-zones">
-    <div class="drag-zone" id="dz-record" data-zone="record">
-      <div class="dz-icon">✏️</div>
-      <div class="dz-label">RECORD</div>
-    </div>
-    <div class="drag-zone" id="dz-todo" data-zone="todo">
-      <div class="dz-icon">✓</div>
-      <div class="dz-label">TODO</div>
-    </div>
-    <div class="drag-zone" id="dz-cart" data-zone="cart">
-      <div class="dz-icon">🛒</div>
-      <div class="dz-label">CART</div>
-    </div>
+    <div class="drag-zone" data-zone="record"><div class="dz-icon">✏️</div><div class="dz-label">RECORD</div></div>
+    <div class="drag-zone" data-zone="todo"><div class="dz-icon">✓</div><div class="dz-label">TO-DO</div></div>
+    <div class="drag-zone" data-zone="cart"><div class="dz-icon">🛒</div><div class="dz-label">CART</div></div>
   </div>
 </div>
 
@@ -593,37 +457,29 @@ const WORKER_URL = 'https://empty-haze-c7f9.aa01064822791.workers.dev';
 const BRAIN_DB = '37751f4140c580e4b680c979ee1d0f2a';
 const CART_DB  = '37751f4140c580598f09f7903db2248f';
 
-const MOOD_TYPE = {
-  '평온함':'positive','뿌듯함':'positive','감사함':'positive','행복함':'positive','설렘':'positive',
-  '불안':'negative','무기력':'negative','답답함':'negative','외로움':'negative','피곤함':'negative',
-  '멍함':'etc','복잡함':'etc','모르겠음':'etc'
-};
+const MOOD_TYPE = {'평온함':'positive','뿌듯함':'positive','감사함':'positive','행복함':'positive','설렘':'positive','불안':'negative','무기력':'negative','답답함':'negative','외로움':'negative','피곤함':'negative','멍함':'etc','복잡함':'etc','모르겠음':'etc'};
 const MOOD_EMOJI = { positive:'🌿', negative:'🌧️', etc:'🌫️' };
 function getMoodEmoji(mood) { return MOOD_EMOJI[MOOD_TYPE[mood]||'etc']||'🌫️'; }
-
 function autoResize(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
 
-/* ── Date ── */
+/* Date */
 function getDiaryDate() { const n=new Date(); if(n.getHours()<7) n.setDate(n.getDate()-1); return n; }
 function formatDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function formatDateShort(d) { return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; }
-function formatDateDisplay(d) {
-  const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} — ${days[d.getDay()]}`;
-}
+function formatDateDisplay(d) { const days=['SUN','MON','TUE','WED','THU','FRI','SAT']; return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} — ${days[d.getDay()]}`; }
 function formatTime(d) { return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 function getOffsetDate(n) { const d=new Date(); d.setDate(d.getDate()+n); return d; }
 
-/* ── Tab ── */
+/* Tab */
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
-  if (tab==='inbox') loadInbox();
+  if(tab==='inbox') loadInbox();
 }
 
-/* ── Auth ── */
+/* Auth */
 function logout() { if(!confirm('로그아웃 할까요?')) return; localStorage.clear(); location.reload(); }
 async function saveSettings() {
   const pw=document.getElementById('app-password').value.trim();
@@ -645,14 +501,14 @@ async function saveSettings() {
 }
 function openSettings() { document.getElementById('app-password').value=''; document.getElementById('setup-screen').classList.remove('hidden'); }
 
-/* ── Mood ── */
+/* Mood */
 let selectedMood='';
 function selectMood(el) {
   document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));
   el.classList.add('selected'); selectedMood=el.textContent;
 }
 
-/* ── Photos ── */
+/* Photos */
 let selectedPhotos=[];
 function handlePhotos(input) {
   Array.from(input.files).slice(0,6-selectedPhotos.length).forEach(file=>{
@@ -665,12 +521,7 @@ async function uploadToCloudinary(file) {
   try { const r=await fetch(`https://api.cloudinary.com/v1_1/${cn}/image/upload`,{method:'POST',body:fd}); const d=await r.json(); return d.secure_url||null; } catch{return null;}
 }
 
-/* ── Cache ── */
-const CP='diary_cache_';
-function loadCache(d){try{const r=localStorage.getItem(CP+d);return r?JSON.parse(r):null;}catch{return null;}}
-function saveCache(d,recs){try{localStorage.setItem(CP+d,JSON.stringify(recs));}catch(e){}}
-
-/* ── Notion page ── */
+/* Notion page */
 let cachedPageId=null,cachedPageDate=null;
 async function getTodayPageId() {
   const db=localStorage.getItem('notion_db'); const dateStr=formatDate(getDiaryDate());
@@ -684,7 +535,7 @@ async function getTodayPageId() {
   const cd=await cr.json(); cachedPageId=cd.id; cachedPageDate=dateStr; return cachedPageId;
 }
 
-/* ── Record save ── */
+/* Record save */
 async function saveRecord() {
   const text=document.getElementById('memo-input').value.trim();
   if(!text&&selectedPhotos.length===0){showToast('내용을 입력해주세요');return;}
@@ -698,7 +549,7 @@ async function saveRecord() {
     let notionUrl=null,blockId=null;
     if(pageId){
       notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
-      const rich=[]; 
+      const rich=[];
       rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});
       if(selectedMood) rich.push({type:'text',text:{content:getMoodEmoji(selectedMood)+' '+selectedMood+'\n'},annotations:{italic:true}});
       if(text) rich.push({type:'text',text:{content:text},annotations:{bold:true}});
@@ -716,20 +567,78 @@ async function saveRecord() {
   btn.disabled=false; document.getElementById('loading').classList.add('hidden');
 }
 
+/* Record UI */
+let currentPopupBlockId=null, currentPopupItem=null, isEditing=false;
+
 function addRecordToUI(time,mood,text,photoUrls,notionUrl,blockId) {
   const list=document.getElementById('record-list');
   const empty=list.querySelector('.empty-state'); if(empty) empty.remove();
   const item=document.createElement('div'); item.className='record-item';
+  if(blockId) item.dataset.blockId=blockId;
   item.innerHTML=`<div class="record-time">${time}</div><div>${mood?'<span class="record-tag">'+mood+'</span>':''}<div class="record-text">${text}</div></div>`;
-  item.addEventListener('click',()=>{
-    document.getElementById('rp-time').textContent=time;
-    document.getElementById('rp-mood').innerHTML=mood?'<div class="rp-mood">'+mood+'</div>':'';
-    document.getElementById('rp-text').textContent=text;
-    document.getElementById('record-popup').classList.add('open');
-  });
+  item.addEventListener('click',()=>openRecordPopup(time,mood,text,notionUrl,blockId,item));
   list.insertBefore(item,list.firstChild);
 }
-function closeRecordPopup(){document.getElementById('record-popup').classList.remove('open');}
+
+function openRecordPopup(time,mood,text,notionUrl,blockId,itemEl) {
+  currentPopupBlockId=blockId||null;
+  currentPopupItem=itemEl||null;
+  isEditing=false;
+  document.getElementById('rp-time').textContent=time;
+  document.getElementById('rp-mood').innerHTML=mood?'<div class="rp-mood">'+mood+'</div>':'';
+  document.getElementById('rp-text').textContent=text||'';
+  document.getElementById('rp-text').style.display='';
+  document.getElementById('rp-edit-wrap').style.display='none';
+  document.getElementById('rp-actions').style.display=blockId?'flex':'none';
+  document.getElementById('rp-save-actions').style.display='none';
+  document.getElementById('record-popup').classList.add('open');
+}
+
+function closeRecordPopup() { document.getElementById('record-popup').classList.remove('open'); }
+
+function toggleRecordEdit() {
+  isEditing=!isEditing;
+  const textEl=document.getElementById('rp-text');
+  const editWrap=document.getElementById('rp-edit-wrap');
+  const editInput=document.getElementById('rp-edit-input');
+  const actions=document.getElementById('rp-actions');
+  const saveActions=document.getElementById('rp-save-actions');
+  if(isEditing){
+    editInput.value=textEl.textContent;
+    textEl.style.display='none'; editWrap.style.display='';
+    actions.style.display='none'; saveActions.style.display='flex';
+    setTimeout(()=>autoResize(editInput),0);
+  } else {
+    textEl.style.display=''; editWrap.style.display='none';
+    actions.style.display=currentPopupBlockId?'flex':'none'; saveActions.style.display='none';
+  }
+}
+
+async function saveRecordEdit() {
+  if(!currentPopupBlockId) return;
+  const newText=document.getElementById('rp-edit-input').value.trim();
+  const timeStr=document.getElementById('rp-time').textContent;
+  const mood=document.getElementById('rp-mood').textContent;
+  try {
+    const rich=[];
+    rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});
+    if(mood) rich.push({type:'text',text:{content:getMoodEmoji(mood)+' '+mood+'\n'},annotations:{italic:true}});
+    if(newText) rich.push({type:'text',text:{content:newText},annotations:{bold:true}});
+    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({paragraph:{rich_text:rich}})});
+    document.getElementById('rp-text').textContent=newText;
+    if(currentPopupItem) { const t=currentPopupItem.querySelector('.record-text'); if(t) t.textContent=newText; }
+    toggleRecordEdit(); showToast('수정됐어요');
+  } catch(e){showToast('수정 실패');console.error(e);}
+}
+
+async function deleteRecord() {
+  if(!currentPopupBlockId||!confirm('이 기록을 삭제할까요?')) return;
+  try {
+    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'DELETE',headers:{'Content-Type':'application/json'}});
+    if(currentPopupItem) currentPopupItem.remove();
+    closeRecordPopup(); showToast('삭제됐어요');
+  } catch(e){showToast('삭제 실패');}
+}
 
 async function loadTodayRecords() {
   try {
@@ -755,26 +664,25 @@ async function loadTodayRecords() {
   } catch(e){console.error('load records failed',e);}
 }
 
-/* ── Todo ── */
+/* Todo */
 const QUAD_CFG = {
-  today:{label:'오늘',offset:0},
-  week:{label:'이번 주',offset:7},
-  month:{label:'이번 달',offset:30},
-  someday:{label:'하면 좋을 거',offset:null}
+  today:{label:'Today',offset:0},
+  week:{label:'This Week',offset:7},
+  month:{label:'This Month',offset:30},
+  someday:{label:'Someday',offset:null}
 };
 let todoData={today:[],week:[],month:[],someday:[]};
 let currentQuad='';
 
 function initQuadDates(){
-  document.getElementById('due-today').textContent='오늘  '+formatDateShort(new Date());
-  document.getElementById('due-week').textContent='+7일  '+formatDateShort(getOffsetDate(7));
-  document.getElementById('due-month').textContent='+30일  '+formatDateShort(getOffsetDate(30));
+  document.getElementById('due-today').textContent=formatDateShort(new Date());
+  document.getElementById('due-week').textContent='+7d  '+formatDateShort(getOffsetDate(7));
+  document.getElementById('due-month').textContent='+30d  '+formatDateShort(getOffsetDate(30));
 }
 function openTodoPopup(q) {
-  currentQuad=q;
-  const cfg=QUAD_CFG[q];
+  currentQuad=q; const cfg=QUAD_CFG[q];
   document.getElementById('todo-popup-label').textContent=cfg.label;
-  document.getElementById('todo-popup-due').textContent=cfg.offset===null?'마감일 없이 저장':cfg.offset===0?'오늘 자정까지':'입력일 기준 +'+cfg.offset+'일';
+  document.getElementById('todo-popup-due').textContent=cfg.offset===null?'No deadline':cfg.offset===0?'Due today':'Due in +'+cfg.offset+' days';
   document.getElementById('todo-input').value='';
   document.getElementById('todo-popup').classList.add('open');
   setTimeout(()=>document.getElementById('todo-input').focus(),300);
@@ -786,8 +694,7 @@ function confirmTodo(){
   let dueDate=null;
   if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}
   todoData[currentQuad].push({text,dueDate,done:false,addedAt:new Date()});
-  closeTodoPopup(); renderAllQuads(); showToast('추가됐어요');
-  saveTodoToStorage();
+  closeTodoPopup(); renderAllQuads(); showToast('Added!'); saveTodoToStorage();
 }
 function toggleTodo(q,idx,e){
   e.stopPropagation();
@@ -813,7 +720,7 @@ function renderQuad(q){
   if(!todoData[q].length){c.innerHTML='';return;}
   c.innerHTML=todoData[q].map((item,i)=>{
     const od=item.dueDate&&!item.done&&item.dueDate<now;
-    return `<div class="quad-item"><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${item.text}${od?'<span class="quad-overdue"> 기한초과</span>':''}</div></div>`;
+    return `<div class="quad-item"><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}</div></div>`;
   }).join('');
 }
 function renderAllQuads(){['today','week','month','someday'].forEach(renderQuad);}
@@ -822,28 +729,26 @@ function loadTodoFromStorage(){
   try{const d=localStorage.getItem('todo_data');if(d){const p=JSON.parse(d);Object.keys(p).forEach(q=>{if(todoData[q])todoData[q]=p[q].map(i=>({...i,dueDate:i.dueDate?new Date(i.dueDate):null}));});}}catch(e){}
 }
 
-/* ── Cart ── */
-const CART_SECTIONS={
-  'need-now':{label:'필요하고 사고 싶음'},
-  'need-later':{label:'필요한데 나중에'},
-  'want':{label:'그냥 사고 싶음'}
-};
-let cartData={'need-now':[],'need-later':[],'want':[]};
+/* Cart */
+const CART_SECTIONS={'need-buy':{label:'필요하고 사야함'},'need-want':{label:'필요하고 사고싶음'},'need-later':{label:'필요한데 나중에'},'want':{label:'그냥 사고싶음'}};
+let cartData={'need-buy':[],'need-want':[],'need-later':[],'want':[]};
 let currentCartSection='';
 
 function openCartPopup(section) {
   currentCartSection=section;
   document.getElementById('cart-popup-label').textContent=CART_SECTIONS[section].label;
   document.getElementById('cart-input').value='';
+  document.getElementById('cart-memo').value='';
   document.getElementById('cart-popup').classList.add('open');
   setTimeout(()=>document.getElementById('cart-input').focus(),300);
 }
 function closeCartPopup(){document.getElementById('cart-popup').classList.remove('open');}
 function confirmCart(){
   const text=document.getElementById('cart-input').value.trim(); if(!text) return;
-  cartData[currentCartSection].push({text,done:false,addedAt:new Date()});
-  closeCartPopup(); renderCart(); showToast('추가됐어요');
-  saveCartToNotion(currentCartSection,text);
+  const memo=document.getElementById('cart-memo').value.trim();
+  cartData[currentCartSection].push({text,memo,done:false,addedAt:new Date()});
+  closeCartPopup(); renderCart(); showToast('Added!');
+  saveCartToNotion(currentCartSection,text,memo);
   saveCartToStorage();
 }
 function toggleCart(section,idx,e){
@@ -855,25 +760,32 @@ function renderCartSection(section){
   const c=document.getElementById('items-'+section);
   const cnt=document.getElementById('count-'+section);
   const items=cartData[section];
-  cnt.textContent=items.filter(i=>!i.done).length||'';
+  const active=items.filter(i=>!i.done).length;
+  cnt.textContent=active||'';
   if(!items.length){c.innerHTML='';return;}
-  c.innerHTML=items.map((item,i)=>`<div class="cart-item"><div class="cart-check${item.done?' done':''}" onclick="toggleCart('${section}',${i},event)"></div><div class="cart-text${item.done?' done':''}">${item.text}</div></div>`).join('');
+  c.innerHTML=items.map((item,i)=>`
+    <div class="cart-item">
+      <div class="cart-item-row">
+        <div class="cart-check${item.done?' done':''}" onclick="toggleCart('${section}',${i},event)"></div>
+        <div class="cart-text${item.done?' done':''}">${item.text}</div>
+      </div>
+      ${item.memo?`<div class="cart-memo">${item.memo}</div>`:''}
+    </div>`).join('');
 }
 function renderCart(){Object.keys(CART_SECTIONS).forEach(renderCartSection);}
 function saveCartToStorage(){localStorage.setItem('cart_data',JSON.stringify(cartData));}
 function loadCartFromStorage(){try{const d=localStorage.getItem('cart_data');if(d)cartData=JSON.parse(d);}catch(e){}}
-
-async function saveCartToNotion(section,text){
+async function saveCartToNotion(section,text,memo){
   try{
-    const sectionLabel=CART_SECTIONS[section].label;
-    await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:CART_DB},properties:{'이름':{title:[{text:{content:text}}]},'유형':{select:{name:sectionLabel}},'추가일':{date:{start:formatDate(new Date())}}}})});
+    const props={'이름':{title:[{text:{content:text}}]},'유형':{select:{name:CART_SECTIONS[section].label}},'추가일':{date:{start:formatDate(new Date())}}};
+    if(memo) props['메모']={rich_text:[{text:{content:memo}}]};
+    await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:CART_DB},properties:props})});
   }catch(e){console.error('cart notion save failed',e);}
 }
 
-/* ── Braindump ── */
+/* Braindump */
 let brainItems=[];
-let dragItem=null,dragIdx=-1,holdTimer=null;
-let isDragging=false,dragStartY=0;
+let dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost');
 const dragOverlay=document.getElementById('drag-overlay');
 
@@ -885,35 +797,27 @@ function addBrainItem(){
   renderBrainList();
   saveBrainToNotion(text);
 }
-
 async function saveBrainToNotion(text){
   try{
     await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});
   }catch(e){console.error('brain notion save failed',e);}
 }
-
 function renderBrainList(){
   const list=document.getElementById('brain-list');
   if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}
   list.innerHTML=brainItems.map((item,idx)=>`
     <div class="brain-item" id="bi-${item.id}" data-idx="${idx}">
-      ${item.tag?`<span class="brain-tag ${item.tag}">${{record:'레코드',todo:'할일',cart:'장바구니'}[item.tag]}</span>`:''}
+      ${item.tag?`<span class="brain-tag ${item.tag}">${{record:'Record',todo:'To-Do',cart:'Cart'}[item.tag]}</span>`:''}
       <div class="brain-item-text">${item.text}</div>
-      <div class="brain-hold-hint">꾹 누르면 분류할 수 있어요</div>
-      <div class="brain-actions">
-        <button class="brain-action-btn del-btn" onclick="deleteBrainItem(${idx})">삭제</button>
-      </div>
-    </div>
-  `).join('');
-  // attach hold listeners
+      <div class="brain-hold-hint">꾹 눌러서 드래그</div>
+      <div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">삭제</button></div>
+    </div>`).join('');
   brainItems.forEach((item,idx)=>{
-    const el=document.getElementById('bi-'+item.id);
-    if(!el) return;
+    const el=document.getElementById('bi-'+item.id); if(!el) return;
     el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});
     el.addEventListener('mousedown',e=>startHold(e,idx,item));
   });
 }
-
 function startHold(e,idx,item){
   holdTimer=setTimeout(()=>{
     isDragging=true; dragIdx=idx; dragItem=item;
@@ -922,108 +826,89 @@ function startHold(e,idx,item){
     ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';
     ghost.style.top=(touch.clientY-40)+'px';
     dragOverlay.classList.add('active');
-    const el=document.getElementById('bi-'+item.id);
-    if(el) el.classList.add('dragging');
+    const el=document.getElementById('bi-'+item.id); if(el) el.classList.add('dragging');
     if(navigator.vibrate) navigator.vibrate(40);
   },500);
 }
-
 document.addEventListener('touchmove',e=>{
   if(!isDragging) return;
   const touch=e.touches[0];
   ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';
   ghost.style.top=(touch.clientY-40)+'px';
-  // highlight zone
-  const zones=document.querySelectorAll('.drag-zone');
-  zones.forEach(z=>{
+  document.querySelectorAll('.drag-zone').forEach(z=>{
     const r=z.getBoundingClientRect();
-    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){
-      z.classList.add('hovered');
-    } else z.classList.remove('hovered');
+    z.classList.toggle('hovered',touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom);
   });
 },{passive:true});
-
 document.addEventListener('touchend',e=>{
-  clearTimeout(holdTimer);
-  if(!isDragging) return;
-  const touch=e.changedTouches[0];
-  let landed=null;
+  clearTimeout(holdTimer); if(!isDragging) return;
+  const touch=e.changedTouches[0]; let landed=null;
   document.querySelectorAll('.drag-zone').forEach(z=>{
     const r=z.getBoundingClientRect();
-    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){
-      landed=z.dataset.zone;
-    }
+    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom) landed=z.dataset.zone;
     z.classList.remove('hovered');
   });
   endDrag(landed);
 });
-
 document.addEventListener('mouseup',e=>{
-  clearTimeout(holdTimer);
-  if(!isDragging) return;
+  clearTimeout(holdTimer); if(!isDragging) return;
   let landed=null;
   document.querySelectorAll('.drag-zone').forEach(z=>{
     const r=z.getBoundingClientRect();
-    if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
-      landed=z.dataset.zone;
-    }
+    if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom) landed=z.dataset.zone;
     z.classList.remove('hovered');
   });
   endDrag(landed);
 });
-
 function endDrag(zone){
-  isDragging=false;
-  ghost.style.display='none';
-  dragOverlay.classList.remove('active');
-  const el=dragItem?document.getElementById('bi-'+dragItem.id):null;
-  if(el) el.classList.remove('dragging');
+  isDragging=false; ghost.style.display='none'; dragOverlay.classList.remove('active');
+  const el=dragItem?document.getElementById('bi-'+dragItem.id):null; if(el) el.classList.remove('dragging');
   if(zone&&dragItem) openSubPopup(zone,dragItem,dragIdx);
   dragItem=null; dragIdx=-1;
 }
 
-/* ── Sub popup (after drag) ── */
+/* Sub popup */
 let subDragZone='',subDragItem=null,subDragIdx=-1;
-
 function openSubPopup(zone,item,idx){
   subDragZone=zone; subDragItem=item; subDragIdx=idx;
   document.getElementById('sub-popup-text').textContent=item.text;
-  const choices=document.getElementById('sub-choices');
-  choices.innerHTML='';
+  const wrap=document.getElementById('sub-choices-wrap'); wrap.innerHTML='';
 
   if(zone==='record'){
     document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';
-    const moods=['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'];
-    moods.forEach(m=>{
-      const btn=document.createElement('button'); btn.className='sub-choice';
+    const grid=document.createElement('div'); grid.className='sub-mood-grid';
+    ['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{
+      const btn=document.createElement('button'); btn.className='sub-mood-btn';
       btn.textContent=m; btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);
-      choices.appendChild(btn);
+      grid.appendChild(btn);
     });
+    wrap.appendChild(grid);
   } else if(zone==='todo'){
-    document.getElementById('sub-popup-title').textContent='TODO — 사분면 선택';
+    document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';
+    const div=document.createElement('div'); div.className='sub-choices';
     Object.entries(QUAD_CFG).forEach(([q,cfg])=>{
       const btn=document.createElement('button'); btn.className='sub-choice';
-      btn.textContent=cfg.label+(cfg.offset!==null?` (+${cfg.offset||0}일)`:'');
-      btn.onclick=()=>confirmSubTodo(q);
-      choices.appendChild(btn);
+      btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':''); btn.onclick=()=>confirmSubTodo(q);
+      div.appendChild(btn);
     });
+    wrap.appendChild(div);
   } else if(zone==='cart'){
     document.getElementById('sub-popup-title').textContent='CART — 분류 선택';
+    const div=document.createElement('div'); div.className='sub-choices';
     Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{
       const btn=document.createElement('button'); btn.className='sub-choice';
       btn.textContent=cfg.label; btn.onclick=()=>confirmSubCart(s);
-      choices.appendChild(btn);
+      div.appendChild(btn);
     });
+    wrap.appendChild(div);
   }
   document.getElementById('sub-popup').classList.add('open');
 }
-
 function closeSubPopup(){document.getElementById('sub-popup').classList.remove('open');}
 
 async function confirmSubRecord(mood){
   closeSubPopup();
-  const text=subDragItem.text;
-  const now=new Date(); const timeStr=formatTime(now);
+  const text=subDragItem.text; const now=new Date(); const timeStr=formatTime(now);
   try{
     const pageId=await getTodayPageId();
     const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;
@@ -1033,36 +918,24 @@ async function confirmSubRecord(mood){
     rich.push({type:'text',text:{content:text},annotations:{bold:true}});
     if(pageId) await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children:[{object:'block',type:'paragraph',paragraph:{rich_text:rich}}]})});
     addRecordToUI(timeStr,mood,text,[],notionUrl,null);
-    markBrainDone(subDragIdx,'record');
-    showToast('Record에 저장됐어요');
+    markBrainDone(subDragIdx,'record'); showToast('Record에 저장됐어요');
   }catch(e){showToast('저장 실패');}
 }
-
 function confirmSubTodo(q){
   closeSubPopup();
-  const cfg=QUAD_CFG[q];
-  let dueDate=null;
+  const cfg=QUAD_CFG[q]; let dueDate=null;
   if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}
   todoData[q].push({text:subDragItem.text,dueDate,done:false,addedAt:new Date()});
-  renderAllQuads(); saveTodoToStorage();
-  markBrainDone(subDragIdx,'todo');
-  showToast('Todo에 추가됐어요');
+  renderAllQuads(); saveTodoToStorage(); markBrainDone(subDragIdx,'todo'); showToast('To-Do에 추가됐어요');
 }
-
 function confirmSubCart(section){
   closeSubPopup();
-  cartData[section].push({text:subDragItem.text,done:false,addedAt:new Date()});
+  cartData[section].push({text:subDragItem.text,memo:'',done:false,addedAt:new Date()});
   renderCart(); saveCartToStorage();
-  saveCartToNotion(section,subDragItem.text);
-  markBrainDone(subDragIdx,'cart');
-  showToast('Cart에 추가됐어요');
+  saveCartToNotion(section,subDragItem.text,'');
+  markBrainDone(subDragIdx,'cart'); showToast('Cart에 추가됐어요');
 }
-
-function markBrainDone(idx,tag){
-  brainItems[idx].tag=tag;
-  renderBrainList();
-}
-
+function markBrainDone(idx,tag){brainItems[idx].tag=tag;renderBrainList();}
 function deleteBrainItem(idx){brainItems.splice(idx,1);renderBrainList();}
 function resetBrain(){
   if(!brainItems.length) return;
@@ -1070,7 +943,7 @@ function resetBrain(){
   brainItems=[]; renderBrainList(); showToast('리셋됐어요');
 }
 
-/* ── Inbox ── */
+/* Inbox */
 async function loadInbox(){
   const list=document.getElementById('inbox-list');
   list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';
@@ -1093,11 +966,16 @@ async function loadInbox(){
       const encourage=getTextProp(props,'격려')||'';
       const suggest=getTextProp(props,'제언')||'';
 
-      // 2문장 자르기
       const cut2=(text)=>{
         if(!text) return '';
-        const sentences=text.match(/[^.!?。]+[.!?。]?/g)||[text];
-        return sentences.slice(0,2).join('').trim();
+        const s=text.match(/[^.!?。\n]+[.!?。]?/g)||[text];
+        return s.slice(0,2).join(' ').trim();
+      };
+
+      // 제언 줄바꿈: 1), 2) 앞에서 줄바꿈
+      const formatSuggest=(text)=>{
+        if(!text) return '';
+        return text.replace(/\s*([1-9]\))/g,'\n$1').trim();
       };
 
       const divider=document.createElement('div'); divider.className='inbox-date-divider'; divider.textContent=dateLabel;
@@ -1107,7 +985,7 @@ async function loadInbox(){
       bubble.innerHTML=`
         ${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}
         ${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}
-        ${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${suggest}</div>`:''}
+        ${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${formatSuggest(suggest)}</div>`:''}
       `;
       list.appendChild(bubble);
     });
@@ -1120,52 +998,30 @@ function getTextProp(props,key){
   if(p.select) return p.select.name; return '';
 }
 
-/* ── Toast ── */
+/* Toast */
 function showToast(msg){
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-/* ── PWA ── */
+/* PWA */
 async function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js');
-    console.log('SW registered');
-    // 푸시 알림 권한 요청
+    await navigator.serviceWorker.register('./sw.js');
     if('Notification' in window && Notification.permission==='default'){
       const perm=await Notification.requestPermission();
-      if(perm==='granted') subscribeForPush(reg);
-    } else if(Notification.permission==='granted'){
-      subscribeForPush(reg);
     }
-  }catch(e){console.error('SW registration failed',e);}
+  }catch(e){console.error('SW failed',e);}
 }
 
-async function subscribeForPush(reg){
-  try{
-    // VAPID 공개키 — Worker에서 관리 (여기선 placeholder)
-    const existing=await reg.pushManager.getSubscription();
-    if(existing) return;
-    // 실제 운영 시 VAPID 공개키로 교체 필요
-    // const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
-    // await fetch(WORKER_URL+'/push/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sub)});
-    console.log('Push subscription ready (VAPID key needed)');
-  }catch(e){console.error('Push subscription failed',e);}
-}
-
-/* ── Init ── */
+/* Init */
 function init(){
   document.getElementById('current-date').textContent=formatDateDisplay(getDiaryDate());
   initQuadDates();
-  loadTodoFromStorage();
-  loadCartFromStorage();
-  autoMoveTodos();
-  renderAllQuads();
-  renderCart();
-  renderBrainList();
-  loadTodayRecords();
-  registerSW();
+  loadTodoFromStorage(); loadCartFromStorage();
+  autoMoveTodos(); renderAllQuads(); renderCart(); renderBrainList();
+  loadTodayRecords(); registerSW();
   setInterval(autoMoveTodos,60000);
 }
 
