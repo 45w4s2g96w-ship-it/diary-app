@@ -341,7 +341,7 @@ async function updateTodoNotionDone(notionId,done){
 .td-action-btn.danger { border-color: #c0392b; color: #c0392b; }
 
 /* Toast */
-.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--paper); font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 600; }
+.toast { position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--paper); font-family: 'Gothic A1', sans-serif; font-size: 12px; font-weight: 400; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 600; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* Loading */
@@ -651,7 +651,11 @@ async function saveSettings() {
   const btn=document.querySelector('.setup-save-btn'); btn.textContent='확인 중...'; btn.disabled=true;
   try {
     const res=await fetch(WORKER_URL+'/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
-    if(!res.ok){showToast('비밀번호가 틀렸어요');btn.textContent='START →';btn.disabled=false;return;}
+    if(!res.ok){
+      const errText=await res.text().catch(()=>'');
+      showToast('오류: '+res.status+' '+errText.slice(0,30));
+      btn.textContent='START →';btn.disabled=false;return;
+    }
     const data=await res.json();
     localStorage.setItem('notion_token',data.notion_token);
     localStorage.setItem('notion_db',data.notion_db);
@@ -661,7 +665,7 @@ async function saveSettings() {
     document.getElementById('setup-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     init();
-  } catch(e){showToast('연결 오류');btn.textContent='START →';btn.disabled=false;}
+  } catch(e){showToast('연결 오류: '+e.message);btn.textContent='START →';btn.disabled=false;}
 }
 function openSettings() { document.getElementById('app-password').value=''; document.getElementById('setup-screen').classList.remove('hidden'); }
 
