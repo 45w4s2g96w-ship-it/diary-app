@@ -106,7 +106,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-check.done::after { content: ''; display: block; width: 5px; height: 3px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .quad-text { font-family: 'Gothic A1', sans-serif; font-size: 11px; font-weight: 300; line-height: 1.45; color: var(--ink); flex: 1; word-break: break-all; }
 .quad-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.quad-overdue { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #c0392b; display: block; }
+.quad-overdue { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #c0392b; display: inline; background: rgba(192,57,43,0.15); padding: 1px 4px; border-radius: 2px; margin-left: 4px; }
 .quad-sub-count { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; color: var(--ink-muted); margin-left: 3px; }
 .quad-add { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); margin-top: 8px; }
 .quad-memo { font-family: 'Gothic A1', sans-serif; font-size: 10px; font-weight: 300; color: var(--ink-muted); display: block; }
@@ -134,6 +134,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .brain-tag.record { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
 .brain-tag.todo { border: 1px solid var(--ink); color: var(--ink); }
 .brain-tag.cart { border: 1px solid var(--ink-soft); color: var(--ink-soft); }
+.brain-tag.book { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
 .brain-hold-hint { font-family: 'Montserrat', sans-serif; font-size: 8px; color: var(--rule); margin-bottom: 4px; }
 .brain-actions { display: flex; gap: 5px; }
 .brain-action-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; padding: 4px 9px; border: 1px solid var(--rule); background: transparent; color: var(--ink-muted); cursor: pointer; border-radius: 1px; }
@@ -268,6 +269,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .td-add-sub-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; background: var(--ink); color: var(--paper); border: none; padding: 6px 14px; cursor: pointer; border-radius: 1px; }
 .td-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rule); }
 .td-action-btn { flex: 1; padding: 9px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 2px; }
+.td-action-btn.danger { border-color: #c0392b; color: #c0392b; }
 
 /* Lightbox */
 .rp-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 700; display: none; align-items: center; justify-content: center; }
@@ -300,19 +302,19 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div id="app" class="hidden">
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('record',this)">
-      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Record
-    </button>
-    <button class="tab-btn" onclick="switchTab('dump',this)">
-      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>Dump
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Log
     </button>
     <button class="tab-btn" onclick="switchTab('todo',this)">
       <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>To-Do
     </button>
-    <button class="tab-btn" onclick="switchTab('book',this)">
-      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Book
+    <button class="tab-btn" onclick="switchTab('dump',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>Dump
     </button>
     <button class="tab-btn" onclick="switchTab('inbox',this)">
       <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Inbox
+    </button>
+    <button class="tab-btn" onclick="switchTab('book',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Book
     </button>
   </div>
 
@@ -342,7 +344,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
     </div>
-    <div class="record-list" id="record-list"><div class="empty-state">오늘 첫 기록을 남겨보세요.</div></div>
+    <div class="record-list" id="record-list"><div class="empty-state">오늘 첫 로그를 남겨보세요.</div></div>
   </div>
 
   <!-- DUMP -->
@@ -476,12 +478,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="rp-photos" id="rp-photos" style="display:none"></div>
       <div class="rp-photos-edit" id="rp-photos-edit" style="display:none"></div>
       <div class="rp-actions" id="rp-actions" style="display:none">
-        <button class="rp-action-btn" onclick="toggleRecordEdit()">EDIT</button>
         <button class="rp-action-btn danger" onclick="deleteRecord()">DELETE</button>
+        <button class="rp-action-btn" onclick="toggleRecordEdit()">EDIT</button>
       </div>
       <div class="rp-actions" id="rp-save-actions" style="display:none">
+        <button class="rp-action-btn danger" onclick="cancelRecordEdit()">CANCEL</button>
         <button class="rp-action-btn" onclick="saveRecordEdit()">SAVE</button>
-        <button class="rp-action-btn" onclick="toggleRecordEdit()">CANCEL</button>
       </div>
     </div>
   </div>
@@ -492,15 +494,35 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="todo-detail-sheet">
     <div class="td-header"><div class="td-quad-tag" id="td-quad-tag"></div><button class="td-close" onclick="closeTodoDetail()">✕ CLOSE</button></div>
     <div class="td-body">
-      <div class="td-title" id="td-title"></div>
-      <div class="td-due" id="td-due"></div>
+      <div id="td-view-mode">
+        <div class="td-title" id="td-title"></div>
+        <div class="td-due" id="td-due"></div>
+      </div>
+      <div id="td-edit-mode" style="display:none;">
+        <input id="td-edit-text" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:15px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);outline:none;padding:6px 0;margin-bottom:10px;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:6px;">마감일</div>
+        <input type="date" id="td-edit-date" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;margin-bottom:12px;">
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button onclick="setTodoEditDate(0)" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">오늘</button>
+          <button onclick="setTodoEditDate(7)" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">+7일</button>
+          <button onclick="setTodoEditDate(30)" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">+30일</button>
+          <button onclick="setTodoEditDate(null)" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">없음</button>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="cancelTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
+          <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
+        </div>
+      </div>
       <div class="td-sub-label">하위 업무</div>
       <div id="td-sub-list"></div>
       <div class="td-add-sub">
         <input class="td-add-sub-input" id="td-sub-input" placeholder="하위 업무 추가..." onkeydown="if(event.key==='Enter')addSubTodo()">
         <button class="td-add-sub-btn" onclick="addSubTodo()">ADD</button>
       </div>
-      <div class="td-actions"><button class="td-action-btn" onclick="deleteTodoItem()">삭제</button></div>
+      <div class="td-actions">
+        <button class="td-action-btn danger" onclick="deleteTodoItem()" style="border-color:#c0392b;color:#c0392b;">삭제</button>
+        <button class="td-action-btn" onclick="startTodoEdit()">수정</button>
+      </div>
     </div>
   </div>
 </div>
@@ -536,9 +558,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div class="drag-ghost" id="drag-ghost"></div>
 <div class="drag-overlay" id="drag-overlay">
   <div class="drag-zones">
-    <div class="drag-zone" data-zone="record"><div class="dz-icon">✏️</div><div class="dz-label">RECORD</div></div>
+    <div class="drag-zone" data-zone="record"><div class="dz-icon">✏️</div><div class="dz-label">LOG</div></div>
     <div class="drag-zone" data-zone="todo"><div class="dz-icon">✓</div><div class="dz-label">TO-DO</div></div>
-    <div class="drag-zone" data-zone="cart"><div class="dz-icon">🛒</div><div class="dz-label">CART</div></div>
+    <div class="drag-zone" data-zone="book"><div class="dz-icon">📖</div><div class="dz-label">BOOK</div></div>
   </div>
 </div>
 
@@ -640,10 +662,11 @@ async function saveRecord(){
     const pageId=await getTodayPageId();let notionUrl=null,blockId=null;
     if(pageId){
       notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
-      const rich=[];rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});
-      if(selectedMood)rich.push({type:'text',text:{content:getMoodEmoji(selectedMood)+' '+selectedMood+'\n'},annotations:{italic:true}});
-      if(text)rich.push({type:'text',text:{content:text},annotations:{bold:true}});
-      const children=[{object:'block',type:'paragraph',paragraph:{rich_text:rich}}];
+      const rich=[];
+      rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});
+      if(selectedMood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(selectedMood)+' '+selectedMood},annotations:{color:'gray',italic:true,bold:false}});
+      rich.push({type:'text',text:{content:'\n'+( text||'')},annotations:{bold:true,italic:false,color:'default'}});
+      const children=[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}];
       if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
       const ar=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children})});
       const ad=await ar.json();blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
@@ -680,6 +703,10 @@ let lbPhotos=[],lbIdx=0;
 function openLightbox(idx){lbPhotos=currentPopupPhotos;lbIdx=idx;document.getElementById('rp-lightbox').style.display='flex';document.getElementById('rp-lb-img').src=lbPhotos[idx];}
 function closeLightbox(){document.getElementById('rp-lightbox').style.display='none';}
 function closeRecordPopup(){document.getElementById('record-popup').classList.remove('open');}
+function cancelRecordEdit(){
+  if(!confirm('수정을 취소할까요?'))return;
+  toggleRecordEdit();
+}
 function toggleRecordEdit(){
   isEditing=!isEditing;
   const textEl=document.getElementById('rp-text'),editWrap=document.getElementById('rp-edit-wrap'),editInput=document.getElementById('rp-edit-input');
@@ -731,7 +758,8 @@ async function saveRecordEdit(){
   document.getElementById('loading').classList.add('hidden');
 }
 async function deleteRecord(){
-  if(!currentPopupBlockId||!confirm('이 기록을 삭제할까요?'))return;
+  if(!currentPopupBlockId)return;
+  if(!confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없어요.'))return;
   try{await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'DELETE',headers:{'Content-Type':'application/json'}});if(currentPopupItem)currentPopupItem.remove();closeRecordPopup();showToast('삭제됐어요');}catch(e){showToast('삭제 실패');}
 }
 async function loadTodayRecords(){
@@ -742,8 +770,8 @@ async function loadTodayRecords(){
     do{const url=WORKER_URL+'/notion/blocks/'+pageId+'/children?page_size=100'+(cursor?'&start_cursor='+cursor:'');const res=await fetch(url,{headers:{'Content-Type':'application/json'}});const data=await res.json();allBlocks=allBlocks.concat(data.results||[]);cursor=data.has_more?data.next_cursor:undefined;}while(cursor);
     let i=0;
     while(i<allBlocks.length){
-      const block=allBlocks[i];if(block.type!=='paragraph'){i++;continue;}
-      const texts=block.paragraph?.rich_text||[];if(!texts.length){i++;continue;}
+      const block=allBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'){i++;continue;}
+      const texts=(block.type==='callout'?block.callout:block.paragraph)?.rich_text||[];if(!texts.length){i++;continue;}
       const content=texts.map(t=>t?.text?.content||'').join('');const lines=content.split('\n').map(l=>l.trim()).filter(l=>l);if(!lines.length){i++;continue;}
       if(!/^\d{2}:\d{2}$/.test(lines[0])){i++;continue;}
       const timeStr=lines[0];let mood='',text='';
@@ -799,8 +827,15 @@ function openTodoPopup(q){currentQuad=q;const cfg=QUAD_CFG[q];document.getElemen
 function closeTodoPopup(){document.getElementById('todo-popup').classList.remove('open');}
 function confirmTodo(){
   const text=document.getElementById('todo-input').value.trim();if(!text)return;
-  const cfg=QUAD_CFG[currentQuad];let dueDate=null;if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}
-  const item={text,dueDate,done:false,addedAt:new Date(),notionId:null,subs:[]};todoData[currentQuad].push(item);
+  const cfg=QUAD_CFG[currentQuad];
+  let dueDate=null;
+  if(cfg.offset!==null){
+    dueDate=new Date();
+    dueDate.setDate(dueDate.getDate()+cfg.offset);
+    dueDate.setHours(23,59,59,0);
+  }
+  const item={text,dueDate,done:false,addedAt:new Date(),notionId:null,subs:[]};
+  todoData[currentQuad].push(item);
   closeTodoPopup();renderAllQuads();showToast('Added!');saveTodoToStorage();
   saveTodoToNotion(currentQuad,text,dueDate).then(id=>{if(id){item.notionId=id;saveTodoToStorage();}});
 }
@@ -810,18 +845,82 @@ function renderQuad(q){const c=document.getElementById('items-'+q);const now=new
 function renderAllQuads(){['today','week','month','someday'].forEach(renderQuad);}
 function saveTodoToStorage(){localStorage.setItem('todo_data',JSON.stringify(todoData));}
 function loadTodoFromStorage(){try{const d=localStorage.getItem('todo_data');if(d){const p=JSON.parse(d);Object.keys(p).forEach(q=>{if(todoData[q])todoData[q]=p[q].map(i=>({...i,dueDate:i.dueDate?new Date(i.dueDate):null,subs:i.subs||[]}));});}}catch(e){}}
-async function saveTodoToNotion(quad,text,dueDate){try{const cfg=QUAD_CFG[quad];const props={'이름':{title:[{text:{content:text}}]},'사분면':{select:{name:cfg.label}},'추가일':{date:{start:formatDate(new Date())}},'완료':{checkbox:false}};if(dueDate)props['마감일']={date:{start:formatDate(dueDate)}};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});const data=await res.json();return data.id||null;}catch(e){console.error(e);return null;}}
+async function saveTodoToNotion(quad,text,dueDate){
+  try{
+    const cfg=QUAD_CFG[quad];
+    const props={
+      '이름':{title:[{text:{content:text}}]},
+      '사분면':{select:{name:cfg.label}},
+      '추가일':{date:{start:formatDate(new Date())}},
+      '완료':{checkbox:false}
+    };
+    if(dueDate&&!isNaN(new Date(dueDate))){
+      props['마감일']={date:{start:formatDate(new Date(dueDate))}};
+    }
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
+    const data=await res.json();
+    return data.id||null;
+  }catch(e){console.error(e);return null;}
+}
 async function saveSubTodoToNotion(text,parentId){try{const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};if(parentId)props['상위항목']={relation:[{id:parentId}]};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});const data=await res.json();return data.id||null;}catch(e){return null;}}
 async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({properties:{'완료':{checkbox:done}}})});}catch(e){}}
 
 /* Todo Detail */
 let currentDetailQuad='',currentDetailIdx=-1;
-function openTodoDetail(q,idx){currentDetailQuad=q;currentDetailIdx=idx;const item=todoData[q][idx];const cfg=QUAD_CFG[q];document.getElementById('td-quad-tag').textContent=cfg.label;document.getElementById('td-title').textContent=item.text;document.getElementById('td-due').textContent=item.dueDate?'Due: '+formatDateShort(new Date(item.dueDate)):'No deadline';renderSubList();document.getElementById('td-sub-input').value='';document.getElementById('todo-detail-popup').classList.add('open');}
+function openTodoDetail(q,idx){
+  currentDetailQuad=q;currentDetailIdx=idx;
+  const item=todoData[q][idx];const cfg=QUAD_CFG[q];
+  document.getElementById('td-quad-tag').textContent=cfg.label;
+  document.getElementById('td-title').textContent=item.text;
+  document.getElementById('td-due').textContent=item.dueDate?'Due: '+formatDateShort(new Date(item.dueDate)):'No deadline';
+  document.getElementById('td-view-mode').style.display='';
+  document.getElementById('td-edit-mode').style.display='none';
+  renderSubList();document.getElementById('td-sub-input').value='';
+  document.getElementById('todo-detail-popup').classList.add('open');
+}
+function startTodoEdit(){
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  document.getElementById('td-edit-text').value=item.text;
+  const d=item.dueDate?new Date(item.dueDate):null;
+  document.getElementById('td-edit-date').value=d?formatDate(d):'';
+  document.getElementById('td-view-mode').style.display='none';
+  document.getElementById('td-edit-mode').style.display='';
+}
+function cancelTodoEdit(){
+  if(!confirm('수정을 취소할까요?'))return;
+  document.getElementById('td-view-mode').style.display='';
+  document.getElementById('td-edit-mode').style.display='none';
+}
+function setTodoEditDate(offset){
+  if(offset===null){document.getElementById('td-edit-date').value='';return;}
+  const d=new Date();d.setDate(d.getDate()+offset);
+  document.getElementById('td-edit-date').value=formatDate(d);
+}
+async function saveTodoEdit(){
+  const text=document.getElementById('td-edit-text').value.trim();if(!text)return;
+  const dateVal=document.getElementById('td-edit-date').value;
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  item.text=text;
+  item.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
+  document.getElementById('td-title').textContent=text;
+  document.getElementById('td-due').textContent=item.dueDate?'Due: '+formatDateShort(new Date(item.dueDate)):'No deadline';
+  document.getElementById('td-view-mode').style.display='';
+  document.getElementById('td-edit-mode').style.display='none';
+  renderAllQuads();saveTodoToStorage();
+  if(item.notionId){
+    try{
+      const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:item.done}};
+      if(item.dueDate)props['마감일']={date:{start:formatDate(item.dueDate)}};
+      await fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({properties:props})});
+    }catch(e){console.error(e);}
+  }
+  showToast('수정됐어요!');
+}
 function closeTodoDetail(){document.getElementById('todo-detail-popup').classList.remove('open');}
 function renderSubList(){const item=todoData[currentDetailQuad][currentDetailIdx];const list=document.getElementById('td-sub-list');if(!item.subs||!item.subs.length){list.innerHTML='';return;}list.innerHTML=item.subs.map((s,i)=>`<div class="td-sub-item"><div class="td-sub-check${s.done?' done':''}" onclick="toggleSubTodo(${i})"></div><div class="td-sub-text${s.done?' done':''}">${s.text}</div></div>`).join('');}
 function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];item.subs[i].done=!item.subs[i].done;if(item.subs[i].notionId)updateTodoNotionDone(item.subs[i].notionId,item.subs[i].done);renderSubList();renderAllQuads();saveTodoToStorage();}
 function addSubTodo(){const text=document.getElementById('td-sub-input').value.trim();if(!text)return;const item=todoData[currentDetailQuad][currentDetailIdx];if(!item.subs)item.subs=[];const sub={text,done:false,notionId:null};item.subs.push(sub);document.getElementById('td-sub-input').value='';renderSubList();renderAllQuads();saveTodoToStorage();saveSubTodoToNotion(text,item.notionId).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});}
-function deleteTodoItem(){if(!confirm('삭제할까요?'))return;todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();showToast('삭제됐어요');}
+function deleteTodoItem(){if(!confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없어요.'))return;todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();showToast('삭제됐어요');}
 
 /* Cart */
 const CART_SECTIONS={'need-buy':{label:'필요하고 사야함'},'need-want':{label:'필요하고 사고싶음'},'need-later':{label:'필요한데 나중에'},'want':{label:'그냥 사고싶음'}};
@@ -841,16 +940,33 @@ let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElementById('drag-overlay');
 function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToNotion(text);}
 async function saveBrainToNotion(text){try{await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});}catch(e){}}
-function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${{record:'Record',todo:'To-Do',cart:'Cart'}[item.tag]}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">꾹 눌러서 드래그</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">삭제</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
+function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">꾹 눌러서 드래그</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">삭제</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
 function startHold(e,idx,item){holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
 document.addEventListener('touchmove',e=>{if(!isDragging)return;const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:true});
 document.addEventListener('touchend',e=>{clearTimeout(holdTimer);if(!isDragging)return;const t=e.changedTouches[0];let landed=null;document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)landed=z.dataset.zone;z.classList.remove('hovered');});endDrag(landed);});
 document.addEventListener('mouseup',e=>{clearTimeout(holdTimer);if(!isDragging)return;let landed=null;document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)landed=z.dataset.zone;z.classList.remove('hovered');});endDrag(landed);});
 function endDrag(zone){isDragging=false;ghost.style.display='none';dragOverlay.classList.remove('active');const el=dragItem?document.getElementById('bi-'+dragItem.id):null;if(el)el.classList.remove('dragging');if(zone&&dragItem)openSubPopup(zone,dragItem,dragIdx);dragItem=null;dragIdx=-1;}
 let subDragZone='',subDragItem=null,subDragIdx=-1;
-function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragIdx=idx;document.getElementById('sub-popup-text').textContent=item.text;const wrap=document.getElementById('sub-choices-wrap');wrap.innerHTML='';if(zone==='record'){document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';const grid=document.createElement('div');grid.className='sub-mood-grid';['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{const btn=document.createElement('button');btn.className='sub-mood-btn';btn.textContent=m;btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);grid.appendChild(btn);});wrap.appendChild(grid);}else if(zone==='todo'){document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(QUAD_CFG).forEach(([q,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':'');btn.onclick=()=>confirmSubTodo(q);div.appendChild(btn);});wrap.appendChild(div);}else if(zone==='cart'){document.getElementById('sub-popup-title').textContent='CART — 분류 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label;btn.onclick=()=>confirmSubCart(s);div.appendChild(btn);});wrap.appendChild(div);}document.getElementById('sub-popup').classList.add('open');}
+function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragIdx=idx;document.getElementById('sub-popup-text').textContent=item.text;const wrap=document.getElementById('sub-choices-wrap');wrap.innerHTML='';if(zone==='record'){document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';const grid=document.createElement('div');grid.className='sub-mood-grid';['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{const btn=document.createElement('button');btn.className='sub-mood-btn';btn.textContent=m;btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);grid.appendChild(btn);});wrap.appendChild(grid);}else if(zone==='todo'){document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(QUAD_CFG).forEach(([q,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':'');btn.onclick=()=>confirmSubTodo(q);div.appendChild(btn);});wrap.appendChild(div);}else if(zone==='cart'){document.getElementById('sub-popup-title').textContent='CART — 분류 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label;btn.onclick=()=>confirmSubCart(s);div.appendChild(btn);});wrap.appendChild(div);}
+  else if(zone==='book'){
+    document.getElementById('sub-popup-title').textContent='BOOK — 책 선택 또는 입력';
+    const div=document.createElement('div');div.className='sub-choices';
+    // 기존 책 목록
+    if(bookData.length){
+      bookData.forEach((book,i)=>{
+        const btn=document.createElement('button');btn.className='sub-choice';
+        btn.textContent=book.title;btn.onclick=()=>confirmSubBook(i);div.appendChild(btn);
+      });
+    }
+    // 새 책으로 추가
+    const newBtn=document.createElement('button');newBtn.className='sub-choice';
+    newBtn.textContent='+ 새 책으로 독후감 추가';newBtn.style.cssText='border-color:var(--ink);font-weight:600;';
+    newBtn.onclick=()=>confirmSubBookNew();div.appendChild(newBtn);
+    wrap.appendChild(div);
+  }
+  document.getElementById('sub-popup').classList.add('open');}
 function closeSubPopup(){document.getElementById('sub-popup').classList.remove('open');}
-async function confirmSubRecord(mood){closeSubPopup();const text=subDragItem.text;const now=new Date();const timeStr=formatTime(now);try{const pageId=await getTodayPageId();const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;const rich=[];rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});if(mood)rich.push({type:'text',text:{content:getMoodEmoji(mood)+' '+mood+'\n'},annotations:{italic:true}});rich.push({type:'text',text:{content:text},annotations:{bold:true}});if(pageId)await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children:[{object:'block',type:'paragraph',paragraph:{rich_text:rich}}]})});addRecordToUI(timeStr,mood,text,[],notionUrl,null,null);markBrainDone(subDragIdx,'record');showToast('Record에 저장됐어요');}catch(e){showToast('저장 실패');}}
+async function confirmSubRecord(mood){closeSubPopup();const text=subDragItem.text;const now=new Date();const timeStr=formatTime(now);try{const pageId=await getTodayPageId();const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;const rich=[];rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});if(mood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(mood)+' '+mood},annotations:{color:'gray',italic:true,bold:false}});rich.push({type:'text',text:{content:'\n'+text},annotations:{bold:true,italic:false,color:'default'}});if(pageId)await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children:[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}]})});addRecordToUI(timeStr,mood,text,[],notionUrl,null,null);markBrainDone(subDragIdx,'record');showToast('Record에 저장됐어요');}catch(e){showToast('저장 실패');}}
 function confirmSubTodo(q){closeSubPopup();const cfg=QUAD_CFG[q];let dueDate=null;if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}todoData[q].push({text:subDragItem.text,dueDate,done:false,addedAt:new Date(),subs:[]});renderAllQuads();saveTodoToStorage();markBrainDone(subDragIdx,'todo');showToast('To-Do에 추가됐어요');}
 function confirmSubCart(section){closeSubPopup();cartData[section].push({text:subDragItem.text,memo:'',done:false});renderCart();saveCartToStorage();saveCartToNotion(section,subDragItem.text,'');markBrainDone(subDragIdx,'cart');showToast('Cart에 추가됐어요');}
 function markBrainDone(idx,tag){brainItems[idx].tag=tag;renderBrainList();}
@@ -860,10 +976,47 @@ function resetBrain(){if(!brainItems.length)return;if(!confirm('브레인덤프�
 /* Book */
 let bookData=[],currentBookIdx=-1,selectedSearchBook=null,bookSearchTimer=null;
 function debounceBookSearch(val){clearTimeout(bookSearchTimer);if(!val.trim()){document.getElementById('book-search-results').style.display='none';return;}bookSearchTimer=setTimeout(()=>searchBooks(val),500);}
-async function searchBooks(query){const q=query||document.getElementById('book-search-input').value.trim();if(!q)return;const resultsEl=document.getElementById('book-search-results');resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 중...</div>';resultsEl.style.display='flex';try{const res=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8&printType=books`);const data=await res.json();if(!data.items||!data.items.length){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 결과가 없어요.</div>';return;}resultsEl.innerHTML='';data.items.forEach(item=>{const info=item.volumeInfo;const title=info.title||'';const authors=(info.authors||[]).join(', ');const genre=(info.categories||[])[0]||'';const cover=(info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||'').replace('http://','https://');const el=document.createElement('div');el.className='book-search-item';el.innerHTML=`${cover?`<img class="book-search-cover" src="${cover}" onerror="this.style.display='none'">`:'<div class="book-search-cover"></div>'}<div class="book-search-info"><div class="book-search-title">${title}</div><div class="book-search-author">${authors}</div><div class="book-search-genre">${genre}</div></div>`;el.onclick=()=>{document.querySelectorAll('.book-search-item').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');selectedSearchBook={title,authors,genre,cover};document.getElementById('book-genre-input').value=genre;};resultsEl.appendChild(el);});}catch(e){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 실패.</div>';}}
+async function searchBooks(query){const q=query||document.getElementById('book-search-input').value.trim();if(!q)return;const resultsEl=document.getElementById('book-search-results');resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 중...</div>';resultsEl.style.display='flex';try{const res=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=10&printType=books&langRestrict=ko&key=AIzaSyArr1YU4EBieSgfBdc3pNclfqwJvUpiprw`);const data=await res.json();if(!data.items||!data.items.length){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 결과가 없어요.</div>';return;}resultsEl.innerHTML='';data.items.forEach(item=>{const info=item.volumeInfo;const title=info.title||'';const authors=(info.authors||[]).join(', ');const genre=(info.categories||[])[0]||'';const cover=(info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||'').replace('http://','https://');const el=document.createElement('div');el.className='book-search-item';el.innerHTML=`${cover?`<img class="book-search-cover" src="${cover}" onerror="this.style.display='none'">`:'<div class="book-search-cover"></div>'}<div class="book-search-info"><div class="book-search-title">${title}</div><div class="book-search-author">${authors}</div><div class="book-search-genre">${genre}</div></div>`;el.onclick=()=>{document.querySelectorAll('.book-search-item').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');selectedSearchBook={title,authors,genre,cover};document.getElementById('book-genre-input').value=genre;};resultsEl.appendChild(el);});}catch(e){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 실패.</div>';}}
 function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
 function closeAddBookPopup(){document.getElementById('add-book-popup').classList.remove('open');}
 async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{const props={'이름':{title:[{text:{content:book.title}}]},'장르':{select:{name:genre||'기타'}}};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props})});const data=await res.json();book.notionId=data.id||null;saveBookToStorage();}catch(e){console.error(e);}showToast('추가됐어요!');}
+
+function confirmSubBook(bookIdx){
+  closeSubPopup();
+  const text=subDragItem.text;
+  const now=new Date();const days=['일','월','화','수','목','금','토'];
+  const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
+  const book=bookData[bookIdx];
+  const review={date:dateLabel,text};
+  book.reviews.unshift(review);
+  renderBookList();saveBookToStorage();
+  if(book.notionId){
+    const children=[
+      {object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'📅 '+dateLabel}}]}},
+      {object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'💭 내 생각'}}]}},
+      {object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:text}}]}},
+      {object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 필사'}}]}},
+      {object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'필사 내용을 여기에 입력하거나 사진을 첨부하세요.'}}],icon:{emoji:'✍️'},color:'gray_background'}},
+      {object:'block',type:'divider',divider:{}}
+    ];
+    fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children})}).catch(e=>console.error(e));
+  }
+  markBrainDone(subDragIdx,'book');showToast('독후감으로 저장됐어요!');
+}
+function confirmSubBookNew(){
+  closeSubPopup();
+  const text=subDragItem.text;
+  const idx=subDragIdx;
+  // 책 추가 팝업 열기 (제목에 덤프 내용 채워넣기)
+  openAddBookPopup();
+  setTimeout(()=>{
+    document.getElementById('book-search-input').value=text;
+    debounceBookSearch(text);
+  },400);
+  // 추가 후 독후감으로 연결하는 건 사용자가 직접
+  markBrainDone(idx,'book');
+}
+
 function renderBookList(){const list=document.getElementById('book-list');if(!bookData.length){list.innerHTML='<div class="empty-state">추가한 책이 없어요.</div>';return;}list.innerHTML=bookData.map((book,i)=>`<div class="book-card" onclick="openBookDetail(${i})">${book.cover?`<img class="book-cover-img" src="${book.cover}" onerror="this.outerHTML='<div class=book-cover-placeholder>📖</div>'">`:'<div class="book-cover-placeholder">📖</div>'}<div class="book-card-info"><div><div class="book-card-title">${book.title}</div><div class="book-card-author">${book.authors||''}</div></div><div class="book-card-meta"><span class="book-genre-tag">${book.genre||'기타'}</span><span class="book-review-count">${book.reviews.length?book.reviews.length+'개':'독후감 없음'}</span></div></div></div>`).join('');}
 function openBookDetail(idx){currentBookIdx=idx;const book=bookData[idx];document.getElementById('book-detail-header').innerHTML=`${book.cover?`<img class="book-detail-cover" src="${book.cover}">`:'<div class="book-detail-cover"></div>'}<div class="book-detail-info"><div class="book-detail-title">${book.title}</div><div class="book-detail-author">${book.authors||''} · ${book.genre||''}</div></div>`;renderReviews();document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book-detail').classList.add('active');}
 function closeBookDetail(){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book').classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-btn[onclick*="book"]').classList.add('active');}
@@ -875,7 +1028,7 @@ function saveBookToStorage(){localStorage.setItem('book_data',JSON.stringify(boo
 function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(d)bookData=JSON.parse(d);}catch(e){}}
 
 /* Inbox */
-async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'descending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});}catch(e){list.innerHTML='<div class="inbox-empty">불러오기 실패</div>';}}
+async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});}catch(e){list.innerHTML='<div class="inbox-empty">불러오기 실패</div>';}}
 function getTextProp(props,key){const p=props[key];if(!p)return'';if(p.rich_text)return p.rich_text.map(t=>t.plain_text).join('');if(p.select)return p.select.name;return'';}
 
 /* PWA */
@@ -894,3 +1047,4 @@ window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.get
 </script>
 </body>
 </html>
+ㅍ
