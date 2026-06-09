@@ -323,7 +323,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content active" id="tab-record">
     <div class="section-header">
       <div class="section-title" id="current-date"></div>
-      <button class="settings-btn" onclick="openSettings()">⚙</button>
+      <button class="settings-btn" onclick="logout()">LOGOUT</button>
     </div>
     <div class="emotion-section">
       <div class="emotion-optional-label">감정 — OPTIONAL</div>
@@ -352,7 +352,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content" id="tab-dump">
     <div class="brain-header">
       <div class="section-title">Brain<br>Dump</div>
-      <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <button class="settings-btn" onclick="logout()">LOGOUT</button>
+        <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
+      </div>
     </div>
     <div class="brain-input-wrap">
       <textarea class="brain-textarea" id="brain-input" placeholder="지금 머릿속에 있는 거 다 꺼내봐요." oninput="autoResize(this)"></textarea>
@@ -364,7 +367,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <!-- TODO -->
   <div class="tab-content" id="tab-todo">
     <div style="padding:12px var(--pad-h) 0;border-bottom:2px solid var(--ink);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;">
-      <div class="section-title" id="todo-section-title">To-Do</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="section-title" id="todo-section-title">To-Do</div>
+        <button class="settings-btn" onclick="logout()">LOGOUT</button>
+      </div>
       <div class="todo-toggle">
         <button class="toggle-btn active" id="toggle-todo" onclick="switchTodoCart('todo')">TO-DO</button>
         <button class="toggle-btn inactive" id="toggle-cart" onclick="switchTodoCart('cart')">CART</button>
@@ -415,7 +421,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <!-- BOOK -->
   <div class="tab-content" id="tab-book">
     <div class="section-header">
-      <div class="section-title">Book</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="section-title">Book</div>
+        <button class="settings-btn" onclick="logout()">LOGOUT</button>
+      </div>
       <button class="add-btn-sm" onclick="openAddBookPopup()">+ ADD</button>
     </div>
     <div class="book-list" id="book-list"><div class="empty-state">추가한 책이 없어요.</div></div>
@@ -424,7 +433,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <!-- BOOK DETAIL -->
   <div class="tab-content" id="tab-book-detail">
     <div class="section-header">
-      <button class="back-btn" onclick="closeBookDetail()">← BACK</button>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="back-btn" onclick="closeBookDetail()">← BACK</button>
+        <button class="settings-btn" onclick="logout()">LOGOUT</button>
+      </div>
       <button class="add-btn-sm" onclick="openAddReviewPopup()">+ 독후감</button>
     </div>
     <div class="book-detail-header" id="book-detail-header"></div>
@@ -433,7 +445,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <!-- INBOX -->
   <div class="tab-content" id="tab-inbox">
-    <div class="section-header"><div class="section-title">Inbox</div></div>
+    <div class="section-header">
+      <div class="section-title">Inbox</div>
+      <button class="settings-btn" onclick="logout()">LOGOUT</button>
+    </div>
     <div class="inbox-list" id="inbox-list"><div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div></div>
   </div>
 </div>
@@ -801,20 +816,25 @@ async function loadTodayRecords(){
     while(i<allBlocks.length){
       const block=allBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'){i++;continue;}
       const texts=(block.type==='callout'?block.callout:block.paragraph)?.rich_text||[];if(!texts.length){i++;continue;}
+      // 시간 추출: 첫 segment에서 HH:MM 찾기
       const firstContent=(texts[0]?.text?.content||'').trim();
       const timeMatch=firstContent.match(/^(\d{2}:\d{2})/);
       if(!timeMatch){i++;continue;}
       const timeStr=timeMatch[1];
-      let mood='',textParts=[];
-      for(let j=1;j<texts.length;j++){
-        const seg=texts[j];const c=(seg?.text?.content||'');
-        if(seg?.annotations?.italic&&/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(c)){
-          mood=c.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
-        } else {
-          const cleaned=c.replace(/^\n/,'');if(cleaned)textParts.push(cleaned);
-        }
+      // mood: italic+이모지 segment
+      let mood='';
+      const moodSeg=texts.find(s=>s?.annotations?.italic&&/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(s?.text?.content||''));
+      if(moodSeg){mood=(moodSeg.text.content||'').replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();}
+      // 본문: bold segment 또는 \n 이후 내용
+      let text='';
+      const boldSeg=texts.find(s=>s?.annotations?.bold);
+      if(boldSeg){text=(boldSeg.text.content||'').replace(/^\n/,'').trim();}
+      else{
+        // fallback: 전체 join 후 시간/무드 이후 내용
+        const full=texts.map(t=>t?.text?.content||'').join('');
+        const afterTime=full.replace(/^\d{2}:\d{2}/,'').replace(/\s*[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}][^\n]*/u,'').replace(/^\n/,'').trim();
+        text=afterTime;
       }
-      const text=textParts.join('').trim();
       let photoUrls=[],photoBlockId=null;
       if(i+1<allBlocks.length&&allBlocks[i+1].type==='column_list'){
         photoBlockId=allBlocks[i+1].id;
@@ -826,25 +846,19 @@ async function loadTodayRecords(){
               const imgRes=await fetch(WORKER_URL+'/notion/blocks/'+col.id+'/children',{headers:notionHeaders()});
               const imgData=await imgRes.json();
               for(const imgBlock of imgData.results||[]){
-                if(imgBlock.type==='image'){
-                  const url=imgBlock.image?.external?.url||imgBlock.image?.file?.url||'';
-                  if(url)photoUrls.push(url);
-                }
+                if(imgBlock.type==='image'){const url=imgBlock.image?.external?.url||imgBlock.image?.file?.url||'';if(url)photoUrls.push(url);}
               }
             }
           }
         }catch(e){console.error('photo fetch failed',e);}
         i++;
       }
-      // 이미 UI에 있는 블록 스킵
       if(document.querySelector(`[data-block-id="${block.id}"]`)){i++;continue;}
-      // 기존 empty-state 제거
       const empty=list.querySelector('.empty-state');if(empty)empty.remove();
       const item=document.createElement('div');item.className='record-item';item.dataset.blockId=block.id;
       const thumbHtml=photoUrls&&photoUrls.length?'<div class="record-photos">'+photoUrls.slice(0,3).map(u=>'<img class="record-photo" src="'+u+'">').join('')+'</div>':'';
       item.innerHTML=`<div class="record-time">${timeStr}</div><div>${mood?'<span class="record-tag">'+mood+'</span>':''}<div class="record-text">${text}</div>${thumbHtml}</div>`;
       item.addEventListener('click',()=>openRecordPopup(timeStr,mood,text,photoUrls||[],notionUrl,block.id,photoBlockId||null,item));
-      // 오래된→최신 순서로 prepend (가장 오래된 게 맨 아래, 최신이 맨 위)
       list.insertBefore(item,list.firstChild);
       i++;
     }
