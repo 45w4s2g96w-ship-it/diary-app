@@ -794,7 +794,7 @@ async function loadTodayRecords(){
     const pageId=await getTodayPageId();if(!pageId)return;
     const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
     let allBlocks=[],cursor;
-    do{const url=WORKER_URL+'/notion/blocks/'+pageId+'/children?page_size=100'+(cursor?'&start_cursor='+cursor:'');const res=await fetch(url,{headers:notionHeaders()});const data=await res.json();allBlocks=allBlocks.concat(data.results||[]);cursor=data.has_more?data.next_cursor:undefined;}while(cursor);
+    do{const url=WORKER_URL+'/notion/blocks/'+pageId+'/children'+(cursor?'?start_cursor='+cursor:'');const res=await fetch(url,{headers:notionHeaders()});const data=await res.json();allBlocks=allBlocks.concat(data.results||[]);cursor=data.has_more?data.next_cursor:undefined;}while(cursor);
     const list=document.getElementById('record-list');
     // 로드된 블록은 시간순(오래된→최신)으로 append — saveRecord가 추가한 것은 스킵
     let i=0;
