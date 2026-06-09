@@ -135,6 +135,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .brain-tag.todo { border: 1px solid var(--ink); color: var(--ink); }
 .brain-tag.cart { border: 1px solid var(--ink-soft); color: var(--ink-soft); }
 .brain-tag.book { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
+.brain-tag.idea { border: 1px solid #b8860b; color: #b8860b; }
 .brain-hold-hint { font-family: 'Montserrat', sans-serif; font-size: 8px; color: var(--rule); margin-bottom: 4px; }
 .brain-actions { display: flex; gap: 5px; }
 .brain-action-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; padding: 4px 9px; border: 1px solid var(--rule); background: transparent; color: var(--ink-muted); cursor: pointer; border-radius: 1px; }
@@ -560,6 +561,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="drag-zones">
     <div class="drag-zone" data-zone="record"><div class="dz-icon">✏️</div><div class="dz-label">LOG</div></div>
     <div class="drag-zone" data-zone="todo"><div class="dz-icon">✓</div><div class="dz-label">TO-DO</div></div>
+    <div class="drag-zone" data-zone="idea"><div class="dz-icon">💡</div><div class="dz-label">IDEA</div></div>
     <div class="drag-zone" data-zone="book"><div class="dz-icon">📖</div><div class="dz-label">BOOK</div></div>
   </div>
 </div>
@@ -572,6 +574,7 @@ const BRAIN_DB='37751f4140c580e4b680c979ee1d0f2a';
 const CART_DB='37751f4140c580598f09f7903db2248f';
 const TODO_DB='37651f4140c5805e875cdc92a5715d21';
 const BOOK_DB='37851f4140c580c995d6f55451f2c1f7';
+const IDEA_DB='37a51f4140c580e4bcf9f6279769ae26';
 const MOOD_TYPE={'평온함':'positive','뿌듯함':'positive','감사함':'positive','행복함':'positive','설렘':'positive','불안':'negative','무기력':'negative','답답함':'negative','외로움':'negative','피곤함':'negative','멍함':'etc','복잡함':'etc','모르겠음':'etc'};
 const MOOD_EMOJI={positive:'🌿',negative:'🌧️',etc:'🌫️'};
 function getMoodEmoji(m){return MOOD_EMOJI[MOOD_TYPE[m]||'etc']||'🌫️';}
@@ -939,8 +942,8 @@ async function saveCartToNotion(section,text,memo){try{const props={'이름':{ti
 let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElementById('drag-overlay');
 function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToNotion(text);}
-async function saveBrainToNotion(text){try{await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});}catch(e){}}
-function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">꾹 눌러서 드래그</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">삭제</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
+async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',d);}catch(e){console.error('brain save error',e);}}
+function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">꾹 눌러서 드래그</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">삭제</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
 function startHold(e,idx,item){holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
 document.addEventListener('touchmove',e=>{if(!isDragging)return;const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:true});
 document.addEventListener('touchend',e=>{clearTimeout(holdTimer);if(!isDragging)return;const t=e.changedTouches[0];let landed=null;document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)landed=z.dataset.zone;z.classList.remove('hovered');});endDrag(landed);});
@@ -948,6 +951,14 @@ document.addEventListener('mouseup',e=>{clearTimeout(holdTimer);if(!isDragging)r
 function endDrag(zone){isDragging=false;ghost.style.display='none';dragOverlay.classList.remove('active');const el=dragItem?document.getElementById('bi-'+dragItem.id):null;if(el)el.classList.remove('dragging');if(zone&&dragItem)openSubPopup(zone,dragItem,dragIdx);dragItem=null;dragIdx=-1;}
 let subDragZone='',subDragItem=null,subDragIdx=-1;
 function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragIdx=idx;document.getElementById('sub-popup-text').textContent=item.text;const wrap=document.getElementById('sub-choices-wrap');wrap.innerHTML='';if(zone==='record'){document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';const grid=document.createElement('div');grid.className='sub-mood-grid';['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{const btn=document.createElement('button');btn.className='sub-mood-btn';btn.textContent=m;btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);grid.appendChild(btn);});wrap.appendChild(grid);}else if(zone==='todo'){document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(QUAD_CFG).forEach(([q,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':'');btn.onclick=()=>confirmSubTodo(q);div.appendChild(btn);});wrap.appendChild(div);}else if(zone==='cart'){document.getElementById('sub-popup-title').textContent='CART — 분류 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label;btn.onclick=()=>confirmSubCart(s);div.appendChild(btn);});wrap.appendChild(div);}
+  else if(zone==='idea'){
+    document.getElementById('sub-popup-title').textContent='IDEA — 아이디어로 저장';
+    const div=document.createElement('div');div.className='sub-choices';
+    const btn=document.createElement('button');btn.className='sub-choice';
+    btn.textContent='아이디어 DB에 저장';btn.style.cssText='border-color:var(--ink);font-weight:600;';
+    btn.onclick=()=>confirmSubIdea();div.appendChild(btn);
+    wrap.appendChild(div);
+  }
   else if(zone==='book'){
     document.getElementById('sub-popup-title').textContent='BOOK — 책 선택 또는 입력';
     const div=document.createElement('div');div.className='sub-choices';
@@ -976,7 +987,22 @@ function resetBrain(){if(!brainItems.length)return;if(!confirm('브레인덤프�
 /* Book */
 let bookData=[],currentBookIdx=-1,selectedSearchBook=null,bookSearchTimer=null;
 function debounceBookSearch(val){clearTimeout(bookSearchTimer);if(!val.trim()){document.getElementById('book-search-results').style.display='none';return;}bookSearchTimer=setTimeout(()=>searchBooks(val),500);}
-async function searchBooks(query){const q=query||document.getElementById('book-search-input').value.trim();if(!q)return;const resultsEl=document.getElementById('book-search-results');resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 중...</div>';resultsEl.style.display='flex';try{const res=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=10&printType=books&langRestrict=ko&key=AIzaSyArr1YU4EBieSgfBdc3pNclfqwJvUpiprw`);const data=await res.json();if(!data.items||!data.items.length){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 결과가 없어요.</div>';return;}resultsEl.innerHTML='';data.items.forEach(item=>{const info=item.volumeInfo;const title=info.title||'';const authors=(info.authors||[]).join(', ');const genre=(info.categories||[])[0]||'';const cover=(info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||'').replace('http://','https://');const el=document.createElement('div');el.className='book-search-item';el.innerHTML=`${cover?`<img class="book-search-cover" src="${cover}" onerror="this.style.display='none'">`:'<div class="book-search-cover"></div>'}<div class="book-search-info"><div class="book-search-title">${title}</div><div class="book-search-author">${authors}</div><div class="book-search-genre">${genre}</div></div>`;el.onclick=()=>{document.querySelectorAll('.book-search-item').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');selectedSearchBook={title,authors,genre,cover};document.getElementById('book-genre-input').value=genre;};resultsEl.appendChild(el);});}catch(e){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 실패.</div>';}}
+async function searchBooks(query){const q=query||document.getElementById('book-search-input').value.trim();if(!q)return;const resultsEl=document.getElementById('book-search-results');resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 중...</div>';resultsEl.style.display='flex';try{const res=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=10&printType=books&langRestrict=ko&key=AIzaSyArr1YU4EBieSgfBdc3pNclfqwJvUpiprw`);const data=await res.json();if(!data.items||!data.items.length){resultsEl.innerHTML=`<div style="font-size:12px;color:var(--ink-muted);padding:8px 0 4px;">검색 결과가 없어요. 직접 입력할 수 있어요.</div>
+<div style="padding:8px;border:1.5px solid var(--rule);border-radius:2px;">
+  <input id="book-manual-title" placeholder="책 제목" style="width:100%;font-size:13px;font-family:'Gothic A1',sans-serif;border:none;border-bottom:1px solid var(--rule);outline:none;padding:4px 0;margin-bottom:6px;background:transparent;color:var(--ink);">
+  <input id="book-manual-author" placeholder="저자" style="width:100%;font-size:13px;font-family:'Gothic A1',sans-serif;border:none;border-bottom:1px solid var(--rule);outline:none;padding:4px 0;background:transparent;color:var(--ink);">
+  <button onclick="selectManualBook()" style="margin-top:8px;width:100%;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:8px;background:var(--ink);color:var(--paper);border:none;cursor:pointer;border-radius:1px;">직접 입력으로 추가</button>
+</div>`;return;}resultsEl.innerHTML='';data.items.forEach(item=>{const info=item.volumeInfo;const title=info.title||'';const authors=(info.authors||[]).join(', ');const genre=(info.categories||[])[0]||'';const cover=(info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||'').replace('http://','https://');const el=document.createElement('div');el.className='book-search-item';el.innerHTML=`${cover?`<img class="book-search-cover" src="${cover}" onerror="this.style.display='none'">`:'<div class="book-search-cover"></div>'}<div class="book-search-info"><div class="book-search-title">${title}</div><div class="book-search-author">${authors}</div><div class="book-search-genre">${genre}</div></div>`;el.onclick=()=>{document.querySelectorAll('.book-search-item').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');selectedSearchBook={title,authors,genre,cover};document.getElementById('book-genre-input').value=genre;};resultsEl.appendChild(el);});}catch(e){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 실패.</div>';}}
+function selectManualBook(){
+  const title=document.getElementById('book-manual-title')?.value.trim();
+  const authors=document.getElementById('book-manual-author')?.value.trim();
+  if(!title){showToast('제목을 입력해주세요');return;}
+  selectedSearchBook={title,authors:authors||'',genre:'',cover:''};
+  document.getElementById('book-genre-input').value='';
+  document.getElementById('book-search-results').innerHTML=
+    `<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;
+  showToast('직접 입력 선택됨');
+}
 function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
 function closeAddBookPopup(){document.getElementById('add-book-popup').classList.remove('open');}
 async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{const props={'이름':{title:[{text:{content:book.title}}]},'장르':{select:{name:genre||'기타'}}};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props})});const data=await res.json();book.notionId=data.id||null;saveBookToStorage();}catch(e){console.error(e);}showToast('추가됐어요!');}
@@ -1002,6 +1028,17 @@ function confirmSubBook(bookIdx){
     fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children})}).catch(e=>console.error(e));
   }
   markBrainDone(subDragIdx,'book');showToast('독후감으로 저장됐어요!');
+}
+function confirmSubIdea(){
+  closeSubPopup();
+  const text=subDragItem.text;
+  fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{
+      '이름':{title:[{text:{content:text}}]},
+      '생성일시':{date:{start:new Date().toISOString()}}
+    }})
+  }).catch(e=>console.error(e));
+  markBrainDone(subDragIdx,'idea');showToast('아이디어로 저장됐어요!');
 }
 function confirmSubBookNew(){
   closeSubPopup();
@@ -1047,4 +1084,3 @@ window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.get
 </script>
 </body>
 </html>
-ㅍ
