@@ -143,13 +143,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* Drag zones */
 .drag-overlay { position: fixed; inset: 0; z-index: 300; display: none; flex-direction: column; justify-content: flex-end; pointer-events: none; }
 .drag-overlay.active { display: flex; pointer-events: all; }
-.drag-zones { display: flex; border-top: 2px solid var(--ink); background: var(--paper); height: 110px; }
-.drag-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-right: 1px solid var(--rule); transition: background 0.15s; }
+.drag-zones { display: flex; border-top: 2px solid var(--ink); background: var(--paper); height: 90px; }
+.drag-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-right: 1px solid var(--rule); transition: background 0.15s; padding: 0 4px; }
 .drag-zone:last-child { border-right: none; }
 .drag-zone.hovered { background: var(--ink); }
 .drag-zone.hovered .dz-label { color: var(--paper); }
-.dz-icon { font-size: 22px; }
-.dz-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); }
+.dz-icon { font-size: 18px; }
+.dz-label { font-family: 'Montserrat', sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-muted); text-align: center; }
 .drag-ghost { position: fixed; z-index: 400; pointer-events: none; background: var(--paper); border: 1.5px solid var(--ink); border-radius: 4px; padding: 8px 12px; font-family: 'Gothic A1', sans-serif; font-size: 12px; color: var(--ink); max-width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: none; }
 
 /* Book */
@@ -534,6 +534,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="popup-label">책 추가</div>
     <input class="popup-input" id="book-search-input" placeholder="책 제목을 검색하세요." oninput="debounceBookSearch(this.value)" onkeydown="if(event.key==='Enter')searchBooks()">
     <div class="book-search-results" id="book-search-results" style="display:none;"></div>
+    <div id="book-manual-entry" style="display:none;margin-bottom:12px;">
+      <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;">직접 입력</div>
+      <input id="book-manual-title-direct" placeholder="책 제목" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:8px;background:transparent;color:var(--ink);">
+      <input id="book-manual-author-direct" placeholder="저자" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:8px;background:transparent;color:var(--ink);">
+      <button onclick="selectManualBookDirect()" style="width:100%;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:8px;background:var(--ink);color:var(--paper);border:none;cursor:pointer;border-radius:1px;">이 책으로 선택</button>
+    </div>
+    <button id="book-manual-toggle" onclick="toggleManualBookEntry()" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:7px 14px;cursor:pointer;border-radius:1px;margin-bottom:12px;">✏️ 직접 입력하기</button>
     <div class="popup-label" style="margin-bottom:4px;">장르</div>
     <input class="popup-input" id="book-genre-input" placeholder="장르 (자동입력 또는 직접 입력)">
     <div class="popup-btns"><button class="popup-cancel" onclick="closeAddBookPopup()">CANCEL</button><button class="popup-ok" onclick="confirmAddBook()">ADD</button></div>
@@ -640,17 +647,20 @@ let selectedPhotos=[];
 function handlePhotos(input){Array.from(input.files).slice(0,6-selectedPhotos.length).forEach(file=>{const r=new FileReader();r.onload=e=>{selectedPhotos.push({file,dataUrl:e.target.result});};r.readAsDataURL(file);});input.value='';}
 async function uploadToCloudinary(file){const cn=localStorage.getItem('cloud_name');if(!cn)return null;const fd=new FormData();fd.append('file',file);fd.append('upload_preset','diary_app');try{const r=await fetch(`https://api.cloudinary.com/v1_1/${cn}/image/upload`,{method:'POST',body:fd});const d=await r.json();return d.secure_url||null;}catch{return null;}}
 
+/* Notion helpers */
+function notionHeaders(){return{'Content-Type':'application/json','X-Notion-Token':localStorage.getItem('notion_token')||''};}
+
 /* Notion page */
 let cachedPageId=null,cachedPageDate=null;
 async function getTodayPageId(){
   const db=localStorage.getItem('notion_db');const dateStr=formatDate(getDiaryDate());
   if(cachedPageId&&cachedPageDate===dateStr)return cachedPageId;
-  const sr=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}}})});
+  const sr=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}}})});
   const sd=await sr.json();
   if(sd.results&&sd.results.length>0){cachedPageId=sd.results[0].id;cachedPageDate=dateStr;return cachedPageId;}
   const days=['일','월','화','수','목','금','토'];const d=getDiaryDate();
   const title=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
-  const cr=await fetch(`${WORKER_URL}/notion/pages`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:title}}]},'날짜':{date:{start:dateStr}}},children:[{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},{object:'block',type:'divider',divider:{}},{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}}]})});
+  const cr=await fetch(`${WORKER_URL}/notion/pages`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:title}}]},'날짜':{date:{start:dateStr}}},children:[{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},{object:'block',type:'divider',divider:{}},{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}}]})});
   const cd=await cr.json();cachedPageId=cd.id;cachedPageDate=dateStr;return cachedPageId;
 }
 
@@ -671,7 +681,7 @@ async function saveRecord(){
       rich.push({type:'text',text:{content:'\n'+( text||'')},annotations:{bold:true,italic:false,color:'default'}});
       const children=[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}];
       if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
-      const ar=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children})});
+      const ar=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})});
       const ad=await ar.json();blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
     }
     addRecordToUI(timeStr,selectedMood,text,photoUrls,notionUrl,blockId,null);
@@ -752,9 +762,9 @@ async function saveRecordEdit(){
   try{
     const finalPhotos=[];for(const p of editingPhotos){if(typeof p==='string')finalPhotos.push(p);else{const u=await uploadToCloudinary(p.file);if(u)finalPhotos.push(u);}}
     const rich=[];rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});if(mood)rich.push({type:'text',text:{content:getMoodEmoji(mood)+' '+mood+'\n'},annotations:{italic:true}});if(newText)rich.push({type:'text',text:{content:newText},annotations:{bold:true}});
-    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({paragraph:{rich_text:rich}})});
-    if(currentPhotoBlockId){await fetch(WORKER_URL+'/notion/blocks/'+currentPhotoBlockId,{method:'DELETE',headers:{'Content-Type':'application/json'}});currentPhotoBlockId=null;}
-    if(finalPhotos.length>0){const cols=finalPhotos.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}));while(cols.length<3)cols.push({object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}}]}});const pr=await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children:[{object:'block',type:'column_list',column_list:{children:cols}}]})});const pd=await pr.json();currentPhotoBlockId=pd.results?.[0]?.id||null;}
+    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({paragraph:{rich_text:rich}})});
+    if(currentPhotoBlockId){await fetch(WORKER_URL+'/notion/blocks/'+currentPhotoBlockId,{method:'DELETE',headers:notionHeaders()});currentPhotoBlockId=null;}
+    if(finalPhotos.length>0){const cols=finalPhotos.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}));while(cols.length<3)cols.push({object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}}]}});const pr=await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children:[{object:'block',type:'column_list',column_list:{children:cols}}]})});const pd=await pr.json();currentPhotoBlockId=pd.results?.[0]?.id||null;}
     currentPopupPhotos=finalPhotos;document.getElementById('rp-text').textContent=newText;if(currentPopupItem){const t=currentPopupItem.querySelector('.record-text');if(t)t.textContent=newText;}
     toggleRecordEdit();showToast('수정됐어요');
   }catch(e){showToast('수정 실패');console.error(e);}
@@ -763,14 +773,14 @@ async function saveRecordEdit(){
 async function deleteRecord(){
   if(!currentPopupBlockId)return;
   if(!confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없어요.'))return;
-  try{await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'DELETE',headers:{'Content-Type':'application/json'}});if(currentPopupItem)currentPopupItem.remove();closeRecordPopup();showToast('삭제됐어요');}catch(e){showToast('삭제 실패');}
+  try{await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'DELETE',headers:notionHeaders()});if(currentPopupItem)currentPopupItem.remove();closeRecordPopup();showToast('삭제됐어요');}catch(e){showToast('삭제 실패');}
 }
 async function loadTodayRecords(){
   try{
     const pageId=await getTodayPageId();if(!pageId)return;
     const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
     let allBlocks=[],cursor;
-    do{const url=WORKER_URL+'/notion/blocks/'+pageId+'/children?page_size=100'+(cursor?'&start_cursor='+cursor:'');const res=await fetch(url,{headers:{'Content-Type':'application/json'}});const data=await res.json();allBlocks=allBlocks.concat(data.results||[]);cursor=data.has_more?data.next_cursor:undefined;}while(cursor);
+    do{const url=WORKER_URL+'/notion/blocks/'+pageId+'/children?page_size=100'+(cursor?'&start_cursor='+cursor:'');const res=await fetch(url,{headers:notionHeaders()});const data=await res.json();allBlocks=allBlocks.concat(data.results||[]);cursor=data.has_more?data.next_cursor:undefined;}while(cursor);
     let i=0;
     while(i<allBlocks.length){
       const block=allBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'){i++;continue;}
@@ -787,13 +797,12 @@ async function loadTodayRecords(){
       let photoUrls=[],photoBlockId=null;
       if(i+1<allBlocks.length&&allBlocks[i+1].type==='column_list'){
         photoBlockId=allBlocks[i+1].id;
-        // column_list의 각 column children에서 이미지 URL 추출
         try{
-          const colRes=await fetch(WORKER_URL+'/notion/blocks/'+photoBlockId+'/children',{headers:{'Content-Type':'application/json'}});
+          const colRes=await fetch(WORKER_URL+'/notion/blocks/'+photoBlockId+'/children',{headers:notionHeaders()});
           const colData=await colRes.json();
           for(const col of colData.results||[]){
             if(col.type==='column'){
-              const imgRes=await fetch(WORKER_URL+'/notion/blocks/'+col.id+'/children',{headers:{'Content-Type':'application/json'}});
+              const imgRes=await fetch(WORKER_URL+'/notion/blocks/'+col.id+'/children',{headers:notionHeaders()});
               const imgData=await imgRes.json();
               for(const imgBlock of imgData.results||[]){
                 if(imgBlock.type==='image'){
@@ -860,13 +869,14 @@ async function saveTodoToNotion(quad,text,dueDate){
     if(dueDate&&!isNaN(new Date(dueDate))){
       props['마감일']={date:{start:formatDate(new Date(dueDate))}};
     }
-    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
     const data=await res.json();
+    if(!res.ok){console.error('todo save failed',res.status,data);return null;}
     return data.id||null;
-  }catch(e){console.error(e);return null;}
+  }catch(e){console.error('todo save error',e);return null;}
 }
-async function saveSubTodoToNotion(text,parentId){try{const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};if(parentId)props['상위항목']={relation:[{id:parentId}]};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});const data=await res.json();return data.id||null;}catch(e){return null;}}
-async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({properties:{'완료':{checkbox:done}}})});}catch(e){}}
+async function saveSubTodoToNotion(text,parentId){try{const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};if(parentId)props['상위항목']={relation:[{id:parentId}]};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});const data=await res.json();if(!res.ok){console.error('subtodo save failed',res.status,data);return null;}return data.id||null;}catch(e){console.error('subtodo save error',e);return null;}}
+async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'완료':{checkbox:done}}})});}catch(e){}}
 
 /* Todo Detail */
 let currentDetailQuad='',currentDetailIdx=-1;
@@ -914,7 +924,7 @@ async function saveTodoEdit(){
     try{
       const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:item.done}};
       if(item.dueDate)props['마감일']={date:{start:formatDate(item.dueDate)}};
-      await fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({properties:props})});
+      await fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});
     }catch(e){console.error(e);}
   }
   showToast('수정됐어요!');
@@ -936,13 +946,13 @@ function renderCartSection(section){const c=document.getElementById('items-'+sec
 function renderCart(){Object.keys(CART_SECTIONS).forEach(renderCartSection);}
 function saveCartToStorage(){localStorage.setItem('cart_data',JSON.stringify(cartData));}
 function loadCartFromStorage(){try{const d=localStorage.getItem('cart_data');if(d){const p=JSON.parse(d);const m={'need-buy':[],'need-want':[],'need-later':[],'want':[]};if(p['need-now'])m['need-buy']=p['need-now'];['need-buy','need-want','need-later','want'].forEach(k=>{if(p[k])m[k]=p[k];});cartData=m;}}catch(e){}}
-async function saveCartToNotion(section,text,memo){try{const props={'이름':{title:[{text:{content:text}}]},'유형':{select:{name:CART_SECTIONS[section].label}},'추가일':{date:{start:formatDate(new Date())}}};if(memo)props['메모']={rich_text:[{text:{content:memo}}]};await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:CART_DB},properties:props})});}catch(e){console.error(e);}}
+async function saveCartToNotion(section,text,memo){try{const props={'이름':{title:[{text:{content:text}}]},'유형':{select:{name:CART_SECTIONS[section].label}},'추가일':{date:{start:formatDate(new Date())}}};if(memo)props['메모']={rich_text:[{text:{content:memo}}]};await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:CART_DB},properties:props})});}catch(e){console.error(e);}}
 
 /* Braindump */
 let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElementById('drag-overlay');
 function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToNotion(text);}
-async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',d);}catch(e){console.error('brain save error',e);}}
+async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok){console.error('brain save failed',r.status,d);showToast('덤프 저장 실패('+r.status+')');}else{console.log('brain saved',d.id);}}catch(e){console.error('brain save error',e);showToast('덤프 저장 오류');}}
 function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">꾹 눌러서 드래그</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">삭제</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
 function startHold(e,idx,item){holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
 document.addEventListener('touchmove',e=>{if(!isDragging)return;const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:true});
@@ -977,7 +987,7 @@ function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragId
   }
   document.getElementById('sub-popup').classList.add('open');}
 function closeSubPopup(){document.getElementById('sub-popup').classList.remove('open');}
-async function confirmSubRecord(mood){closeSubPopup();const text=subDragItem.text;const now=new Date();const timeStr=formatTime(now);try{const pageId=await getTodayPageId();const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;const rich=[];rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});if(mood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(mood)+' '+mood},annotations:{color:'gray',italic:true,bold:false}});rich.push({type:'text',text:{content:'\n'+text},annotations:{bold:true,italic:false,color:'default'}});if(pageId)await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children:[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}]})});addRecordToUI(timeStr,mood,text,[],notionUrl,null,null);markBrainDone(subDragIdx,'record');showToast('Record에 저장됐어요');}catch(e){showToast('저장 실패');}}
+async function confirmSubRecord(mood){closeSubPopup();const text=subDragItem.text;const now=new Date();const timeStr=formatTime(now);try{const pageId=await getTodayPageId();const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;const rich=[];rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});if(mood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(mood)+' '+mood},annotations:{color:'gray',italic:true,bold:false}});rich.push({type:'text',text:{content:'\n'+text},annotations:{bold:true,italic:false,color:'default'}});if(pageId)await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children:[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}]})});addRecordToUI(timeStr,mood,text,[],notionUrl,null,null);markBrainDone(subDragIdx,'record');showToast('Record에 저장됐어요');}catch(e){showToast('저장 실패');}}
 function confirmSubTodo(q){closeSubPopup();const cfg=QUAD_CFG[q];let dueDate=null;if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}todoData[q].push({text:subDragItem.text,dueDate,done:false,addedAt:new Date(),subs:[]});renderAllQuads();saveTodoToStorage();markBrainDone(subDragIdx,'todo');showToast('To-Do에 추가됐어요');}
 function confirmSubCart(section){closeSubPopup();cartData[section].push({text:subDragItem.text,memo:'',done:false});renderCart();saveCartToStorage();saveCartToNotion(section,subDragItem.text,'');markBrainDone(subDragIdx,'cart');showToast('Cart에 추가됐어요');}
 function markBrainDone(idx,tag){brainItems[idx].tag=tag;renderBrainList();}
@@ -1003,9 +1013,21 @@ function selectManualBook(){
     `<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;
   showToast('직접 입력 선택됨');
 }
-function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
+function toggleManualBookEntry(){const entry=document.getElementById('book-manual-entry');const btn=document.getElementById('book-manual-toggle');const isShown=entry.style.display!=='none';entry.style.display=isShown?'none':'block';btn.textContent=isShown?'✏️ 직접 입력하기':'✕ 직접 입력 닫기';}
+function selectManualBookDirect(){const title=document.getElementById('book-manual-title-direct')?.value.trim();const authors=document.getElementById('book-manual-author-direct')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('book-search-results').style.display='flex';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
+function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
 function closeAddBookPopup(){document.getElementById('add-book-popup').classList.remove('open');}
-async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{const props={'이름':{title:[{text:{content:book.title}}]},'장르':{select:{name:genre||'기타'}}};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props})});const data=await res.json();book.notionId=data.id||null;saveBookToStorage();}catch(e){console.error(e);}showToast('추가됐어요!');}
+async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{const props={'이름':{title:[{text:{content:book.title}}]},'장르':{select:{name:genre||'기타'}}};
+  const children=[];
+  // 2열: 왼쪽 표지 이미지, 오른쪽 최종 감상평 callout
+  const leftCol=book.cover
+    ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
+    :{object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:book.title},annotations:{bold:true}}]}}]}};
+  const rightCol={object:'block',type:'column',column:{children:[{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'💬 최종 감상평'},annotations:{bold:true}}],icon:{emoji:'⭐'},color:'gray_background'}}]}};
+  children.push({object:'block',type:'column_list',column_list:{children:[leftCol,rightCol]}});
+  children.push({object:'block',type:'divider',divider:{}});
+  children.push({object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 독서 기록'}}]}});
+  const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props,children})});const data=await res.json();book.notionId=data.id||null;saveBookToStorage();}catch(e){console.error(e);}showToast('추가됐어요!');}
 
 function confirmSubBook(bookIdx){
   closeSubPopup();
@@ -1025,20 +1047,38 @@ function confirmSubBook(bookIdx){
       {object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'필사 내용을 여기에 입력하거나 사진을 첨부하세요.'}}],icon:{emoji:'✍️'},color:'gray_background'}},
       {object:'block',type:'divider',divider:{}}
     ];
-    fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children})}).catch(e=>console.error(e));
+    fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})}).catch(e=>console.error(e));
   }
   markBrainDone(subDragIdx,'book');showToast('독후감으로 저장됐어요!');
 }
-function confirmSubIdea(){
-  closeSubPopup();
-  const text=subDragItem.text;
-  fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{
-      '이름':{title:[{text:{content:text}}]},
-      '생성일시':{date:{start:new Date().toISOString()}}
-    }})
-  }).catch(e=>console.error(e));
-  markBrainDone(subDragIdx,'idea');showToast('아이디어로 저장됐어요!');
+function confirmSubIdea(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;
+  // 분류 선택 팝업
+  const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';
+  const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:10px 10px 0 0;padding:22px 22px 40px;';
+  sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div>
+  <div style="font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;">${text}</div>
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    ${['work','life','anything'].map(c=>`<button onclick="this.closest('[data-idea-overlay]').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;">${c}</button>`).join('')}
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.body.removeChild(this.closest('[data-idea-overlay]').parentElement||this.closest('[style*=fixed]'))" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:10px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;
+  overlay.setAttribute('data-idea-overlay','1');
+  overlay.appendChild(sheet);
+  overlay.addEventListener('pick',async(e)=>{
+    const cat=e.detail;
+    document.body.removeChild(overlay);
+    try{
+      await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),
+        body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{
+          '이름':{title:[{text:{content:text}}]},
+          '생성일시':{date:{start:new Date().toISOString()}},
+          '분류':{select:{name:cat}}
+        }})
+      });
+    }catch(e){console.error(e);}
+    markBrainDone(idx,'idea');showToast('아이디어로 저장됐어요!');
+  });
+  overlay.addEventListener('click',e=>{if(e.target===overlay)document.body.removeChild(overlay);});
+  document.body.appendChild(overlay);
 }
 function confirmSubBookNew(){
   closeSubPopup();
@@ -1060,12 +1100,14 @@ function closeBookDetail(){document.querySelectorAll('.tab-content').forEach(t=>
 function renderReviews(){const list=document.getElementById('review-list');const book=bookData[currentBookIdx];if(!book.reviews.length){list.innerHTML='<div class="empty-state">아직 독후감이 없어요.</div>';return;}list.innerHTML=book.reviews.map(r=>`<div class="review-item"><div class="review-date">${r.date}</div><div class="review-text">${r.text}</div></div>`).join('');}
 function openAddReviewPopup(){const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;document.getElementById('review-date-label').textContent=dateLabel;document.getElementById('review-input').value='';document.getElementById('add-review-popup').classList.add('open');setTimeout(()=>document.getElementById('review-input').focus(),300);}
 function closeAddReviewPopup(){document.getElementById('add-review-popup').classList.remove('open');}
-async function confirmAddReview(){const text=document.getElementById('review-input').value.trim();if(!text)return;const book=bookData[currentBookIdx];const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;const review={date:dateLabel,text};book.reviews.unshift(review);closeAddReviewPopup();renderReviews();renderBookList();saveBookToStorage();if(book.notionId){try{const children=[{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'📅 '+dateLabel}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'💭 내 생각'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:text}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 필사'}}]}},{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'필사 내용을 여기에 입력하거나 사진을 첨부하세요.'}}],icon:{emoji:'✍️'},color:'gray_background'}},{object:'block',type:'divider',divider:{}}];await fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({children})});}catch(e){console.error(e);}}showToast('저장됐어요!');}
+async function confirmAddReview(){const text=document.getElementById('review-input').value.trim();if(!text)return;const book=bookData[currentBookIdx];const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;const review={date:dateLabel,text};book.reviews.unshift(review);closeAddReviewPopup();renderReviews();renderBookList();saveBookToStorage();if(book.notionId){try{const children=[{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'📅 '+dateLabel}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'💭 내 생각'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:text}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 필사'}}]}},{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'필사 내용을 여기에 입력하거나 사진을 첨부하세요.'}}],icon:{emoji:'✍️'},color:'gray_background'}},{object:'block',type:'divider',divider:{}}];await fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})});}catch(e){console.error(e);}}showToast('저장됐어요!');}
 function saveBookToStorage(){localStorage.setItem('book_data',JSON.stringify(bookData));}
 function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(d)bookData=JSON.parse(d);}catch(e){}}
 
 /* Inbox */
-async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});}catch(e){list.innerHTML='<div class="inbox-empty">불러오기 실패</div>';}}
+async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});
+  // 최신 메시지(맨 아래)로 자동 스크롤
+  requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight;});}catch(e){list.innerHTML='<div class="inbox-empty">불러오기 실패</div>';}}
 function getTextProp(props,key){const p=props[key];if(!p)return'';if(p.rich_text)return p.rich_text.map(t=>t.plain_text).join('');if(p.select)return p.select.name;return'';}
 
 /* PWA */
