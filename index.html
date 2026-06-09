@@ -795,19 +795,26 @@ async function loadTodayRecords(){
     const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
     let allBlocks=[],cursor;
     do{const url=WORKER_URL+'/notion/blocks/'+pageId+'/children?page_size=100'+(cursor?'&start_cursor='+cursor:'');const res=await fetch(url,{headers:notionHeaders()});const data=await res.json();allBlocks=allBlocks.concat(data.results||[]);cursor=data.has_more?data.next_cursor:undefined;}while(cursor);
+    const list=document.getElementById('record-list');
+    // 로드된 블록은 시간순(오래된→최신)으로 append — saveRecord가 추가한 것은 스킵
     let i=0;
     while(i<allBlocks.length){
       const block=allBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'){i++;continue;}
       const texts=(block.type==='callout'?block.callout:block.paragraph)?.rich_text||[];if(!texts.length){i++;continue;}
-      const content=texts.map(t=>t?.text?.content||'').join('');const lines=content.split('\n').map(l=>l.trim()).filter(l=>l);if(!lines.length){i++;continue;}
-      if(!/^\d{2}:\d{2}$/.test(lines[0])){i++;continue;}
-      const timeStr=lines[0];let mood='',text='';
-      if(lines[1]&&/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(lines[1])){
-        mood=lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
-        if(lines[2])text=lines.slice(2).join('\n');
-      }else{
-        if(lines[1])text=lines.slice(1).join('\n');
+      const firstContent=(texts[0]?.text?.content||'').trim();
+      const timeMatch=firstContent.match(/^(\d{2}:\d{2})/);
+      if(!timeMatch){i++;continue;}
+      const timeStr=timeMatch[1];
+      let mood='',textParts=[];
+      for(let j=1;j<texts.length;j++){
+        const seg=texts[j];const c=(seg?.text?.content||'');
+        if(seg?.annotations?.italic&&/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(c)){
+          mood=c.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
+        } else {
+          const cleaned=c.replace(/^\n/,'');if(cleaned)textParts.push(cleaned);
+        }
       }
+      const text=textParts.join('').trim();
       let photoUrls=[],photoBlockId=null;
       if(i+1<allBlocks.length&&allBlocks[i+1].type==='column_list'){
         photoBlockId=allBlocks[i+1].id;
@@ -829,7 +836,17 @@ async function loadTodayRecords(){
         }catch(e){console.error('photo fetch failed',e);}
         i++;
       }
-      addRecordToUI(timeStr,mood,text,photoUrls,notionUrl,block.id,photoBlockId);i++;
+      // 이미 UI에 있는 블록 스킵
+      if(document.querySelector(`[data-block-id="${block.id}"]`)){i++;continue;}
+      // 기존 empty-state 제거
+      const empty=list.querySelector('.empty-state');if(empty)empty.remove();
+      const item=document.createElement('div');item.className='record-item';item.dataset.blockId=block.id;
+      const thumbHtml=photoUrls&&photoUrls.length?'<div class="record-photos">'+photoUrls.slice(0,3).map(u=>'<img class="record-photo" src="'+u+'">').join('')+'</div>':'';
+      item.innerHTML=`<div class="record-time">${timeStr}</div><div>${mood?'<span class="record-tag">'+mood+'</span>':''}<div class="record-text">${text}</div>${thumbHtml}</div>`;
+      item.addEventListener('click',()=>openRecordPopup(timeStr,mood,text,photoUrls||[],notionUrl,block.id,photoBlockId||null,item));
+      // 오래된→최신 순서로 prepend (가장 오래된 게 맨 아래, 최신이 맨 위)
+      list.insertBefore(item,list.firstChild);
+      i++;
     }
   }catch(e){console.error('load records failed',e);}
 }
