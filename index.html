@@ -682,14 +682,27 @@ function notionHeaders(){return{'Content-Type':'application/json','X-Notion-Toke
 /* Notion page */
 let cachedPageId=null,cachedPageDate=null;
 async function getTodayPageId(){
-  const db=localStorage.getItem('notion_db');const dateStr=formatDate(getDiaryDate());
+  const db=localStorage.getItem('notion_db');const d=getDiaryDate();
+  const dateStr=formatDate(d);
   if(cachedPageId&&cachedPageDate===dateStr)return cachedPageId;
+  // 날짜 속성으로 먼저 검색
   const sr=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}}})});
   const sd=await sr.json();
   if(sd.results&&sd.results.length>0){cachedPageId=sd.results[0].id;cachedPageDate=dateStr;return cachedPageId;}
-  const days=['일','월','화','수','목','금','토'];const d=getDiaryDate();
-  const title=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
-  const cr=await fetch(`${WORKER_URL}/notion/pages`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:title}}]},'날짜':{date:{start:dateStr}}},children:[{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},{object:'block',type:'divider',divider:{}},{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}}]})});
+  // fallback: 제목으로 검색 (노션에서 직접 만든 페이지 대응)
+  const days=['일','월','화','수','목','금','토'];
+  const titleKo=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+  const titleEn=`${dateStr} (${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]})`;
+  const sr2=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{or:[{property:'이름',title:{contains:dateStr}},{property:'이름',title:{contains:titleKo.slice(0,6)}}]}})});
+  const sd2=await sr2.json();
+  if(sd2.results&&sd2.results.length>0){
+    // 날짜 속성 업데이트
+    const pid=sd2.results[0].id;
+    await fetch(`${WORKER_URL}/notion/pages/${pid}`,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'날짜':{date:{start:dateStr}}}})});
+    cachedPageId=pid;cachedPageDate=dateStr;return cachedPageId;
+  }
+  // 없으면 새로 생성
+  const cr=await fetch(`${WORKER_URL}/notion/pages`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:titleKo}}]},'날짜':{date:{start:dateStr}}},children:[{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},{object:'block',type:'divider',divider:{}},{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}}]})});
   const cd=await cr.json();cachedPageId=cd.id;cachedPageDate=dateStr;return cachedPageId;
 }
 
@@ -816,24 +829,16 @@ async function loadTodayRecords(){
     while(i<allBlocks.length){
       const block=allBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'){i++;continue;}
       const texts=(block.type==='callout'?block.callout:block.paragraph)?.rich_text||[];if(!texts.length){i++;continue;}
-      // 시간 추출: 첫 segment에서 HH:MM 찾기
-      const firstContent=(texts[0]?.text?.content||'').trim();
-      const timeMatch=firstContent.match(/^(\d{2}:\d{2})/);
-      if(!timeMatch){i++;continue;}
-      const timeStr=timeMatch[1];
-      // mood: italic+이모지 segment
-      let mood='';
-      const moodSeg=texts.find(s=>s?.annotations?.italic&&/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(s?.text?.content||''));
-      if(moodSeg){mood=(moodSeg.text.content||'').replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();}
-      // 본문: bold segment 또는 \n 이후 내용
-      let text='';
-      const boldSeg=texts.find(s=>s?.annotations?.bold);
-      if(boldSeg){text=(boldSeg.text.content||'').replace(/^\n/,'').trim();}
-      else{
-        // fallback: 전체 join 후 시간/무드 이후 내용
-        const full=texts.map(t=>t?.text?.content||'').join('');
-        const afterTime=full.replace(/^\d{2}:\d{2}/,'').replace(/\s*[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}][^\n]*/u,'').replace(/^\n/,'').trim();
-        text=afterTime;
+      const content=texts.map(t=>t?.text?.content||'').join('');
+      const lines=content.split('\n').map(l=>l.trim()).filter(l=>l);if(!lines.length){i++;continue;}
+      if(!/^\d{2}:\d{2}/.test(lines[0])){i++;continue;}
+      const timeStr=lines[0].match(/^(\d{2}:\d{2})/)[1];
+      let mood='',text='';
+      if(lines[1]&&/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(lines[1])){
+        mood=lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
+        text=lines.slice(2).join('\n');
+      }else{
+        text=lines.slice(1).join('\n');
       }
       let photoUrls=[],photoBlockId=null;
       if(i+1<allBlocks.length&&allBlocks[i+1].type==='column_list'){
@@ -1121,9 +1126,8 @@ function toggleManualBookEntry(){const entry=document.getElementById('book-manua
 function selectManualBookDirect(){const title=document.getElementById('book-manual-title-direct')?.value.trim();const authors=document.getElementById('book-manual-author-direct')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('book-search-results').style.display='flex';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
 function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
 function closeAddBookPopup(){document.getElementById('add-book-popup').classList.remove('open');}
-async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{const props={'이름':{title:[{text:{content:book.title}}]},'장르':{select:{name:genre||'기타'}}};
+async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{const props={'이름':{title:[{text:{content:book.title}}]},'장르':{select:{name:genre||'기타'}},'시작일':{date:{start:formatDate(new Date())}}};
   const children=[];
-  // 2열: 왼쪽 표지 이미지, 오른쪽 최종 감상평 callout
   const leftCol=book.cover
     ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
     :{object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:book.title},annotations:{bold:true}}]}}]}};
@@ -1132,6 +1136,25 @@ async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택
   children.push({object:'block',type:'divider',divider:{}});
   children.push({object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 독서 기록'}}]}});
   const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props,children})});const data=await res.json();book.notionId=data.id||null;saveBookToStorage();}catch(e){console.error(e);}showToast('추가됐어요!');}
+
+async function loadBookFromNotion(){
+  try{
+    const res=await fetch(WORKER_URL+'/notion/databases/'+BOOK_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'시작일',direction:'descending'}],page_size:50})});
+    const data=await res.json();
+    if(!data.results)return;
+    const localIds={};bookData.forEach(b=>{if(b.notionId)localIds[b.notionId]=true;});
+    data.results.forEach(page=>{
+      const id=page.id;if(localIds[id])return;
+      const props=page.properties;
+      const title=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!title)return;
+      const authors=props['저자']?.rich_text?.map(t=>t.plain_text).join('')||'';
+      const genre=props['장르']?.select?.name||'';
+      const cover=props['표지']?.url||'';
+      bookData.push({title,authors,genre,cover,reviews:[],notionId:id});
+    });
+    saveBookToStorage();renderBookList();
+  }catch(e){console.error('loadBookFromNotion failed',e);}
+}
 
 function confirmSubBook(bookIdx){
   closeSubPopup();
@@ -1291,6 +1314,7 @@ function init(){
   autoMoveTodos();renderAllQuads();renderCart();renderBrainList();renderBookList();
   loadTodayRecords();registerSW();
   loadTodoFromNotion();
+  loadBookFromNotion();
   setInterval(autoMoveTodos,60000);
 }
 window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.getItem('notion_token')){document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();}};
