@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>daily note</title>
+<title>ARCHIVE</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -143,13 +143,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* Drag zones */
 .drag-overlay { position: fixed; inset: 0; z-index: 300; display: none; flex-direction: column; justify-content: flex-end; pointer-events: none; }
 .drag-overlay.active { display: flex; pointer-events: all; }
-.drag-zones { display: flex; border-top: 2px solid var(--ink); background: var(--paper); height: 90px; }
-.drag-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-right: 1px solid var(--rule); transition: background 0.15s; padding: 0 4px; }
+.drag-zones { display: flex; border-top: 2px solid var(--ink); background: var(--paper); height: 88px; }
+.drag-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-right: 1px solid var(--rule); transition: background 0.15s; padding: 0 2px; }
 .drag-zone:last-child { border-right: none; }
 .drag-zone.hovered { background: var(--ink); }
 .drag-zone.hovered .dz-label { color: var(--paper); }
 .dz-icon { font-size: 18px; }
-.dz-label { font-family: 'Montserrat', sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-muted); text-align: center; }
+.dz-label { font-family: 'Montserrat', sans-serif; font-size: 7px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); text-align: center; }
 .drag-ghost { position: fixed; z-index: 400; pointer-events: none; background: var(--paper); border: 1.5px solid var(--ink); border-radius: 4px; padding: 8px 12px; font-family: 'Gothic A1', sans-serif; font-size: 12px; color: var(--ink); max-width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: none; }
 
 /* Book */
@@ -290,7 +290,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div class="loading-overlay hidden" id="loading"><div class="loading-text">SAVING...</div></div>
 
 <div id="setup-screen">
-  <div class="setup-title">daily<br>note</div>
+  <div class="setup-title">ARCHIVE</div>
   <div class="setup-sub">처음 한 번만 설정하면<br>다음부터는 자동으로 연결돼요.</div>
   <div class="setup-section">
     <div class="setup-label">Password</div>
@@ -323,7 +323,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content active" id="tab-record">
     <div class="section-header">
       <div class="section-title" id="current-date"></div>
-      <button class="settings-btn" onclick="logout()">LOGOUT</button>
     </div>
     <div class="emotion-section">
       <div class="emotion-optional-label">감정 — OPTIONAL</div>
@@ -352,10 +351,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content" id="tab-dump">
     <div class="brain-header">
       <div class="section-title">Brain<br>Dump</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-        <button class="settings-btn" onclick="logout()">LOGOUT</button>
-        <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
-      </div>
+      <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
     </div>
     <div class="brain-input-wrap">
       <textarea class="brain-textarea" id="brain-input" placeholder="지금 머릿속에 있는 거 다 꺼내봐요." oninput="autoResize(this)"></textarea>
@@ -367,10 +363,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <!-- TODO -->
   <div class="tab-content" id="tab-todo">
     <div style="padding:12px var(--pad-h) 0;border-bottom:2px solid var(--ink);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="section-title" id="todo-section-title">To-Do</div>
-        <button class="settings-btn" onclick="logout()">LOGOUT</button>
-      </div>
+      <div class="section-title" id="todo-section-title">To-Do</div>
       <div class="todo-toggle">
         <button class="toggle-btn active" id="toggle-todo" onclick="switchTodoCart('todo')">TO-DO</button>
         <button class="toggle-btn inactive" id="toggle-cart" onclick="switchTodoCart('cart')">CART</button>
@@ -421,10 +414,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <!-- BOOK -->
   <div class="tab-content" id="tab-book">
     <div class="section-header">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="section-title">Book</div>
-        <button class="settings-btn" onclick="logout()">LOGOUT</button>
-      </div>
+      <div class="section-title">Book</div>
       <button class="add-btn-sm" onclick="openAddBookPopup()">+ ADD</button>
     </div>
     <div class="book-list" id="book-list"><div class="empty-state">추가한 책이 없어요.</div></div>
@@ -433,21 +423,17 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <!-- BOOK DETAIL -->
   <div class="tab-content" id="tab-book-detail">
     <div class="section-header">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button class="back-btn" onclick="closeBookDetail()">← BACK</button>
-        <button class="settings-btn" onclick="logout()">LOGOUT</button>
-      </div>
-      <button class="add-btn-sm" onclick="openAddReviewPopup()">+ 독후감</button>
+      <button class="back-btn" onclick="closeBookDetail()">← BACK</button>
+      <button class="add-btn-sm" onclick="openAddReviewPopup()">+ 독서 기록</button>
     </div>
     <div class="book-detail-header" id="book-detail-header"></div>
-    <div class="review-list" id="review-list"><div class="empty-state">아직 독후감이 없어요.</div></div>
+    <div class="review-list" id="review-list"><div class="empty-state">아직 독서 기록이 없어요.</div></div>
   </div>
 
   <!-- INBOX -->
   <div class="tab-content" id="tab-inbox">
     <div class="section-header">
       <div class="section-title">Inbox</div>
-      <button class="settings-btn" onclick="logout()">LOGOUT</button>
     </div>
     <div class="inbox-list" id="inbox-list"><div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div></div>
   </div>
@@ -549,13 +535,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="popup-label">책 추가</div>
     <input class="popup-input" id="book-search-input" placeholder="책 제목을 검색하세요." oninput="debounceBookSearch(this.value)" onkeydown="if(event.key==='Enter')searchBooks()">
     <div class="book-search-results" id="book-search-results" style="display:none;"></div>
-    <div id="book-manual-entry" style="display:none;margin-bottom:12px;">
-      <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;">직접 입력</div>
-      <input id="book-manual-title-direct" placeholder="책 제목" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:8px;background:transparent;color:var(--ink);">
+    <div id="book-manual-entry" style="display:none;margin-bottom:10px;">
+      <input id="book-manual-title-direct" placeholder="책 제목" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:6px;background:transparent;color:var(--ink);">
       <input id="book-manual-author-direct" placeholder="저자" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:8px;background:transparent;color:var(--ink);">
       <button onclick="selectManualBookDirect()" style="width:100%;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:8px;background:var(--ink);color:var(--paper);border:none;cursor:pointer;border-radius:1px;">이 책으로 선택</button>
     </div>
-    <button id="book-manual-toggle" onclick="toggleManualBookEntry()" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:7px 14px;cursor:pointer;border-radius:1px;margin-bottom:12px;">✏️ 직접 입력하기</button>
+    <button id="book-manual-toggle" onclick="toggleManualBookEntry()" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 12px;cursor:pointer;border-radius:1px;margin-bottom:10px;">✏️ 직접 입력하기</button>
     <div class="popup-label" style="margin-bottom:4px;">장르</div>
     <input class="popup-input" id="book-genre-input" placeholder="장르 (자동입력 또는 직접 입력)">
     <div class="popup-btns"><button class="popup-cancel" onclick="closeAddBookPopup()">CANCEL</button><button class="popup-ok" onclick="confirmAddBook()">ADD</button></div>
@@ -567,21 +552,17 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="popup-sheet" style="max-height:90vh;overflow-y:auto;">
     <div class="popup-label">독서 기록</div>
     <div class="popup-due" id="review-date-label"></div>
-
-    <div class="popup-label" style="margin-bottom:4px;">마지막 페이지 <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'Gothic A1',sans-serif;font-size:10px;color:var(--rule);">optional</span></div>
-    <input class="popup-input" id="review-page-input" type="number" placeholder="e.g. 128" style="margin-bottom:16px;">
-
-    <div class="popup-label" style="margin-bottom:4px;">인상 깊은 구절 <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'Gothic A1',sans-serif;font-size:10px;color:var(--rule);">optional</span></div>
+    <div class="popup-label" style="margin-bottom:4px;">마지막 페이지 <span style="font-weight:400;font-size:9px;color:var(--rule);letter-spacing:0;text-transform:none;">optional</span></div>
+    <input class="popup-input" id="review-page-input" type="number" placeholder="e.g. 128" style="margin-bottom:14px;">
+    <div class="popup-label" style="margin-bottom:4px;">인상 깊은 구절 <span style="font-weight:400;font-size:9px;color:var(--rule);letter-spacing:0;text-transform:none;">optional</span></div>
     <textarea class="popup-input" id="review-quote-input" placeholder="인상 깊었던 구절을 적어봐요." rows="3" style="resize:none;line-height:1.7;min-height:64px;margin-bottom:6px;" oninput="autoResize(this)"></textarea>
-    <div style="margin-bottom:16px;">
-      <button class="attach-btn" onclick="document.getElementById('review-quote-photo').click()" style="font-size:10px;color:var(--ink-muted);">+ 사진 첨부</button>
-      <span id="review-quote-photo-name" style="font-family:'Gothic A1',sans-serif;font-size:10px;color:var(--ink-muted);margin-left:8px;"></span>
+    <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      <button class="attach-btn" onclick="document.getElementById('review-quote-photo').click()">+ 사진 첨부</button>
+      <span id="review-quote-photo-name" style="font-size:10px;color:var(--ink-muted);"></span>
       <input type="file" id="review-quote-photo" accept="image/*" style="display:none;" onchange="handleReviewPhoto(this)">
     </div>
-
-    <div class="popup-label" style="margin-bottom:4px;">나의 생각 <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'Gothic A1',sans-serif;font-size:10px;color:var(--rule);">optional</span></div>
-    <textarea class="popup-input" id="review-thought-input" placeholder="짧게라도 남겨봐요." rows="3" style="resize:none;line-height:1.7;min-height:64px;margin-bottom:16px;" oninput="autoResize(this)"></textarea>
-
+    <div class="popup-label" style="margin-bottom:4px;">나의 생각 <span style="font-weight:400;font-size:9px;color:var(--rule);letter-spacing:0;text-transform:none;">optional</span></div>
+    <textarea class="popup-input" id="review-thought-input" placeholder="짧게라도 남겨봐요." rows="3" style="resize:none;line-height:1.7;min-height:64px;margin-bottom:14px;" oninput="autoResize(this)"></textarea>
     <div class="popup-btns"><button class="popup-cancel" onclick="closeAddReviewPopup()">CANCEL</button><button class="popup-ok" onclick="confirmAddReview()">SAVE</button></div>
   </div>
 </div>
@@ -682,27 +663,25 @@ function notionHeaders(){return{'Content-Type':'application/json','X-Notion-Toke
 /* Notion page */
 let cachedPageId=null,cachedPageDate=null;
 async function getTodayPageId(){
-  const db=localStorage.getItem('notion_db');const d=getDiaryDate();
-  const dateStr=formatDate(d);
+  const db=localStorage.getItem('notion_db');const d=getDiaryDate();const dateStr=formatDate(d);
   if(cachedPageId&&cachedPageDate===dateStr)return cachedPageId;
-  // 날짜 속성으로 먼저 검색
+  // 날짜 속성으로 검색
   const sr=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}}})});
   const sd=await sr.json();
   if(sd.results&&sd.results.length>0){cachedPageId=sd.results[0].id;cachedPageDate=dateStr;return cachedPageId;}
-  // fallback: 제목으로 검색 (노션에서 직접 만든 페이지 대응)
-  const days=['일','월','화','수','목','금','토'];
-  const titleKo=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
-  const titleEn=`${dateStr} (${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]})`;
-  const sr2=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{or:[{property:'이름',title:{contains:dateStr}},{property:'이름',title:{contains:titleKo.slice(0,6)}}]}})});
+  // fallback: 제목에 날짜 포함 여부로 검색 (노션에서 직접 만든 페이지 대응)
+  const sr2=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'이름',title:{contains:dateStr}}})});
   const sd2=await sr2.json();
   if(sd2.results&&sd2.results.length>0){
-    // 날짜 속성 업데이트
     const pid=sd2.results[0].id;
-    await fetch(`${WORKER_URL}/notion/pages/${pid}`,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'날짜':{date:{start:dateStr}}}})});
+    // 날짜 속성 업데이트해서 다음번엔 바로 찾히게
+    await fetch(`${WORKER_URL}/notion/pages/${pid}`,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'날짜':{date:{start:dateStr}}}})}).catch(()=>{});
     cachedPageId=pid;cachedPageDate=dateStr;return cachedPageId;
   }
   // 없으면 새로 생성
-  const cr=await fetch(`${WORKER_URL}/notion/pages`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:titleKo}}]},'날짜':{date:{start:dateStr}}},children:[{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},{object:'block',type:'divider',divider:{}},{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}}]})});
+  const days=['일','월','화','수','목','금','토'];
+  const title=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+  const cr=await fetch(`${WORKER_URL}/notion/pages`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:title}}]},'날짜':{date:{start:dateStr}}},children:[{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}},{object:'block',type:'divider',divider:{}},{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}}]})});
   const cd=await cr.json();cachedPageId=cd.id;cachedPageDate=dateStr;return cachedPageId;
 }
 
@@ -822,9 +801,13 @@ async function loadTodayRecords(){
     const pageId=await getTodayPageId();if(!pageId)return;
     const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
     let allBlocks=[],cursor;
-    do{const url=WORKER_URL+'/notion/blocks/'+pageId+'/children'+(cursor?'?start_cursor='+cursor:'');const res=await fetch(url,{headers:notionHeaders()});const data=await res.json();allBlocks=allBlocks.concat(data.results||[]);cursor=data.has_more?data.next_cursor:undefined;}while(cursor);
-    const list=document.getElementById('record-list');
-    // 로드된 블록은 시간순(오래된→최신)으로 append — saveRecord가 추가한 것은 스킵
+    do{
+      const url=WORKER_URL+'/notion/blocks/'+pageId+'/children'+(cursor?'?start_cursor='+cursor:'');
+      const res=await fetch(url,{headers:notionHeaders()});
+      const data=await res.json();
+      allBlocks=allBlocks.concat(data.results||[]);
+      cursor=data.has_more?data.next_cursor:undefined;
+    }while(cursor);
     let i=0;
     while(i<allBlocks.length){
       const block=allBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'){i++;continue;}
@@ -833,11 +816,11 @@ async function loadTodayRecords(){
       const lines=content.split('\n').map(l=>l.trim()).filter(l=>l);if(!lines.length){i++;continue;}
       if(!/^\d{2}:\d{2}/.test(lines[0])){i++;continue;}
       const timeStr=lines[0].match(/^(\d{2}:\d{2})/)[1];
-      // 감정: lines[0]에서 시간 이후 이모지+텍스트 또는 lines[1]
+      // 감정: lines[0] 시간 이후에 있거나 lines[1]에 이모지로 시작
       let mood='',textStart=1;
-      const moodInFirst=lines[0].replace(/^\d{2}:\d{2}\s*/,'').trim();
-      if(moodInFirst){
-        mood=moodInFirst.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
+      const afterTime=lines[0].replace(/^\d{2}:\d{2}\s*/,'').trim();
+      if(afterTime){
+        mood=afterTime.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
         textStart=1;
       } else if(lines[1]&&/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(lines[1])){
         mood=lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
@@ -862,13 +845,9 @@ async function loadTodayRecords(){
         }catch(e){console.error('photo fetch failed',e);}
         i++;
       }
-      if(document.querySelector(`[data-block-id="${block.id}"]`)){i++;continue;}
-      const empty=list.querySelector('.empty-state');if(empty)empty.remove();
-      const item=document.createElement('div');item.className='record-item';item.dataset.blockId=block.id;
-      const thumbHtml=photoUrls&&photoUrls.length?'<div class="record-photos">'+photoUrls.slice(0,3).map(u=>'<img class="record-photo" src="'+u+'">').join('')+'</div>':'';
-      item.innerHTML=`<div class="record-time">${timeStr}</div><div>${mood?'<span class="record-tag">'+mood+'</span>':''}<div class="record-text">${text}</div>${thumbHtml}</div>`;
-      item.addEventListener('click',()=>openRecordPopup(timeStr,mood,text,photoUrls||[],notionUrl,block.id,photoBlockId||null,item));
-      list.insertBefore(item,list.firstChild);
+      if(!document.querySelector(`[data-block-id="${block.id}"]`)){
+        addRecordToUI(timeStr,mood,text,photoUrls,notionUrl,block.id,photoBlockId);
+      }
       i++;
     }
   }catch(e){console.error('load records failed',e);}
@@ -907,8 +886,7 @@ function confirmTodo(){
 }
 function toggleTodo(q,idx,e){
   e.stopPropagation();
-  const item=todoData[q][idx];
-  item.done=!item.done;
+  const item=todoData[q][idx];item.done=!item.done;
   item.doneAt=item.done?new Date().toISOString():null;
   if(item.notionId){
     const props={'완료':{checkbox:item.done}};
@@ -919,80 +897,58 @@ function toggleTodo(q,idx,e){
   autoMoveTodos();renderAllQuads();saveTodoToStorage();
 }
 function autoMoveTodos(){const now=new Date();['month','week'].forEach(q=>{const keep=[];todoData[q].forEach(item=>{if(item.done||!item.dueDate){keep.push(item);return;}const days=(item.dueDate-now)/86400000;if(q==='month'&&days<=7){item.movedFrom='month';todoData.week.push(item);}else if(q==='week'&&days<=0){item.movedFrom='week';todoData.today.push(item);}else keep.push(item);});todoData[q]=keep;});}
-function renderQuad(q){const c=document.getElementById('items-'+q);const now=new Date();const visible=todoData[q].filter(item=>{if(!item.done)return true;if(!item.doneAt)return false;return(now-new Date(item.doneAt))/86400000<=2;});if(!visible.length){c.innerHTML='';return;}c.innerHTML=visible.map((item,i)=>{const realIdx=todoData[q].indexOf(item);const od=item.dueDate&&!item.done&&new Date(item.dueDate)<now;const sc=item.subs?item.subs.filter(s=>!s.done).length:0;return `<div class="quad-item" onclick="openTodoDetail('${q}',${realIdx})"><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${realIdx},event)"></div><div class="quad-text${item.done?' done':''}">${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}${sc>0?'<span class="quad-sub-count"> +'+sc+'</span>':''}</div></div>`;}).join('');}
+function renderQuad(q){
+  const c=document.getElementById('items-'+q);const now=new Date();
+  const visible=todoData[q].filter(item=>{
+    if(!item.done)return true;
+    if(!item.doneAt)return false;
+    return(now-new Date(item.doneAt))/86400000<=2;
+  });
+  if(!visible.length){c.innerHTML='';return;}
+  c.innerHTML=visible.map(item=>{
+    const i=todoData[q].indexOf(item);
+    const od=item.dueDate&&!item.done&&new Date(item.dueDate)<now;
+    const sc=item.subs?item.subs.filter(s=>!s.done).length:0;
+    return `<div class="quad-item" onclick="openTodoDetail('${q}',${i})"><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}${sc>0?'<span class="quad-sub-count"> +'+sc+'</span>':''}</div></div>`;
+  }).join('');
+}
 function renderAllQuads(){['today','week','month','someday'].forEach(renderQuad);}
 function saveTodoToStorage(){localStorage.setItem('todo_data',JSON.stringify(todoData));}
 function loadTodoFromStorage(){try{const d=localStorage.getItem('todo_data');if(d){const p=JSON.parse(d);Object.keys(p).forEach(q=>{if(todoData[q])todoData[q]=p[q].map(i=>({...i,dueDate:i.dueDate?new Date(i.dueDate):null,subs:i.subs||[]}));});}}catch(e){}}
 async function saveTodoToNotion(quad,text,dueDate){
   try{
     const cfg=QUAD_CFG[quad];
-    const props={
-      '이름':{title:[{text:{content:text}}]},
-      '사분면':{select:{name:cfg.label}},
-      '추가일':{date:{start:formatDate(new Date())}},
-      '완료':{checkbox:false}
-    };
-    if(dueDate&&!isNaN(new Date(dueDate))){
-      props['마감일']={date:{start:formatDate(new Date(dueDate))}};
-    }
+    const props={'이름':{title:[{text:{content:text}}]},'사분면':{select:{name:cfg.label}},'추가일':{date:{start:formatDate(new Date())}},'완료':{checkbox:false}};
+    if(dueDate&&!isNaN(new Date(dueDate)))props['마감일']={date:{start:formatDate(new Date(dueDate))}};
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
-    const data=await res.json();
-    if(!res.ok){console.error('todo save failed',res.status,data);return null;}
-    return data.id||null;
-  }catch(e){console.error('todo save error',e);return null;}
+    const data=await res.json();return data.id||null;
+  }catch(e){console.error(e);return null;}
 }
-async function saveSubTodoToNotion(text,parentId){try{const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};if(parentId)props['상위항목']={relation:[{id:parentId}]};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});const data=await res.json();if(!res.ok){console.error('subtodo save failed',res.status,data);return null;}return data.id||null;}catch(e){console.error('subtodo save error',e);return null;}}
+async function saveSubTodoToNotion(text,parentId){try{const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};if(parentId)props['상위항목']={relation:[{id:parentId}]};const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});const data=await res.json();return data.id||null;}catch(e){return null;}}
+async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'완료':{checkbox:done}}})});}catch(e){}}
 async function loadTodoFromNotion(){
   try{
-    const now=new Date();
-    const twoDaysAgo=new Date(now);twoDaysAgo.setDate(twoDaysAgo.getDate()-2);
-    // 미완료 전체 + 완료일 2일 이내
-    const res=await fetch(WORKER_URL+'/notion/databases/'+TODO_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({
-      filter:{or:[
-        {property:'완료',checkbox:{equals:false}},
-        {and:[{property:'완료',checkbox:{equals:true}},{property:'완료일',date:{on_or_after:formatDate(twoDaysAgo)}}]}
-      ]},
-      sorts:[{property:'추가일',direction:'ascending'}],
-      page_size:100
-    })});
-    const data=await res.json();
-    if(!data.results)return;
-    // 기존 로컬 데이터 notionId 인덱스
-    const localIds={};
-    ['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId)localIds[item.notionId]=true;}));
+    const now=new Date();const twoDaysAgo=new Date(now);twoDaysAgo.setDate(twoDaysAgo.getDate()-2);
+    const res=await fetch(WORKER_URL+'/notion/databases/'+TODO_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{or:[{property:'완료',checkbox:{equals:false}},{and:[{property:'완료',checkbox:{equals:true}},{property:'완료일',date:{on_or_after:formatDate(twoDaysAgo)}}]}]},sorts:[{property:'추가일',direction:'ascending'}],page_size:100})});
+    const data=await res.json();if(!data.results)return;
+    const localIds={};['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId)localIds[item.notionId]=true;}));
     data.results.forEach(page=>{
+      const id=page.id;if(localIds[id])return;
       const props=page.properties;
-      const id=page.id;
-      if(localIds[id])return; // 이미 있으면 스킵
-      const text=props['이름']?.title?.map(t=>t.plain_text).join('')||'';
-      if(!text)return;
+      const text=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!text)return;
       const quadLabel=props['사분면']?.select?.name||'Someday';
-      const quadMap={'Today':'today','This Week':'week','This Month':'month','Someday':'someday'};
-      const q=quadMap[quadLabel]||'someday';
-      const dueDateStr=props['마감일']?.date?.start||null;
-      const addedAtStr=props['추가일']?.date?.start||null;
+      const q={'Today':'today','This Week':'week','This Month':'month','Someday':'someday'}[quadLabel]||'someday';
+      const dueDate=props['마감일']?.date?.start?new Date(props['마감일'].date.start+'T23:59:59'):null;
       const done=props['완료']?.checkbox||false;
-      const doneAtStr=props['완료일']?.date?.start||null;
-      const item={
-        text,
-        dueDate:dueDateStr?new Date(dueDateStr+'T23:59:59'):null,
-        done,
-        doneAt:doneAtStr?new Date(doneAtStr).toISOString():null,
-        addedAt:addedAtStr?new Date(addedAtStr):new Date(),
-        notionId:id,
-        subs:[]
-      };
-      todoData[q].push(item);
+      const doneAt=props['완료일']?.date?.start?new Date(props['완료일'].date.start).toISOString():null;
+      todoData[q].push({text,dueDate,done,doneAt,addedAt:new Date(),notionId:id,subs:[]});
     });
-    saveTodoToStorage();
-    autoMoveTodos();
-    renderAllQuads();
+    saveTodoToStorage();autoMoveTodos();renderAllQuads();
   }catch(e){console.error('loadTodoFromNotion failed',e);}
 }
 
-async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'완료':{checkbox:done}}})});}catch(e){}}
-
 /* Todo Detail */
+let currentDetailQuad='',currentDetailIdx=-1;
 function openTodoDetail(q,idx){
   currentDetailQuad=q;currentDetailIdx=idx;
   const item=todoData[q][idx];const cfg=QUAD_CFG[q];
@@ -1065,7 +1021,7 @@ async function saveCartToNotion(section,text,memo){try{const props={'이름':{ti
 let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElementById('drag-overlay');
 function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToNotion(text);}
-async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok){console.error('brain save failed',r.status,d);showToast('덤프 저장 실패('+r.status+')');}else{console.log('brain saved',d.id);}}catch(e){console.error('brain save error',e);showToast('덤프 저장 오류');}}
+async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',r.status,d);}catch(e){console.error('brain save error',e);}}
 function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">꾹 눌러서 드래그</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">삭제</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
 function startHold(e,idx,item){holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
 document.addEventListener('touchmove',e=>{if(!isDragging)return;const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:true});
@@ -1126,42 +1082,36 @@ function selectManualBook(){
     `<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;
   showToast('직접 입력 선택됨');
 }
-function toggleManualBookEntry(){const entry=document.getElementById('book-manual-entry');const btn=document.getElementById('book-manual-toggle');const isShown=entry.style.display!=='none';entry.style.display=isShown?'none':'block';btn.textContent=isShown?'✏️ 직접 입력하기':'✕ 직접 입력 닫기';}
+function toggleManualBookEntry(){const e=document.getElementById('book-manual-entry');const b=document.getElementById('book-manual-toggle');const shown=e.style.display!=='none';e.style.display=shown?'none':'block';b.textContent=shown?'✏️ 직접 입력하기':'✕ 직접 입력 닫기';}
 function selectManualBookDirect(){const title=document.getElementById('book-manual-title-direct')?.value.trim();const authors=document.getElementById('book-manual-author-direct')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('book-search-results').style.display='flex';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
 function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
 function closeAddBookPopup(){document.getElementById('add-book-popup').classList.remove('open');}
-async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{
-  const props={
-    '이름':{title:[{text:{content:book.title}}]},
-    '장르':{rich_text:[{text:{content:genre||''}}]},
-    '시작일':{date:{start:formatDate(new Date())}}
-  };
-  if(book.authors)props['저자']={rich_text:[{text:{content:book.authors}}]};
-  const children=[];
-  const leftCol=book.cover
-    ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
-    :{object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:book.title},annotations:{bold:true}}]}}]}};
-  const rightCol={object:'block',type:'column',column:{children:[{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'💬 최종 감상평'},annotations:{bold:true}}],icon:{emoji:'⭐'},color:'gray_background'}}]}};
-  children.push({object:'block',type:'column_list',column_list:{children:[leftCol,rightCol]}});
-  children.push({object:'block',type:'divider',divider:{}});
-  children.push({object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 독서 기록'}}]}});
-  const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props,children})});
-  const data=await res.json();book.notionId=data.id||null;saveBookToStorage();}catch(e){console.error(e);}showToast('추가됐어요!');}
-  const children=[];
-  const leftCol=book.cover
-    ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
-    :{object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:book.title},annotations:{bold:true}}]}}]}};
-  const rightCol={object:'block',type:'column',column:{children:[{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'💬 최종 감상평'},annotations:{bold:true}}],icon:{emoji:'⭐'},color:'gray_background'}}]}};
-  children.push({object:'block',type:'column_list',column_list:{children:[leftCol,rightCol]}});
-  children.push({object:'block',type:'divider',divider:{}});
-  children.push({object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 독서 기록'}}]}});
-  const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props,children})});const data=await res.json();book.notionId=data.id||null;saveBookToStorage();}catch(e){console.error(e);}showToast('추가됐어요!');}
-
+async function confirmAddBook(){
+  if(!selectedSearchBook){showToast('책을 선택해주세요');return;}
+  const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';
+  const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};
+  bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();
+  try{
+    const props={'이름':{title:[{text:{content:book.title}}]},'장르':{rich_text:[{text:{content:genre||''}}]},'시작일':{date:{start:formatDate(new Date())}}};
+    if(book.authors)props['저자']={rich_text:[{text:{content:book.authors}}]};
+    const leftCol=book.cover
+      ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
+      :{object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:book.title},annotations:{bold:true}}]}}]}};
+    const rightCol={object:'block',type:'column',column:{children:[{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'💬 최종 감상평'},annotations:{bold:true}}],icon:{emoji:'⭐'},color:'gray_background'}}]}};
+    const children=[
+      {object:'block',type:'column_list',column_list:{children:[leftCol,rightCol]}},
+      {object:'block',type:'divider',divider:{}},
+      {object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 독서 기록'}}]}}
+    ];
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props,children})});
+    const data=await res.json();book.notionId=data.id||null;saveBookToStorage();
+  }catch(e){console.error(e);}
+  showToast('추가됐어요!');
+}
 async function loadBookFromNotion(){
   try{
     const res=await fetch(WORKER_URL+'/notion/databases/'+BOOK_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'시작일',direction:'descending'}],page_size:50})});
-    const data=await res.json();
-    if(!data.results)return;
+    const data=await res.json();if(!data.results)return;
     const localIds={};bookData.forEach(b=>{if(b.notionId)localIds[b.notionId]=true;});
     data.results.forEach(page=>{
       const id=page.id;if(localIds[id])return;
@@ -1197,33 +1147,24 @@ function confirmSubBook(bookIdx){
   }
   markBrainDone(subDragIdx,'book');showToast('독후감으로 저장됐어요!');
 }
-function confirmSubIdea(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;
-  // 분류 선택 팝업
+function confirmSubIdea(){
+  closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;
   const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';
-  const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:10px 10px 0 0;padding:22px 22px 40px;';
+  const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;';
   sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div>
   <div style="font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;">${text}</div>
   <div style="display:flex;flex-direction:column;gap:6px;">
-    ${['work','life','anything'].map(c=>`<button onclick="this.closest('[data-idea-overlay]').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;">${c}</button>`).join('')}
+    ${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}
   </div>
-  <div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.body.removeChild(this.closest('[data-idea-overlay]').parentElement||this.closest('[style*=fixed]'))" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:10px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;
-  overlay.setAttribute('data-idea-overlay','1');
+  <div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.getElementById('idea-overlay').remove()" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;
+  overlay.id='idea-overlay';
   overlay.appendChild(sheet);
   overlay.addEventListener('pick',async(e)=>{
-    const cat=e.detail;
-    document.body.removeChild(overlay);
-    try{
-      await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),
-        body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{
-          '이름':{title:[{text:{content:text}}]},
-          '생성일시':{date:{start:new Date().toISOString()}},
-          '분류':{select:{name:cat}}
-        }})
-      });
-    }catch(e){console.error(e);}
+    const cat=e.detail;document.getElementById('idea-overlay').remove();
+    try{await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'생성일시':{date:{start:new Date().toISOString()}},'분류':{select:{name:cat}}}})});}catch(e){console.error(e);}
     markBrainDone(idx,'idea');showToast('아이디어로 저장됐어요!');
   });
-  overlay.addEventListener('click',e=>{if(e.target===overlay)document.body.removeChild(overlay);});
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
   document.body.appendChild(overlay);
 }
 function confirmSubBookNew(){
@@ -1244,26 +1185,10 @@ function renderBookList(){const list=document.getElementById('book-list');if(!bo
 function openBookDetail(idx){currentBookIdx=idx;const book=bookData[idx];document.getElementById('book-detail-header').innerHTML=`${book.cover?`<img class="book-detail-cover" src="${book.cover}">`:'<div class="book-detail-cover"></div>'}<div class="book-detail-info"><div class="book-detail-title">${book.title}</div><div class="book-detail-author">${book.authors||''} · ${book.genre||''}</div></div>`;renderReviews();document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book-detail').classList.add('active');}
 function closeBookDetail(){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book').classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-btn[onclick*="book"]').classList.add('active');}
 function renderReviews(){const list=document.getElementById('review-list');const book=bookData[currentBookIdx];if(!book.reviews.length){list.innerHTML='<div class="empty-state">아직 독서 기록이 없어요.</div>';return;}list.innerHTML=book.reviews.map(r=>{const parts=[];if(r.page)parts.push(`<div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">p.${r.page}</div>`);if(r.quote)parts.push(`<div style="font-size:11px;font-weight:300;color:var(--ink-soft);line-height:1.6;border-left:2px solid var(--rule);padding-left:8px;margin-bottom:6px;">${r.quote}</div>`);if(r.thought)parts.push(`<div class="review-text">${r.thought}</div>`);if(r.text)parts.push(`<div class="review-text">${r.text}</div>`);return `<div class="review-item"><div class="review-date">${r.date}</div>${parts.join('')}</div>`;}).join('');}
-let reviewPhotoFile=null;
-function handleReviewPhoto(input){
-  const file=input.files[0];if(!file)return;
-  reviewPhotoFile=file;
-  document.getElementById('review-quote-photo-name').textContent=file.name;
-}
-function openAddReviewPopup(){
-  const now=new Date();const days=['일','월','화','수','목','금','토'];
-  const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
-  document.getElementById('review-date-label').textContent=dateLabel;
-  document.getElementById('review-page-input').value='';
-  document.getElementById('review-quote-input').value='';
-  document.getElementById('review-thought-input').value='';
-  document.getElementById('review-quote-photo-name').textContent='';
-  document.getElementById('review-quote-photo').value='';
-  reviewPhotoFile=null;
-  document.getElementById('add-review-popup').classList.add('open');
-  setTimeout(()=>document.getElementById('review-page-input').focus(),300);
-}
+function openAddReviewPopup(){const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;document.getElementById('review-date-label').textContent=dateLabel;document.getElementById('review-page-input').value='';document.getElementById('review-quote-input').value='';document.getElementById('review-thought-input').value='';document.getElementById('review-quote-photo-name').textContent='';reviewPhotoFile=null;document.getElementById('add-review-popup').classList.add('open');setTimeout(()=>document.getElementById('review-page-input').focus(),300);}
 function closeAddReviewPopup(){document.getElementById('add-review-popup').classList.remove('open');}
+let reviewPhotoFile=null;
+function handleReviewPhoto(input){const file=input.files[0];if(!file)return;reviewPhotoFile=file;document.getElementById('review-quote-photo-name').textContent=file.name;}
 async function confirmAddReview(){
   const page=document.getElementById('review-page-input').value.trim();
   const quote=document.getElementById('review-quote-input').value.trim();
@@ -1273,41 +1198,23 @@ async function confirmAddReview(){
   const now=new Date();const days=['일','월','화','수','목','금','토'];
   const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
   const review={date:dateLabel,page,quote,thought};
-  book.reviews.unshift(review);
-  closeAddReviewPopup();renderReviews();renderBookList();saveBookToStorage();
+  book.reviews.unshift(review);closeAddReviewPopup();renderReviews();renderBookList();saveBookToStorage();
   if(book.notionId){
     try{
       const children=[];
-      // 날짜: 회색 기울임
       children.push({object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:dateLabel},annotations:{italic:true,color:'gray'}}]}});
-      // 마지막 페이지
-      if(page){
-        children.push({object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:'p.'+page}}]}});
-      }
-      // 인상 깊은 구절 callout
+      if(page)children.push({object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:'p.'+page}}]}});
       if(quote||reviewPhotoFile){
-        const quoteRich=[{type:'text',text:{content:'💬 인상 깊은 구절'},annotations:{bold:true}}];
-        if(quote)quoteRich.push({type:'text',text:{content:'\n'+quote}});
-        children.push({object:'block',type:'callout',callout:{rich_text:quoteRich,icon:{emoji:'💬'},color:'gray_background'}});
-        // 사진은 callout 뒤에 이미지 블록으로
-        if(reviewPhotoFile){
-          const photoUrl=await uploadToCloudinary(reviewPhotoFile);
-          if(photoUrl)children.push({object:'block',type:'image',image:{type:'external',external:{url:photoUrl}}});
-        }
+        const qRich=[{type:'text',text:{content:'💬 인상 깊은 구절'},annotations:{bold:true}}];
+        if(quote)qRich.push({type:'text',text:{content:'\n'+quote}});
+        children.push({object:'block',type:'callout',callout:{rich_text:qRich,icon:{emoji:'💬'},color:'gray_background'}});
+        if(reviewPhotoFile){const photoUrl=await uploadToCloudinary(reviewPhotoFile);if(photoUrl)children.push({object:'block',type:'image',image:{type:'external',external:{url:photoUrl}}});}
       }
-      // 나의 생각 callout
-      if(thought){
-        children.push({object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'💭 나의 생각'},annotations:{bold:true}},{type:'text',text:{content:'\n'+thought}}],icon:{emoji:'💭'},color:'gray_background'}});
-      }
-      // 공백 + divider
+      if(thought)children.push({object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'💭 나의 생각'},annotations:{bold:true}},{type:'text',text:{content:'\n'+thought}}],icon:{emoji:'💭'},color:'gray_background'}});
       children.push({object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}});
       children.push({object:'block',type:'divider',divider:{}});
-      // 읽은 페이지 속성 업데이트
-      const patches=[];
-      patches.push(fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})}));
-      if(page){
-        patches.push(fetch(WORKER_URL+'/notion/pages/'+book.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'읽은 페이지':{number:parseInt(page)}}})}));
-      }
+      const patches=[fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})})];
+      if(page)patches.push(fetch(WORKER_URL+'/notion/pages/'+book.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'읽은 페이지':{number:parseInt(page)}}})}));
       await Promise.all(patches);
     }catch(e){console.error(e);}
   }
@@ -1317,9 +1224,7 @@ function saveBookToStorage(){localStorage.setItem('book_data',JSON.stringify(boo
 function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(d)bookData=JSON.parse(d);}catch(e){}}
 
 /* Inbox */
-async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});
-  // 최신 메시지(맨 아래)로 자동 스크롤
-  requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight;});}catch(e){list.innerHTML='<div class="inbox-empty">불러오기 실패</div>';}}
+async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight;});}catch(e){list.innerHTML='<div class="inbox-empty">불러오기 실패</div>';}}
 function getTextProp(props,key){const p=props[key];if(!p)return'';if(p.rich_text)return p.rich_text.map(t=>t.plain_text).join('');if(p.select)return p.select.name;return'';}
 
 /* PWA */
