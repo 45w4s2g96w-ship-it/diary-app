@@ -1092,7 +1092,7 @@ async function confirmAddBook(){
   const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};
   bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();
   try{
-    const props={'이름':{title:[{text:{content:book.title}}]},'장르':{rich_text:[{text:{content:genre||''}}]},'시작일':{date:{start:formatDate(new Date())}}};
+    const props={'제목':{title:[{text:{content:book.title}}]},'장르':{rich_text:[{text:{content:genre||''}}]},'시작일':{date:{start:formatDate(new Date())}}};
     if(book.authors)props['저자']={rich_text:[{text:{content:book.authors}}]};
     const leftCol=book.cover
       ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
@@ -1116,7 +1116,7 @@ async function loadBookFromNotion(){
     data.results.forEach(page=>{
       const id=page.id;if(localIds[id])return;
       const props=page.properties;
-      const title=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!title)return;
+      const title=props['제목']?.title?.map(t=>t.plain_text).join('')||'';if(!title)return;
       const authors=props['저자']?.rich_text?.map(t=>t.plain_text).join('')||'';
       const genre=props['장르']?.rich_text?.map(t=>t.plain_text).join('')||'';
       bookData.push({title,authors,genre,cover:'',reviews:[],notionId:id});
