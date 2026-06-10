@@ -833,13 +833,17 @@ async function loadTodayRecords(){
       const lines=content.split('\n').map(l=>l.trim()).filter(l=>l);if(!lines.length){i++;continue;}
       if(!/^\d{2}:\d{2}/.test(lines[0])){i++;continue;}
       const timeStr=lines[0].match(/^(\d{2}:\d{2})/)[1];
-      let mood='',text='';
-      if(lines[1]&&/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(lines[1])){
+      // 감정: lines[0]에서 시간 이후 이모지+텍스트 또는 lines[1]
+      let mood='',textStart=1;
+      const moodInFirst=lines[0].replace(/^\d{2}:\d{2}\s*/,'').trim();
+      if(moodInFirst){
+        mood=moodInFirst.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
+        textStart=1;
+      } else if(lines[1]&&/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(lines[1])){
         mood=lines[1].replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\s]+/u,'').trim();
-        text=lines.slice(2).join('\n');
-      }else{
-        text=lines.slice(1).join('\n');
+        textStart=2;
       }
+      const text=lines.slice(textStart).join('\n');
       let photoUrls=[],photoBlockId=null;
       if(i+1<allBlocks.length&&allBlocks[i+1].type==='column_list'){
         photoBlockId=allBlocks[i+1].id;
@@ -1126,7 +1130,23 @@ function toggleManualBookEntry(){const entry=document.getElementById('book-manua
 function selectManualBookDirect(){const title=document.getElementById('book-manual-title-direct')?.value.trim();const authors=document.getElementById('book-manual-author-direct')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('book-search-results').style.display='flex';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
 function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
 function closeAddBookPopup(){document.getElementById('add-book-popup').classList.remove('open');}
-async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{const props={'이름':{title:[{text:{content:book.title}}]},'장르':{select:{name:genre||'기타'}},'시작일':{date:{start:formatDate(new Date())}}};
+async function confirmAddBook(){if(!selectedSearchBook){showToast('책을 선택해주세요');return;}const genre=document.getElementById('book-genre-input').value.trim()||selectedSearchBook.genre||'';const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();try{
+  const props={
+    '이름':{title:[{text:{content:book.title}}]},
+    '장르':{rich_text:[{text:{content:genre||''}}]},
+    '시작일':{date:{start:formatDate(new Date())}}
+  };
+  if(book.authors)props['저자']={rich_text:[{text:{content:book.authors}}]};
+  const children=[];
+  const leftCol=book.cover
+    ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
+    :{object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:book.title},annotations:{bold:true}}]}}]}};
+  const rightCol={object:'block',type:'column',column:{children:[{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'💬 최종 감상평'},annotations:{bold:true}}],icon:{emoji:'⭐'},color:'gray_background'}}]}};
+  children.push({object:'block',type:'column_list',column_list:{children:[leftCol,rightCol]}});
+  children.push({object:'block',type:'divider',divider:{}});
+  children.push({object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 독서 기록'}}]}});
+  const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props,children})});
+  const data=await res.json();book.notionId=data.id||null;saveBookToStorage();}catch(e){console.error(e);}showToast('추가됐어요!');}
   const children=[];
   const leftCol=book.cover
     ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
@@ -1148,9 +1168,8 @@ async function loadBookFromNotion(){
       const props=page.properties;
       const title=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!title)return;
       const authors=props['저자']?.rich_text?.map(t=>t.plain_text).join('')||'';
-      const genre=props['장르']?.select?.name||'';
-      const cover=props['표지']?.url||'';
-      bookData.push({title,authors,genre,cover,reviews:[],notionId:id});
+      const genre=props['장르']?.rich_text?.map(t=>t.plain_text).join('')||'';
+      bookData.push({title,authors,genre,cover:'',reviews:[],notionId:id});
     });
     saveBookToStorage();renderBookList();
   }catch(e){console.error('loadBookFromNotion failed',e);}
