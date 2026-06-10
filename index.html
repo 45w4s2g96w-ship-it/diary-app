@@ -292,7 +292,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 <div id="setup-screen">
   <div class="setup-title">ARCHIVE</div>
-  <div class="setup-sub">처음 한 번만 설정하면<br>다음부터는 자동으로 연결돼요.</div>
+  <div class="setup-sub">Set up once,<br>auto-connects every time.</div>
   <div class="setup-section">
     <div class="setup-label">Password</div>
     <input class="setup-input" id="app-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')saveSettings()">
@@ -345,7 +345,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
     </div>
-    <div class="record-list" id="record-list"><div class="empty-state">오늘 첫 로그를 남겨보세요.</div></div>
+    <div class="record-list" id="record-list"><div class="empty-state">Write your first log today.</div></div>
   </div>
 
   <!-- DUMP -->
@@ -355,10 +355,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
     </div>
     <div class="brain-input-wrap">
-      <textarea class="brain-textarea" id="brain-input" placeholder="지금 머릿속에 있는 거 다 꺼내봐요." oninput="autoResize(this)"></textarea>
+      <textarea class="brain-textarea" id="brain-input" placeholder="Dump everything on your mind." oninput="autoResize(this)"></textarea>
       <button class="brain-add-btn" onclick="addBrainItem()">ADD</button>
     </div>
-    <div class="brain-list" id="brain-list"><div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div></div>
+    <div class="brain-list" id="brain-list"><div class="empty-state">Hold & drag to sort.</div></div>
   </div>
 
   <!-- TODO -->
@@ -393,19 +393,19 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div id="cart-pane" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
       <div class="quad-grid">
         <div class="quad-cell" onclick="openCartPopup('need-buy')">
-          <div class="quad-label">필요하고<br>사야함</div>
+          <div class="quad-label">Need &<br>Buy</div>
           <div class="quad-items" id="items-need-buy"></div><div class="quad-add">+ Add</div>
         </div>
         <div class="quad-cell" onclick="openCartPopup('need-want')">
-          <div class="quad-label">필요하고<br>사고싶음</div>
+          <div class="quad-label">Need &<br>Want</div>
           <div class="quad-items" id="items-need-want"></div><div class="quad-add">+ Add</div>
         </div>
         <div class="quad-cell" onclick="openCartPopup('need-later')">
-          <div class="quad-label">필요한데<br>나중에</div>
+          <div class="quad-label">Need<br>Later</div>
           <div class="quad-items" id="items-need-later"></div><div class="quad-add">+ Add</div>
         </div>
         <div class="quad-cell" onclick="openCartPopup('want')">
-          <div class="quad-label">그냥<br>사고싶음</div>
+          <div class="quad-label">Just<br>Want</div>
           <div class="quad-items" id="items-want"></div><div class="quad-add">+ Add</div>
         </div>
       </div>
@@ -418,7 +418,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="section-title">Book</div>
       <button class="add-btn-sm" onclick="openAddBookPopup()">+ ADD</button>
     </div>
-    <div class="book-list" id="book-list"><div class="empty-state">추가한 책이 없어요.</div></div>
+    <div class="book-list" id="book-list"><div class="empty-state">No books added yet.</div></div>
   </div>
 
   <!-- BOOK DETAIL -->
@@ -428,7 +428,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <button class="add-btn-sm" onclick="openAddReviewPopup()">+ 독서 기록</button>
     </div>
     <div class="book-detail-header" id="book-detail-header"></div>
-    <div class="review-list" id="review-list"><div class="empty-state">아직 독서 기록이 없어요.</div></div>
+    <div class="review-list" id="review-list"><div class="empty-state">No reading notes yet.</div></div>
   </div>
 
   <!-- INBOX -->
@@ -436,7 +436,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="section-header">
       <div class="section-title">Inbox</div>
     </div>
-    <div class="inbox-list" id="inbox-list"><div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div></div>
+    <div class="inbox-list" id="inbox-list"><div class="inbox-empty">Messages will appear<br>as your diary is analyzed.</div></div>
   </div>
 </div>
 
@@ -502,36 +502,30 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <div class="td-due" id="td-due"></div>
       </div>
       <div id="td-edit-mode" style="display:none;">
-        <input id="td-edit-text" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:15px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);outline:none;padding:6px 0;margin-bottom:10px;">
-        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:6px;">사분면</div>
+        <input id="td-edit-text" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:15px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);outline:none;padding:6px 0;margin-bottom:14px;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:6px;">QUADRANT</div>
         <div style="display:flex;gap:6px;margin-bottom:14px;">
-          <button onclick="setTodoEditQuad('today')" id="tq-today" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">Today</button>
-          <button onclick="setTodoEditQuad('week')" id="tq-week" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">Week</button>
-          <button onclick="setTodoEditQuad('month')" id="tq-month" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">Month</button>
-          <button onclick="setTodoEditQuad('someday')" id="tq-someday" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">Someday</button>
+          <button onclick="setTodoEditQuad('today')" id="tq-today" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">TODAY</button>
+          <button onclick="setTodoEditQuad('week')" id="tq-week" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">WEEK</button>
+          <button onclick="setTodoEditQuad('month')" id="tq-month" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">MONTH</button>
+          <button onclick="setTodoEditQuad('someday')" id="tq-someday" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">SOMEDAY</button>
         </div>
-        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:6px;">마감일</div>
-        <input type="date" id="td-edit-date" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;margin-bottom:12px;">
-        <div style="display:flex;gap:8px;margin-bottom:14px;">
-          <button onclick="setTodoEditDate(0)" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">오늘</button>
-          <button onclick="setTodoEditDate(7)" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">+7일</button>
-          <button onclick="setTodoEditDate(30)" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">+30일</button>
-          <button onclick="setTodoEditDate(null)" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">없음</button>
-        </div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:6px;">DUE DATE</div>
+        <input type="date" id="td-edit-date" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;margin-bottom:14px;">
         <div style="display:flex;gap:8px;">
           <button onclick="cancelTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
           <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
         </div>
       </div>
-      <div class="td-sub-label">하위 업무</div>
+      <div class="td-sub-label" id="td-sub-label">SUBTASKS</div>
       <div id="td-sub-list"></div>
-      <div class="td-add-sub">
-        <input class="td-add-sub-input" id="td-sub-input" placeholder="하위 업무 추가..." onkeydown="if(event.key==='Enter')addSubTodo()">
+      <div class="td-add-sub" id="td-add-sub">
+        <input class="td-add-sub-input" id="td-sub-input" placeholder="Add subtask..." onkeydown="if(event.key==='Enter')addSubTodo()">
         <button class="td-add-sub-btn" onclick="addSubTodo()">ADD</button>
       </div>
       <div class="td-actions">
-        <button class="td-action-btn danger" onclick="deleteTodoItem()" style="border-color:#c0392b;color:#c0392b;">삭제</button>
-        <button class="td-action-btn" onclick="startTodoEdit()">수정</button>
+        <button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>
+        <button class="td-action-btn" onclick="startTodoEdit()">EDIT</button>
       </div>
     </div>
   </div>
@@ -622,7 +616,7 @@ function switchTab(tab,btn){
 }
 
 /* Auth */
-function logout(){if(!confirm('로그아웃 할까요?'))return;localStorage.clear();location.reload();}
+function logout(){if(!confirm('Log out?'))return;localStorage.clear();location.reload();}
 async function saveSettings(){
   const pw=document.getElementById('app-password').value.trim();
   if(!pw){showToast('비밀번호를 입력해주세요');return;}
@@ -634,7 +628,7 @@ async function saveSettings(){
     localStorage.setItem('notion_token',data.notion_token);localStorage.setItem('notion_db',data.notion_db);
     localStorage.setItem('cloud_name',data.cloud_name);localStorage.setItem('cloud_key',data.cloud_key);localStorage.setItem('app_authed','1');
     document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();
-  }catch(e){showToast('연결 오류: '+e.message);btn.textContent='START →';btn.disabled=false;}
+  }catch(e){showToast('Connection error: '+e.message);btn.textContent='START →';btn.disabled=false;}
 }
 function openSettings(){document.getElementById('app-password').value='';document.getElementById('setup-screen').classList.remove('hidden');}
 
@@ -715,7 +709,7 @@ async function saveRecord(){
     }
     addRecordToUI(timeStr,selectedMood,text,photoUrls,notionUrl,blockId,null);
     document.getElementById('memo-input').value='';document.getElementById('memo-input').style.height='';
-    selectedMood='';selectedPhotos=[];document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));showToast('저장됐어요');
+    selectedMood='';selectedPhotos=[];document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));showToast('Saved!');
   }catch(e){showToast('오류 발생');console.error(e);}
   btn.disabled=false;document.getElementById('loading').classList.add('hidden');
 }
@@ -746,7 +740,7 @@ function openLightbox(idx){lbPhotos=currentPopupPhotos;lbIdx=idx;document.getEle
 function closeLightbox(){document.getElementById('rp-lightbox').style.display='none';}
 function closeRecordPopup(){document.getElementById('record-popup').classList.remove('open');}
 function cancelRecordEdit(){
-  if(!confirm('수정을 취소할까요?'))return;
+  if(!confirm('Discard changes?'))return;
   toggleRecordEdit();
 }
 function toggleRecordEdit(){
@@ -795,14 +789,14 @@ async function saveRecordEdit(){
     if(currentPhotoBlockId){await fetch(WORKER_URL+'/notion/blocks/'+currentPhotoBlockId,{method:'DELETE',headers:notionHeaders()});currentPhotoBlockId=null;}
     if(finalPhotos.length>0){const cols=finalPhotos.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}));while(cols.length<3)cols.push({object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}}]}});const pr=await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children:[{object:'block',type:'column_list',column_list:{children:cols}}]})});const pd=await pr.json();currentPhotoBlockId=pd.results?.[0]?.id||null;}
     currentPopupPhotos=finalPhotos;document.getElementById('rp-text').textContent=newText;if(currentPopupItem){const t=currentPopupItem.querySelector('.record-text');if(t)t.textContent=newText;}
-    toggleRecordEdit();showToast('수정됐어요');
+    toggleRecordEdit();showToast('Updated!');
   }catch(e){showToast('수정 실패');console.error(e);}
   document.getElementById('loading').classList.add('hidden');
 }
 async function deleteRecord(){
   if(!currentPopupBlockId)return;
-  if(!confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없어요.'))return;
-  try{await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'DELETE',headers:notionHeaders()});if(currentPopupItem)currentPopupItem.remove();closeRecordPopup();showToast('삭제됐어요');}catch(e){showToast('삭제 실패');}
+  if(!confirm('Delete? This cannot be undone.'))return;
+  try{await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'DELETE',headers:notionHeaders()});if(currentPopupItem)currentPopupItem.remove();closeRecordPopup();showToast('Deleted!');}catch(e){showToast('Delete failed');}
 }
 async function loadTodayRecords(){
   try{
@@ -1049,13 +1043,13 @@ async function saveTodoEdit(){
       await fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});
     }catch(e){console.error(e);}
   }
-  showToast('수정됐어요!');
+  showToast('Updated!');
 }
 function closeTodoDetail(){document.getElementById('todo-detail-popup').classList.remove('open');}
 function renderSubList(){const item=todoData[currentDetailQuad][currentDetailIdx];const list=document.getElementById('td-sub-list');if(!item.subs||!item.subs.length){list.innerHTML='';return;}list.innerHTML=item.subs.map((s,i)=>`<div class="td-sub-item"><div class="td-sub-check${s.done?' done':''}" onclick="toggleSubTodo(${i})"></div><div class="td-sub-text${s.done?' done':''}">${s.text}</div></div>`).join('');}
 function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];item.subs[i].done=!item.subs[i].done;if(item.subs[i].notionId)updateTodoNotionDone(item.subs[i].notionId,item.subs[i].done);renderSubList();renderAllQuads();saveTodoToStorage();}
 function addSubTodo(){const text=document.getElementById('td-sub-input').value.trim();if(!text)return;const item=todoData[currentDetailQuad][currentDetailIdx];if(!item.subs)item.subs=[];const sub={text,done:false,notionId:null};item.subs.push(sub);document.getElementById('td-sub-input').value='';renderSubList();renderAllQuads();saveTodoToStorage();saveSubTodoToNotion(text,item.notionId).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});}
-function deleteTodoItem(){if(!confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없어요.'))return;todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();showToast('삭제됐어요');}
+function deleteTodoItem(){if(!confirm('Delete? This cannot be undone.'))return;todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();showToast('Deleted!');}
 
 /* Todo drag */
 let todoDragItem=null,todoDragQ=null,todoDragI=null,todoDragSI=null,todoDragTimer=null,todoDragging=false;
@@ -1187,7 +1181,7 @@ function restoreTodoDetailUI(){
 function deleteSubTodoItem(_,q,i,si){
   if(!confirm('하위 업무를 삭제할까요?'))return;
   todoData[q][i].subs.splice(si,1);
-  saveTodoToStorage();renderAllQuads();restoreTodoDetailUI();showToast('삭제됐어요');
+  saveTodoToStorage();renderAllQuads();restoreTodoDetailUI();showToast('Deleted!');
 }
 function unlinkSubTodo(q,i,si){
   if(!confirm('상위 연결을 해제하고 독립 투두로 만들까요?'))return;
@@ -1197,9 +1191,9 @@ function unlinkSubTodo(q,i,si){
   if(sub.notionId){
     fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'상위항목':{relation:[]}}})}).catch(console.error);
   }
-  saveTodoToStorage();renderAllQuads();restoreTodoDetailUI();showToast('독립 투두로 전환됐어요');
+  saveTodoToStorage();renderAllQuads();restoreTodoDetailUI();showToast('Unlinked!');
 }
-const CART_SECTIONS={'need-buy':{label:'필요하고 사야함'},'need-want':{label:'필요하고 사고싶음'},'need-later':{label:'필요한데 나중에'},'want':{label:'그냥 사고싶음'}};
+const CART_SECTIONS={'need-buy':{label:'Need & Buy'},'need-want':{label:'Need & Want'},'need-later':{label:'Need Later'},'want':{label:'Just Want'}};
 let cartData={'need-buy':[],'need-want':[],'need-later':[],'want':[]},currentCartSection='';
 function openCartPopup(section){currentCartSection=section;document.getElementById('cart-popup-label').textContent=CART_SECTIONS[section].label;document.getElementById('cart-input').value='';document.getElementById('cart-memo').value='';document.getElementById('cart-popup').classList.add('open');setTimeout(()=>document.getElementById('cart-input').focus(),300);}
 function closeCartPopup(){document.getElementById('cart-popup').classList.remove('open');}
@@ -1216,7 +1210,7 @@ let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElementById('drag-overlay');
 function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToNotion(text);}
 async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',r.status,d);}catch(e){console.error('brain save error',e);}}
-function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">꾹 눌러서 드래그하면 분류할 수 있어요.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">꾹 눌러서 드래그</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">삭제</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
+function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">Hold & drag to sort.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">Hold to drag</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">DELETE</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
 function startHold(e,idx,item){holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
 document.addEventListener('touchmove',e=>{if(!isDragging)return;const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:true});
 document.addEventListener('touchend',e=>{clearTimeout(holdTimer);if(!isDragging)return;const t=e.changedTouches[0];let landed=null;document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)landed=z.dataset.zone;z.classList.remove('hovered');});endDrag(landed);});
@@ -1250,12 +1244,12 @@ function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragId
   }
   document.getElementById('sub-popup').classList.add('open');}
 function closeSubPopup(){document.getElementById('sub-popup').classList.remove('open');}
-async function confirmSubRecord(mood){closeSubPopup();const text=subDragItem.text;const now=new Date();const timeStr=formatTime(now);try{const pageId=await getTodayPageId();const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;const rich=[];rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});if(mood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(mood)+' '+mood},annotations:{color:'gray',italic:true,bold:false}});rich.push({type:'text',text:{content:'\n'+text},annotations:{bold:true,italic:false,color:'default'}});if(pageId)await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children:[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}]})});addRecordToUI(timeStr,mood,text,[],notionUrl,null,null);markBrainDone(subDragIdx,'record');showToast('Record에 저장됐어요');}catch(e){showToast('저장 실패');}}
-function confirmSubTodo(q){closeSubPopup();const cfg=QUAD_CFG[q];let dueDate=null;if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}todoData[q].push({text:subDragItem.text,dueDate,done:false,addedAt:new Date(),subs:[]});renderAllQuads();saveTodoToStorage();markBrainDone(subDragIdx,'todo');showToast('To-Do에 추가됐어요');}
-function confirmSubCart(section){closeSubPopup();cartData[section].push({text:subDragItem.text,memo:'',done:false});renderCart();saveCartToStorage();saveCartToNotion(section,subDragItem.text,'');markBrainDone(subDragIdx,'cart');showToast('Cart에 추가됐어요');}
+async function confirmSubRecord(mood){closeSubPopup();const text=subDragItem.text;const now=new Date();const timeStr=formatTime(now);try{const pageId=await getTodayPageId();const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;const rich=[];rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});if(mood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(mood)+' '+mood},annotations:{color:'gray',italic:true,bold:false}});rich.push({type:'text',text:{content:'\n'+text},annotations:{bold:true,italic:false,color:'default'}});if(pageId)await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children:[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}]})});addRecordToUI(timeStr,mood,text,[],notionUrl,null,null);markBrainDone(subDragIdx,'record');showToast('Saved to Log!');}catch(e){showToast('Save failed');}}
+function confirmSubTodo(q){closeSubPopup();const cfg=QUAD_CFG[q];let dueDate=null;if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}todoData[q].push({text:subDragItem.text,dueDate,done:false,addedAt:new Date(),subs:[]});renderAllQuads();saveTodoToStorage();markBrainDone(subDragIdx,'todo');showToast('Added to To-Do!');}
+function confirmSubCart(section){closeSubPopup();cartData[section].push({text:subDragItem.text,memo:'',done:false});renderCart();saveCartToStorage();saveCartToNotion(section,subDragItem.text,'');markBrainDone(subDragIdx,'cart');showToast('Added to Cart!');}
 function markBrainDone(idx,tag){brainItems[idx].tag=tag;renderBrainList();}
 function deleteBrainItem(idx){brainItems.splice(idx,1);renderBrainList();}
-function resetBrain(){if(!brainItems.length)return;if(!confirm('브레인덤프를 전부 지울까요?'))return;brainItems=[];renderBrainList();showToast('리셋됐어요');}
+function resetBrain(){if(!brainItems.length)return;if(!confirm('Clear all brain dump items?'))return;brainItems=[];renderBrainList();showToast('Reset!');}
 
 /* Book */
 let bookData=[],currentBookIdx=-1,selectedSearchBook=null,bookSearchTimer=null;
@@ -1300,7 +1294,7 @@ async function confirmAddBook(){
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props,children})});
     const data=await res.json();book.notionId=data.id||null;saveBookToStorage();
   }catch(e){console.error(e);}
-  showToast('추가됐어요!');
+  showToast('Added!');
 }
 async function loadBookFromNotion(){
   try{
@@ -1339,7 +1333,7 @@ function confirmSubBook(bookIdx){
     ];
     fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})}).catch(e=>console.error(e));
   }
-  markBrainDone(subDragIdx,'book');showToast('독후감으로 저장됐어요!');
+  markBrainDone(subDragIdx,'book');showToast('Saved to Book!');
 }
 function confirmSubIdea(){
   closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;
@@ -1356,7 +1350,7 @@ function confirmSubIdea(){
   overlay.addEventListener('pick',async(e)=>{
     const cat=e.detail;document.getElementById('idea-overlay').remove();
     try{await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'생성일시':{date:{start:new Date().toISOString()}},'분류':{select:{name:cat}}}})});}catch(e){console.error(e);}
-    markBrainDone(idx,'idea');showToast('아이디어로 저장됐어요!');
+    markBrainDone(idx,'idea');showToast('Saved as Idea!');
   });
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
   document.body.appendChild(overlay);
@@ -1412,13 +1406,13 @@ async function confirmAddReview(){
       await Promise.all(patches);
     }catch(e){console.error(e);}
   }
-  showToast('저장됐어요!');
+  showToast('Saved!');
 }
 function saveBookToStorage(){localStorage.setItem('book_data',JSON.stringify(bookData));}
 function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(d)bookData=JSON.parse(d);}catch(e){}}
 
 /* Inbox */
-async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">분석된 일기가 쌓이면<br>여기에 메시지가 와요.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">오늘은 이렇게 해보세요 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight;});}catch(e){list.innerHTML='<div class="inbox-empty">불러오기 실패</div>';}}
+async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">Loading...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">Messages will appear<br>as your diary is analyzed.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">Try this today 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight;});}catch(e){list.innerHTML='<div class="inbox-empty">Load failed</div>';}}
 function getTextProp(props,key){const p=props[key];if(!p)return'';if(p.rich_text)return p.rich_text.map(t=>t.plain_text).join('');if(p.select)return p.select.name;return'';}
 
 /* PWA */
