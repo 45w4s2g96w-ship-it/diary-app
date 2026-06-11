@@ -1,4 +1,4 @@
-=<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -39,7 +39,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* App */
 #app { display: flex; flex-direction: column; height: 100%; }
 #app.hidden { display: none; }
-@media (min-width: 768px) { #app { height: auto; min-height: 100vh; } }
+@media (min-width: 768px) {
+  body { max-width: 100%; overflow: hidden; height: 100vh; }
+  #app { flex-direction: row; height: 100vh; overflow: hidden; }
+  #app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .tab-content { flex: 1; overflow-y: auto; }
+}
 .tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
 .tab-content.active { display: flex; }
 
@@ -461,6 +466,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="inbox-list" id="inbox-list"><div class="inbox-empty">Messages will appear<br>as your diary is analyzed.</div></div>
   </div>
 </div>
+
+  </div><!-- /app-main -->
 
 <!-- Todo popup -->
 <div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
@@ -1009,9 +1016,12 @@ async function loadTodoFromNotion(){
     const now=new Date();const twoDaysAgo=new Date(now);twoDaysAgo.setDate(twoDaysAgo.getDate()-2);
     const res=await fetch(WORKER_URL+'/notion/databases/'+TODO_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{or:[{property:'완료',checkbox:{equals:false}},{and:[{property:'완료',checkbox:{equals:true}},{property:'완료일',date:{on_or_after:formatDate(twoDaysAgo)}}]}]},sorts:[{property:'추가일',direction:'ascending'}],page_size:100})});
     const data=await res.json();if(!data.results)return;
-    const localIds={};['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId)localIds[item.notionId]=true;}));
+    // 노션 기준으로 완전 교체
+    const newTodo={today:[],week:[],month:[],someday:[]};
+    // 로컬 subs 보존용 맵
+    const localSubs={};['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId&&item.subs?.length)localSubs[item.notionId]=item.subs;}));
     data.results.forEach(page=>{
-      const id=page.id;if(localIds[id])return;
+      const id=page.id;
       const props=page.properties;
       const text=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!text)return;
       const quadLabel=props['사분면']?.multi_select?.[0]?.name||'Someday';
@@ -1019,8 +1029,9 @@ async function loadTodoFromNotion(){
       const dueDate=props['마감일']?.date?.start?new Date(props['마감일'].date.start+'T23:59:59'):null;
       const done=props['완료']?.checkbox||false;
       const doneAt=props['완료일']?.date?.start?new Date(props['완료일'].date.start).toISOString():null;
-      todoData[q].push({text,dueDate,done,doneAt,addedAt:new Date(),notionId:id,subs:[]});
+      newTodo[q].push({text,dueDate,done,doneAt,addedAt:new Date(),notionId:id,subs:localSubs[id]||[]});
     });
+    todoData=newTodo;
     saveTodoToStorage();autoMoveTodos();renderAllQuads();
   }catch(e){console.error('loadTodoFromNotion failed',e);}
 }
@@ -1359,15 +1370,17 @@ async function loadBookFromNotion(){
   try{
     const res=await fetch(WORKER_URL+'/notion/databases/'+BOOK_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'시작일',direction:'descending'}],page_size:50})});
     const data=await res.json();if(!data.results)return;
-    const localIds={};bookData.forEach(b=>{if(b.notionId)localIds[b.notionId]=true;});
-    data.results.forEach(page=>{
-      const id=page.id;if(localIds[id])return;
+    // 로컬 리뷰 데이터 보존용 맵
+    const localReviews={};bookData.forEach(b=>{if(b.notionId)localReviews[b.notionId]=b.reviews||[];});
+    // 노션 기준으로 완전 교체
+    bookData=data.results.map(page=>{
+      const id=page.id;
       const props=page.properties;
-      const title=props['제목']?.title?.map(t=>t.plain_text).join('')||'';if(!title)return;
+      const title=props['제목']?.title?.map(t=>t.plain_text).join('')||'';
       const authors=props['저자']?.rich_text?.map(t=>t.plain_text).join('')||'';
       const genre=props['장르']?.rich_text?.map(t=>t.plain_text).join('')||'';
-      bookData.push({title,authors,genre,cover:'',reviews:[],notionId:id});
-    });
+      return{title,authors,genre,cover:'',reviews:localReviews[id]||[],notionId:id};
+    }).filter(b=>b.title);
     saveBookToStorage();renderBookList();
   }catch(e){console.error('loadBookFromNotion failed',e);}
 }
