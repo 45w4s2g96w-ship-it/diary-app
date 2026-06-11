@@ -1462,7 +1462,9 @@ async function loadBookFromNotion(){
       const title=props['제목']?.title?.map(t=>t.plain_text).join('')||'';
       const authors=props['저자']?.rich_text?.map(t=>t.plain_text).join('')||'';
       const genre=props['장르']?.rich_text?.map(t=>t.plain_text).join('')||'';
-      return{title,authors,genre,cover:'',reviews:localReviews[id]||[],notionId:id};
+      const startDate=props['시작일']?.date?.start||'';
+      const lastPage=props['읽은 페이지']?.number||0;
+      return{title,authors,genre,cover:'',startDate,lastPage,reviews:localReviews[id]||[],notionId:id};
     }).filter(b=>b.title);
     saveBookToStorage();renderBookList();
   }catch(e){console.error('loadBookFromNotion failed',e);}
@@ -1580,7 +1582,29 @@ function confirmBookDelete(){
   closeBookEditPopup();saveBookToStorage();renderBookList();
   showToast('Deleted!');
 }
-function openBookDetail(idx){currentBookIdx=idx;const book=bookData[idx];document.getElementById('book-detail-header').innerHTML=`${book.cover?`<img class="book-detail-cover" src="${book.cover}">`:'<div class="book-detail-cover"></div>'}<div class="book-detail-info"><div class="book-detail-title">${book.title}</div><div class="book-detail-author">${book.authors||''} · ${book.genre||''}</div></div>`;renderReviews();document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book-detail').classList.add('active');}
+function openBookDetail(idx){
+  currentBookIdx=idx;const book=bookData[idx];
+  const notionUrl=book.notionId?'https://notion.so/'+book.notionId.replace(/-/g,''):null;
+  const coverHtml=book.cover
+    ?`<a href="${notionUrl||'#'}" target="_blank" style="display:block;flex-shrink:0;cursor:${notionUrl?'pointer':'default'}"><img class="book-detail-cover" src="${book.cover}" style="display:block;"></a>`
+    :`<div class="book-detail-cover" style="display:flex;align-items:center;justify-content:center;font-size:32px;">📖</div>`;
+  const notionBtn=notionUrl?`<a href="${notionUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);border:1px solid var(--rule);padding:5px 10px;text-decoration:none;border-radius:1px;margin-top:10px;">↗ OPEN IN NOTION</a>`:'';
+  document.getElementById('book-detail-header').innerHTML=`
+    ${coverHtml}
+    <div class="book-detail-info">
+      <div class="book-detail-title">${book.title}</div>
+      <div class="book-detail-author">${book.authors||''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+        ${book.genre?`<span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1px solid var(--rule);padding:3px 8px;">${book.genre}</span>`:''}
+        ${book.startDate?`<span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1px solid var(--rule);padding:3px 8px;">Started ${book.startDate}</span>`:''}
+        ${book.lastPage?`<span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink);border:1px solid var(--ink);padding:3px 8px;">p.${book.lastPage}</span>`:''}
+      </div>
+      ${notionBtn}
+    </div>`;
+  renderReviews();
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-book-detail').classList.add('active');
+}
 function closeBookDetail(){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book').classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-btn[onclick*="book"]').classList.add('active');}
 function renderReviews(){const list=document.getElementById('review-list');const book=bookData[currentBookIdx];if(!book.reviews.length){list.innerHTML='<div class="empty-state">아직 독서 기록이 없어요.</div>';return;}list.innerHTML=book.reviews.map(r=>{const parts=[];if(r.page)parts.push(`<div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">p.${r.page}</div>`);if(r.quote)parts.push(`<div style="font-size:11px;font-weight:300;color:var(--ink-soft);line-height:1.6;border-left:2px solid var(--rule);padding-left:8px;margin-bottom:6px;">${r.quote}</div>`);if(r.thought)parts.push(`<div class="review-text">${r.thought}</div>`);if(r.text)parts.push(`<div class="review-text">${r.text}</div>`);return `<div class="review-item"><div class="review-date">${r.date}</div>${parts.join('')}</div>`;}).join('');}
 function openAddReviewPopup(){const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;document.getElementById('review-date-label').textContent=dateLabel;document.getElementById('review-page-input').value='';document.getElementById('review-quote-input').value='';document.getElementById('review-thought-input').value='';document.getElementById('review-quote-photo-name').textContent='';reviewPhotoFile=null;document.getElementById('add-review-popup').classList.add('open');setTimeout(()=>document.getElementById('review-page-input').focus(),300);}
