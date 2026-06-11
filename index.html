@@ -108,6 +108,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-text.done { text-decoration: line-through; color: var(--ink-muted); }
 .quad-overdue { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #c0392b; display: inline; background: rgba(192,57,43,0.15); padding: 1px 4px; border-radius: 2px; margin-left: 4px; }
 .quad-sub-count { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; color: var(--ink-muted); margin-left: 3px; }
+.quad-item { user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+.quad-item.dragging { opacity: 0.4; }
+.quad-cell.drag-over { background: rgba(0,0,0,0.06); outline: 2px solid var(--ink) !important; }
 .quad-sub-item { background: rgba(0,0,0,0.02); border-left: 2px solid var(--rule) !important; margin-left: 4px; }
 .quad-sub-cross { border-left-color: var(--ink-muted) !important; }
 .quad-memo { font-family: 'Gothic A1', sans-serif; font-size: 10px; font-weight: 300; color: var(--ink-muted); display: block; }
@@ -145,7 +148,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .drag-overlay { position: fixed; inset: 0; z-index: 300; display: none; flex-direction: column; justify-content: flex-end; pointer-events: none; }
 .drag-overlay.active { display: flex; pointer-events: all; }
 .drag-zones { display: flex; border-top: 2px solid var(--ink); background: var(--paper); height: 88px; }
-.drag-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-right: 1px solid var(--rule); transition: background 0.15s; padding: 0 2px; }
+.brain-item { user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+.drag-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-right: 1px solid var(--rule); transition: background 0.15s; padding: 0 2px; user-select: none; -webkit-user-select: none; }
 .drag-zone:last-child { border-right: none; }
 .drag-zone.hovered { background: var(--ink); }
 .drag-zone.hovered .dz-label { color: var(--paper); }
@@ -156,7 +160,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* Book */
 .book-list { flex: 1; overflow-y: auto; padding: 0 var(--pad-h); scrollbar-width: none; }
 .book-list::-webkit-scrollbar { display: none; }
-.book-card { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); cursor: pointer; }
+.book-card { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
 .book-card:active { opacity: 0.65; }
 .book-cover-img { width: 52px; height: 72px; object-fit: cover; border-radius: 2px; flex-shrink: 0; background: var(--rule); }
 .book-cover-placeholder { width: 52px; height: 72px; background: var(--rule); border-radius: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; }
@@ -531,7 +535,29 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<!-- Add Book popup -->
+<!-- Book Edit popup -->
+<div class="popup-overlay" id="book-edit-popup" onclick="if(event.target===this)closeBookEditPopup()">
+  <div class="popup-sheet">
+    <div class="popup-label">EDIT BOOK</div>
+    <div class="popup-label" style="margin-bottom:4px;">TITLE</div>
+    <input class="popup-input" id="book-edit-title" placeholder="Book title">
+    <div class="popup-label" style="margin-bottom:4px;">COVER IMAGE</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
+      <input class="popup-input" id="book-edit-cover-url" placeholder="Image URL" style="margin-bottom:0;flex:1;">
+      <span style="font-family:'Montserrat',sans-serif;font-size:9px;color:var(--ink-muted);">OR</span>
+      <button onclick="document.getElementById('book-edit-cover-file').click()" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:8px 12px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer;white-space:nowrap;">UPLOAD</button>
+      <input type="file" id="book-edit-cover-file" accept="image/*" style="display:none;" onchange="handleBookCoverUpload(this)">
+    </div>
+    <div id="book-edit-cover-preview" style="margin-bottom:12px;display:none;"><img id="book-edit-cover-img" style="width:60px;height:80px;object-fit:cover;border-radius:3px;"></div>
+    <div class="popup-btns" style="flex-direction:column;gap:8px;">
+      <div style="display:flex;gap:8px;width:100%;">
+        <button class="popup-cancel" onclick="closeBookEditPopup()" style="flex:1;">CANCEL</button>
+        <button class="popup-ok" onclick="confirmBookEdit()" style="flex:1;">SAVE</button>
+      </div>
+      <button onclick="confirmBookDelete()" style="width:100%;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid #c0392b;background:transparent;color:#c0392b;cursor:pointer;border-radius:1px;">DELETE BOOK</button>
+    </div>
+  </div>
+</div>
 <div class="popup-overlay" id="add-book-popup" onclick="if(event.target===this)closeAddBookPopup()">
   <div class="popup-sheet">
     <div class="popup-label">책 추가</div>
@@ -1052,72 +1078,88 @@ function addSubTodo(){const text=document.getElementById('td-sub-input').value.t
 function deleteTodoItem(){if(!confirm('Delete? This cannot be undone.'))return;todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();showToast('Deleted!');}
 
 /* Todo drag */
-let todoDragItem=null,todoDragQ=null,todoDragI=null,todoDragSI=null,todoDragTimer=null,todoDragging=false;
+let todoDragItem=null,todoDragQ=null,todoDragI=null,todoDragSI=null,todoDragTimer=null,todoDragging=false,todoDragEl=null;
 function startTodoDrag(e,q,i,si,_){
   if(e.button!==undefined&&e.button!==0)return;
+  const touch=e.touches?e.touches[0]:e;
+  const startX=touch.clientX,startY=touch.clientY;
   todoDragTimer=setTimeout(()=>{
     todoDragging=true;todoDragQ=q;todoDragI=i;todoDragSI=si;
     const item=si!==null?todoData[q][i].subs[si]:todoData[q][i];
     todoDragItem=item;
-    const touch=e.touches?e.touches[0]:e;
     ghost.textContent=item.text;ghost.style.display='block';
-    ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';
-    ghost.style.top=(touch.clientY-40)+'px';
-    // 사분면 강조 표시
-    document.querySelectorAll('.quad-cell').forEach(cell=>cell.style.outline='2px dashed var(--rule)');
+    ghost.style.left=Math.min(startX-60,window.innerWidth-260)+'px';
+    ghost.style.top=(startY-20)+'px';
+    ghost.style.background='var(--ink)';ghost.style.color='var(--paper)';
+    todoDragEl=e.target.closest('.quad-item');
+    if(todoDragEl)todoDragEl.classList.add('dragging');
+    document.querySelectorAll('.quad-cell').forEach(cell=>cell.style.outline='2px dashed rgba(0,0,0,0.15)');
     if(navigator.vibrate)navigator.vibrate(40);
   },500);
 }
 document.addEventListener('touchmove',e=>{
   if(todoDragging){
+    e.preventDefault();
     const t=e.touches[0];
     ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';
-    ghost.style.top=(t.clientY-40)+'px';
+    ghost.style.top=(t.clientY-20)+'px';
     document.querySelectorAll('.quad-cell').forEach(cell=>{
       const r=cell.getBoundingClientRect();
       const over=t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom;
-      cell.style.outline=over?'2px solid var(--ink)':'2px dashed var(--rule)';
+      cell.style.outline=over?'2px solid var(--ink)':'2px dashed rgba(0,0,0,0.15)';
+      cell.classList.toggle('drag-over',over);
     });
   }
-},{passive:true});
+},{passive:false});
 document.addEventListener('touchend',e=>{
   clearTimeout(todoDragTimer);
   if(!todoDragging)return;
   const t=e.changedTouches[0];let targetQ=null;
+  const qmap={'items-today':'today','items-week':'week','items-month':'month','items-someday':'someday'};
   document.querySelectorAll('.quad-cell').forEach(cell=>{
     const r=cell.getBoundingClientRect();
     if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom){
-      const qmap={'items-today':'today','items-week':'week','items-month':'month','items-someday':'someday'};
-      const itemsEl=cell.querySelector('.quad-items');
-      if(itemsEl)targetQ=qmap[itemsEl.id]||null;
+      const id=cell.querySelector('.quad-items')?.id;if(id)targetQ=qmap[id]||null;
     }
-    cell.style.outline='';
+    cell.style.outline='';cell.classList.remove('drag-over');
   });
   endTodoDrag(targetQ);
-},{passive:true});
+});
+document.addEventListener('mousemove',e=>{
+  if(!todoDragging)return;
+  ghost.style.left=Math.min(e.clientX-60,window.innerWidth-260)+'px';
+  ghost.style.top=(e.clientY-20)+'px';
+  document.querySelectorAll('.quad-cell').forEach(cell=>{
+    const r=cell.getBoundingClientRect();
+    const over=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+    cell.style.outline=over?'2px solid var(--ink)':'2px dashed rgba(0,0,0,0.15)';
+    cell.classList.toggle('drag-over',over);
+  });
+});
 document.addEventListener('mouseup',e=>{
   clearTimeout(todoDragTimer);
   if(!todoDragging)return;
   let targetQ=null;
+  const qmap={'items-today':'today','items-week':'week','items-month':'month','items-someday':'someday'};
   document.querySelectorAll('.quad-cell').forEach(cell=>{
     const r=cell.getBoundingClientRect();
     if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
-      const qmap={'items-today':'today','items-week':'week','items-month':'month','items-someday':'someday'};
-      const itemsEl=cell.querySelector('.quad-items');
-      if(itemsEl)targetQ=qmap[itemsEl.id]||null;
+      const id=cell.querySelector('.quad-items')?.id;if(id)targetQ=qmap[id]||null;
     }
-    cell.style.outline='';
+    cell.style.outline='';cell.classList.remove('drag-over');
   });
   endTodoDrag(targetQ);
 });
 function endTodoDrag(targetQ){
-  todoDragging=false;ghost.style.display='none';
+  todoDragging=false;
+  ghost.style.display='none';ghost.style.background='';ghost.style.color='';
+  if(todoDragEl){todoDragEl.classList.remove('dragging');todoDragEl=null;}
+  document.querySelectorAll('.quad-cell').forEach(cell=>{cell.style.outline='';cell.classList.remove('drag-over');});
   if(!targetQ||targetQ===todoDragQ){todoDragItem=null;todoDragQ=null;todoDragI=null;todoDragSI=null;return;}
   const cfg=QUAD_CFG[targetQ];
   let newDue=null;
   if(cfg.offset!==null){newDue=new Date();newDue.setDate(newDue.getDate()+cfg.offset);newDue.setHours(23,59,59,0);}
   if(todoDragSI!==null){
-    // 하위항목 이동
     const sub=todoData[todoDragQ][todoDragI].subs[todoDragSI];
     sub.quad=targetQ;
     if(sub.notionId){
@@ -1125,8 +1167,7 @@ function endTodoDrag(targetQ){
       if(newDue)props['마감일']={date:{start:formatDate(newDue)}};
       fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
     }
-  } else {
-    // 상위항목 이동
+  }else{
     const item=todoData[todoDragQ][todoDragI];
     todoData[todoDragQ].splice(todoDragI,1);
     item.dueDate=newDue;
@@ -1138,7 +1179,7 @@ function endTodoDrag(targetQ){
       fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
     }
   }
-  saveTodoToStorage();renderAllQuads();showToast(cfg.label+'로 이동됐어요');
+  saveTodoToStorage();renderAllQuads();showToast('Moved to '+cfg.label);
   todoDragItem=null;todoDragQ=null;todoDragI=null;todoDragSI=null;
 }
 function toggleSubTodoInline(q,i,si,e){
@@ -1210,9 +1251,9 @@ let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElementById('drag-overlay');
 function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToNotion(text);}
 async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',r.status,d);}catch(e){console.error('brain save error',e);}}
-function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">Hold & drag to sort.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">Hold to drag</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">DELETE</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:true});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
+function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">Hold & drag to sort.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">Hold to drag</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">DELETE</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:false});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
 function startHold(e,idx,item){holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
-document.addEventListener('touchmove',e=>{if(!isDragging)return;const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:true});
+document.addEventListener('touchmove',e=>{if(!isDragging)return;e.preventDefault();const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:false});
 document.addEventListener('touchend',e=>{clearTimeout(holdTimer);if(!isDragging)return;const t=e.changedTouches[0];let landed=null;document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)landed=z.dataset.zone;z.classList.remove('hovered');});endDrag(landed);});
 document.addEventListener('mouseup',e=>{clearTimeout(holdTimer);if(!isDragging)return;let landed=null;document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)landed=z.dataset.zone;z.classList.remove('hovered');});endDrag(landed);});
 function endDrag(zone){isDragging=false;ghost.style.display='none';dragOverlay.classList.remove('active');const el=dragItem?document.getElementById('bi-'+dragItem.id):null;if(el)el.classList.remove('dragging');if(zone&&dragItem)openSubPopup(zone,dragItem,dragIdx);dragItem=null;dragIdx=-1;}
@@ -1369,7 +1410,62 @@ function confirmSubBookNew(){
   markBrainDone(idx,'book');
 }
 
-function renderBookList(){const list=document.getElementById('book-list');if(!bookData.length){list.innerHTML='<div class="empty-state">추가한 책이 없어요.</div>';return;}list.innerHTML=bookData.map((book,i)=>`<div class="book-card" onclick="openBookDetail(${i})">${book.cover?`<img class="book-cover-img" src="${book.cover}" onerror="this.outerHTML='<div class=book-cover-placeholder>📖</div>'">`:'<div class="book-cover-placeholder">📖</div>'}<div class="book-card-info"><div><div class="book-card-title">${book.title}</div><div class="book-card-author">${book.authors||''}</div></div><div class="book-card-meta"><span class="book-genre-tag">${book.genre||'기타'}</span><span class="book-review-count">${book.reviews.length?book.reviews.length+'개':'독후감 없음'}</span></div></div></div>`).join('');}
+let bookEditIdx=-1,bookEditCoverUrl='',bookEditHoldTimer=null;
+function renderBookList(){
+  const list=document.getElementById('book-list');
+  if(!bookData.length){list.innerHTML='<div class="empty-state">No books added yet.</div>';return;}
+  list.innerHTML=bookData.map((book,i)=>`<div class="book-card" id="bc-${i}" onclick="openBookDetail(${i})">${book.cover?`<img class="book-cover-img" src="${book.cover}" onerror="this.outerHTML='<div class=book-cover-placeholder>📖</div>'">`:'<div class="book-cover-placeholder">📖</div>'}<div class="book-card-info"><div><div class="book-card-title">${book.title}</div><div class="book-card-author">${book.authors||''}</div></div><div class="book-card-meta"><span class="book-genre-tag">${book.genre||''}</span><span class="book-review-count">${book.reviews.length?book.reviews.length+' notes':'No notes'}</span></div></div></div>`).join('');
+  bookData.forEach((_,i)=>{
+    const el=document.getElementById('bc-'+i);if(!el)return;
+    el.addEventListener('touchstart',e=>{bookEditHoldTimer=setTimeout(()=>openBookEditPopup(i),600);},{passive:true});
+    el.addEventListener('touchend',()=>clearTimeout(bookEditHoldTimer));
+    el.addEventListener('touchmove',()=>clearTimeout(bookEditHoldTimer));
+    el.addEventListener('contextmenu',e=>{e.preventDefault();openBookEditPopup(i);});
+  });
+}
+function openBookEditPopup(idx){
+  bookEditIdx=idx;bookEditCoverUrl=bookData[idx].cover||'';
+  document.getElementById('book-edit-title').value=bookData[idx].title||'';
+  document.getElementById('book-edit-cover-url').value=bookEditCoverUrl;
+  const preview=document.getElementById('book-edit-cover-preview');
+  const img=document.getElementById('book-edit-cover-img');
+  if(bookEditCoverUrl){img.src=bookEditCoverUrl;preview.style.display='block';}
+  else{preview.style.display='none';}
+  document.getElementById('book-edit-popup').classList.add('open');
+}
+function closeBookEditPopup(){document.getElementById('book-edit-popup').classList.remove('open');}
+async function handleBookCoverUpload(input){
+  const file=input.files[0];if(!file)return;
+  const url=await uploadToCloudinary(file);
+  if(url){
+    bookEditCoverUrl=url;
+    document.getElementById('book-edit-cover-url').value=url;
+    document.getElementById('book-edit-cover-img').src=url;
+    document.getElementById('book-edit-cover-preview').style.display='block';
+    showToast('Uploaded!');
+  }
+}
+async function confirmBookEdit(){
+  const title=document.getElementById('book-edit-title').value.trim();
+  const urlInput=document.getElementById('book-edit-cover-url').value.trim();
+  const cover=urlInput||bookEditCoverUrl;
+  if(!title){showToast('Title required');return;}
+  const book=bookData[bookEditIdx];
+  book.title=title;book.cover=cover;
+  closeBookEditPopup();saveBookToStorage();renderBookList();
+  if(book.notionId){
+    try{
+      await fetch(WORKER_URL+'/notion/pages/'+book.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'제목':{title:[{text:{content:title}}]}}})});
+    }catch(e){console.error(e);}
+  }
+  showToast('Updated!');
+}
+function confirmBookDelete(){
+  if(!confirm('Delete this book? This cannot be undone.'))return;
+  bookData.splice(bookEditIdx,1);
+  closeBookEditPopup();saveBookToStorage();renderBookList();
+  showToast('Deleted!');
+}
 function openBookDetail(idx){currentBookIdx=idx;const book=bookData[idx];document.getElementById('book-detail-header').innerHTML=`${book.cover?`<img class="book-detail-cover" src="${book.cover}">`:'<div class="book-detail-cover"></div>'}<div class="book-detail-info"><div class="book-detail-title">${book.title}</div><div class="book-detail-author">${book.authors||''} · ${book.genre||''}</div></div>`;renderReviews();document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book-detail').classList.add('active');}
 function closeBookDetail(){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book').classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-btn[onclick*="book"]').classList.add('active');}
 function renderReviews(){const list=document.getElementById('review-list');const book=bookData[currentBookIdx];if(!book.reviews.length){list.innerHTML='<div class="empty-state">아직 독서 기록이 없어요.</div>';return;}list.innerHTML=book.reviews.map(r=>{const parts=[];if(r.page)parts.push(`<div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">p.${r.page}</div>`);if(r.quote)parts.push(`<div style="font-size:11px;font-weight:300;color:var(--ink-soft);line-height:1.6;border-left:2px solid var(--rule);padding-left:8px;margin-bottom:6px;">${r.quote}</div>`);if(r.thought)parts.push(`<div class="review-text">${r.thought}</div>`);if(r.text)parts.push(`<div class="review-text">${r.text}</div>`);return `<div class="review-item"><div class="review-date">${r.date}</div>${parts.join('')}</div>`;}).join('');}
