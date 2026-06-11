@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dailynote-v5';
+const CACHE_NAME = 'dailynote-v6';
 const ASSETS = [
   '/diary-app/',
   '/diary-app/index.html',
