@@ -251,7 +251,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .review-date { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.08em; margin-bottom: 5px; }
 .review-text { font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
 .back-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
-.book-search-results { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 12px; scrollbar-width: none; }
+.genre-btn { font-family:'Gothic A1',sans-serif; font-size:11px; font-weight:400; padding:5px 12px; border:1.5px solid var(--rule); background:transparent; color:var(--ink); cursor:pointer; border-radius:1px; transition:all 0.12s; }
+.genre-btn.selected { background:var(--ink); color:var(--paper); border-color:var(--ink); } display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 12px; scrollbar-width: none; }
 .book-search-results::-webkit-scrollbar { display: none; }
 .book-search-item { display: flex; gap: 10px; padding: 8px; border: 1.5px solid var(--rule); border-radius: 2px; cursor: pointer; }
 .book-search-item.selected { border-color: var(--ink); }
@@ -677,8 +678,21 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <button onclick="selectManualBookDirect()" style="width:100%;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:8px;background:var(--ink);color:var(--paper);border:none;cursor:pointer;border-radius:1px;">이 책으로 선택</button>
     </div>
     <button id="book-manual-toggle" onclick="toggleManualBookEntry()" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 12px;cursor:pointer;border-radius:1px;margin-bottom:10px;">✏️ 직접 입력하기</button>
-    <div class="popup-label" style="margin-bottom:4px;">장르</div>
-    <input class="popup-input" id="book-genre-input" placeholder="장르 (자동입력 또는 직접 입력)">
+    <div class="popup-label" style="margin-bottom:6px;">GENRE</div>
+    <div id="book-genre-select" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+      <button onclick="selectBookGenre(this,'소설')" class="genre-btn">소설</button>
+      <button onclick="selectBookGenre(this,'인문·교양')" class="genre-btn">인문·교양</button>
+      <button onclick="selectBookGenre(this,'정치·사회')" class="genre-btn">정치·사회</button>
+      <button onclick="selectBookGenre(this,'철학')" class="genre-btn">철학</button>
+      <button onclick="selectBookGenre(this,'과학')" class="genre-btn">과학</button>
+      <button onclick="selectBookGenre(this,'경제·경영')" class="genre-btn">경제·경영</button>
+      <button onclick="selectBookGenre(this,'자기계발')" class="genre-btn">자기계발</button>
+      <button onclick="selectBookGenre(this,'역사')" class="genre-btn">역사</button>
+      <button onclick="selectBookGenre(this,'예술·문화')" class="genre-btn">예술·문화</button>
+      <button onclick="selectBookGenre(this,'시집·에세이')" class="genre-btn">시집·에세이</button>
+      <button onclick="selectBookGenre(this,'심리학')" class="genre-btn">심리학</button>
+    </div>
+    <input class="popup-input" id="book-genre-input" placeholder="직접 입력 (선택사항)" style="margin-bottom:14px;">
     <div class="popup-btns"><button class="popup-cancel" onclick="closeAddBookPopup()">CANCEL</button><button class="popup-ok" onclick="confirmAddBook()">ADD</button></div>
   </div>
 </div>
@@ -1412,7 +1426,7 @@ async function searchBooks(query){const q=query||document.getElementById('book-s
   <input id="book-manual-title" placeholder="책 제목" style="width:100%;font-size:13px;font-family:'Gothic A1',sans-serif;border:none;border-bottom:1px solid var(--rule);outline:none;padding:4px 0;margin-bottom:6px;background:transparent;color:var(--ink);">
   <input id="book-manual-author" placeholder="저자" style="width:100%;font-size:13px;font-family:'Gothic A1',sans-serif;border:none;border-bottom:1px solid var(--rule);outline:none;padding:4px 0;background:transparent;color:var(--ink);">
   <button onclick="selectManualBook()" style="margin-top:8px;width:100%;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:8px;background:var(--ink);color:var(--paper);border:none;cursor:pointer;border-radius:1px;">직접 입력으로 추가</button>
-</div>`;return;}resultsEl.innerHTML='';data.items.forEach(item=>{const info=item.volumeInfo;const title=info.title||'';const authors=(info.authors||[]).join(', ');const genre=(info.categories||[])[0]||'';const cover=(info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||'').replace('http://','https://');const el=document.createElement('div');el.className='book-search-item';el.innerHTML=`${cover?`<img class="book-search-cover" src="${cover}" onerror="this.style.display='none'">`:'<div class="book-search-cover"></div>'}<div class="book-search-info"><div class="book-search-title">${title}</div><div class="book-search-author">${authors}</div><div class="book-search-genre">${genre}</div></div>`;el.onclick=()=>{document.querySelectorAll('.book-search-item').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');selectedSearchBook={title,authors,genre,cover};document.getElementById('book-genre-input').value=genre;};resultsEl.appendChild(el);});}catch(e){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 실패.</div>';}}
+</div>`;return;}resultsEl.innerHTML='';data.items.forEach(item=>{const info=item.volumeInfo;const title=info.title||'';const authors=(info.authors||[]).join(', ');const genre=(info.categories||[])[0]||'';const cover=(info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||'').replace('http://','https://');const el=document.createElement('div');el.className='book-search-item';el.innerHTML=`${cover?`<img class="book-search-cover" src="${cover}" onerror="this.style.display='none'">`:'<div class="book-search-cover"></div>'}<div class="book-search-info"><div class="book-search-title">${title}</div><div class="book-search-author">${authors}</div><div class="book-search-genre">${genre}</div></div>`;el.onclick=()=>{document.querySelectorAll('.book-search-item').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');selectedSearchBook={title,authors,genre:'',cover};document.getElementById('book-genre-input').value='';};resultsEl.appendChild(el);});}catch(e){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 실패.</div>';}}
 function selectManualBook(){
   const title=document.getElementById('book-manual-title')?.value.trim();
   const authors=document.getElementById('book-manual-author')?.value.trim();
@@ -1425,7 +1439,8 @@ function selectManualBook(){
 }
 function toggleManualBookEntry(){const e=document.getElementById('book-manual-entry');const b=document.getElementById('book-manual-toggle');const shown=e.style.display!=='none';e.style.display=shown?'none':'block';b.textContent=shown?'✏️ 직접 입력하기':'✕ 직접 입력 닫기';}
 function selectManualBookDirect(){const title=document.getElementById('book-manual-title-direct')?.value.trim();const authors=document.getElementById('book-manual-author-direct')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('book-search-results').style.display='flex';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:'Gothic A1',sans-serif;font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
-function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
+function selectBookGenre(btn,genre){document.querySelectorAll('.genre-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');document.getElementById('book-genre-input').value=genre;}
+function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.querySelectorAll('.genre-btn').forEach(b=>b.classList.remove('selected'));document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
 function closeAddBookPopup(){document.getElementById('add-book-popup').classList.remove('open');}
 async function confirmAddBook(){
   if(!selectedSearchBook){showToast('책을 선택해주세요');return;}
@@ -1433,8 +1448,10 @@ async function confirmAddBook(){
   const book={title:selectedSearchBook.title,authors:selectedSearchBook.authors,genre,cover:selectedSearchBook.cover,reviews:[],notionId:null};
   bookData.unshift(book);closeAddBookPopup();renderBookList();saveBookToStorage();
   try{
-    const props={'제목':{title:[{text:{content:book.title}}]},'장르':{rich_text:[{text:{content:genre||''}}]},'시작일':{date:{start:formatDate(new Date())}}};
+    const props={'제목':{title:[{text:{content:book.title}}]},'시작일':{date:{start:formatDate(new Date())}}};
+    if(genre)props['장르']={select:{name:genre}};
     if(book.authors)props['저자']={rich_text:[{text:{content:book.authors}}]};
+    if(book.cover)props['표지']={url:book.cover};
     const leftCol=book.cover
       ?{object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:book.cover}}}]}}
       :{object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:book.title},annotations:{bold:true}}]}}]}};
@@ -1453,18 +1470,19 @@ async function loadBookFromNotion(){
   try{
     const res=await fetch(WORKER_URL+'/notion/databases/'+BOOK_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'시작일',direction:'descending'}],page_size:50})});
     const data=await res.json();if(!data.results)return;
-    // 로컬 리뷰 데이터 보존용 맵
-    const localReviews={};bookData.forEach(b=>{if(b.notionId)localReviews[b.notionId]=b.reviews||[];});
+    // 로컬 리뷰 + 표지 데이터 보존용 맵
+    const localData={};bookData.forEach(b=>{if(b.notionId)localData[b.notionId]={reviews:b.reviews||[],cover:b.cover||''};});
     // 노션 기준으로 완전 교체
     bookData=data.results.map(page=>{
       const id=page.id;
       const props=page.properties;
       const title=props['제목']?.title?.map(t=>t.plain_text).join('')||'';
       const authors=props['저자']?.rich_text?.map(t=>t.plain_text).join('')||'';
-      const genre=props['장르']?.rich_text?.map(t=>t.plain_text).join('')||'';
+      const genre=props['장르']?.select?.name||'';
       const startDate=props['시작일']?.date?.start||'';
       const lastPage=props['읽은 페이지']?.number||0;
-      return{title,authors,genre,cover:'',startDate,lastPage,reviews:localReviews[id]||[],notionId:id};
+      const cover=props['표지']?.url||localData[id]?.cover||'';
+      return{title,authors,genre,cover,startDate,lastPage,reviews:localData[id]?.reviews||[],notionId:id};
     }).filter(b=>b.title);
     saveBookToStorage();renderBookList();
   }catch(e){console.error('loadBookFromNotion failed',e);}
