@@ -51,24 +51,25 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .tab-content { display: none; flex-direction: column; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; -webkit-overflow-scrolling: touch; }
 .tab-content.active { display: flex; }
 
-/* Tab bar — mobile */
-.tab-bar { display: flex; border-top: 2px solid var(--ink); background: var(--paper); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+/* Tab bar — mobile (bottom) */
+.tab-bar { display: flex; border-top: 2px solid var(--ink); background: var(--paper); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px); order: 99; }
 .tab-bar-header { display: none; }
 .tab-num { display: none; }
-.tab-btn { flex: 1; padding: 10px 0 8px; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 7px; letter-spacing: 0.04em; color: var(--ink-muted); cursor: pointer; border: none; background: transparent; transition: all 0.15s; border-right: 1px solid var(--rule); display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.tab-btn { flex: 1; padding: 10px 0 8px; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 7px; letter-spacing: 0.04em; color: var(--ink-muted); cursor: pointer; border: none; background: transparent; transition: all 0.15s; border-right: 1px solid var(--rule); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; }
 .tab-btn:last-child { border-right: none; }
 .tab-btn.active { background: var(--ink); color: var(--paper); }
 .tab-icon { stroke: var(--ink-muted); transition: stroke 0.15s; fill: none; flex-shrink: 0; }
 .tab-btn.active .tab-icon { stroke: var(--paper); }
 .tab-label { font-size: 7px; }
 
-/* Tablet / PC — bold sidebar */
+/* Tablet / PC — bold left sidebar, bottom aligned */
 @media (min-width: 768px) {
   :root { --pad-h: 48px; }
   body { position: fixed; inset: 0; overflow: hidden; }
   #app { flex-direction: row; height: 100%; }
   .tab-bar {
     flex-direction: column;
+    justify-content: flex-end;
     border-top: none;
     border-right: 2px solid var(--ink);
     width: 180px;
@@ -76,6 +77,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     padding-bottom: 0;
     height: 100%;
     overflow-y: auto;
+    order: 0;
   }
   .tab-bar-header {
     display: block;
@@ -86,6 +88,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     font-weight: 700;
     letter-spacing: 0.14em;
     color: var(--ink-muted);
+    margin-bottom: auto;
   }
   .tab-num { display: block; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; color: var(--ink-muted); }
   .tab-icon { display: none; }
@@ -96,12 +99,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     align-items: center;
     padding: 20px 20px;
     border-right: none;
-    border-bottom: 1px solid var(--ink);
+    border-top: 1px solid var(--ink);
+    border-bottom: none;
     width: 100%;
     text-align: left;
     gap: 0;
   }
-  .tab-btn:last-child { border-bottom: none; }
+  .tab-btn:last-child { border-bottom: 1px solid var(--ink); }
   .tab-label {
     font-family: 'Montserrat', sans-serif;
     font-size: 28px;
@@ -251,6 +255,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .review-date { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.08em; margin-bottom: 5px; }
 .review-text { font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
 .back-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
+.todo-date-btn { font-family:'Montserrat',sans-serif; font-size:8px; font-weight:700; letter-spacing:0.06em; padding:5px 10px; border:1.5px solid var(--rule); background:transparent; color:var(--ink-muted); cursor:pointer; border-radius:1px; transition:all 0.12s; }
+.todo-date-btn.selected { background:var(--ink); color:var(--paper); border-color:var(--ink); }
 .genre-btn { font-family:'Gothic A1',sans-serif; font-size:11px; font-weight:400; padding:5px 12px; border:1.5px solid var(--rule); background:transparent; color:var(--ink); cursor:pointer; border-radius:1px; transition:all 0.12s; }
 .genre-btn.selected { background:var(--ink); color:var(--paper); border-color:var(--ink); } display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 12px; scrollbar-width: none; }
 .book-search-results::-webkit-scrollbar { display: none; }
@@ -362,16 +368,32 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 @media (min-width: 768px) {
+  :root { --pad-h: 40px; }
+  body { position: fixed; inset: 0; overflow: hidden; }
+  #app { flex-direction: row; height: 100%; }
+  .section-header { padding-left: var(--pad-h); }
+  .brain-header { padding-left: var(--pad-h); }
+  .emotion-section { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+  .memo-area { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+  .record-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+  .quad-grid { padding-left: var(--pad-h); padding-right: var(--pad-h); grid-template-columns: 1fr 1fr; }
+  .brain-input-wrap { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+  .brain-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+  .drag-zones { margin-left: var(--pad-h); margin-right: var(--pad-h); }
+  .inbox-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+  .book-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+  .review-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+  .book-detail-header { padding-left: var(--pad-h); padding-right: var(--pad-h); }
+}
+@media (min-width: 1400px) {
+  :root { --pad-h: 60px; }
+}@media (min-width: 768px) {
   .section-title { font-size: 32px !important; }
   .record-text { font-size: 14px !important; }
-  .record-time { font-size: 11px !important; }
   .quad-text { font-size: 13px !important; }
   .brain-item-text { font-size: 14px !important; }
   .book-card-title { font-size: 15px !important; }
-  .quad-grid { grid-template-columns: 1fr 1fr; }
   .tag { font-size: 13px !important; }
-  .emotion-optional-label { font-size: 9px !important; }
-  .text-input { font-size: 15px !important; }
   .record-tag { font-size: 12px !important; }
 }
 @media (min-width: 1400px) {
@@ -379,7 +401,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .record-text { font-size: 16px !important; }
   .quad-text { font-size: 14px !important; }
   .tag { font-size: 14px !important; }
-  .text-input { font-size: 16px !important; }
   .record-tag { font-size: 13px !important; }
   .brain-item-text { font-size: 16px !important; }
   .book-card-title { font-size: 16px !important; }
@@ -557,8 +578,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
   <div class="popup-sheet">
     <div class="popup-label" id="todo-popup-label"></div>
-    <div class="popup-due" id="todo-popup-due"></div>
     <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')confirmTodo()">
+    <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'Gothic A1',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
+    <input type="date" id="todo-date-input" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:14px;background:transparent;border:1.5px solid var(--rule);padding:10px 12px;outline:none;margin-bottom:14px;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
     <div class="popup-btns"><button class="popup-cancel" onclick="closeTodoPopup()">CANCEL</button><button class="popup-ok" onclick="confirmTodo()">OK</button></div>
   </div>
 </div>
@@ -1018,21 +1040,43 @@ function switchTodoCart(pane){
 const QUAD_CFG={today:{label:'Today',offset:0},week:{label:'This Week',offset:7},month:{label:'This Month',offset:30},someday:{label:'Someday',offset:null}};
 let todoData={today:[],week:[],month:[],someday:[]},currentQuad='';
 function initQuadDates(){document.getElementById('due-today').textContent=formatDateShort(new Date());document.getElementById('due-week').textContent='+7d  '+formatDateShort(getOffsetDate(7));document.getElementById('due-month').textContent='+30d  '+formatDateShort(getOffsetDate(30));}
-function openTodoPopup(q){currentQuad=q;const cfg=QUAD_CFG[q];document.getElementById('todo-popup-label').textContent=cfg.label;document.getElementById('todo-popup-due').textContent=cfg.offset===null?'No deadline':cfg.offset===0?'Due today':'Due in +'+cfg.offset+' days';document.getElementById('todo-input').value='';document.getElementById('todo-popup').classList.add('open');setTimeout(()=>document.getElementById('todo-input').focus(),300);}
-function closeTodoPopup(){document.getElementById('todo-popup').classList.remove('open');}
-function confirmTodo(){
-  const text=document.getElementById('todo-input').value.trim();if(!text)return;
-  const cfg=QUAD_CFG[currentQuad];
-  let dueDate=null;
-  if(cfg.offset!==null){
-    dueDate=new Date();
-    dueDate.setDate(dueDate.getDate()+cfg.offset);
-    dueDate.setHours(23,59,59,0);
+let todoPopupSelectedDate=null;
+function setTodoPopupDate(offset){
+  document.querySelectorAll('.todo-date-btn').forEach(b=>b.classList.remove('selected'));
+  if(offset===null){
+    todoPopupSelectedDate=null;
+    document.getElementById('todo-date-input').value='';
+    event.target.classList.add('selected');
+  } else {
+    const d=new Date();d.setDate(d.getDate()+offset);
+    todoPopupSelectedDate=d;
+    document.getElementById('todo-date-input').value=formatDate(d);
+    event.target.classList.add('selected');
   }
-  const item={text,dueDate,done:false,addedAt:new Date(),notionId:null,subs:[]};
+}
+function onTodoDateInputChange(){
+  const val=document.getElementById('todo-date-input').value;
+  document.querySelectorAll('.todo-date-btn').forEach(b=>b.classList.remove('selected'));
+  todoPopupSelectedDate=val?new Date(val+'T23:59:59'):null;
+}
+function openTodoPopup(q){
+  currentQuad=q;const cfg=QUAD_CFG[q];
+  document.getElementById('todo-popup-label').textContent=cfg.label;
+  document.getElementById('todo-input').value='';
+  document.getElementById('todo-date-input').value='';
+  todoPopupSelectedDate=null;
+  document.getElementById('todo-popup').classList.add('open');
+  setTimeout(()=>document.getElementById('todo-input').focus(),300);
+}
+function closeTodoPopup(){document.getElementById('todo-popup').classList.remove('open');}
+async function confirmTodo(){
+  const text=document.getElementById('todo-input').value.trim();if(!text)return;
+  const dueDate=todoPopupSelectedDate||null;
+  const item={text,dueDate,done:false,doneAt:null,addedAt:new Date(),notionId:null,subs:[]};
   todoData[currentQuad].push(item);
-  closeTodoPopup();renderAllQuads();showToast('Added!');saveTodoToStorage();
-  saveTodoToNotion(currentQuad,text,dueDate).then(id=>{if(id){item.notionId=id;saveTodoToStorage();}});
+  closeTodoPopup();renderAllQuads();saveTodoToStorage();
+  const id=await saveTodoToNotion(currentQuad,text,dueDate);
+  if(id){item.notionId=id;saveTodoToStorage();}
 }
 function toggleTodo(q,idx,e){
   e.stopPropagation();
