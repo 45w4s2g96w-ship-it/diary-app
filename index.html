@@ -121,7 +121,24 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .tab-btn { padding: 26px 24px; }
 }
 
-/* Section header */
+/* Weekly view */
+.week-row { display: flex; border-bottom: 1px solid var(--rule); min-height: 44px; }
+.week-row.today { background: rgba(0,0,0,0.03); }
+.week-day-label { flex-shrink: 0; width: 80px; padding: 12px var(--pad-h) 12px 0; display: flex; flex-direction: column; justify-content: flex-start; border-right: 1px solid var(--rule); }
+.week-day-name { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); }
+.week-day-date { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 900; color: var(--ink); margin-top: 2px; }
+.week-row.today .week-day-name { color: var(--ink); }
+.week-row.today .week-day-date { color: var(--ink); }
+.week-items { flex: 1; padding: 8px 0 8px var(--pad-h); display: flex; flex-direction: column; gap: 4px; }
+.week-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--rule); cursor: pointer; }
+.week-item:last-child { border-bottom: none; }
+.week-check { width: 14px; height: 14px; border: 1.5px solid var(--ink); border-radius: 3px; flex-shrink: 0; transition: background 0.12s; }
+.week-check.done { background: var(--ink); }
+.week-item-text { font-size: 13px; font-weight: 400; color: var(--ink); line-height: 1.4; flex: 1; }
+.week-item-text.done { text-decoration: line-through; color: var(--ink-muted); }
+.week-add-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; color: var(--ink-muted); background: transparent; border: none; cursor: pointer; padding: 6px 0; letter-spacing: 0.06em; text-align: left; }
+.week-overdue .week-day-name { color: #c0392b; }
+.week-overdue .week-day-date { color: #c0392b; }
 .section-header { padding: 28px var(--pad-h) 16px var(--pad-h); border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
 .section-title { padding-left: 0; }
 .section-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
@@ -495,14 +512,26 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <!-- TODO -->
   <div class="tab-content" id="tab-todo">
     <div style="padding:12px var(--pad-h) 0;border-bottom:2px solid var(--ink);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;">
-      <div class="section-title" id="todo-section-title">To-Do</div>
+      <div class="todo-toggle" style="margin-right:auto;">
+        <button class="toggle-btn active" id="toggle-week" onclick="switchTodoView('week')">WEEK</button>
+        <button class="toggle-btn inactive" id="toggle-quad" onclick="switchTodoView('quad')">QUAD</button>
+      </div>
+      <div class="section-title" id="todo-section-title" style="display:none;">To-Do</div>
       <div class="todo-toggle">
         <button class="toggle-btn active" id="toggle-todo" onclick="switchTodoCart('todo')">TO-DO</button>
         <button class="toggle-btn inactive" id="toggle-cart" onclick="switchTodoCart('cart')">CART</button>
       </div>
     </div>
     <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-      <div class="quad-grid">
+
+      <!-- WEEKLY VIEW -->
+      <div id="weekly-view" style="flex:1;overflow-y:auto;">
+        <div id="weekly-list"></div>
+      </div>
+
+      <!-- QUAD VIEW -->
+      <div id="quad-view" style="flex:1;overflow:hidden;display:none;">
+        <div class="quad-grid">
         <div class="quad-cell" onclick="openTodoPopup('today')">
           <div class="quad-label">Today</div><div class="quad-due" id="due-today"></div>
           <div class="quad-items" id="items-today"></div><div class="quad-add">+ Add</div>
@@ -519,7 +548,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <div class="quad-label">Someday</div><div class="quad-due" style="color:var(--rule);">No deadline</div>
           <div class="quad-items" id="items-someday"></div><div class="quad-add">+ Add</div>
         </div>
-      </div>
+      </div><!-- /quad-view -->
     </div>
     <div id="cart-pane" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
       <div class="quad-grid">
@@ -1032,7 +1061,80 @@ async function loadTodayRecords(){
 }
 
 /* Todo/Cart toggle */
-let currentTodoPane='todo';
+let currentTodoView='week';
+function switchTodoView(view){
+  currentTodoView=view;
+  document.getElementById('weekly-view').style.display=view==='week'?'block':'none';
+  document.getElementById('quad-view').style.display=view==='quad'?'flex':'none';
+  document.getElementById('toggle-week').className='toggle-btn '+(view==='week'?'active':'inactive');
+  document.getElementById('toggle-quad').className='toggle-btn '+(view==='quad'?'active':'inactive');
+  if(view==='week')renderWeeklyView();
+  else renderAllQuads();
+}
+function renderWeeklyView(){
+  const list=document.getElementById('weekly-list');
+  const now=new Date();
+  const todayStr=formatDate(now);
+  // 이번주 월~일 + 미처리
+  const monday=new Date(now);
+  monday.setDate(now.getDate()-((now.getDay()+6)%7));
+  const days=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  let html='';
+  // 미처리 (마감일 지났거나 Today에 있는 완료 안 된 것 중 날짜 지난 것)
+  const overdue=[];
+  ['today','week','month','someday'].forEach(q=>{
+    todoData[q].forEach((item,i)=>{
+      if(!item.done&&item.dueDate&&new Date(item.dueDate)<now&&formatDate(new Date(item.dueDate))!==todayStr){
+        overdue.push({item,q,i});
+      }
+    });
+  });
+  html+=`<div class="week-row week-overdue"><div class="week-day-label"><div class="week-day-name">미처리</div></div><div class="week-items">`;
+  overdue.forEach(({item,q,i})=>{
+    html+=`<div class="week-item" onclick="openTodoDetail('${q}',${i})"><div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div><div class="week-item-text${item.done?' done':''}">${item.text}</div></div>`;
+  });
+  if(!overdue.length)html+=`<div style="font-size:11px;color:var(--rule);padding:6px 0;">없음</div>`;
+  html+=`<button class="week-add-btn" onclick="openTodoPopupWeek(null)">+ Add</button></div></div>`;
+  // 이번주 7일
+  for(let d=0;d<7;d++){
+    const day=new Date(monday);day.setDate(monday.getDate()+d);
+    const dayStr=formatDate(day);
+    const isToday=dayStr===todayStr;
+    const items=[];
+    ['today','week','month','someday'].forEach(q=>{
+      todoData[q].forEach((item,i)=>{
+        if(!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))===dayStr)items.push({item,q,i});
+        if(isToday&&q==='today'&&!item.done&&(!item.dueDate||formatDate(new Date(item.dueDate))===todayStr))items.push({item,q,i});
+      });
+    });
+    // 중복 제거
+    const seen=new Set();const uniq=items.filter(({item})=>{if(seen.has(item.notionId||item.text)){return false;}seen.add(item.notionId||item.text);return true;});
+    html+=`<div class="week-row${isToday?' today':''}"><div class="week-day-label"><div class="week-day-name">${days[d]}</div><div class="week-day-date">${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}</div></div><div class="week-items">`;
+    uniq.forEach(({item,q,i})=>{
+      html+=`<div class="week-item" onclick="openTodoDetail('${q}',${i})"><div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div><div class="week-item-text${item.done?' done':''}">${item.text}</div></div>`;
+    });
+    html+=`<button class="week-add-btn" onclick="openTodoPopupWeek('${dayStr}')">+ Add</button></div></div>`;
+  }
+  list.innerHTML=html;
+}
+function openTodoPopupWeek(dateStr){
+  currentQuad='week';
+  document.getElementById('todo-popup-label').textContent='This Week';
+  document.getElementById('todo-input').value='';
+  document.getElementById('todo-date-input').value=dateStr||'';
+  document.getElementById('todo-popup-subs').innerHTML='';
+  todoPopupSelectedDate=dateStr?new Date(dateStr+'T23:59:59'):null;
+  todoPopupSubs=[];
+  const sel=document.getElementById('todo-parent-select');
+  sel.innerHTML='<option value="">— None —</option>';
+  ['today','week','month','someday'].forEach(pq=>{
+    todoData[pq].forEach((item,i)=>{
+      if(!item.done){const opt=document.createElement('option');opt.value=pq+'|'+i;opt.textContent=item.text+' ('+QUAD_CFG[pq].label+')';sel.appendChild(opt);}
+    });
+  });
+  document.getElementById('todo-popup').classList.add('open');
+  setTimeout(()=>document.getElementById('todo-input').focus(),300);
+}
 function switchTodoCart(pane){
   currentTodoPane=pane;
   const tp=document.getElementById('todo-pane'),cp=document.getElementById('cart-pane');
@@ -1767,6 +1869,7 @@ function init(){
   initQuadDates();
   loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();loadBrainFromStorage();
   autoMoveTodos();renderAllQuads();renderCart();renderBrainList();renderBookList();
+  switchTodoView('week');
   loadTodayRecords();registerSW();
   loadTodoFromNotion();
   loadBookFromNotion();
