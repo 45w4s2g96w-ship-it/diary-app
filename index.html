@@ -53,34 +53,88 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 /* Tab bar — mobile */
 .tab-bar { display: flex; border-top: 2px solid var(--ink); background: var(--paper); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tab-bar-header { display: none; }
+.tab-num { display: none; }
 .tab-btn { flex: 1; padding: 10px 0 8px; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 7px; letter-spacing: 0.04em; color: var(--ink-muted); cursor: pointer; border: none; background: transparent; transition: all 0.15s; border-right: 1px solid var(--rule); display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
 .tab-btn:last-child { border-right: none; }
 .tab-btn.active { background: var(--ink); color: var(--paper); }
-.tab-btn svg { stroke: var(--ink-muted); transition: stroke 0.15s; fill: none; flex-shrink: 0; }
-.tab-btn.active svg { stroke: var(--paper); }
+.tab-icon { stroke: var(--ink-muted); transition: stroke 0.15s; fill: none; flex-shrink: 0; }
+.tab-btn.active .tab-icon { stroke: var(--paper); }
+.tab-label { font-size: 7px; }
 
-/* Tablet / PC */
+/* Tablet / PC — bold sidebar */
 @media (min-width: 768px) {
   :root { --pad-h: 48px; }
   body { position: fixed; inset: 0; overflow: hidden; }
   #app { flex-direction: row; height: 100%; }
-  .tab-bar { flex-direction: column; border-top: none; border-right: 2px solid var(--ink); width: 90px; flex-shrink: 0; padding-bottom: 0; height: 100%; overflow-y: auto; }
-  .tab-btn { flex: 0 0 auto; padding: 20px 0; border-right: none; border-bottom: 1px solid var(--rule); width: 100%; font-size: 7.5px; }
+  .tab-bar {
+    flex-direction: column;
+    border-top: none;
+    border-right: 2px solid var(--ink);
+    width: 180px;
+    flex-shrink: 0;
+    padding-bottom: 0;
+    height: 100%;
+    overflow-y: auto;
+  }
+  .tab-bar-header {
+    display: block;
+    padding: 20px 20px 14px;
+    border-bottom: 1px solid var(--ink);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--ink-muted);
+  }
+  .tab-num { display: block; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; color: var(--ink-muted); }
+  .tab-icon { display: none; }
+  .tab-btn {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px;
+    border-right: none;
+    border-bottom: 1px solid var(--ink);
+    width: 100%;
+    text-align: left;
+    gap: 0;
+  }
   .tab-btn:last-child { border-bottom: none; }
-  #app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; max-width: 680px; }
-  .tab-content { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
-  .tab-content.active { display: flex; }
-  .quad-grid { grid-template-columns: 1fr 1fr; }
+  .tab-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .tab-btn.active { background: var(--ink); }
+  .tab-btn.active .tab-label { color: var(--paper); }
+  .tab-btn.active .tab-num { color: var(--ink-muted); }
+}
+@media (min-width: 1400px) {
+  :root { --pad-h: 72px; }
+  .tab-bar { width: 220px; }
+  .tab-label { font-size: 36px; }
+  .tab-btn { padding: 26px 24px; }
 }
 
-@media (min-width: 1100px) {
-  #app-main { max-width: 860px; }
+@media (min-width: 768px) {
+  .section-title { font-size: 38px; }
+  .record-text { font-size: 14px; }
+  .record-time { font-size: 11px; }
+  .quad-text { font-size: 13px; }
+  .brain-item { font-size: 14px; }
+  .book-card-title { font-size: 15px; }
   .quad-grid { grid-template-columns: 1fr 1fr; }
-  .section-header { padding: 20px 32px 12px; }
 }
-
-/* Section header */
-.section-header { padding: 14px var(--pad-h) 12px; border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
+@media (min-width: 1400px) {
+  .section-title { font-size: 48px; }
+  .record-text { font-size: 16px; }
+  .quad-text { font-size: 14px; }
+} padding: 14px var(--pad-h) 12px; border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
 .section-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
 .settings-btn { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; }
 .add-btn-sm { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; background: var(--ink); color: var(--paper); border: none; padding: 6px 12px; cursor: pointer; border-radius: 1px; }
@@ -335,20 +389,31 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 <div id="app" class="hidden">
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('record',this)">
-      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Log
+    <div class="tab-bar-header">ARCHIVE</div>
+    <button class="tab-btn active" onclick="switchTab('record',this)" data-num="00.">
+      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span class="tab-label">Log</span>
+      <span class="tab-num">00.</span>
     </button>
-    <button class="tab-btn" onclick="switchTab('todo',this)">
-      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>To-Do
+    <button class="tab-btn" onclick="switchTab('todo',this)" data-num="01.">
+      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span class="tab-label">To-Do</span>
+      <span class="tab-num">01.</span>
     </button>
-    <button class="tab-btn" onclick="switchTab('dump',this)">
-      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>Dump
+    <button class="tab-btn" onclick="switchTab('dump',this)" data-num="02.">
+      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>
+      <span class="tab-label">Dump</span>
+      <span class="tab-num">02.</span>
     </button>
-    <button class="tab-btn" onclick="switchTab('inbox',this)">
-      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Inbox
+    <button class="tab-btn" onclick="switchTab('inbox',this)" data-num="03.">
+      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      <span class="tab-label">Inbox</span>
+      <span class="tab-num">03.</span>
     </button>
-    <button class="tab-btn" onclick="switchTab('book',this)">
-      <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Book
+    <button class="tab-btn" onclick="switchTab('book',this)" data-num="04.">
+      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span class="tab-label">Book</span>
+      <span class="tab-num">04.</span>
     </button>
   </div>
   <div id="app-main">
