@@ -1193,7 +1193,7 @@ function openSubTodoDetail(q,i,si){
   currentDetailQuad=q;currentDetailIdx=i;
   // 하위항목 팝업 — 별도 팝업 재활용
   const popup=document.getElementById('todo-detail-popup');
-  document.getElementById('td-quad-tag').textContent='하위 업무';
+  document.getElementById('td-quad-tag').textContent='SUBTASK';
   document.getElementById('td-title').textContent=sub.text;
   document.getElementById('td-due').textContent='상위: '+parent.text;
   document.getElementById('td-view-mode').style.display='';
@@ -1220,7 +1220,7 @@ function restoreTodoDetailUI(){
   document.getElementById('todo-detail-popup').classList.remove('open');
 }
 function deleteSubTodoItem(_,q,i,si){
-  if(!confirm('하위 업무를 삭제할까요?'))return;
+  if(!confirm('Delete this subtask?'))return;
   todoData[q][i].subs.splice(si,1);
   saveTodoToStorage();renderAllQuads();restoreTodoDetailUI();showToast('Deleted!');
 }
@@ -1252,7 +1252,7 @@ const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElemen
 function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToNotion(text);}
 async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',r.status,d);}catch(e){console.error('brain save error',e);}}
 function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">Hold & drag to sort.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">Hold to drag</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">DELETE</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:false});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
-function startHold(e,idx,item){holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
+function startHold(e,idx,item){e.preventDefault();holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
 document.addEventListener('touchmove',e=>{if(!isDragging)return;e.preventDefault();const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:false});
 document.addEventListener('touchend',e=>{clearTimeout(holdTimer);if(!isDragging)return;const t=e.changedTouches[0];let landed=null;document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();if(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)landed=z.dataset.zone;z.classList.remove('hovered');});endDrag(landed);});
 document.addEventListener('mouseup',e=>{clearTimeout(holdTimer);if(!isDragging)return;let landed=null;document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)landed=z.dataset.zone;z.classList.remove('hovered');});endDrag(landed);});
@@ -1260,10 +1260,10 @@ function endDrag(zone){isDragging=false;ghost.style.display='none';dragOverlay.c
 let subDragZone='',subDragItem=null,subDragIdx=-1;
 function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragIdx=idx;document.getElementById('sub-popup-text').textContent=item.text;const wrap=document.getElementById('sub-choices-wrap');wrap.innerHTML='';if(zone==='record'){document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';const grid=document.createElement('div');grid.className='sub-mood-grid';['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{const btn=document.createElement('button');btn.className='sub-mood-btn';btn.textContent=m;btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);grid.appendChild(btn);});wrap.appendChild(grid);}else if(zone==='todo'){document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(QUAD_CFG).forEach(([q,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':'');btn.onclick=()=>confirmSubTodo(q);div.appendChild(btn);});wrap.appendChild(div);}else if(zone==='cart'){document.getElementById('sub-popup-title').textContent='CART — 분류 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label;btn.onclick=()=>confirmSubCart(s);div.appendChild(btn);});wrap.appendChild(div);}
   else if(zone==='idea'){
-    document.getElementById('sub-popup-title').textContent='IDEA — 아이디어로 저장';
+    document.getElementById('sub-popup-title').textContent='IDEA — Save as Idea';
     const div=document.createElement('div');div.className='sub-choices';
     const btn=document.createElement('button');btn.className='sub-choice';
-    btn.textContent='아이디어 DB에 저장';btn.style.cssText='border-color:var(--ink);font-weight:600;';
+    btn.textContent='Save to Idea DB';btn.style.cssText='border-color:var(--ink);font-weight:600;';
     btn.onclick=()=>confirmSubIdea();div.appendChild(btn);
     wrap.appendChild(div);
   }
