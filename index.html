@@ -14,13 +14,21 @@
 <style>
 :root {
   --paper: #efefed; --ink: #111111; --ink-soft: #444; --ink-muted: #888;
-  --rule: #c8c4bc; --content-width: 430px; --pad-h: 22px;
+  --rule: #c8c4bc; --pad-h: 22px;
 }
-@media (min-width: 768px) { :root { --content-width: 680px; --pad-h: 32px; } }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
-body { background: var(--paper); font-family: 'Gothic A1', sans-serif; display: flex; flex-direction: column; width: 100%; max-width: var(--content-width); margin: 0 auto; position: relative; min-height: 100%; }
-@media (max-width: 767px) { html, body { overflow: hidden; } body { height: 100%; } }
+html { height: 100%; }
+body {
+  background: var(--paper);
+  font-family: 'Gothic A1', sans-serif;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+}
 body::before { content: ''; position: fixed; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.012) 3px, rgba(0,0,0,0.012) 4px), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); pointer-events: none; z-index: 100; mix-blend-mode: multiply; }
 
 /* Setup */
@@ -37,29 +45,27 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .setup-logout-btn { width: 100%; margin-top: 10px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.15em; background: transparent; color: #c0392b; border: 1.5px solid #c0392b; padding: 14px; cursor: pointer; border-radius: 2px; }
 
 /* App */
-#app { display: flex; flex-direction: column; height: 100%; }
+#app { display: flex; flex-direction: column; width: 100%; height: 100%; overflow: hidden; }
 #app.hidden { display: none; }
-@media (min-width: 768px) {
-  body { max-width: 100%; overflow: hidden; height: 100vh; }
-  #app { flex-direction: row; height: 100vh; overflow: hidden; }
-  #app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-  .tab-content { flex: 1; overflow-y: auto; }
-}
-.tab-content { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+#app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.tab-content { display: none; flex-direction: column; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; -webkit-overflow-scrolling: touch; }
 .tab-content.active { display: flex; }
 
-/* Tab bar */
-.tab-bar { display: flex; border-top: 2px solid var(--ink); background: var(--paper); flex-shrink: 0; order: 2; padding-bottom: env(safe-area-inset-bottom, 16px); }
+/* Tab bar — mobile */
+.tab-bar { display: flex; border-top: 2px solid var(--ink); background: var(--paper); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
 .tab-btn { flex: 1; padding: 10px 0 8px; text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 7px; letter-spacing: 0.04em; color: var(--ink-muted); cursor: pointer; border: none; background: transparent; transition: all 0.15s; border-right: 1px solid var(--rule); display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
 .tab-btn:last-child { border-right: none; }
 .tab-btn.active { background: var(--ink); color: var(--paper); }
 .tab-btn svg { stroke: var(--ink-muted); transition: stroke 0.15s; fill: none; flex-shrink: 0; }
 .tab-btn.active svg { stroke: var(--paper); }
 
+/* Tablet / PC */
 @media (min-width: 768px) {
-  body { flex-direction: row; max-width: 100%; height: 100vh; overflow: hidden; }
-  .tab-bar { flex-direction: column; border-top: none; border-right: 2px solid var(--ink); order: 0; width: 80px; flex-shrink: 0; padding-bottom: 0; height: 100vh; overflow-y: auto; }
-  .tab-btn { flex: 0 0 auto; padding: 18px 0; border-right: none; border-bottom: 1px solid var(--rule); width: 100%; font-size: 6.5px; }
+  :root { --pad-h: 48px; }
+  body { position: fixed; inset: 0; overflow: hidden; }
+  #app { flex-direction: row; height: 100%; }
+  .tab-bar { flex-direction: column; border-top: none; border-right: 2px solid var(--ink); width: 90px; flex-shrink: 0; padding-bottom: 0; height: 100%; overflow-y: auto; }
+  .tab-btn { flex: 0 0 auto; padding: 20px 0; border-right: none; border-bottom: 1px solid var(--rule); width: 100%; font-size: 7.5px; }
   .tab-btn:last-child { border-bottom: none; }
   #app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; max-width: 680px; }
   .tab-content { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
