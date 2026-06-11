@@ -123,6 +123,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 /* Section header */
 .section-header { padding: 28px var(--pad-h) 16px var(--pad-h); border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
+.section-title { padding-left: 0; }
 .section-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
 .settings-btn { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; }
 .add-btn-sm { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; background: var(--ink); color: var(--paper); border: none; padding: 6px 12px; cursor: pointer; border-radius: 1px; }
@@ -367,8 +368,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   :root { --pad-h: 40px; }
   body { position: fixed; inset: 0; overflow: hidden; }
   #app { flex-direction: row; height: 100%; }
-  .section-header { padding-left: 0; }
-  .brain-header { padding-left: 0; }
+  .section-header { padding-left: 0 !important; }
+  .brain-header { padding-left: 0 !important; }
+  .section-title { padding-left: var(--pad-h); }
   .brain-header { padding-left: var(--pad-h); }
   .emotion-section { padding-left: var(--pad-h); padding-right: var(--pad-h); }
   .memo-area { padding-left: var(--pad-h); padding-right: var(--pad-h); }
