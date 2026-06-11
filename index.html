@@ -1464,8 +1464,10 @@ async function saveCartToNotion(section,text,memo){try{const props={'이름':{ti
 /* Braindump */
 let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElementById('drag-overlay');
-function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToNotion(text);}
-async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'미분류'}},'생성일시':{date:{start:new Date().toISOString()}},'처리됨':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',r.status,d);}catch(e){console.error('brain save error',e);}}
+function saveBrainToStorage(){try{localStorage.setItem('brain_items',JSON.stringify(brainItems));}catch(e){}}
+function loadBrainFromStorage(){try{const d=localStorage.getItem('brain_items');if(d)brainItems=JSON.parse(d);}catch(e){}}
+function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToStorage();saveBrainToNotion(text);}
+async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'입력일':{date:{start:new Date().toISOString()}},'처리완료':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',r.status,d);}catch(e){console.error('brain save error',e);}}
 function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">Hold & drag to sort.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">Hold to drag</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">DELETE</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:false});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
 function startHold(e,idx,item){e.preventDefault();holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
 document.addEventListener('touchmove',e=>{if(!isDragging)return;e.preventDefault();const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:false});
@@ -1504,8 +1506,8 @@ async function confirmSubRecord(mood){closeSubPopup();const text=subDragItem.tex
 function confirmSubTodo(q){closeSubPopup();const cfg=QUAD_CFG[q];let dueDate=null;if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}todoData[q].push({text:subDragItem.text,dueDate,done:false,addedAt:new Date(),subs:[]});renderAllQuads();saveTodoToStorage();markBrainDone(subDragIdx,'todo');showToast('Added to To-Do!');}
 function confirmSubCart(section){closeSubPopup();cartData[section].push({text:subDragItem.text,memo:'',done:false});renderCart();saveCartToStorage();saveCartToNotion(section,subDragItem.text,'');markBrainDone(subDragIdx,'cart');showToast('Added to Cart!');}
 function markBrainDone(idx,tag){brainItems[idx].tag=tag;renderBrainList();}
-function deleteBrainItem(idx){brainItems.splice(idx,1);renderBrainList();}
-function resetBrain(){if(!brainItems.length)return;if(!confirm('Clear all brain dump items?'))return;brainItems=[];renderBrainList();showToast('Reset!');}
+function deleteBrainItem(idx){brainItems.splice(idx,1);renderBrainList();saveBrainToStorage();}
+function resetBrain(){if(!brainItems.length)return;if(!confirm('Clear all brain dump items?'))return;brainItems=[];renderBrainList();saveBrainToStorage();showToast('Reset!');}
 
 /* Book */
 let bookData=[],currentBookIdx=-1,selectedSearchBook=null,bookSearchTimer=null;
@@ -1763,7 +1765,7 @@ async function registerSW(){if(!('serviceWorker' in navigator))return;try{await 
 function init(){
   document.getElementById('current-date').textContent=formatDateDisplay(getDiaryDate());
   initQuadDates();
-  loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();
+  loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();loadBrainFromStorage();
   autoMoveTodos();renderAllQuads();renderCart();renderBrainList();renderBookList();
   loadTodayRecords();registerSW();
   loadTodoFromNotion();
