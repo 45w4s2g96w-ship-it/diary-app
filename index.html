@@ -47,7 +47,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* App */
 #app { display: flex; flex-direction: column; width: 100%; height: 100%; overflow: hidden; }
 #app.hidden { display: none; }
-#app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+#app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; min-width: 0; }
 .tab-content { display: none; flex-direction: column; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; -webkit-overflow-scrolling: touch; }
 .tab-content.active { display: flex; }
 
@@ -121,20 +121,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .tab-btn { padding: 26px 24px; }
 }
 
-@media (min-width: 768px) {
-  .section-title { font-size: 38px; }
-  .record-text { font-size: 14px; }
-  .record-time { font-size: 11px; }
-  .quad-text { font-size: 13px; }
-  .brain-item { font-size: 14px; }
-  .book-card-title { font-size: 15px; }
-  .quad-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (min-width: 1400px) {
-  .section-title { font-size: 48px; }
-  .record-text { font-size: 16px; }
-  .quad-text { font-size: 14px; }
-} padding: 14px var(--pad-h) 12px; border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
+/* Section header */
+.section-header { padding: 28px var(--pad-h) 16px; border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
 .section-title { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
 .settings-btn { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; }
 .add-btn-sm { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; background: var(--ink); color: var(--paper); border: none; padding: 6px 12px; cursor: pointer; border-radius: 1px; }
@@ -205,7 +193,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .toggle-btn.inactive { background: transparent; color: var(--ink-muted); }
 
 /* Braindump */
-.brain-header { padding: 12px var(--pad-h) 10px; border-bottom: 2px solid var(--ink); flex-shrink: 0; display: flex; justify-content: space-between; align-items: flex-end; }
+.brain-header { padding: 28px var(--pad-h) 16px; border-bottom: 2px solid var(--ink); flex-shrink: 0; display: flex; justify-content: space-between; align-items: flex-end; }
 .brain-reset-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: #c0392b; border: 1px solid #c0392b; padding: 6px 12px; background: none; cursor: pointer; border-radius: 1px; }
 .brain-input-wrap { padding: 10px var(--pad-h); border-bottom: 1px solid var(--rule); flex-shrink: 0; }
 .brain-textarea { width: 100%; font-family: 'Gothic A1', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); background: transparent; border: none; outline: none; resize: none; line-height: 1.7; min-height: 60px; overflow: hidden; display: block; }
@@ -371,6 +359,30 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .loading-overlay.hidden { display: none; }
 .loading-text { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--ink); animation: pulse 1.2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+@media (min-width: 768px) {
+  .section-title { font-size: 32px !important; }
+  .record-text { font-size: 14px !important; }
+  .record-time { font-size: 11px !important; }
+  .quad-text { font-size: 13px !important; }
+  .brain-item-text { font-size: 14px !important; }
+  .book-card-title { font-size: 15px !important; }
+  .quad-grid { grid-template-columns: 1fr 1fr; }
+  .tag { font-size: 13px !important; }
+  .emotion-optional-label { font-size: 9px !important; }
+  .text-input { font-size: 15px !important; }
+  .record-tag { font-size: 12px !important; }
+}
+@media (min-width: 1400px) {
+  .section-title { font-size: 40px !important; }
+  .record-text { font-size: 16px !important; }
+  .quad-text { font-size: 14px !important; }
+  .tag { font-size: 14px !important; }
+  .text-input { font-size: 16px !important; }
+  .record-tag { font-size: 13px !important; }
+  .brain-item-text { font-size: 16px !important; }
+  .book-card-title { font-size: 16px !important; }
+}
 </style>
 </head>
 <body>
