@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -50,6 +50,23 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .tab-btn.active { background: var(--ink); color: var(--paper); }
 .tab-btn svg { stroke: var(--ink-muted); transition: stroke 0.15s; fill: none; flex-shrink: 0; }
 .tab-btn.active svg { stroke: var(--paper); }
+
+@media (min-width: 768px) {
+  body { flex-direction: row; max-width: 100%; height: 100vh; overflow: hidden; }
+  .tab-bar { flex-direction: column; border-top: none; border-right: 2px solid var(--ink); order: 0; width: 80px; flex-shrink: 0; padding-bottom: 0; height: 100vh; overflow-y: auto; }
+  .tab-btn { flex: 0 0 auto; padding: 18px 0; border-right: none; border-bottom: 1px solid var(--rule); width: 100%; font-size: 6.5px; }
+  .tab-btn:last-child { border-bottom: none; }
+  #app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; max-width: 680px; }
+  .tab-content { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
+  .tab-content.active { display: flex; }
+  .quad-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (min-width: 1100px) {
+  #app-main { max-width: 860px; }
+  .quad-grid { grid-template-columns: 1fr 1fr; }
+  .section-header { padding: 20px 32px 12px; }
+}
 
 /* Section header */
 .section-header { padding: 14px var(--pad-h) 12px; border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
@@ -323,6 +340,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <svg width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Book
     </button>
   </div>
+  <div id="app-main">
 
   <!-- RECORD -->
   <div class="tab-content active" id="tab-record">
