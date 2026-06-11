@@ -576,11 +576,18 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 <!-- Todo popup -->
 <div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
-  <div class="popup-sheet">
+  <div class="popup-sheet" style="max-height:90vh;overflow-y:auto;">
     <div class="popup-label" id="todo-popup-label"></div>
-    <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')confirmTodo()">
-    <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'Gothic A1',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-    <input type="date" id="todo-date-input" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:14px;background:transparent;border:1.5px solid var(--rule);padding:10px 12px;outline:none;margin-bottom:14px;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
+    <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')document.getElementById('todo-date-input').focus()">
+    <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'Gothic A1',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
+    <input type="date" id="todo-date-input" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:14px;background:transparent;border:1.5px solid var(--rule);padding:10px 12px;outline:none;margin-bottom:16px;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
+    <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">SUBTASKS <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'Gothic A1',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
+    <div id="todo-popup-subs" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
+    <button onclick="addTodoPopupSub()" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px dashed var(--rule);padding:7px 12px;cursor:pointer;margin-bottom:16px;width:100%;text-align:left;">+ ADD SUBTASK</button>
+    <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">LINK TO PARENT <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'Gothic A1',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
+    <select id="todo-parent-select" style="width:100%;font-family:'Gothic A1',sans-serif;font-size:13px;background:var(--paper);border:1.5px solid var(--rule);padding:10px 12px;outline:none;margin-bottom:16px;color:var(--ink);border-radius:1px;">
+      <option value="">— None —</option>
+    </select>
     <div class="popup-btns"><button class="popup-cancel" onclick="closeTodoPopup()">CANCEL</button><button class="popup-ok" onclick="confirmTodo()">OK</button></div>
   </div>
 </div>
@@ -1041,22 +1048,17 @@ const QUAD_CFG={today:{label:'Today',offset:0},week:{label:'This Week',offset:7}
 let todoData={today:[],week:[],month:[],someday:[]},currentQuad='';
 function initQuadDates(){document.getElementById('due-today').textContent=formatDateShort(new Date());document.getElementById('due-week').textContent='+7d  '+formatDateShort(getOffsetDate(7));document.getElementById('due-month').textContent='+30d  '+formatDateShort(getOffsetDate(30));}
 let todoPopupSelectedDate=null;
-function setTodoPopupDate(offset){
-  document.querySelectorAll('.todo-date-btn').forEach(b=>b.classList.remove('selected'));
-  if(offset===null){
-    todoPopupSelectedDate=null;
-    document.getElementById('todo-date-input').value='';
-    event.target.classList.add('selected');
-  } else {
-    const d=new Date();d.setDate(d.getDate()+offset);
-    todoPopupSelectedDate=d;
-    document.getElementById('todo-date-input').value=formatDate(d);
-    event.target.classList.add('selected');
-  }
+let todoPopupSubs=[];
+function addTodoPopupSub(){
+  const idx=todoPopupSubs.length;
+  todoPopupSubs.push('');
+  const wrap=document.getElementById('todo-popup-subs');
+  const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;align-items:center;';
+  row.innerHTML=`<input placeholder="Subtask ${idx+1}" style="flex:1;font-family:'Gothic A1',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;background:transparent;color:var(--ink);" oninput="todoPopupSubs[${idx}]=this.value"><button onclick="this.parentElement.remove();todoPopupSubs.splice(${idx},1)" style="font-size:14px;background:transparent;border:none;cursor:pointer;color:var(--ink-muted);padding:0 4px;">✕</button>`;
+  wrap.appendChild(row);
 }
 function onTodoDateInputChange(){
   const val=document.getElementById('todo-date-input').value;
-  document.querySelectorAll('.todo-date-btn').forEach(b=>b.classList.remove('selected'));
   todoPopupSelectedDate=val?new Date(val+'T23:59:59'):null;
 }
 function openTodoPopup(q){
@@ -1064,7 +1066,22 @@ function openTodoPopup(q){
   document.getElementById('todo-popup-label').textContent=cfg.label;
   document.getElementById('todo-input').value='';
   document.getElementById('todo-date-input').value='';
+  document.getElementById('todo-popup-subs').innerHTML='';
   todoPopupSelectedDate=null;
+  todoPopupSubs=[];
+  // 상위 항목 선택지 채우기
+  const sel=document.getElementById('todo-parent-select');
+  sel.innerHTML='<option value="">— None —</option>';
+  ['today','week','month','someday'].forEach(pq=>{
+    todoData[pq].forEach((item,i)=>{
+      if(!item.done){
+        const opt=document.createElement('option');
+        opt.value=pq+'|'+i;
+        opt.textContent=item.text+' ('+QUAD_CFG[pq].label+')';
+        sel.appendChild(opt);
+      }
+    });
+  });
   document.getElementById('todo-popup').classList.add('open');
   setTimeout(()=>document.getElementById('todo-input').focus(),300);
 }
@@ -1072,11 +1089,40 @@ function closeTodoPopup(){document.getElementById('todo-popup').classList.remove
 async function confirmTodo(){
   const text=document.getElementById('todo-input').value.trim();if(!text)return;
   const dueDate=todoPopupSelectedDate||null;
-  const item={text,dueDate,done:false,doneAt:null,addedAt:new Date(),notionId:null,subs:[]};
-  todoData[currentQuad].push(item);
-  closeTodoPopup();renderAllQuads();saveTodoToStorage();
-  const id=await saveTodoToNotion(currentQuad,text,dueDate);
-  if(id){item.notionId=id;saveTodoToStorage();}
+  const parentVal=document.getElementById('todo-parent-select').value;
+  const subs=todoPopupSubs.filter(s=>s.trim());
+  closeTodoPopup();
+
+  if(parentVal){
+    // 케이스 3: 기존 투두의 하위로 등록
+    const [pq,pi]=parentVal.split('|');
+    const pidx=parseInt(pi);
+    const sub={text,done:false,doneAt:null,quad:pq,notionId:null};
+    todoData[pq][pidx].subs=todoData[pq][pidx].subs||[];
+    todoData[pq][pidx].subs.push(sub);
+    renderAllQuads();saveTodoToStorage();
+    const parentId=todoData[pq][pidx].notionId;
+    const subId=await saveSubTodoToNotion(text,parentId);
+    if(subId){sub.notionId=subId;saveTodoToStorage();}
+  } else {
+    // 케이스 1&2: 독립 투두 (+ 하위 항목)
+    const item={text,dueDate,done:false,doneAt:null,addedAt:new Date(),notionId:null,subs:[]};
+    todoData[currentQuad].push(item);
+    renderAllQuads();saveTodoToStorage();
+    const id=await saveTodoToNotion(currentQuad,text,dueDate);
+    if(id){
+      item.notionId=id;saveTodoToStorage();
+      // 하위 항목 저장
+      for(const subText of subs){
+        const sub={text:subText,done:false,doneAt:null,quad:currentQuad,notionId:null};
+        item.subs.push(sub);
+        const subId=await saveSubTodoToNotion(subText,id);
+        if(subId){sub.notionId=subId;}
+      }
+      if(subs.length){saveTodoToStorage();renderAllQuads();}
+    }
+  }
+  showToast('Added!');
 }
 function toggleTodo(q,idx,e){
   e.stopPropagation();
