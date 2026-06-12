@@ -92,22 +92,23 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 }
 
 /* Weekly view — [FIX #2] 폰트 크기를 다른 탭과 통일 */
-.week-row { display: flex; border-bottom: 1px solid var(--rule); min-height: 44px; }
+.week-row { display: flex; border-bottom: 1px solid var(--rule); min-height: 36px; }
 .week-row.today { background: rgba(0,0,0,0.03); }
-.week-day-label { flex-shrink: 0; width: 80px; padding: 12px 12px 12px 0; display: flex; flex-direction: column; justify-content: flex-start; border-right: 1px solid var(--rule); }
-.week-day-name { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); }
-.week-day-date { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 900; color: var(--ink); margin-top: 2px; }
+.week-day-label { flex-shrink: 0; width: 56px; padding: 8px 8px 8px 0; display: flex; flex-direction: column; justify-content: flex-start; border-right: 1px solid var(--rule); }
+.week-day-name { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
+.week-day-date { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 900; color: var(--ink); margin-top: 1px; }
 .week-row.today .week-day-name { color: var(--ink); }
 .week-row.today .week-day-date { color: var(--ink); }
-.week-items { flex: 1; padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 4px; }
-.week-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--rule); cursor: pointer; }
+/* 2열 배치 */
+.week-items { flex: 1; padding: 5px 0 5px 10px; display: flex; flex-direction: row; flex-wrap: wrap; gap: 0; align-content: flex-start; }
+.week-item { display: flex; align-items: center; gap: 6px; padding: 3px 6px 3px 0; border-bottom: none; cursor: pointer; width: 50%; min-width: 0; }
 .week-item:last-child { border-bottom: none; }
-.week-check { width: 14px; height: 14px; border: 1.5px solid var(--ink); border-radius: 3px; flex-shrink: 0; transition: background 0.12s; }
+.week-check { width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; flex-shrink: 0; transition: background 0.12s; }
 .week-check.done { background: var(--ink); }
-/* [FIX #2] week-item-text 폰트 크기를 다른 탭(13px)과 통일 */
-.week-item-text { font-size: 13px; font-weight: 400; color: var(--ink); line-height: 1.4; flex: 1; font-family: 'NanumSquareNeo', sans-serif; }
+/* quad-text와 동일한 폰트 크기 */
+.week-item-text { font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .week-item-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.week-add-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; color: var(--ink-muted); background: transparent; border: none; cursor: pointer; padding: 6px 0; letter-spacing: 0.06em; text-align: left; }
+.week-add-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: none; cursor: pointer; padding: 4px 0; letter-spacing: 0.06em; text-align: left; width: 100%; }
 .week-overdue .week-day-name { color: #c0392b; }
 .week-overdue .week-day-date { color: #c0392b; }
 .section-header { padding: 28px var(--pad-h) 16px var(--pad-h); border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
@@ -156,7 +157,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-cell:active { background: rgba(0,0,0,0.03); }
 .quad-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 2px; line-height: 1.4; flex-shrink: 0; }
 .quad-due { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; color: var(--rule); margin-bottom: 8px; flex-shrink: 0; }
-.quad-items { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.quad-items { flex: 1; display: flex; flex-direction: column; overflow-y: auto; min-height: 0; scrollbar-width: none; }
+.quad-items::-webkit-scrollbar { display: none; }
 .quad-item { display: flex; align-items: flex-start; gap: 5px; padding: 4px 0; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
 .quad-item:last-child { border-bottom: none; }
 .quad-check { width: 11px; height: 11px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
@@ -382,7 +384,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .book-card-title { font-size: 15px !important; }
   .tag { font-size: 13px !important; }
   .record-tag { font-size: 12px !important; }
-  .week-item-text { font-size: 14px !important; }
+  .week-item-text { font-size: 13px !important; }
 }
 @media (min-width: 1400px) {
   :root { --pad-h: 60px; }
@@ -393,7 +395,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .record-tag { font-size: 13px !important; }
   .brain-item-text { font-size: 16px !important; }
   .book-card-title { font-size: 16px !important; }
-  .week-item-text { font-size: 15px !important; }
+  .week-item-text { font-size: 14px !important; }
 }
 </style>
 </head>
@@ -505,19 +507,19 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <div class="quad-grid">
           <div class="quad-cell" onclick="openTodoPopup('today')">
             <div class="quad-label">Today</div><div class="quad-due" id="due-today"></div>
-            <div class="quad-items" id="items-today"></div><div class="quad-add">+ Add</div>
+            <div class="quad-items" id="items-today"></div>
           </div>
           <div class="quad-cell" onclick="openTodoPopup('week')">
             <div class="quad-label">This Week</div><div class="quad-due" id="due-week"></div>
-            <div class="quad-items" id="items-week"></div><div class="quad-add">+ Add</div>
+            <div class="quad-items" id="items-week"></div>
           </div>
           <div class="quad-cell" onclick="openTodoPopup('month')">
             <div class="quad-label">This Month</div><div class="quad-due" id="due-month"></div>
-            <div class="quad-items" id="items-month"></div><div class="quad-add">+ Add</div>
+            <div class="quad-items" id="items-month"></div>
           </div>
           <div class="quad-cell" onclick="openTodoPopup('someday')">
             <div class="quad-label">Someday</div><div class="quad-due" style="color:var(--rule);">No deadline</div>
-            <div class="quad-items" id="items-someday"></div><div class="quad-add">+ Add</div>
+            <div class="quad-items" id="items-someday"></div>
           </div>
         </div>
       </div>
@@ -526,19 +528,19 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="quad-grid">
         <div class="quad-cell" onclick="openCartPopup('need-buy')">
           <div class="quad-label">Need &<br>Buy</div>
-          <div class="quad-items" id="items-need-buy"></div><div class="quad-add">+ Add</div>
+          <div class="quad-items" id="items-need-buy"></div>
         </div>
         <div class="quad-cell" onclick="openCartPopup('need-want')">
           <div class="quad-label">Need &<br>Want</div>
-          <div class="quad-items" id="items-need-want"></div><div class="quad-add">+ Add</div>
+          <div class="quad-items" id="items-need-want"></div>
         </div>
         <div class="quad-cell" onclick="openCartPopup('need-later')">
           <div class="quad-label">Need<br>Later</div>
-          <div class="quad-items" id="items-need-later"></div><div class="quad-add">+ Add</div>
+          <div class="quad-items" id="items-need-later"></div>
         </div>
         <div class="quad-cell" onclick="openCartPopup('want')">
           <div class="quad-label">Just<br>Want</div>
-          <div class="quad-items" id="items-want"></div><div class="quad-add">+ Add</div>
+          <div class="quad-items" id="items-want"></div>
         </div>
       </div>
     </div>
@@ -1058,7 +1060,7 @@ function renderWeeklyView(){
     });
   });
 
-  html+=`<div class="week-row week-overdue"><div class="week-day-label" style="padding-left:12px;"><div class="week-day-name">미처리</div></div><div class="week-items">`;
+  html+=`<div class="week-row week-overdue"><div class="week-day-label"><div class="week-day-name">미처리</div></div><div class="week-items">`;
   overdue.forEach(({item,q,i})=>{
     html+=`<div class="week-item" onclick="openTodoDetail('${q}',${i})"><div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div><div class="week-item-text${item.done?' done':''}">${item.text}</div></div>`;
   });
@@ -1095,7 +1097,7 @@ function renderWeeklyView(){
 
     const dayName=DAY_NAMES[day.getDay()];
     const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
-    html+=`<div class="week-row${isToday?' today':''}"><div class="week-day-label" style="padding-left:12px;"><div class="week-day-name">${dayName}</div><div class="week-day-date">${dayDateStr}</div></div><div class="week-items">`;
+    html+=`<div class="week-row${isToday?' today':''}"><div class="week-day-label"><div class="week-day-name">${dayName}</div><div class="week-day-date">${dayDateStr}</div></div><div class="week-items">`;
     items.forEach(({item,q,i})=>{
       html+=`<div class="week-item" onclick="openTodoDetail('${q}',${i})"><div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div><div class="week-item-text${item.done?' done':''}">${item.text}</div></div>`;
     });
@@ -1141,10 +1143,19 @@ let todoPopupSelectedDate=null;
 let todoPopupSubs=[];
 function addTodoPopupSub(){
   const idx=todoPopupSubs.length;
-  todoPopupSubs.push('');
+  todoPopupSubs.push({text:'',dueDate:null});
   const wrap=document.getElementById('todo-popup-subs');
-  const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;align-items:center;';
-  row.innerHTML=`<input placeholder="Subtask ${idx+1}" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;background:transparent;color:var(--ink);" oninput="todoPopupSubs[${idx}]=this.value"><button onclick="this.parentElement.remove();todoPopupSubs.splice(${idx},1)" style="font-size:14px;background:transparent;border:none;cursor:pointer;color:var(--ink-muted);padding:0 4px;">✕</button>`;
+  const row=document.createElement('div');row.style.cssText='display:flex;flex-direction:column;gap:4px;padding:8px 10px;border:1px solid var(--rule);border-radius:2px;margin-bottom:4px;';
+  row.innerHTML=`
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input placeholder="Subtask ${idx+1}" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;background:transparent;color:var(--ink);" oninput="todoPopupSubs[${idx}].text=this.value">
+      <button onclick="this.closest('div').parentElement.remove();todoPopupSubs.splice(${idx},1)" style="font-size:14px;background:transparent;border:none;cursor:pointer;color:var(--ink-muted);padding:0 4px;flex-shrink:0;">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);">DUE</span>
+      <input type="date" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:11px;background:transparent;border:1px solid var(--rule);padding:3px 6px;outline:none;color:var(--ink);border-radius:1px;" onchange="todoPopupSubs[${idx}].dueDate=this.value?new Date(this.value+'T23:59:59'):null">
+      <span style="font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">없으면 상위 마감일 상속</span>
+    </div>`;
   wrap.appendChild(row);
 }
 function onTodoDateInputChange(){
@@ -1183,7 +1194,7 @@ async function confirmTodo(){
   const memo=document.getElementById('todo-memo-input').value.trim();
   const dueDate=todoPopupSelectedDate||null;
   const parentVal=document.getElementById('todo-parent-select').value;
-  const subs=todoPopupSubs.filter(s=>s.trim());
+  const subs=todoPopupSubs.filter(s=>(typeof s==='string'?s:s.text).trim());
   closeTodoPopup();
 
   if(parentVal){
@@ -1203,10 +1214,12 @@ async function confirmTodo(){
     const id=await saveTodoToNotion(currentQuad,text,dueDate,memo);
     if(id){
       item.notionId=id;saveTodoToStorage();
-      for(const subText of subs){
-        const sub={text:subText,done:false,doneAt:null,quad:currentQuad,notionId:null};
+      for(const subObj of subs){
+        const subText=typeof subObj==='string'?subObj:subObj.text;
+        const subDue=(typeof subObj==='object'&&subObj.dueDate)?subObj.dueDate:dueDate;
+        const sub={text:subText,memo:'',done:false,doneAt:null,quad:currentQuad,dueDate:subDue,notionId:null};
         item.subs.push(sub);
-        const subId=await saveSubTodoToNotion(subText,id);
+        const subId=await saveSubTodoToNotion(subText,id,'',subDue);
         if(subId){sub.notionId=subId;}
       }
       if(subs.length){saveTodoToStorage();renderAllQuads();}
@@ -1272,8 +1285,7 @@ function renderQuad(q){
     });
   });
 
-  // [FIX #5] 사분면 높이 초과 감지 후 접기
-  requestAnimationFrame(()=>applyQuadOverflow(q,c,cellEl));
+  // quad-items는 overflow-y:auto 스크롤로 처리
 }
 
 function applyQuadOverflow(q,c,cellEl){
@@ -1328,11 +1340,12 @@ async function saveTodoToNotion(quad,text,dueDate,memo){
     const data=await res.json();return data.id||null;
   }catch(e){console.error(e);return null;}
 }
-async function saveSubTodoToNotion(text,parentId,memo){
+async function saveSubTodoToNotion(text,parentId,memo,dueDate){
   try{
     const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};
     if(parentId)props['상위항목']={relation:[{id:parentId}]};
     if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
+    if(dueDate&&!isNaN(new Date(dueDate)))props['마감일']={date:{start:formatDate(new Date(dueDate))}};
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
     const data=await res.json();return data.id||null;
   }catch(e){return null;}
