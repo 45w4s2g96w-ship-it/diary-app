@@ -422,9 +422,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   body { position: fixed; inset: 0; overflow: hidden; }
   #app { flex-direction: row; height: 100%; }
   .section-header { padding-left: 0 !important; }
-  .brain-header { padding-left: 0 !important; }
   .section-title { padding-left: var(--pad-h); }
-  .brain-header { padding-left: var(--pad-h); }
   .emotion-section { padding-left: var(--pad-h); padding-right: var(--pad-h); }
   .memo-area { padding-left: var(--pad-h); padding-right: var(--pad-h); }
   .record-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
@@ -532,8 +530,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <!-- DUMP -->
   <div class="tab-content" id="tab-dump">
-    <div class="brain-header">
-      <div class="section-title">Brain<br>Dump</div>
+    <div class="section-header">
+      <div class="section-title">Dump</div>
       <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
     </div>
     <div style="display:flex;flex:1;overflow:hidden;min-height:0;">
@@ -883,6 +881,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 
 /* Tab */
 function switchTab(tab,btn){
+  if(speechSynthesis.speaking)speechSynthesis.cancel();
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
@@ -1568,8 +1567,11 @@ async function saveTodoToNotion(quad,text,dueDate,memo,time){
     if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
     if(time)props['시간']={rich_text:[{text:{content:time}}]};
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
-    const data=await res.json();return data.id||null;
-  }catch(e){console.error(e);return null;}
+    if(!res.ok){const et=await res.text().catch(()=>'');console.error('todo save failed:',res.status,et);showToast('Notion 저장 실패 '+res.status);return null;}
+    const data=await res.json();
+    if(data.object==='error'){console.error('Notion err:',data);showToast('Notion 오류: '+data.code);return null;}
+    return data.id||null;
+  }catch(e){console.error(e);showToast('저장 오류: '+e.message);return null;}
 }
 async function saveSubTodoToNotion(text,parentId,memo,dueDate){
   try{
@@ -1777,7 +1779,7 @@ function deleteSubItem(si){
 }
 function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];item.subs[i].done=!item.subs[i].done;if(item.subs[i].notionId)updateTodoNotionDone(item.subs[i].notionId,item.subs[i].done);renderSubList();renderAllQuads();saveTodoToStorage();}
 function addSubTodo(){const text=document.getElementById('td-sub-input').value.trim();if(!text)return;const item=todoData[currentDetailQuad][currentDetailIdx];if(!item.subs)item.subs=[];const sub={text,done:false,notionId:null};item.subs.push(sub);document.getElementById('td-sub-input').value='';renderSubList();renderAllQuads();saveTodoToStorage();saveSubTodoToNotion(text,item.notionId).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});}
-function deleteTodoItem(){if(!confirm('Delete? This cannot be undone.'))return;todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();if(currentTodoView==='week')renderWeeklyView();showToast('Deleted!');}
+function deleteTodoItem(){if(!confirm('Delete? This cannot be undone.'))return;const _di=todoData[currentDetailQuad][currentDetailIdx];todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();if(currentTodoView==='week')renderWeeklyView();showToast('Deleted!');if(_di&&_di.notionId){fetch(WORKER_URL+'/notion/pages/'+_di.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));}}
 
 // 주간뷰 드래그로 날짜 변경
 let weekDragItem=null,weekDragQ=null,weekDragI=null,weekDragging=false,weekDragTimer=null,weekDragEl=null;
@@ -2552,6 +2554,12 @@ async function loadInbox(){
       list.appendChild(divEl);
       const bubble=document.createElement('div');bubble.className='inbox-bubble';
       bubble.innerHTML=`<div class="inbox-bubble-briefing">${briefingMap[todayStr].replace(/\n/g,'<br>')}</div>`;
+      const speakBtn=document.createElement('button');
+      speakBtn.style.cssText='font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
+      speakBtn.textContent='🔊 READ';
+      const _text=briefingMap[todayStr];
+      speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
+      bubble.appendChild(speakBtn);
       list.appendChild(bubble);
     }
 
@@ -2565,21 +2573,26 @@ async function loadInbox(){
       const summary=getTextProp(props,'일기 요약')||'';
       const encourage=getTextProp(props,'격려')||'';
       const suggest=getTextProp(props,'제언')||'';
-      const briefing=briefingMap[dateStr]||''; // 같은 날 브리핑 (오늘 제외하고 과거 날짜)
+      const briefing=briefingMap[dateStr]||'';
       const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};
       const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};
 
-      // 오늘 날짜 브리핑은 이미 위에 표시했으니 스킵
       if(dateStr===todayStr&&briefing)return;
 
       const divEl=document.createElement('div');divEl.className='inbox-date-divider';divEl.textContent=dateLabel;
       list.appendChild(divEl);
       const bubble=document.createElement('div');bubble.className='inbox-bubble';
       bubble.innerHTML=`
-        ${briefing?`<div class="inbox-bubble-briefing">${briefing.replace(/\n/g,'<br>')}</div><hr class="inbox-bubble-divider">`:'' }
+        ${briefing?`<div class="inbox-bubble-briefing">${briefing.replace(/\n/g,'<br>')}</div><hr class="inbox-bubble-divider">`:''}
         ${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}
         ${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}
         ${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">Try this today 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;
+      const speakBtn=document.createElement('button');
+      speakBtn.style.cssText='font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
+      speakBtn.textContent='🔊 READ';
+      const _text=[briefing,summary,encourage,suggest].filter(Boolean).join(' ');
+      speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
+      bubble.appendChild(speakBtn);
       list.appendChild(bubble);
     });
 
