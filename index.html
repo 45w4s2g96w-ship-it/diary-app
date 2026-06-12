@@ -92,23 +92,31 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 }
 
 /* Weekly view — [FIX #2] 폰트 크기를 다른 탭과 통일 */
-.week-row { display: flex; border-bottom: 1px solid var(--rule); min-height: 36px; }
+.week-row { display: flex; border-bottom: 1px solid var(--rule); min-height: 32px; }
 .week-row.today { background: rgba(0,0,0,0.03); }
-.week-day-label { flex-shrink: 0; width: 56px; padding: 8px 8px 8px 0; display: flex; flex-direction: column; justify-content: flex-start; border-right: 1px solid var(--rule); }
+.week-day-label { flex-shrink: 0; width: 58px; padding: 8px 6px 8px 10px; display: flex; flex-direction: column; justify-content: flex-start; border-right: 1px solid var(--rule); }
 .week-day-name { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
 .week-day-date { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 900; color: var(--ink); margin-top: 1px; }
 .week-row.today .week-day-name { color: var(--ink); }
 .week-row.today .week-day-date { color: var(--ink); }
-/* 2열 배치 */
-.week-items { flex: 1; padding: 5px 0 5px 10px; display: flex; flex-direction: row; flex-wrap: wrap; gap: 0; align-content: flex-start; }
-.week-item { display: flex; align-items: center; gap: 6px; padding: 3px 6px 3px 0; border-bottom: none; cursor: pointer; width: 50%; min-width: 0; }
-.week-item:last-child { border-bottom: none; }
+.week-items { flex: 1; padding: 5px 0 5px 10px; display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
+/* 1열 기본, .two-col 클래스 붙으면 2열 */
+.week-item { display: flex; align-items: center; gap: 6px; padding: 3px 4px 3px 0; cursor: pointer; width: 100%; min-width: 0; }
+.week-items.two-col .week-item { width: 50%; }
+/* 하위업무 있는 부모는 항상 full-width */
+.week-item.has-subs { width: 100% !important; }
 .week-check { width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; flex-shrink: 0; transition: background 0.12s; }
 .week-check.done { background: var(--ink); }
-/* quad-text와 동일한 폰트 크기 */
 .week-item-text { font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .week-item-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.week-add-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: none; cursor: pointer; padding: 4px 0; letter-spacing: 0.06em; text-align: left; width: 100%; }
+/* 하위업무 블록 */
+.week-sub-list { width: 100%; padding: 2px 0 4px 18px; display: flex; flex-direction: column; gap: 0; }
+.week-sub-item { display: flex; align-items: center; gap: 5px; padding: 2px 0; cursor: pointer; }
+.week-sub-check { width: 10px; height: 10px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; }
+.week-sub-check.done { background: var(--ink-muted); border-color: var(--ink-muted); }
+.week-sub-text { font-size: 10px; font-weight: 300; color: var(--ink-soft); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.week-sub-text.done { text-decoration: line-through; color: var(--rule); }
+.week-sub-more { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 1px 6px; border-radius: 1px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
 .week-overdue .week-day-name { color: #c0392b; }
 .week-overdue .week-day-date { color: #c0392b; }
 .section-header { padding: 28px var(--pad-h) 16px var(--pad-h); border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
@@ -1045,27 +1053,68 @@ function renderWeeklyView(){
   const now=new Date();
   const todayStr=formatDate(now);
   const DAY_NAMES=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+  // 하위업무 HTML 생성 헬퍼 (미완료만, 3개 초과 시 +N 토글)
+  function buildSubsHtml(item, q, i){
+    const pendingSubs=(item.subs||[]).filter(s=>!s.done);
+    if(!pendingSubs.length) return '';
+    const MAX=3;
+    const visible=pendingSubs.slice(0,MAX);
+    const hidden=pendingSubs.slice(MAX);
+    const subId=`wsub-${q}-${i}`;
+    let html=`<div class="week-sub-list" id="${subId}">`;
+    visible.forEach((sub,si)=>{
+      const realSi=(item.subs||[]).indexOf(sub);
+      html+=`<div class="week-sub-item" onclick="event.stopPropagation();openSubTodoDetail('${q}',${i},${realSi})">
+        <div class="week-sub-check${sub.done?' done':''}"></div>
+        <div class="week-sub-text${sub.done?' done':''}">${sub.text}</div>
+      </div>`;
+    });
+    if(hidden.length){
+      html+=`<button class="week-sub-more" onclick="event.stopPropagation();toggleWeekSubs('${subId}',this,${JSON.stringify(hidden.map(s=>s.text)).replace(/"/g,'&quot;')})">+${hidden.length}</button>`;
+    }
+    html+=`</div>`;
+    return html;
+  }
+
+  // 행 HTML 생성 헬퍼
+  function buildRowHtml(items, labelHtml, rowClass){
+    // 하위업무 있는 항목 체크
+    const hasSubs=items.some(({item})=>(item.subs||[]).some(s=>!s.done));
+    // 1열 vs 2열 결정: 하위업무 없고 4개 초과일 때만 2열
+    const useTwoCol=!hasSubs && items.length>3;
+    let html=`<div class="week-row${rowClass}"><div class="week-day-label">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}">`;
+    items.forEach(({item,q,i})=>{
+      const pendingSubs=(item.subs||[]).filter(s=>!s.done);
+      const hasS=pendingSubs.length>0;
+      html+=`<div class="week-item${hasS?' has-subs':''}" onclick="openTodoDetail('${q}',${i})">
+        <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
+        <div class="week-item-text${item.done?' done':''}">${item.text}</div>
+      </div>`;
+      if(hasS) html+=buildSubsHtml(item,q,i);
+    });
+    html+=`</div></div>`;
+    return html;
+  }
+
   let html='';
 
-  // 미처리: 마감일이 오늘 이전이고 완료 안 된 항목
+  // 미처리
   const overdue=[];
   ['today','week','month','someday'].forEach(q=>{
     todoData[q].forEach((item,i)=>{
       if(!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr){
-        // 중복 방지: 같은 notionId 없을 때만
         if(!overdue.some(o=>o.item.notionId&&o.item.notionId===item.notionId)){
           overdue.push({item,q,i});
         }
       }
     });
   });
-
-  html+=`<div class="week-row week-overdue"><div class="week-day-label"><div class="week-day-name">미처리</div></div><div class="week-items">`;
-  overdue.forEach(({item,q,i})=>{
-    html+=`<div class="week-item" onclick="openTodoDetail('${q}',${i})"><div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div><div class="week-item-text${item.done?' done':''}">${item.text}</div></div>`;
-  });
-  if(!overdue.length)html+=`<div style="font-size:11px;color:var(--rule);padding:6px 0;">없음</div>`;
-  html+=`<button class="week-add-btn" onclick="openTodoPopupWeek(null)">+ Add</button></div></div>`;
+  if(overdue.length){
+    html+=buildRowHtml(overdue,`<div class="week-day-name">미처리</div>`,' week-overdue');
+  } else {
+    html+=`<div class="week-row week-overdue"><div class="week-day-label"><div class="week-day-name">미처리</div></div><div class="week-items"><div style="font-size:10px;color:var(--rule);padding:4px 0;">없음</div></div></div>`;
+  }
 
   // 오늘 + 앞으로 7일 (총 8일)
   for(let d=0;d<8;d++){
@@ -1074,7 +1123,6 @@ function renderWeeklyView(){
     const dayStr=formatDate(day);
     const isToday=(d===0);
 
-    // 이 날짜에 해당하는 할일 수집
     const items=[];
     const seenIds=new Set();
     ['today','week','month','someday'].forEach(q=>{
@@ -1082,13 +1130,11 @@ function renderWeeklyView(){
         if(item.done)return;
         const uid=item.notionId||item.text;
         if(seenIds.has(uid))return;
-        // 오늘 칸: today 사분면 + 마감일이 오늘인 항목
         if(isToday){
           if(q==='today'&&(!item.dueDate||formatDate(new Date(item.dueDate))===dayStr)){
             seenIds.add(uid);items.push({item,q,i});return;
           }
         }
-        // 마감일이 이 날짜인 항목
         if(item.dueDate&&formatDate(new Date(item.dueDate))===dayStr){
           seenIds.add(uid);items.push({item,q,i});
         }
@@ -1097,13 +1143,28 @@ function renderWeeklyView(){
 
     const dayName=DAY_NAMES[day.getDay()];
     const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
-    html+=`<div class="week-row${isToday?' today':''}"><div class="week-day-label"><div class="week-day-name">${dayName}</div><div class="week-day-date">${dayDateStr}</div></div><div class="week-items">`;
-    items.forEach(({item,q,i})=>{
-      html+=`<div class="week-item" onclick="openTodoDetail('${q}',${i})"><div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div><div class="week-item-text${item.done?' done':''}">${item.text}</div></div>`;
-    });
-    html+=`<button class="week-add-btn" onclick="openTodoPopupWeek('${dayStr}')">+ Add</button></div></div>`;
+    const labelHtml=`<div class="week-day-name">${dayName}</div><div class="week-day-date">${dayDateStr}</div>`;
+    const rowClass=isToday?' today':'';
+    if(items.length){
+      html+=buildRowHtml(items,labelHtml,rowClass);
+    } else {
+      html+=`<div class="week-row${rowClass}"><div class="week-day-label">${labelHtml}</div><div class="week-items"></div></div>`;
+    }
   }
   list.innerHTML=html;
+}
+
+// 하위업무 +N 토글
+function toggleWeekSubs(subId, btn, hiddenTexts){
+  const container=document.getElementById(subId);
+  if(!container)return;
+  btn.remove();
+  hiddenTexts.forEach(text=>{
+    const div=document.createElement('div');
+    div.className='week-sub-item';
+    div.innerHTML=`<div class="week-sub-check"></div><div class="week-sub-text">${text}</div>`;
+    container.appendChild(div);
+  });
 }
 
 function openTodoPopupWeek(dateStr){
