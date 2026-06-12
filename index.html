@@ -590,8 +590,16 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')document.getElementById('todo-memo-input').focus()">
     <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">MEMO <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
     <input class="popup-input-sm" id="todo-memo-input" placeholder="메모 (링크, 참고사항...)" onkeydown="if(event.key==='Enter')document.getElementById('todo-date-input').focus()">
-    <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-    <input type="date" id="todo-date-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:14px;background:transparent;border:1.5px solid var(--rule);padding:10px 12px;outline:none;margin-bottom:16px;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
+    <div style="display:flex;gap:12px;">
+      <div style="flex:1;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
+        <input type="date" id="todo-date-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;background:transparent;border:1.5px solid var(--rule);padding:8px 10px;outline:none;margin-bottom:16px;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
+      </div>
+      <div style="flex:1;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">TIME <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
+        <input type="time" id="todo-time-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;background:transparent;border:1.5px solid var(--rule);padding:8px 10px;outline:none;margin-bottom:16px;color:var(--ink);border-radius:1px;">
+      </div>
+    </div>
     <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">SUBTASKS <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
     <div id="todo-popup-subs" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
     <button onclick="addTodoPopupSub()" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px dashed var(--rule);padding:7px 12px;cursor:pointer;margin-bottom:16px;width:100%;text-align:left;">+ ADD SUBTASK</button>
@@ -667,7 +675,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <button onclick="setTodoEditQuad('someday')" id="tq-someday" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">SOMEDAY</button>
         </div>
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:6px;">DUE DATE</div>
-        <input type="date" id="td-edit-date" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;margin-bottom:14px;">
+        <div style="display:flex;gap:10px;margin-bottom:14px;">
+          <input type="date" id="td-edit-date" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;">
+          <input type="time" id="td-edit-time" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;">
+        </div>
         <div style="display:flex;gap:8px;">
           <button onclick="cancelTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
           <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
@@ -1063,15 +1074,16 @@ function renderWeeklyView(){
     const hidden=pendingSubs.slice(MAX);
     const subId=`wsub-${q}-${i}`;
     let html=`<div class="week-sub-list" id="${subId}">`;
-    visible.forEach((sub,si)=>{
+    visible.forEach((sub)=>{
       const realSi=(item.subs||[]).indexOf(sub);
       html+=`<div class="week-sub-item" onclick="event.stopPropagation();openSubTodoDetail('${q}',${i},${realSi})">
-        <div class="week-sub-check${sub.done?' done':''}"></div>
+        <div class="week-sub-check${sub.done?' done':''}" onclick="event.stopPropagation();toggleSubTodoInline('${q}',${i},${realSi},event)"></div>
         <div class="week-sub-text${sub.done?' done':''}">${sub.text}</div>
       </div>`;
     });
     if(hidden.length){
-      html+=`<button class="week-sub-more" onclick="event.stopPropagation();toggleWeekSubs('${subId}',this,${JSON.stringify(hidden.map(s=>s.text)).replace(/"/g,'&quot;')})">+${hidden.length}</button>`;
+      const hiddenJson=JSON.stringify(hidden.map(s=>({text:s.text,si:(item.subs||[]).indexOf(s)}))).replace(/"/g,'&quot;');
+      html+=`<button class="week-sub-more" onclick="event.stopPropagation();toggleWeekSubs('${subId}','${q}',${i},this,${hiddenJson})">+${hidden.length}</button>`;
     }
     html+=`</div>`;
     return html;
@@ -1079,17 +1091,16 @@ function renderWeeklyView(){
 
   // 행 HTML 생성 헬퍼
   function buildRowHtml(items, labelHtml, rowClass){
-    // 하위업무 있는 항목 체크
     const hasSubs=items.some(({item})=>(item.subs||[]).some(s=>!s.done));
-    // 1열 vs 2열 결정: 하위업무 없고 4개 초과일 때만 2열
     const useTwoCol=!hasSubs && items.length>3;
-    let html=`<div class="week-row${rowClass}"><div class="week-day-label">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}">`;
+    let html=`<div class="week-row${rowClass}" onclick="openTodoPopupWeek(null)"><div class="week-day-label">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}">`;
     items.forEach(({item,q,i})=>{
       const pendingSubs=(item.subs||[]).filter(s=>!s.done);
       const hasS=pendingSubs.length>0;
-      html+=`<div class="week-item${hasS?' has-subs':''}" onclick="openTodoDetail('${q}',${i})">
+      const timeLabel=item.time?`<span style="font-size:9px;color:var(--ink-muted);margin-right:3px;">(${item.time})</span>`:'';
+      html+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
         <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
-        <div class="week-item-text${item.done?' done':''}">${item.text}</div>
+        <div class="week-item-text${item.done?' done':''}">${timeLabel}${item.text}</div>
       </div>`;
       if(hasS) html+=buildSubsHtml(item,q,i);
     });
@@ -1141,6 +1152,15 @@ function renderWeeklyView(){
       });
     });
 
+    // 정렬: 시간 있는 것 → 시간 없는 것 → 완료된 것
+    items.sort((a,b)=>{
+      if(a.item.done!==b.item.done)return a.item.done?1:-1;
+      const at=a.item.time||'';const bt=b.item.time||'';
+      if(at&&bt)return at.localeCompare(bt);
+      if(at)return -1;if(bt)return 1;
+      return 0;
+    });
+
     const dayName=DAY_NAMES[day.getDay()];
     const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
     const labelHtml=`<div class="week-day-name">${dayName}</div><div class="week-day-date">${dayDateStr}</div>`;
@@ -1148,21 +1168,21 @@ function renderWeeklyView(){
     if(items.length){
       html+=buildRowHtml(items,labelHtml,rowClass);
     } else {
-      html+=`<div class="week-row${rowClass}"><div class="week-day-label">${labelHtml}</div><div class="week-items"></div></div>`;
+      html+=`<div class="week-row${rowClass}" onclick="openTodoPopupWeek('${dayStr}')"><div class="week-day-label">${labelHtml}</div><div class="week-items"></div></div>`;
     }
   }
   list.innerHTML=html;
 }
 
-// 하위업무 +N 토글
-function toggleWeekSubs(subId, btn, hiddenTexts){
+function toggleWeekSubs(subId, q, parentI, btn, hiddenItems){
   const container=document.getElementById(subId);
   if(!container)return;
   btn.remove();
-  hiddenTexts.forEach(text=>{
+  hiddenItems.forEach(({text,si})=>{
     const div=document.createElement('div');
     div.className='week-sub-item';
-    div.innerHTML=`<div class="week-sub-check"></div><div class="week-sub-text">${text}</div>`;
+    div.onclick=(e)=>{e.stopPropagation();openSubTodoDetail(q,parentI,si);};
+    div.innerHTML=`<div class="week-sub-check" onclick="event.stopPropagation();toggleSubTodoInline('${q}',${parentI},${si},event)"></div><div class="week-sub-text">${text}</div>`;
     container.appendChild(div);
   });
 }
@@ -1229,6 +1249,7 @@ function openTodoPopup(q){
   document.getElementById('todo-input').value='';
   document.getElementById('todo-memo-input').value='';
   document.getElementById('todo-date-input').value='';
+  document.getElementById('todo-time-input').value='';
   document.getElementById('todo-popup-subs').innerHTML='';
   todoPopupSelectedDate=null;
   todoPopupSubs=[];
@@ -1254,6 +1275,7 @@ async function confirmTodo(){
   const text=document.getElementById('todo-input').value.trim();if(!text)return;
   const memo=document.getElementById('todo-memo-input').value.trim();
   const dueDate=todoPopupSelectedDate||null;
+  const timeVal=document.getElementById('todo-time-input').value||'';
   const parentVal=document.getElementById('todo-parent-select').value;
   const subs=todoPopupSubs.filter(s=>(typeof s==='string'?s:s.text).trim());
   closeTodoPopup();
@@ -1261,18 +1283,20 @@ async function confirmTodo(){
   if(parentVal){
     const [pq,pi]=parentVal.split('|');
     const pidx=parseInt(pi);
-    const sub={text,memo,done:false,doneAt:null,quad:pq,notionId:null};
+    const sub={text,memo,time:timeVal,done:false,doneAt:null,quad:pq,notionId:null};
     todoData[pq][pidx].subs=todoData[pq][pidx].subs||[];
     todoData[pq][pidx].subs.push(sub);
     renderAllQuads();saveTodoToStorage();
+    if(currentTodoView==='week')renderWeeklyView();
     const parentId=todoData[pq][pidx].notionId;
     const subId=await saveSubTodoToNotion(text,parentId,memo);
     if(subId){sub.notionId=subId;saveTodoToStorage();}
   } else {
-    const item={text,memo,dueDate,done:false,doneAt:null,addedAt:new Date(),notionId:null,subs:[]};
+    const item={text,memo,time:timeVal,dueDate,done:false,doneAt:null,addedAt:new Date(),notionId:null,subs:[]};
     todoData[currentQuad].push(item);
     renderAllQuads();saveTodoToStorage();
-    const id=await saveTodoToNotion(currentQuad,text,dueDate,memo);
+    if(currentTodoView==='week')renderWeeklyView();
+    const id=await saveTodoToNotion(currentQuad,text,dueDate,memo,timeVal);
     if(id){
       item.notionId=id;saveTodoToStorage();
       for(const subObj of subs){
@@ -1287,6 +1311,10 @@ async function confirmTodo(){
     }
   }
   showToast('Added!');
+  if(window._brainTodoCallback){
+    markBrainDone(window._brainTodoCallback.idx,'todo');
+    window._brainTodoCallback=null;
+  }
 }
 
 function toggleTodo(q,idx,e){
@@ -1312,28 +1340,32 @@ const quadCollapsed={today:{},week:{},month:{},someday:{}};
 
 function renderQuad(q){
   const c=document.getElementById('items-'+q);
-  const cellEl=c.closest('.quad-cell');
   const now=new Date();
-
   const visible=todoData[q].filter(item=>{
     if(!item.done)return true;
     if(!item.doneAt)return false;
     return(now-new Date(item.doneAt))/86400000<=2;
   });
-
+  // 정렬: 시간 있는 것 → 시간 없는 것 → 완료된 것
+  visible.sort((a,b)=>{
+    if(a.done!==b.done)return a.done?1:-1;
+    const at=a.time||'';const bt=b.time||'';
+    if(at&&bt)return at.localeCompare(bt);
+    if(at)return -1;
+    if(bt)return 1;
+    return 0;
+  });
   c.innerHTML='';
-
   visible.forEach(item=>{
     const i=todoData[q].indexOf(item);
     const od=item.dueDate&&!item.done&&new Date(item.dueDate)<now;
+    const timeLabel=item.time?`<span style="font-family:Montserrat,sans-serif;font-size:8px;font-weight:600;color:var(--ink-muted);margin-right:3px;">(${item.time})</span>`:'';
     const div=document.createElement('div');div.className='quad-item';div.dataset.q=q;div.dataset.i=i;div.dataset.type='parent';
-    div.innerHTML=`<div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}</div>`;
+    div.innerHTML=`<div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${timeLabel}${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}</div>`;
     div.addEventListener('click',()=>openTodoDetail(q,i));
     div.addEventListener('touchstart',e=>startTodoDrag(e,q,i,null,null),{passive:true});
     div.addEventListener('mousedown',e=>startTodoDrag(e,q,i,null,null));
     c.appendChild(div);
-
-    // [FIX #4] 하위업무: 이 사분면 소속인 것만 표시 (crossSubs 제거)
     const ownSubs=(item.subs||[]).filter(s=>!s.quad||s.quad===q);
     ownSubs.forEach((sub,si)=>{
       const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
@@ -1345,8 +1377,6 @@ function renderQuad(q){
       c.appendChild(sdiv);
     });
   });
-
-  // quad-items는 overflow-y:auto 스크롤로 처리
 }
 
 function applyQuadOverflow(q,c,cellEl){
@@ -1391,12 +1421,13 @@ function saveTodoToStorage(){localStorage.setItem('todo_data',JSON.stringify(tod
 function loadTodoFromStorage(){try{const d=localStorage.getItem('todo_data');if(d){const p=JSON.parse(d);Object.keys(p).forEach(q=>{if(todoData[q])todoData[q]=p[q].map(i=>({...i,dueDate:i.dueDate?new Date(i.dueDate):null,subs:i.subs||[]}));});}}catch(e){}}
 
 /* [FIX #3] saveTodoToNotion — memo 파라미터 추가 */
-async function saveTodoToNotion(quad,text,dueDate,memo){
+async function saveTodoToNotion(quad,text,dueDate,memo,time){
   try{
     const cfg=QUAD_CFG[quad];
     const props={'이름':{title:[{text:{content:text}}]},'사분면':{multi_select:[{name:cfg.label}]},'추가일':{date:{start:formatDate(new Date())}},'완료':{checkbox:false}};
     if(dueDate&&!isNaN(new Date(dueDate)))props['마감일']={date:{start:formatDate(new Date(dueDate))}};
     if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
+    if(time)props['시간']={rich_text:[{text:{content:time}}]};
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
     const data=await res.json();return data.id||null;
   }catch(e){console.error(e);return null;}
@@ -1430,7 +1461,8 @@ async function loadTodoFromNotion(){
       const done=props['완료']?.checkbox||false;
       const doneAt=props['완료일']?.date?.start?new Date(props['완료일'].date.start).toISOString():null;
       const memo=props['메모']?.rich_text?.map(t=>t.plain_text).join('')||'';
-      newTodo[q].push({text,memo,dueDate,done,doneAt,addedAt:new Date(),notionId:id,subs:localSubs[id]||[]});
+      const time=props['시간']?.rich_text?.map(t=>t.plain_text).join('')||'';
+      newTodo[q].push({text,memo,time,dueDate,done,doneAt,addedAt:new Date(),notionId:id,subs:localSubs[id]||[]});
     });
     todoData=newTodo;
     saveTodoToStorage();autoMoveTodos();renderAllQuads();
@@ -1478,6 +1510,7 @@ function startTodoEdit(){
   document.getElementById('td-edit-memo').value=item.memo||'';
   const d=item.dueDate?new Date(item.dueDate):null;
   document.getElementById('td-edit-date').value=d?formatDate(d):'';
+  document.getElementById('td-edit-time').value=item.time||'';
   setTodoEditQuad(currentDetailQuad);
   document.getElementById('td-view-mode').style.display='none';
   document.getElementById('td-edit-mode').style.display='';
@@ -1490,9 +1523,10 @@ async function saveTodoEdit(){
   const text=document.getElementById('td-edit-text').value.trim();if(!text)return;
   const memo=document.getElementById('td-edit-memo').value.trim();
   const dateVal=document.getElementById('td-edit-date').value;
+  const timeVal=document.getElementById('td-edit-time').value||'';
   const item=todoData[currentDetailQuad][currentDetailIdx];
   const newQuad=currentEditQuad||currentDetailQuad;
-  item.text=text;item.memo=memo;
+  item.text=text;item.memo=memo;item.time=timeVal;
   item.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
   if(newQuad!==currentDetailQuad){
     todoData[currentDetailQuad].splice(currentDetailIdx,1);
@@ -1501,7 +1535,7 @@ async function saveTodoEdit(){
     currentDetailIdx=todoData[newQuad].length-1;
   }
   document.getElementById('td-title').textContent=text;
-  document.getElementById('td-due').textContent=item.dueDate?'Due: '+formatDateShort(new Date(item.dueDate)):'No deadline';
+  document.getElementById('td-due').textContent=item.dueDate?(item.time?`Due: ${formatDateShort(new Date(item.dueDate))} (${item.time})`:`Due: ${formatDateShort(new Date(item.dueDate))}`):'No deadline';
   document.getElementById('td-quad-tag').textContent=QUAD_CFG[currentDetailQuad].label;
   const memoEl=document.getElementById('td-memo-display');
   if(memo){memoEl.textContent=memo;memoEl.style.display='block';}else{memoEl.style.display='none';}
@@ -1514,6 +1548,7 @@ async function saveTodoEdit(){
       const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:item.done},'사분면':{multi_select:[{name:QUAD_CFG[newQuad].label}]}};
       if(item.dueDate)props['마감일']={date:{start:formatDate(item.dueDate)}};else props['마감일']={date:null};
       if(memo)props['메모']={rich_text:[{text:{content:memo}}]};else props['메모']={rich_text:[]};
+      if(timeVal)props['시간']={rich_text:[{text:{content:timeVal}}]};else props['시간']={rich_text:[]};
       await fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});
     }catch(e){console.error(e);}
   }
@@ -1524,7 +1559,48 @@ function renderSubList(){
   const item=todoData[currentDetailQuad][currentDetailIdx];
   const list=document.getElementById('td-sub-list');
   if(!item.subs||!item.subs.length){list.innerHTML='';return;}
-  list.innerHTML=item.subs.map((s,i)=>`<div class="td-sub-item"><div class="td-sub-check${s.done?' done':''}" onclick="toggleSubTodo(${i})"></div><div class="td-sub-text${s.done?' done':''}">${s.text}</div></div>`).join('');
+  list.innerHTML=item.subs.map((s,i)=>`
+    <div class="td-sub-item">
+      <div class="td-sub-check${s.done?' done':''}" onclick="toggleSubTodo(${i})"></div>
+      <div class="td-sub-text${s.done?' done':''}" id="td-sub-text-${i}">${s.text}</div>
+      <button onclick="startSubEdit(${i})" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);background:none;border:none;cursor:pointer;padding:0 4px;">✎</button>
+      <button onclick="deleteSubItem(${i})" style="font-family:'Montserrat',sans-serif;font-size:10px;color:var(--rule);background:none;border:none;cursor:pointer;padding:0 2px;">✕</button>
+    </div>`).join('');
+}
+function startSubEdit(si){
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  const sub=item.subs[si];
+  const textEl=document.getElementById('td-sub-text-'+si);
+  if(!textEl)return;
+  const input=document.createElement('input');
+  input.value=sub.text;
+  input.style.cssText='flex:1;font-family:NanumSquareNeo,sans-serif;font-size:12px;border:none;border-bottom:1px solid var(--ink);outline:none;background:transparent;color:var(--ink);padding:2px 0;';
+  input.onkeydown=e=>{
+    if(e.key==='Enter'){saveSubEdit(si,input.value.trim());}
+    if(e.key==='Escape'){renderSubList();}
+  };
+  input.onblur=()=>saveSubEdit(si,input.value.trim());
+  textEl.replaceWith(input);
+  input.focus();
+}
+function saveSubEdit(si,newText){
+  if(!newText){renderSubList();return;}
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  item.subs[si].text=newText;
+  saveTodoToStorage();renderSubList();renderAllQuads();
+  if(item.subs[si].notionId){
+    fetch(WORKER_URL+'/notion/pages/'+item.subs[si].notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:newText}}]}}})}).catch(e=>console.error(e));
+  }
+}
+function deleteSubItem(si){
+  if(!confirm('Delete this subtask?'))return;
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  const sub=item.subs[si];
+  item.subs.splice(si,1);
+  saveTodoToStorage();renderSubList();renderAllQuads();
+  if(sub.notionId){
+    fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));
+  }
 }
 function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];item.subs[i].done=!item.subs[i].done;if(item.subs[i].notionId)updateTodoNotionDone(item.subs[i].notionId,item.subs[i].done);renderSubList();renderAllQuads();saveTodoToStorage();}
 function addSubTodo(){const text=document.getElementById('td-sub-input').value.trim();if(!text)return;const item=todoData[currentDetailQuad][currentDetailIdx];if(!item.subs)item.subs=[];const sub={text,done:false,notionId:null};item.subs.push(sub);document.getElementById('td-sub-input').value='';renderSubList();renderAllQuads();saveTodoToStorage();saveSubTodoToNotion(text,item.notionId).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});}
@@ -1681,7 +1757,17 @@ const CART_SECTIONS={'need-buy':{label:'Need & Buy'},'need-want':{label:'Need & 
 let cartData={'need-buy':[],'need-want':[],'need-later':[],'want':[]},currentCartSection='';
 function openCartPopup(section){currentCartSection=section;document.getElementById('cart-popup-label').textContent=CART_SECTIONS[section].label;document.getElementById('cart-input').value='';document.getElementById('cart-memo').value='';document.getElementById('cart-popup').classList.add('open');setTimeout(()=>document.getElementById('cart-input').focus(),300);}
 function closeCartPopup(){document.getElementById('cart-popup').classList.remove('open');}
-function confirmCart(){const text=document.getElementById('cart-input').value.trim();if(!text)return;const memo=document.getElementById('cart-memo').value.trim();cartData[currentCartSection].push({text,memo,done:false});closeCartPopup();renderCart();showToast('Added!');saveCartToNotion(currentCartSection,text,memo);saveCartToStorage();}
+function confirmCart(){
+  const text=document.getElementById('cart-input').value.trim();if(!text)return;
+  const memo=document.getElementById('cart-memo').value.trim();
+  cartData[currentCartSection].push({text,memo,done:false});
+  closeCartPopup();renderCart();showToast('Added!');
+  saveCartToNotion(currentCartSection,text,memo);saveCartToStorage();
+  if(window._brainCartCallback){
+    markBrainDone(window._brainCartCallback.idx,'cart');
+    window._brainCartCallback=null;
+  }
+}
 function toggleCart(section,idx,e){e.stopPropagation();cartData[section][idx].done=!cartData[section][idx].done;renderCart();saveCartToStorage();}
 function renderCartSection(section){const c=document.getElementById('items-'+section);const items=cartData[section];if(!items||!items.length){c.innerHTML='';return;}c.innerHTML=items.map((item,i)=>`<div class="quad-item"><div class="quad-check${item.done?' done':''}" onclick="toggleCart('${section}',${i},event)"></div><div style="flex:1"><div class="quad-text${item.done?' done':''}">${item.text}</div>${item.memo?'<span class="quad-memo">'+item.memo+'</span>':''}</div></div>`).join('');}
 function renderCart(){Object.keys(CART_SECTIONS).forEach(renderCartSection);}
@@ -1694,8 +1780,24 @@ let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost'),dragOverlay=document.getElementById('drag-overlay');
 function saveBrainToStorage(){try{localStorage.setItem('brain_items',JSON.stringify(brainItems));}catch(e){}}
 function loadBrainFromStorage(){try{const d=localStorage.getItem('brain_items');if(d)brainItems=JSON.parse(d);}catch(e){}}
-function addBrainItem(){const text=document.getElementById('brain-input').value.trim();if(!text)return;brainItems.unshift({text,tag:null,id:Date.now()});document.getElementById('brain-input').value='';document.getElementById('brain-input').style.height='';renderBrainList();saveBrainToStorage();saveBrainToNotion(text);}
-async function saveBrainToNotion(text){try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'입력일':{date:{start:new Date().toISOString()}},'처리완료':{checkbox:false}}})});const d=await r.json();if(!r.ok)console.error('brain save failed',r.status,d);}catch(e){console.error('brain save error',e);}}
+async function addBrainItem(){
+  const text=document.getElementById('brain-input').value.trim();if(!text)return;
+  const item={text,tag:null,id:Date.now(),notionId:null};
+  brainItems.unshift(item);
+  document.getElementById('brain-input').value='';
+  document.getElementById('brain-input').style.height='';
+  renderBrainList();saveBrainToStorage();
+  const nid=await saveBrainToNotion(text);
+  if(nid){item.notionId=nid;saveBrainToStorage();}
+}
+async function saveBrainToNotion(text){
+  try{
+    const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'입력일':{date:{start:new Date().toISOString()}},'처리완료':{checkbox:false}}})});
+    const d=await r.json();
+    if(!r.ok){console.error('brain save failed',r.status,d);return null;}
+    return d.id||null;
+  }catch(e){console.error('brain save error',e);return null;}
+}
 function renderBrainList(){const list=document.getElementById('brain-list');if(!brainItems.length){list.innerHTML='<div class="empty-state">Hold & drag to sort.</div>';return;}list.innerHTML=brainItems.map((item,idx)=>`<div class="brain-item" id="bi-${item.id}" data-idx="${idx}">${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}<div class="brain-item-text">${item.text}</div><div class="brain-hold-hint">Hold to drag</div><div class="brain-actions"><button class="brain-action-btn" onclick="deleteBrainItem(${idx})">DELETE</button></div></div>`).join('');brainItems.forEach((item,idx)=>{const el=document.getElementById('bi-'+item.id);if(!el)return;el.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:false});el.addEventListener('mousedown',e=>startHold(e,idx,item));});}
 function startHold(e,idx,item){e.preventDefault();holdTimer=setTimeout(()=>{isDragging=true;dragIdx=idx;dragItem=item;const touch=e.touches?e.touches[0]:e;ghost.textContent=item.text;ghost.style.display='block';ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-40)+'px';dragOverlay.classList.add('active');const el=document.getElementById('bi-'+item.id);if(el)el.classList.add('dragging');if(navigator.vibrate)navigator.vibrate(40);},500);}
 document.addEventListener('touchmove',e=>{if(!isDragging)return;e.preventDefault();const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-40)+'px';document.querySelectorAll('.drag-zone').forEach(z=>{const r=z.getBoundingClientRect();z.classList.toggle('hovered',t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom);});},{passive:false});
@@ -1708,12 +1810,86 @@ function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragId
   else if(zone==='book'){document.getElementById('sub-popup-title').textContent='BOOK — 책 선택 또는 입력';const div=document.createElement('div');div.className='sub-choices';if(bookData.length){bookData.forEach((book,i)=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=book.title;btn.onclick=()=>confirmSubBook(i);div.appendChild(btn);});}const newBtn=document.createElement('button');newBtn.className='sub-choice';newBtn.textContent='+ 새 책으로 독후감 추가';newBtn.style.cssText='border-color:var(--ink);font-weight:600;';newBtn.onclick=()=>confirmSubBookNew();div.appendChild(newBtn);wrap.appendChild(div);}
   document.getElementById('sub-popup').classList.add('open');}
 function closeSubPopup(){document.getElementById('sub-popup').classList.remove('open');}
-async function confirmSubRecord(mood){closeSubPopup();const text=subDragItem.text;const now=new Date();const timeStr=formatTime(now);try{const pageId=await getTodayPageId();const notionUrl=pageId?'https://notion.so/'+pageId.replace(/-/g,''):null;const rich=[];rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});if(mood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(mood)+' '+mood},annotations:{color:'gray',italic:true,bold:false}});rich.push({type:'text',text:{content:'\n'+text},annotations:{bold:true,italic:false,color:'default'}});if(pageId)await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children:[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}]})});addRecordToUI(timeStr,mood,text,[],notionUrl,null,null);markBrainDone(subDragIdx,'record');showToast('Saved to Log!');}catch(e){showToast('Save failed');}}
-function confirmSubTodo(q){closeSubPopup();const cfg=QUAD_CFG[q];let dueDate=null;if(cfg.offset!==null){dueDate=new Date();dueDate.setDate(dueDate.getDate()+cfg.offset);dueDate.setHours(23,59,59,0);}todoData[q].push({text:subDragItem.text,dueDate,done:false,addedAt:new Date(),subs:[]});renderAllQuads();saveTodoToStorage();markBrainDone(subDragIdx,'todo');showToast('Added to To-Do!');}
-function confirmSubCart(section){closeSubPopup();cartData[section].push({text:subDragItem.text,memo:'',done:false});renderCart();saveCartToStorage();saveCartToNotion(section,subDragItem.text,'');markBrainDone(subDragIdx,'cart');showToast('Added to Cart!');}
-function markBrainDone(idx,tag){brainItems[idx].tag=tag;renderBrainList();}
-function deleteBrainItem(idx){brainItems.splice(idx,1);renderBrainList();saveBrainToStorage();}
-function resetBrain(){if(!brainItems.length)return;if(!confirm('Clear all brain dump items?'))return;brainItems=[];renderBrainList();saveBrainToStorage();showToast('Reset!');}
+async function confirmSubRecord(mood){
+  closeSubPopup();
+  const text=subDragItem.text;
+  const brainIdx=subDragIdx;
+  // 로그 탭으로 이동 후 텍스트 채우기
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-record').classList.add('active');
+  document.querySelector('.tab-btn[onclick*="record"]').classList.add('active');
+  document.getElementById('memo-input').value=text;
+  autoResize(document.getElementById('memo-input'));
+  // 감정 선택
+  if(mood){
+    document.querySelectorAll('#tab-record .tag').forEach(t=>{if(t.textContent===mood){t.classList.add('selected');selectedMood=mood;}});
+  }
+  markBrainDone(brainIdx,'record');
+  showToast('Log 탭으로 이동했어요');
+}
+function confirmSubTodo(q){
+  closeSubPopup();
+  currentQuad=q;
+  const cfg=QUAD_CFG[q];
+  document.getElementById('todo-popup-label').textContent=cfg.label;
+  document.getElementById('todo-input').value='';
+  document.getElementById('todo-memo-input').value=subDragItem.text; // 브레인덤프 텍스트 → 메모
+  document.getElementById('todo-date-input').value='';
+  document.getElementById('todo-time-input').value='';
+  document.getElementById('todo-popup-subs').innerHTML='';
+  todoPopupSelectedDate=null;todoPopupSubs=[];
+  const sel=document.getElementById('todo-parent-select');
+  sel.innerHTML='<option value="">— None —</option>';
+  ['today','week','month','someday'].forEach(pq=>{
+    todoData[pq].forEach((item,i)=>{
+      if(!item.done){const opt=document.createElement('option');opt.value=pq+'|'+i;opt.textContent=item.text+' ('+QUAD_CFG[pq].label+')';sel.appendChild(opt);}
+    });
+  });
+  // 팝업 저장 후 브레인 처리 완료 처리
+  const brainIdx=subDragIdx;
+  const origConfirm=window._brainTodoCallback;
+  window._brainTodoCallback={idx:brainIdx};
+  document.getElementById('todo-popup').classList.add('open');
+  setTimeout(()=>document.getElementById('todo-input').focus(),300);
+}
+function confirmSubCart(section){
+  closeSubPopup();
+  const brainIdx=subDragIdx;
+  currentCartSection=section;
+  document.getElementById('cart-popup-label').textContent=CART_SECTIONS[section].label;
+  document.getElementById('cart-input').value=subDragItem.text;
+  document.getElementById('cart-memo').value='';
+  window._brainCartCallback={idx:brainIdx};
+  document.getElementById('cart-popup').classList.add('open');
+  setTimeout(()=>document.getElementById('cart-memo').focus(),300);
+}
+function markBrainDone(idx,tag){
+  const item=brainItems[idx];
+  item.tag=tag;
+  saveBrainToStorage();
+  renderBrainList();
+  if(item.notionId){
+    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'처리완료':{checkbox:true},'분류':{select:{name:tag.toUpperCase()}}}})}).catch(e=>console.error(e));
+  }
+}
+function deleteBrainItem(idx){
+  const item=brainItems[idx];
+  brainItems.splice(idx,1);
+  renderBrainList();saveBrainToStorage();
+  if(item.notionId){
+    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));
+  }
+}
+function resetBrain(){
+  if(!brainItems.length)return;
+  if(!confirm('Clear all brain dump items?'))return;
+  const toDelete=brainItems.filter(i=>i.notionId).map(i=>i.notionId);
+  brainItems=[];renderBrainList();saveBrainToStorage();showToast('Reset!');
+  toDelete.forEach(nid=>{
+    fetch(WORKER_URL+'/notion/pages/'+nid,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));
+  });
+}
 function confirmSubIdea(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;';sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div><div style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;">${text}</div><div style="display:flex;flex-direction:column;gap:6px;">${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.getElementById('idea-overlay').remove()" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;overlay.id='idea-overlay';overlay.appendChild(sheet);overlay.addEventListener('pick',async(e)=>{const cat=e.detail;document.getElementById('idea-overlay').remove();try{await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'생성일시':{date:{start:new Date().toISOString()}},'분류':{select:{name:cat}}}})});}catch(e){console.error(e);}markBrainDone(idx,'idea');showToast('Saved as Idea!');});overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});document.body.appendChild(overlay);}
 function confirmSubBookNew(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;openAddBookPopup();setTimeout(()=>{document.getElementById('book-search-input').value=text;debounceBookSearch(text);},400);markBrainDone(idx,'book');}
 
