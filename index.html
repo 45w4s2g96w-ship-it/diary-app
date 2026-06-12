@@ -376,8 +376,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-action-btn.danger { border-color: #c0392b; color: #c0392b; }
 
 /* Todo Detail */
-.todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 450; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 450; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; touch-action: none; }
 .todo-detail-overlay.open { opacity: 1; pointer-events: all; }
+.todo-detail-overlay.open * { touch-action: auto; }
 .todo-detail-sheet { width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px; padding: 0 0 24px; transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 88vh; overflow-y: auto; scrollbar-width: none; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
 .todo-detail-sheet::-webkit-scrollbar { display: none; }
 .todo-detail-overlay.open .todo-detail-sheet { transform: translateY(0) scale(1); }
@@ -1375,6 +1376,7 @@ function toggleWeekSubs(subId,q,parentI,btn,hiddenItems){
 }
 
 function openTodoPopupWeek(dateStr){
+  if(document.getElementById('todo-detail-popup').classList.contains('open'))return;
   currentQuad='week';
   document.getElementById('todo-popup-label').textContent='This Week';
   document.getElementById('todo-input').value='';
@@ -1648,6 +1650,8 @@ function toggleQuadrantSection(){
 }
 function openTodoDetail(q,idx){
   currentDetailQuad=q;currentDetailIdx=idx;
+  document.body.style.overflow='hidden';
+  document.body.addEventListener('touchmove',preventBodyScroll,{passive:false});
   const item=todoData[q][idx];const cfg=QUAD_CFG[q];
   document.getElementById('td-quad-tag').textContent=cfg.label;
   // 바로 수정모드
@@ -1682,6 +1686,7 @@ function setTodoEditQuad(q){
 }
 function cancelTodoEdit(){closeTodoDetail();}
 async function saveTodoEdit(){
+  window._pausePollingUntil=Date.now()+60000;
   const text=document.getElementById('td-edit-text').value.trim();if(!text)return;
   const memo=document.getElementById('td-edit-memo').value.trim();
   const dateVal=document.getElementById('td-edit-date').value;
@@ -1695,6 +1700,12 @@ async function saveTodoEdit(){
     todoData[newQuad].push(item);
     currentDetailQuad=newQuad;
     currentDetailIdx=todoData[newQuad].length-1;
+    // 하위업무도 사분면 변경 노션 반영
+    (item.subs||[]).forEach(sub=>{
+      if(sub.notionId){
+        fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'사분면':{multi_select:[{name:QUAD_CFG[newQuad].label}]}}})}).catch(console.error);
+      }
+    });
   }
   document.getElementById('td-title').textContent=text;
   document.getElementById('td-due').textContent=item.dueDate?(item.time?`Due: ${formatDateShort(new Date(item.dueDate))} (${item.time})`:`Due: ${formatDateShort(new Date(item.dueDate))}`):'No deadline';
@@ -1716,7 +1727,11 @@ async function saveTodoEdit(){
   }
   showToast('Updated!');
 }
-function closeTodoDetail(){document.getElementById('todo-detail-popup').classList.remove('open');}
+function preventBodyScroll(e){if(!e.target.closest('.todo-detail-sheet'))e.preventDefault();}
+function closeTodoDetail(){
+  document.getElementById('todo-detail-popup').classList.remove('open');
+  document.body.removeEventListener('touchmove',preventBodyScroll);
+}
 function renderSubList(){
   const item=todoData[currentDetailQuad][currentDetailIdx];
   const list=document.getElementById('td-sub-list');
@@ -1762,6 +1777,7 @@ function closeSubInlineEdit(si){
   document.getElementById('tsi-edit-'+si).style.display='none';
 }
 async function saveSubInlineEdit(si){
+  window._pausePollingUntil=Date.now()+60000;
   const newText=document.getElementById('tsi-text-'+si).value.trim();if(!newText)return;
   const dateVal=document.getElementById('tsi-date-'+si).value;
   const timeVal=document.getElementById('tsi-time-'+si).value||'';
@@ -1854,6 +1870,7 @@ function endTodoDrag(targetQ,targetItemEl){
   ghost.style.display='none';ghost.style.background='';ghost.style.color='';
   if(todoDragEl){todoDragEl.classList.remove('dragging');todoDragEl=null;}
   document.querySelectorAll('.quad-cell').forEach(cell=>{cell.style.outline='';cell.classList.remove('drag-over');});
+  document.querySelectorAll('.quad-item[data-type="parent"]').forEach(el=>{el.style.outline='';el.style.background='';});
   document.querySelectorAll('.quad-item').forEach(el=>el.classList.remove('drag-over-item'));
 
   // 다른 투두 위에 드롭 → 하위업무로 편입
@@ -1894,6 +1911,14 @@ function endTodoDrag(targetQ,targetItemEl){
     todoData[todoDragQ].splice(todoDragI,1);
     item.dueDate=newDue;
     todoData[targetQ].push(item);
+    // 하위업무도 따라가기
+    (item.subs||[]).forEach(sub=>{
+      if(sub.notionId){
+        const subProps={'사분면':{multi_select:[{name:cfg.label}]}};
+        if(newDue)subProps['마감일']={date:{start:formatDate(newDue)}};
+        fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:subProps})}).catch(console.error);
+      }
+    });
     if(item.notionId){
       const props={'사분면':{multi_select:[{name:cfg.label}]}};
       if(newDue)props['마감일']={date:{start:formatDate(newDue)}};
@@ -1947,7 +1972,8 @@ function openSubTodoDetail(q,i,si){
   document.getElementById('td-sub-list').style.display='none';
   document.getElementById('td-add-sub').style.display='none';
   const actions=document.querySelector('.td-actions');
-  if(actions)actions.innerHTML=`<button class="td-action-btn danger" onclick="deleteSubTodoItem('${q}',${i},${si})">삭제</button>`;
+  if(actions)actions.innerHTML=`<button class="td-action-btn danger" onclick="deleteSubTodoItem('${q}',${i},${si})">삭제</button><button class="td-action-btn" onclick="detachSubTodo('${q}',${i},${si})">상위 해제</button>`;
+  document.body.addEventListener('touchmove',preventBodyScroll,{passive:false});
   document.getElementById('todo-detail-popup').classList.add('open');
 }
 
@@ -2046,6 +2072,21 @@ function restoreTodoDetailUI(){
   if(actions)actions.innerHTML=`<button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>`;
   document.getElementById('todo-detail-popup').classList.remove('open');
 }
+function detachSubTodo(q,i,si){
+  if(!confirm('상위업무 연결을 해제하고 독립 투두로 만들까요?'))return;
+  const parent=todoData[q][i];
+  const sub=parent.subs[si];
+  parent.subs.splice(si,1);
+  const newItem={text:sub.text,memo:sub.memo||'',time:sub.time||'',dueDate:sub.dueDate||null,done:sub.done,doneAt:sub.doneAt||null,addedAt:new Date(),notionId:sub.notionId,subs:[]};
+  todoData[q].push(newItem);
+  // 노션 상위항목 연결 해제
+  if(sub.notionId){
+    fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'상위항목':{relation:[]}}})}).catch(console.error);
+  }
+  closeTodoDetail();saveTodoToStorage();renderAllQuads();
+  if(currentTodoView==='week')renderWeeklyView();
+  showToast('독립 투두로 분리했어요!');
+}
 function deleteSubTodoItem(q,i,si){
   if(!confirm('Delete this subtask?'))return;
   const sub=todoData[q][i].subs[si];
@@ -2120,7 +2161,7 @@ function renderPassSection(){
     const next=new Date(d);next.setDate(next.getDate()+1);return now<next;
   });
   if(!visible.length){c.innerHTML='<div style="font-size:11px;color:var(--rule);padding:6px 0;">없음</div>';return;}
-  c.innerHTML=visible.map(item=>`<div class="quad-item" style="opacity:0.55;"><div class="quad-check done"></div><div style="flex:1"><div class="quad-text done">${item.text}</div>${item.memo?'<span class="quad-memo">'+item.memo+'</span>':''}</div></div>`).join('');
+  c.innerHTML=visible.map(item=>`<div class="quad-item" style="opacity:0.6;"><div class="quad-check done"></div><div style="flex:1"><div class="quad-text done">${item.text}</div>${item.memo?'<span class="quad-memo">'+item.memo+'</span>':''}</div></div>`).join('');
 }
 
 function renderCartSection(section){
@@ -2310,12 +2351,28 @@ function renderBrainList(){
     inner.addEventListener('touchend',()=>clearTimeout(holdDeleteTimer));
     inner.addEventListener('touchmove',()=>clearTimeout(holdDeleteTimer));
     inner.addEventListener('contextmenu',e=>{e.preventDefault();if(confirm('삭제할까요?'))deleteBrainItem(idx);});
+    // PC 마우스 드래그 삭제
+    let mouseStartX=0,mouseDragging=false;
+    inner.addEventListener('mousedown',e=>{mouseStartX=e.clientX;mouseDragging=true;});
+    inner.addEventListener('mousemove',e=>{
+      if(!mouseDragging)return;
+      const dx=e.clientX-mouseStartX;
+      if(dx<0)inner.style.transform=`translateX(${Math.max(-80,dx)}px)`;
+    });
+    inner.addEventListener('mouseup',e=>{
+      if(!mouseDragging)return;
+      mouseDragging=false;
+      const dx=e.clientX-mouseStartX;
+      if(dx<-60){inner.style.transform='translateX(-100%)';setTimeout(()=>deleteBrainItem(idx),200);}
+      else{inner.style.transform='';}
+    });
+    inner.addEventListener('mouseleave',()=>{if(mouseDragging){mouseDragging=false;inner.style.transform='';}});
     // 홀드 드래그 — 사이드탭으로
     inner.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:false});
-    inner.addEventListener('mousedown',e=>startHold(e,idx,item));
+    inner.addEventListener('mousedown',e=>startHold(e,idx,item));;
   });
 }
-function endDrag(zone){isDragging=false;ghost.style.display='none';const el=dragItem?document.getElementById('bi-'+dragItem.id):null;if(el)el.classList.remove('dragging');if(zone&&dragItem)openSubPopup(zone,dragItem,dragIdx);dragItem=null;dragIdx=-1;}
+// endDrag removed — brain drag uses integrated listener
 let subDragZone='',subDragItem=null,subDragIdx=-1;
 function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragIdx=idx;document.getElementById('sub-popup-text').textContent=item.text;const wrap=document.getElementById('sub-choices-wrap');wrap.innerHTML='';if(zone==='record'){document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';const grid=document.createElement('div');grid.className='sub-mood-grid';['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{const btn=document.createElement('button');btn.className='sub-mood-btn';btn.textContent=m;btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);grid.appendChild(btn);});wrap.appendChild(grid);}else if(zone==='todo'){document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(QUAD_CFG).forEach(([q,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':'');btn.onclick=()=>confirmSubTodo(q);div.appendChild(btn);});wrap.appendChild(div);}else if(zone==='cart'){document.getElementById('sub-popup-title').textContent='CART — 분류 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label;btn.onclick=()=>confirmSubCart(s);div.appendChild(btn);});wrap.appendChild(div);}
   else if(zone==='idea'){document.getElementById('sub-popup-title').textContent='IDEA — Save as Idea';const div=document.createElement('div');div.className='sub-choices';const btn=document.createElement('button');btn.className='sub-choice';btn.textContent='Save to Idea DB';btn.style.cssText='border-color:var(--ink);font-weight:600;';btn.onclick=()=>confirmSubIdea();div.appendChild(btn);wrap.appendChild(div);}
@@ -2446,6 +2503,14 @@ document.addEventListener('touchmove',e=>{
       cell.style.outline=over?'2px solid var(--ink)':'2px dashed rgba(0,0,0,0.15)';
       cell.classList.toggle('drag-over',over);
     });
+    // 다른 투두 위 하이라이트
+    document.querySelectorAll('.quad-item[data-type="parent"]').forEach(el=>{
+      if(el===todoDragEl)return;
+      const r=el.getBoundingClientRect();
+      const over=t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom;
+      el.style.outline=over?'2px solid var(--ink)':'none';
+      el.style.background=over?'rgba(17,17,17,0.07)':'';
+    });
   } else if(isDragging){
     e.preventDefault();
     const t=e.touches[0];
@@ -2530,6 +2595,13 @@ document.addEventListener('mousemove',e=>{
       const over=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
       cell.style.outline=over?'2px solid var(--ink)':'2px dashed rgba(0,0,0,0.15)';
       cell.classList.toggle('drag-over',over);
+    });
+    document.querySelectorAll('.quad-item[data-type="parent"]').forEach(el=>{
+      if(el===todoDragEl)return;
+      const r=el.getBoundingClientRect();
+      const over=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      el.style.outline=over?'2px solid var(--ink)':'none';
+      el.style.background=over?'rgba(17,17,17,0.07)':'';
     });
   } else if(isDragging){
     ghost.style.left=Math.min(e.clientX-60,window.innerWidth-260)+'px';
@@ -2854,8 +2926,10 @@ function init(){
   loadCartFromNotion();
   // 브레인덤프 자동 리셋 체크
   checkBrainAutoReset();
+  window._pausePollingUntil=0;
   // 30초마다 노션에서 재로드
   setInterval(()=>{
+    if(Date.now()<(window._pausePollingUntil||0))return;
     loadTodoFromNotion();
     loadBrainFromNotion();
     loadBookFromNotion();
