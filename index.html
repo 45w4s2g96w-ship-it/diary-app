@@ -1717,12 +1717,16 @@ function toggleSubTodoInline(q,i,si,e){
   if(sub.notionId)updateTodoNotionDone(sub.notionId,sub.done);
   renderAllQuads();saveTodoToStorage();
 }
+let currentSubSi=-1;
 function openSubTodoDetail(q,i,si){
-  const sub=todoData[q][i].subs[si];const parent=todoData[q][i];
-  currentDetailQuad=q;currentDetailIdx=i;
+  const sub=todoData[q][i].subs[si];
+  const parent=todoData[q][i];
+  currentDetailQuad=q;currentDetailIdx=i;currentSubSi=si;
   document.getElementById('td-quad-tag').textContent='SUBTASK';
   document.getElementById('td-title').textContent=sub.text;
-  document.getElementById('td-due').textContent='상위: '+parent.text;
+  const dueStr=sub.dueDate?(sub.time?`Due: ${formatDateShort(new Date(sub.dueDate))} (${sub.time})`:`Due: ${formatDateShort(new Date(sub.dueDate))}`):'No deadline';
+  document.getElementById('td-due').textContent=dueStr;
+  document.getElementById('td-due').innerHTML+=`<span style="display:block;margin-top:2px;font-size:9px;color:var(--ink-muted);">상위: ${parent.text}</span>`;
   const memoEl=document.getElementById('td-memo-display');
   if(sub.memo){memoEl.textContent=sub.memo;memoEl.style.display='block';}else{memoEl.style.display='none';}
   document.getElementById('td-view-mode').style.display='';
@@ -1734,9 +1738,99 @@ function openSubTodoDetail(q,i,si){
   if(actions){
     actions.innerHTML=`
       <button class="td-action-btn danger" onclick="deleteSubTodoItem('${q}',${i},${si})">삭제</button>
-      <button class="td-action-btn" onclick="restoreTodoDetailUI()">닫기</button>`;
+      <button class="td-action-btn" onclick="startSubTodoEdit('${q}',${i},${si})">수정</button>`;
   }
   document.getElementById('todo-detail-popup').classList.add('open');
+}
+
+function startSubTodoEdit(q,i,si){
+  const sub=todoData[q][i].subs[si];
+  // edit-mode 재활용, QUADRANT 버튼 숨기고 상위업무 선택 추가
+  document.getElementById('td-edit-text').value=sub.text;
+  document.getElementById('td-edit-memo').value=sub.memo||'';
+  const d=sub.dueDate?new Date(sub.dueDate):null;
+  document.getElementById('td-edit-date').value=d?formatDate(d):'';
+  document.getElementById('td-edit-time').value=sub.time||'';
+  // QUADRANT 버튼 숨기기
+  document.getElementById('td-edit-mode').querySelectorAll('[id^="tq-"]').forEach(b=>b.parentElement.style.display='none');
+  document.querySelector('#td-edit-mode [style*="QUADRANT"]')?.parentElement && (()=>{})();
+  // 상위업무 선택 셀렉트 추가 (없으면 생성)
+  let parentSel=document.getElementById('td-sub-parent-select');
+  if(!parentSel){
+    const wrap=document.createElement('div');
+    wrap.style.cssText='margin-bottom:14px;';
+    wrap.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:6px;">상위업무</div>
+    <select id="td-sub-parent-select" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;background:var(--paper);border:1.5px solid var(--rule);padding:8px 10px;outline:none;color:var(--ink);border-radius:1px;margin-bottom:0;"></select>`;
+    const dateDiv=document.getElementById('td-edit-date').closest('div');
+    dateDiv.parentElement.insertBefore(wrap,dateDiv);
+    parentSel=document.getElementById('td-sub-parent-select');
+  }
+  parentSel.innerHTML='';
+  ['today','week','month','someday'].forEach(pq=>{
+    todoData[pq].forEach((pItem,pi)=>{
+      if(pItem.done)return;
+      const opt=document.createElement('option');
+      opt.value=pq+'|'+pi;
+      opt.textContent=pItem.text+' ('+QUAD_CFG[pq].label+')';
+      if(pq===q&&pi===i)opt.selected=true;
+      parentSel.appendChild(opt);
+    });
+  });
+  // 저장/취소 버튼 교체
+  const btnWrap=document.getElementById('td-edit-mode').querySelector('[style*="display:flex;gap:8px"]')||document.getElementById('td-edit-mode').lastElementChild;
+  btnWrap.innerHTML=`
+    <button onclick="cancelSubTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
+    <button onclick="saveSubTodoEdit('${q}',${i},${si})" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>`;
+  document.getElementById('td-view-mode').style.display='none';
+  document.getElementById('td-edit-mode').style.display='';
+}
+
+function cancelSubTodoEdit(){
+  document.getElementById('td-view-mode').style.display='';
+  document.getElementById('td-edit-mode').style.display='none';
+  // QUADRANT 버튼 복원
+  document.getElementById('td-edit-mode').querySelectorAll('[id^="tq-"]').forEach(b=>b.parentElement.style.display='');
+  // 저장/취소 버튼 복원 (원래 saveTodoEdit/cancelTodoEdit)
+  const btnWrap=document.getElementById('td-edit-mode').lastElementChild;
+  btnWrap.innerHTML=`
+    <button onclick="cancelTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
+    <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>`;
+}
+
+async function saveSubTodoEdit(q,i,si){
+  const newText=document.getElementById('td-edit-text').value.trim();if(!newText)return;
+  const newMemo=document.getElementById('td-edit-memo').value.trim();
+  const dateVal=document.getElementById('td-edit-date').value;
+  const timeVal=document.getElementById('td-edit-time').value||'';
+  const parentVal=document.getElementById('td-sub-parent-select')?.value||'';
+  const sub=todoData[q][i].subs[si];
+  sub.text=newText;sub.memo=newMemo;sub.time=timeVal;
+  sub.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
+  // 상위업무 변경
+  if(parentVal&&parentVal!==q+'|'+i){
+    const [newPQ,newPI]=parentVal.split('|');
+    const newPIdx=parseInt(newPI);
+    todoData[q][i].subs.splice(si,1);
+    todoData[newPQ][newPIdx].subs=todoData[newPQ][newPIdx].subs||[];
+    todoData[newPQ][newPIdx].subs.push(sub);
+    if(sub.notionId){
+      await fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:newText}}]},'상위항목':{relation:[{id:todoData[newPQ][newPIdx].notionId||''}]}}})}).catch(e=>console.error(e));
+    }
+  } else if(sub.notionId){
+    const props={'이름':{title:[{text:{content:newText}}]}};
+    if(newMemo)props['메모']={rich_text:[{text:{content:newMemo}}]};else props['메모']={rich_text:[]};
+    if(sub.dueDate)props['마감일']={date:{start:formatDate(sub.dueDate)}};else props['마감일']={date:null};
+    if(timeVal)props['시간']={rich_text:[{text:{content:timeVal}}]};else props['시간']={rich_text:[]};
+    await fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(e=>console.error(e));
+  }
+  saveTodoToStorage();renderAllQuads();
+  if(currentTodoView==='week')renderWeeklyView();
+  cancelSubTodoEdit();
+  // 뷰 모드 업데이트
+  document.getElementById('td-title').textContent=newText;
+  const dueStr=sub.dueDate?(sub.time?`Due: ${formatDateShort(new Date(sub.dueDate))} (${sub.time})`:`Due: ${formatDateShort(new Date(sub.dueDate))}`):'No deadline';
+  document.getElementById('td-due').textContent=dueStr;
+  showToast('Updated!');
 }
 function restoreTodoDetailUI(){
   document.getElementById('td-sub-label').style.display='';
@@ -1748,8 +1842,14 @@ function restoreTodoDetailUI(){
 }
 function deleteSubTodoItem(q,i,si){
   if(!confirm('Delete this subtask?'))return;
+  const sub=todoData[q][i].subs[si];
   todoData[q][i].subs.splice(si,1);
-  saveTodoToStorage();renderAllQuads();restoreTodoDetailUI();showToast('Deleted!');
+  saveTodoToStorage();renderAllQuads();
+  if(currentTodoView==='week')renderWeeklyView();
+  restoreTodoDetailUI();showToast('Deleted!');
+  if(sub.notionId){
+    fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));
+  }
 }
 
 /* Cart */
