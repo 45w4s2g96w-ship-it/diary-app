@@ -325,6 +325,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .inbox-bubble-divider { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 10px 0; }
 .inbox-bubble-suggest-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6; margin-bottom: 8px; }
 .inbox-bubble-suggest { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.9; white-space: pre-line; }
+.inbox-bubble-briefing { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.9; white-space: pre-wrap; margin-bottom: 4px; }
 .inbox-empty { padding: 60px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
 /* Popups */
@@ -2511,7 +2512,80 @@ function saveBookToStorage(){localStorage.setItem('book_data',JSON.stringify(boo
 function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(d)bookData=JSON.parse(d);}catch(e){}}
 
 /* Inbox */
-async function loadInbox(){const list=document.getElementById('inbox-list');list.innerHTML='<div class="inbox-empty">Loading...</div>';try{const db=localStorage.getItem('notion_db');const res=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})});const data=await res.json();if(!data.results||!data.results.length){list.innerHTML='<div class="inbox-empty">Messages will appear<br>as your diary is analyzed.</div>';return;}list.innerHTML='';data.results.forEach(page=>{const props=page.properties;const dateStr=props['날짜']?.date?.start||'';if(!dateStr)return;const d=new Date(dateStr+'T00:00:00');const days=['일','월','화','수','목','금','토'];const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;const summary=getTextProp(props,'일기 요약')||'';const encourage=getTextProp(props,'격려')||'';const suggest=getTextProp(props,'제언')||'';const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};const div=document.createElement('div');div.className='inbox-date-divider';div.textContent=dateLabel;list.appendChild(div);const bubble=document.createElement('div');bubble.className='inbox-bubble';bubble.innerHTML=`${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">Try this today 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;list.appendChild(bubble);});requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight;});}catch(e){list.innerHTML='<div class="inbox-empty">Load failed</div>';}}
+const MORNING_BRIEFING_DB='37d51f4140c580999acd000b9c3d3689';
+async function loadInbox(){
+  const list=document.getElementById('inbox-list');
+  list.innerHTML='<div class="inbox-empty">Loading...</div>';
+  try{
+    const db=localStorage.getItem('notion_db');
+    const todayStr=formatDate(new Date());
+
+    // 1. 다이어리 분석 (기존)
+    const [diaryRes, briefingRes] = await Promise.all([
+      fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})}),
+      fetch(`${WORKER_URL}/notion/databases/${MORNING_BRIEFING_DB}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'날짜',direction:'descending'}],page_size:10})})
+    ]);
+    const diaryData=await diaryRes.json();
+    const briefingData=await briefingRes.json();
+
+    // 날짜별 브리핑 맵
+    const briefingMap={};
+    (briefingData.results||[]).forEach(page=>{
+      const dateKey=page.properties['날짜']?.title?.map(t=>t.plain_text).join('')||'';
+      const content=page.properties['내용']?.rich_text?.map(t=>t.plain_text).join('')||'';
+      if(dateKey&&content) briefingMap[dateKey]=content;
+    });
+
+    if(!diaryData.results?.length && !Object.keys(briefingMap).length){
+      list.innerHTML='<div class="inbox-empty">Messages will appear<br>as your diary is analyzed.</div>';
+      return;
+    }
+
+    list.innerHTML='';
+    const days=['일','월','화','수','목','금','토'];
+
+    // 오늘 브리핑이 있으면 맨 위에 먼저 표시 (다이어리 분석 없어도)
+    if(briefingMap[todayStr]){
+      const d=new Date(todayStr+'T00:00:00');
+      const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+      const divEl=document.createElement('div');divEl.className='inbox-date-divider';divEl.textContent=dateLabel;
+      list.appendChild(divEl);
+      const bubble=document.createElement('div');bubble.className='inbox-bubble';
+      bubble.innerHTML=`<div class="inbox-bubble-briefing">${briefingMap[todayStr].replace(/\n/g,'<br>')}</div>`;
+      list.appendChild(bubble);
+    }
+
+    // 다이어리 분석 말풍선 (날짜별)
+    (diaryData.results||[]).forEach(page=>{
+      const props=page.properties;
+      const dateStr=props['날짜']?.date?.start||'';
+      if(!dateStr)return;
+      const d=new Date(dateStr+'T00:00:00');
+      const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+      const summary=getTextProp(props,'일기 요약')||'';
+      const encourage=getTextProp(props,'격려')||'';
+      const suggest=getTextProp(props,'제언')||'';
+      const briefing=briefingMap[dateStr]||''; // 같은 날 브리핑 (오늘 제외하고 과거 날짜)
+      const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};
+      const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};
+
+      // 오늘 날짜 브리핑은 이미 위에 표시했으니 스킵
+      if(dateStr===todayStr&&briefing)return;
+
+      const divEl=document.createElement('div');divEl.className='inbox-date-divider';divEl.textContent=dateLabel;
+      list.appendChild(divEl);
+      const bubble=document.createElement('div');bubble.className='inbox-bubble';
+      bubble.innerHTML=`
+        ${briefing?`<div class="inbox-bubble-briefing">${briefing.replace(/\n/g,'<br>')}</div><hr class="inbox-bubble-divider">`:'' }
+        ${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}
+        ${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}
+        ${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">Try this today 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;
+      list.appendChild(bubble);
+    });
+
+    requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight;});
+  }catch(e){list.innerHTML='<div class="inbox-empty">Load failed</div>';}
+}
 function getTextProp(props,key){const p=props[key];if(!p)return'';if(p.rich_text)return p.rich_text.map(t=>t.plain_text).join('');if(p.select)return p.select.name;return'';}
 
 /* PWA */
