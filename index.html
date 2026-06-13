@@ -2812,7 +2812,7 @@ function saveBookToStorage(){localStorage.setItem('book_data',JSON.stringify(boo
 function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(d)bookData=JSON.parse(d);}catch(e){}}
 
 /* Inbox */
-const MORNING_BRIEFING_DB='37d51f4140c580999acd000b9c3d3689';
+const MORNING_BRIEFING_DB='37d51f4140c580dca4d5cbec7e5534e3';
 async function loadInbox(){
   const list=document.getElementById('inbox-list');
   list.innerHTML='<div class="inbox-empty">Loading...</div>';
