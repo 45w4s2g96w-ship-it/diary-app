@@ -1699,7 +1699,6 @@ function openTodoDetail(q,idx,parentQ,parentI){
   else{document.getElementById('td-sub-list').innerHTML='';}
   const actionsEl=document.querySelector('.td-actions');
   if(actionsEl)actionsEl.innerHTML=`<button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>`;
-  document.body.style.overflow='hidden';
   document.body.addEventListener('touchmove',preventBodyScroll,{passive:false});
   document.getElementById('todo-detail-popup').classList.add('open');
 }
@@ -1800,6 +1799,7 @@ async function saveTodoEdit(){
 function preventBodyScroll(e){if(!e.target.closest('.todo-detail-sheet'))e.preventDefault();}
 function closeTodoDetail(){
   document.getElementById('todo-detail-popup').classList.remove('open');
+  document.body.style.overflow='';
   document.body.removeEventListener('touchmove',preventBodyScroll);
 }
 function renderSubList(){
