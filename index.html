@@ -736,7 +736,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 </div>
 
 <!-- Todo detail popup -->
-<div class="todo-detail-overlay" id="todo-detail-popup" ontouchstart="event.stopPropagation()" onclick="if(event.target===this)closeTodoDetail()">
+<div class="todo-detail-overlay" id="todo-detail-popup" ontouchstart="if(!event.target.closest('.todo-detail-sheet')){event.preventDefault();event.stopImmediatePropagation();return;}" onclick="if(event.target===this)closeTodoDetail()">
   <div class="todo-detail-sheet">
     <div class="td-header"><div class="td-quad-tag" id="td-quad-tag"></div><button class="td-close" onclick="closeTodoDetail()">✕ CLOSE</button></div>
     <div class="td-body">
@@ -1226,7 +1226,7 @@ function renderWeeklyView(){
         <div class="week-col-items" id="wci-${dayStr}">`;
       items.forEach(({item,q,i})=>{
         const timeLabel=item.time?`<span style="font-size:8px;color:var(--ink-muted);">(${item.time}) </span>`:'';
-        html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
+        html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
           <div class="week-col-text${item.done?' done':''}">${timeLabel}${item.text}</div>
         </div>`;
@@ -1276,7 +1276,7 @@ function renderWeeklyView(){
         const pendingSubs=(item.subs||[]).filter(s=>!s.done);
         const hasS=pendingSubs.length>0;
         const timeLabel=item.time?`<span style="font-size:9px;color:var(--ink-muted);margin-right:3px;">(${item.time})</span>`:'';
-        h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})">
+        h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
           <div class="week-item-text${item.done?' done':''}">${timeLabel}${item.text}</div>
         </div>`;
@@ -2498,7 +2498,14 @@ function startHold(e,idx,item){
 }
 
 // ============================================================
-// 통합 드래그 이벤트 리스너 (week / todo / brain 충돌 방지)
+// 팝업 열린 상태에서 week-item/quad-item 터치 완전 차단 (캡처 단계)
+document.addEventListener('touchstart',e=>{
+  const popupOpen=document.getElementById('todo-detail-popup').classList.contains('open');
+  if(popupOpen){
+    e.stopImmediatePropagation();
+    if(!e.target.closest('.todo-detail-sheet'))e.preventDefault();
+  }
+},{capture:true,passive:false});
 // ============================================================
 document.addEventListener('touchmove',e=>{
   const popupOpen=document.getElementById('todo-detail-popup').classList.contains('open');
