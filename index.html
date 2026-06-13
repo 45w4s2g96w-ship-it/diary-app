@@ -391,6 +391,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .td-due { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.06em; margin-bottom: 8px; }
 /* [FIX #3] memo display in detail */
 .td-memo-display { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; padding: 8px 10px; background: rgba(0,0,0,0.03); border-radius: 2px; border-left: 2px solid var(--rule); white-space: pre-wrap; }
+.td-field-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 4px; }
 .td-sub-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; border-top: 1px solid var(--rule); padding-top: 12px; }
 .td-sub-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
 .td-sub-item:last-child { border-bottom: none; }
@@ -736,44 +737,50 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 </div>
 
 <!-- Todo detail popup -->
-<div class="todo-detail-overlay" id="todo-detail-popup" ontouchstart="if(!event.target.closest('.todo-detail-sheet')){event.preventDefault();event.stopImmediatePropagation();return;}" onclick="if(event.target===this)closeTodoDetail()">
+<div class="todo-detail-overlay" id="todo-detail-popup" onclick="if(event.target===this)closeTodoDetail()">
   <div class="todo-detail-sheet">
-    <div class="td-header"><div class="td-quad-tag" id="td-quad-tag"></div><button class="td-close" onclick="closeTodoDetail()">✕ CLOSE</button></div>
+    <div class="td-header">
+      <div class="td-quad-tag" id="td-quad-tag"></div>
+      <button class="td-close" onclick="closeTodoDetail()">✕ CLOSE</button>
+    </div>
     <div class="td-body">
-      <div id="td-view-mode" style="display:none;">
-        <div class="td-title" id="td-title"></div>
-        <div class="td-due" id="td-due"></div>
-        <div class="td-memo-display" id="td-memo-display" style="display:none;"></div>
-      </div>
-      <div id="td-edit-mode">
-        <input id="td-edit-text" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:15px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);outline:none;padding:6px 0;margin-bottom:10px;">
-        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:4px;">MEMO</div>
-        <input id="td-edit-memo" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink-soft);background:transparent;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:10px;" placeholder="메모 (링크, 참고사항...)">
-        <button onclick="toggleQuadrantSection()" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:4px 10px;cursor:pointer;border-radius:1px;margin-bottom:8px;">QUADRANT ▾</button>
-        <div id="td-quadrant-section" style="display:none;margin-bottom:10px;">
-          <div style="display:flex;gap:6px;">
-            <button onclick="setTodoEditQuad('today')" id="tq-today" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">TODAY</button>
-            <button onclick="setTodoEditQuad('week')" id="tq-week" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">WEEK</button>
-            <button onclick="setTodoEditQuad('month')" id="tq-month" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">MONTH</button>
-            <button onclick="setTodoEditQuad('someday')" id="tq-someday" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">SOMEDAY</button>
-          </div>
-        </div>
-        <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);text-transform:uppercase;margin-bottom:6px;">DUE DATE</div>
-        <div style="display:flex;gap:10px;margin-bottom:14px;">
-          <input type="date" id="td-edit-date" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;">
-          <input type="time" id="td-edit-time" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;">
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:14px;">
-          <button onclick="cancelTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
-          <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
+      <!-- 제목 -->
+      <input id="td-edit-text" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:15px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);outline:none;padding:6px 0;margin-bottom:14px;">
+      <!-- 메모 -->
+      <div class="td-field-label">MEMO</div>
+      <input id="td-edit-memo" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink-soft);background:transparent;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:14px;" placeholder="링크, 참고사항...">
+      <!-- 사분면 -->
+      <button onclick="toggleQuadrantSection()" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:4px 10px;cursor:pointer;border-radius:1px;margin-bottom:8px;">QUADRANT ▾</button>
+      <div id="td-quadrant-section" style="display:none;margin-bottom:10px;">
+        <div style="display:flex;gap:6px;">
+          <button onclick="setTodoEditQuad('today')" id="tq-today" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">TODAY</button>
+          <button onclick="setTodoEditQuad('week')" id="tq-week" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">WEEK</button>
+          <button onclick="setTodoEditQuad('month')" id="tq-month" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">MONTH</button>
+          <button onclick="setTodoEditQuad('someday')" id="tq-someday" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">SOMEDAY</button>
         </div>
       </div>
-      <div class="td-sub-label" id="td-sub-label">SUBTASKS</div>
+      <!-- 마감일 -->
+      <div class="td-field-label">DUE DATE</div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;">
+        <input type="date" id="td-edit-date" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;">
+        <input type="time" id="td-edit-time" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;">
+      </div>
+      <!-- 상위업무 -->
+      <div class="td-field-label">PARENT</div>
+      <select id="td-parent-select" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;background:var(--paper);border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;color:var(--ink);margin-bottom:14px;"></select>
+      <!-- 저장/취소 -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button onclick="cancelTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
+        <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
+      </div>
+      <!-- 하위업무 -->
+      <div class="td-sub-label">SUBTASKS</div>
       <div id="td-sub-list"></div>
-      <div class="td-add-sub" id="td-add-sub">
+      <div class="td-add-sub">
         <input class="td-add-sub-input" id="td-sub-input" placeholder="Add subtask..." onkeydown="if(event.key==='Enter')addSubTodo()">
         <button class="td-add-sub-btn" onclick="addSubTodo()">ADD</button>
       </div>
+      <!-- 삭제 -->
       <div class="td-actions">
         <button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>
       </div>
@@ -1226,7 +1233,7 @@ function renderWeeklyView(){
         <div class="week-col-items" id="wci-${dayStr}">`;
       items.forEach(({item,q,i})=>{
         const timeLabel=item.time?`<span style="font-size:8px;color:var(--ink-muted);">(${item.time}) </span>`:'';
-        html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})">
+        html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
           <div class="week-col-text${item.done?' done':''}">${timeLabel}${item.text}</div>
         </div>`;
@@ -1234,7 +1241,7 @@ function renderWeeklyView(){
         const pendingSubs=(item.subs||[]).filter(s=>!s.done);
         pendingSubs.slice(0,2).forEach(sub=>{
           const si=(item.subs||[]).indexOf(sub);
-          html+=`<div class="week-col-sub" onclick="event.stopPropagation();openSubTodoDetail('${q}',${i},${si})">
+          html+=`<div class="week-col-sub" onclick="event.stopPropagation();openTodoDetail(${si},${si},'${q}',${i})">
             <div class="week-col-sub-check${sub.done?' done':''}"></div>
             <div class="week-col-sub-text">${sub.text}</div>
           </div>`;
@@ -1256,7 +1263,7 @@ function renderWeeklyView(){
       let h=`<div class="week-sub-list" id="${subId}">`;
       visible.forEach(sub=>{
         const realSi=(item.subs||[]).indexOf(sub);
-        h+=`<div class="week-sub-item" onclick="event.stopPropagation();openSubTodoDetail('${q}',${i},${realSi})">
+        h+=`<div class="week-sub-item" onclick="event.stopPropagation();openTodoDetail(${realSi},${realSi},'${q}',${i})">
           <div class="week-sub-check${sub.done?' done':''}" onclick="event.stopPropagation();toggleSubTodoInline('${q}',${i},${realSi},event)"></div>
           <div class="week-sub-text${sub.done?' done':''}">${sub.text}</div>
         </div>`;
@@ -1276,7 +1283,7 @@ function renderWeeklyView(){
         const pendingSubs=(item.subs||[]).filter(s=>!s.done);
         const hasS=pendingSubs.length>0;
         const timeLabel=item.time?`<span style="font-size:9px;color:var(--ink-muted);margin-right:3px;">(${item.time})</span>`:'';
-        h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})">
+        h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
           <div class="week-item-text${item.done?' done':''}">${timeLabel}${item.text}</div>
         </div>`;
@@ -1371,7 +1378,7 @@ function toggleWeekSubs(subId,q,parentI,btn,hiddenItems){
   btn.remove();
   hiddenItems.forEach(({text,si})=>{
     const div=document.createElement('div');div.className='week-sub-item';
-    div.onclick=(e)=>{e.stopPropagation();openSubTodoDetail(q,parentI,si);};
+    div.onclick=(e)=>{e.stopPropagation();openTodoDetail(si,si,q,parentI);};
     div.innerHTML=`<div class="week-sub-check" onclick="event.stopPropagation();toggleSubTodoInline('${q}',${parentI},${si},event)"></div><div class="week-sub-text">${text}</div>`;
     container.appendChild(div);
   });
@@ -1565,7 +1572,7 @@ function renderQuad(q){
       const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
       sdiv.dataset.q=q;sdiv.dataset.i=i;sdiv.dataset.si=si;sdiv.dataset.type='sub';
       sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check${sub.done?' done':''}" onclick="toggleSubTodoInline('${q}',${i},${si},event)"></div><div class="quad-text${sub.done?' done':''}" style="font-size:10px;">${sub.text}</div>`;
-      sdiv.addEventListener('click',()=>openSubTodoDetail(q,i,si));
+      sdiv.addEventListener('click',()=>openTodoDetail(si,si,q,i));
       sdiv.addEventListener('touchstart',e=>startTodoDrag(e,q,i,si,null),{passive:true});
       sdiv.addEventListener('mousedown',e=>startTodoDrag(e,q,i,si,null));
       c.appendChild(sdiv);
@@ -1650,30 +1657,51 @@ function toggleQuadrantSection(){
   const s=document.getElementById('td-quadrant-section');
   s.style.display=s.style.display==='none'?'block':'none';
 }
-function openTodoDetail(q,idx){
-  currentDetailQuad=q;currentDetailIdx=idx;
-  document.body.style.overflow='hidden';
-  document.body.addEventListener('touchmove',preventBodyScroll,{passive:false});
-  const item=todoData[q][idx];const cfg=QUAD_CFG[q];
-  document.getElementById('td-quad-tag').textContent=cfg.label;
-  // 바로 수정모드
-  document.getElementById('td-view-mode').style.display='none';
-  document.getElementById('td-edit-mode').style.display='';
+
+function buildParentSelectOptions(excludeQ,excludeI){
+  let opts='<option value="">— None —</option>';
+  ['today','week','month','someday'].forEach(q=>{
+    todoData[q].forEach((item,i)=>{
+      if(q===excludeQ&&i===excludeI)return;
+      if(item.done)return;
+      opts+=`<option value="${q}|${i}">${item.text} (${QUAD_CFG[q].label})</option>`;
+    });
+  });
+  return opts;
+}
+
+function openTodoDetail(q,idx,parentQ,parentI){
+  const isSubTask=parentQ!==undefined&&parentI!==undefined;
+  currentDetailQuad=isSubTask?parentQ:q;
+  currentDetailIdx=isSubTask?parentI:idx;
+  currentSubSi=isSubTask?idx:-1;
+  const item=isSubTask?todoData[parentQ][parentI].subs[idx]:todoData[q][idx];
+  const cfg=QUAD_CFG[isSubTask?parentQ:q];
+  document.getElementById('td-quad-tag').textContent=isSubTask?'SUBTASK':cfg.label;
   document.getElementById('td-quadrant-section').style.display='none';
-  document.getElementById('td-edit-text').value=item.text;
+  document.getElementById('td-edit-text').value=item.text||'';
   document.getElementById('td-edit-memo').value=item.memo||'';
   const d=item.dueDate?new Date(item.dueDate):null;
   document.getElementById('td-edit-date').value=d?formatDate(d):'';
   document.getElementById('td-edit-time').value=item.time||'';
-  currentEditQuad=q;
-  setTodoEditQuad(q);
-  // 하위업무 UI 복원
-  document.getElementById('td-sub-label').style.display='';
-  document.getElementById('td-sub-list').style.display='';
-  document.getElementById('td-add-sub').style.display='';
+  // PARENT 셀렉트
+  const parentSel=document.getElementById('td-parent-select');
+  if(isSubTask){
+    parentSel.innerHTML=buildParentSelectOptions(null,null);
+    parentSel.value=`${parentQ}|${parentI}`;
+  } else {
+    parentSel.innerHTML=buildParentSelectOptions(q,idx);
+    parentSel.value='';
+  }
+  currentEditQuad=isSubTask?parentQ:q;
+  if(!isSubTask)setTodoEditQuad(q);
+  // 하위업무 (단독/상위업무만)
+  if(!isSubTask){renderSubList();document.getElementById('td-sub-input').value='';}
+  else{document.getElementById('td-sub-list').innerHTML='';}
   const actionsEl=document.querySelector('.td-actions');
   if(actionsEl)actionsEl.innerHTML=`<button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>`;
-  renderSubList();document.getElementById('td-sub-input').value='';
+  document.body.style.overflow='hidden';
+  document.body.addEventListener('touchmove',preventBodyScroll,{passive:false});
   document.getElementById('todo-detail-popup').classList.add('open');
 }
 let currentEditQuad='';
@@ -1693,31 +1721,72 @@ async function saveTodoEdit(){
   const memo=document.getElementById('td-edit-memo').value.trim();
   const dateVal=document.getElementById('td-edit-date').value;
   const timeVal=document.getElementById('td-edit-time').value||'';
-  const item=todoData[currentDetailQuad][currentDetailIdx];
   const newQuad=currentEditQuad||currentDetailQuad;
+  const parentVal=document.getElementById('td-parent-select')?.value||'';
+
+  // 하위업무인 경우
+  if(currentSubSi>=0){
+    const parent=todoData[currentDetailQuad][currentDetailIdx];
+    const sub=parent.subs[currentSubSi];
+    sub.text=text;sub.memo=memo;sub.time=timeVal;
+    sub.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
+    // 상위업무 변경
+    if(parentVal){
+      const [newPQ,newPI]=parentVal.split('|');const ni=parseInt(newPI);
+      if(newPQ!==currentDetailQuad||ni!==currentDetailIdx){
+        parent.subs.splice(currentSubSi,1);
+        todoData[newPQ][ni].subs=todoData[newPQ][ni].subs||[];
+        todoData[newPQ][ni].subs.push(sub);
+        if(sub.notionId&&todoData[newPQ][ni].notionId){
+          fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'상위항목':{relation:[{id:todoData[newPQ][ni].notionId}]}}})}).catch(console.error);
+        }
+        closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
+      }
+    } else {
+      // None 선택 → 독립 투두로
+      parent.subs.splice(currentSubSi,1);
+      todoData[currentDetailQuad].push({text,memo,time:timeVal,dueDate:sub.dueDate,done:sub.done,doneAt:sub.doneAt||null,addedAt:new Date(),notionId:sub.notionId,subs:[]});
+      if(sub.notionId){fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'상위항목':{relation:[]}}})}).catch(console.error);}
+      closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
+    }
+    if(sub.notionId){
+      const props={'이름':{title:[{text:{content:text}}]}};
+      if(sub.dueDate)props['마감일']={date:{start:formatDate(sub.dueDate)}};else props['마감일']={date:null};
+      if(timeVal)props['시간']={rich_text:[{text:{content:timeVal}}]};else props['시간']={rich_text:[]};
+      fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
+    }
+    saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();closeTodoDetail();showToast('Updated!');return;
+  }
+
+  // 단독/상위업무인 경우
+  const item=todoData[currentDetailQuad][currentDetailIdx];
   item.text=text;item.memo=memo;item.time=timeVal;
   item.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
+
+  // 상위업무에 편입
+  if(parentVal){
+    const [newPQ,newPI]=parentVal.split('|');const ni=parseInt(newPI);
+    todoData[currentDetailQuad].splice(currentDetailIdx,1);
+    const newParent=todoData[newPQ][ni];
+    newParent.subs=newParent.subs||[];
+    newParent.subs.push({text,memo,time:timeVal,dueDate:item.dueDate,done:item.done,doneAt:item.doneAt||null,notionId:item.notionId});
+    if(item.notionId&&newParent.notionId){
+      fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'상위항목':{relation:[{id:newParent.notionId}]}}})}).catch(console.error);
+    }
+    closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
+  }
+
+  // 사분면 변경
   if(newQuad!==currentDetailQuad){
     todoData[currentDetailQuad].splice(currentDetailIdx,1);
     todoData[newQuad].push(item);
-    currentDetailQuad=newQuad;
-    currentDetailIdx=todoData[newQuad].length-1;
-    // 하위업무도 사분면 변경 노션 반영
+    currentDetailQuad=newQuad;currentDetailIdx=todoData[newQuad].length-1;
     (item.subs||[]).forEach(sub=>{
-      if(sub.notionId){
-        fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'사분면':{multi_select:[{name:QUAD_CFG[newQuad].label}]}}})}).catch(console.error);
-      }
+      if(sub.notionId)fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'사분면':{multi_select:[{name:QUAD_CFG[newQuad].label}]}}})}).catch(console.error);
     });
   }
-  document.getElementById('td-title').textContent=text;
-  document.getElementById('td-due').textContent=item.dueDate?(item.time?`Due: ${formatDateShort(new Date(item.dueDate))} (${item.time})`:`Due: ${formatDateShort(new Date(item.dueDate))}`):'No deadline';
   document.getElementById('td-quad-tag').textContent=QUAD_CFG[currentDetailQuad].label;
-  const memoEl=document.getElementById('td-memo-display');
-  if(memo){memoEl.textContent=memo;memoEl.style.display='block';}else{memoEl.style.display='none';}
-  document.getElementById('td-view-mode').style.display='';
-  document.getElementById('td-edit-mode').style.display='none';
-  renderAllQuads();saveTodoToStorage();
-  if(currentTodoView==='week')renderWeeklyView();
+  renderAllQuads();saveTodoToStorage();if(currentTodoView==='week')renderWeeklyView();
   if(item.notionId){
     try{
       const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:item.done},'사분면':{multi_select:[{name:QUAD_CFG[newQuad].label}]}};
@@ -1727,7 +1796,7 @@ async function saveTodoEdit(){
       await fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});
     }catch(e){console.error(e);}
   }
-  showToast('Updated!');
+  closeTodoDetail();showToast('Updated!');
 }
 function preventBodyScroll(e){if(!e.target.closest('.todo-detail-sheet'))e.preventDefault();}
 function closeTodoDetail(){
@@ -1739,23 +1808,10 @@ function renderSubList(){
   const list=document.getElementById('td-sub-list');
   if(!item.subs||!item.subs.length){list.innerHTML='';return;}
   list.innerHTML=item.subs.map((s,i)=>`
-    <div class="td-sub-item" id="tsi-${i}" onclick="openSubInlineEdit(${i})" style="cursor:pointer;">
+    <div class="td-sub-item" id="tsi-${i}" onclick="openTodoDetail(${i},${i},'${currentDetailQuad}',${currentDetailIdx})" style="cursor:pointer;">
       <div class="td-sub-check${s.done?' done':''}" onclick="event.stopPropagation();toggleSubTodo(${i})"></div>
       <div class="td-sub-text${s.done?' done':''}">${s.text}${s.dueDate?`<span style="font-size:9px;color:var(--ink-muted);margin-left:6px;">${formatDateShort(new Date(s.dueDate))}${s.time?' ('+s.time+')':''}</span>`:''}</div>
       <button onclick="event.stopPropagation();deleteSubItem(${i})" style="font-family:'Montserrat',sans-serif;font-size:10px;color:var(--rule);background:none;border:none;cursor:pointer;padding:0 4px;flex-shrink:0;">✕</button>
-    </div>
-    <div id="tsi-edit-${i}" style="display:none;padding:8px 10px;background:rgba(0,0,0,0.03);border-radius:2px;margin-bottom:4px;">
-      <input id="tsi-text-${i}" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;border:none;border-bottom:1px solid var(--ink);outline:none;padding:4px 0;margin-bottom:8px;background:transparent;color:var(--ink);" value="${s.text}">
-      <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input type="date" id="tsi-date-${i}" value="${s.dueDate?formatDate(new Date(s.dueDate)):''}" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:11px;border:1px solid var(--rule);padding:4px 6px;background:transparent;color:var(--ink);outline:none;border-radius:1px;">
-        <input type="time" id="tsi-time-${i}" value="${s.time||''}" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:11px;border:1px solid var(--rule);padding:4px 6px;background:transparent;color:var(--ink);outline:none;border-radius:1px;">
-      </div>
-      <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);margin-bottom:4px;">상위업무</div>
-      <select id="tsi-parent-${i}" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;background:var(--paper);border:1px solid var(--rule);padding:5px 8px;color:var(--ink);margin-bottom:8px;border-radius:1px;">${buildParentOptions(currentDetailQuad,currentDetailIdx)}</select>
-      <div style="display:flex;gap:6px;">
-        <button onclick="closeSubInlineEdit(${i})" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:7px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
-        <button onclick="saveSubInlineEdit(${i})" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:7px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
-      </div>
     </div>`).join('');
 }
 function buildParentOptions(curQ,curI){
@@ -1974,7 +2030,7 @@ function toggleSubTodoInline(q,i,si,e){
   renderAllQuads();saveTodoToStorage();
 }
 let currentSubSi=-1;
-function openSubTodoDetail(q,i,si){
+function openTodoDetail(si,si,q,i){
   const sub=todoData[q][i].subs[si];
   const parent=todoData[q][i];
   currentDetailQuad=q;currentDetailIdx=i;currentSubSi=si;
