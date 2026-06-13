@@ -736,7 +736,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 </div>
 
 <!-- Todo detail popup -->
-<div class="todo-detail-overlay" id="todo-detail-popup" onclick="if(event.target===this)closeTodoDetail()">
+<div class="todo-detail-overlay" id="todo-detail-popup" ontouchstart="event.stopPropagation()" onclick="if(event.target===this)closeTodoDetail()">
   <div class="todo-detail-sheet">
     <div class="td-header"><div class="td-quad-tag" id="td-quad-tag"></div><button class="td-close" onclick="closeTodoDetail()">✕ CLOSE</button></div>
     <div class="td-body">
@@ -2552,6 +2552,13 @@ document.addEventListener('touchmove',e=>{
 },{passive:false});
 
 document.addEventListener('touchend',e=>{
+  const popupOpen=document.getElementById('todo-detail-popup').classList.contains('open');
+  if(popupOpen){
+    clearTimeout(weekDragTimer);clearTimeout(todoDragTimer);
+    weekDragging=false;todoDragging=false;
+    ghost.style.display='none';
+    return;
+  }
   if(weekDragging){
     clearTimeout(weekDragTimer);
     weekDragging=false;
