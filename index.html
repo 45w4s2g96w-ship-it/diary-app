@@ -377,9 +377,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-action-btn.danger { border-color: #c0392b; color: #c0392b; }
 
 /* Todo Detail */
-.todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 450; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; touch-action: none; }
+.todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .todo-detail-overlay.open { opacity: 1; pointer-events: all; }
-.todo-detail-overlay.open * { touch-action: auto; }
 .todo-detail-sheet { width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px; padding: 0 0 24px; transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 88vh; overflow-y: auto; scrollbar-width: none; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
 .todo-detail-sheet::-webkit-scrollbar { display: none; }
 .todo-detail-overlay.open .todo-detail-sheet { transform: translateY(0) scale(1); }
@@ -2587,15 +2586,6 @@ function startHold(e,idx,item){
   },500);
 }
 
-// ============================================================
-// 팝업 열린 상태에서 week-item/quad-item 터치 완전 차단 (캡처 단계)
-document.addEventListener('touchstart',e=>{
-  const popupOpen=document.getElementById('todo-detail-popup').classList.contains('open');
-  if(popupOpen){
-    e.stopImmediatePropagation();
-    if(!e.target.closest('.todo-detail-sheet'))e.preventDefault();
-  }
-},{capture:true,passive:false});
 // ============================================================
 document.addEventListener('touchmove',e=>{
   const popupOpen=document.getElementById('todo-detail-popup').classList.contains('open');
