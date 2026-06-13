@@ -1832,6 +1832,7 @@ function startWeekItemDrag(e,q,i){
   if(e.button!==undefined&&e.button!==0)return;
   const touch=e.touches?e.touches[0]:e;
   const startX=touch.clientX,startY=touch.clientY;
+  clearTimeout(weekDragTimer);
   weekDragTimer=setTimeout(()=>{
     weekDragging=true;weekDragQ=q;weekDragI=i;
     const item=todoData[q][i];
@@ -1842,10 +1843,25 @@ function startWeekItemDrag(e,q,i){
     ghost.style.background='var(--ink)';ghost.style.color='var(--paper)';
     weekDragEl=e.target.closest('.week-item,.week-col-item');
     if(weekDragEl)weekDragEl.style.opacity='0.4';
-    // 날짜 행/컬럼 하이라이트
     document.querySelectorAll('.week-row:not(.week-overdue),.week-col').forEach(el=>el.style.outline='2px dashed rgba(0,0,0,0.12)');
     if(navigator.vibrate)navigator.vibrate(40);
-  },500);
+  },1500);
+  function onMove(me){
+    const mt=me.touches?me.touches[0]:me;
+    if(Math.abs(mt.clientX-startX)>8||Math.abs(mt.clientY-startY)>8){
+      clearTimeout(weekDragTimer);
+      document.removeEventListener('touchmove',onMove);
+      document.removeEventListener('touchend',onEnd);
+    }
+  }
+  function onEnd(){
+    clearTimeout(weekDragTimer);
+    ghost.style.display='none';
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onEnd);
+  }
+  document.addEventListener('touchmove',onMove,{passive:true});
+  document.addEventListener('touchend',onEnd,{once:true});
 }
 let todoDragItem=null,todoDragQ=null,todoDragI=null,todoDragSI=null,todoDragTimer=null,todoDragging=false,todoDragEl=null;
 let todoDragOverItem=null; // 드래그 중 호버된 투두 아이템
@@ -1855,6 +1871,7 @@ function startTodoDrag(e,q,i,si,_){
   if(e.button!==undefined&&e.button!==0)return;
   const touch=e.touches?e.touches[0]:e;
   const startX=touch.clientX,startY=touch.clientY;
+  clearTimeout(todoDragTimer);
   todoDragTimer=setTimeout(()=>{
     todoDragging=true;todoDragQ=q;todoDragI=i;todoDragSI=si;
     const item=si!==null?todoData[q][i].subs[si]:todoData[q][i];
@@ -1868,6 +1885,23 @@ function startTodoDrag(e,q,i,si,_){
     document.querySelectorAll('.quad-cell').forEach(cell=>cell.style.outline='2px dashed rgba(0,0,0,0.15)');
     if(navigator.vibrate)navigator.vibrate(40);
   },1500);
+  // 움직임 감지 시 타이머 취소
+  function onMove(me){
+    const mt=me.touches?me.touches[0]:me;
+    if(Math.abs(mt.clientX-startX)>8||Math.abs(mt.clientY-startY)>8){
+      clearTimeout(todoDragTimer);
+      document.removeEventListener('touchmove',onMove);
+      document.removeEventListener('touchend',onEnd);
+    }
+  }
+  function onEnd(){
+    clearTimeout(todoDragTimer);
+    ghost.style.display='none';
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onEnd);
+  }
+  document.addEventListener('touchmove',onMove,{passive:true});
+  document.addEventListener('touchend',onEnd,{once:true});
 }
 function endTodoDrag(targetQ,targetItemEl){
   todoDragging=false;
@@ -2559,9 +2593,11 @@ document.addEventListener('touchmove',e=>{
 },{passive:false});
 
 document.addEventListener('touchend',e=>{
+  clearTimeout(holdTimer);
+  clearTimeout(todoDragTimer);
+  clearTimeout(weekDragTimer);
   const popupOpen=document.getElementById('todo-detail-popup').classList.contains('open');
   if(popupOpen){
-    clearTimeout(weekDragTimer);clearTimeout(todoDragTimer);
     weekDragging=false;todoDragging=false;
     ghost.style.display='none';
     return;
