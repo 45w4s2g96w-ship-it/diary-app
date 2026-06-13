@@ -892,7 +892,7 @@ const MOOD_TYPE={'평온함':'positive','뿌듯함':'positive','감사함':'posi
 const MOOD_EMOJI={positive:'🌿',negative:'🌧️',etc:'🌫️'};
 function getMoodEmoji(m){return MOOD_EMOJI[MOOD_TYPE[m]||'etc']||'🌫️';}
 function autoResize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
-function getDiaryDate(){const n=new Date();if(n.getHours()<7)n.setDate(n.getDate()-1);return n;}
+function getDiaryDate(){const n=new Date();if(n.getHours()<5)n.setDate(n.getDate()-1);return n;}
 function formatDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function formatDateShort(d){return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
 function formatDateDisplay(d){const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} — ${days[d.getDay()]}`;}
@@ -2700,10 +2700,10 @@ function openBrainZone(zone){
 }
 function closeBrainZone(){document.getElementById('brain-zone-panel').classList.add('hidden');}
 
-// 오전 7시 자동 리셋 — 분류된 항목만 다음날 숨김 (미분류는 영구 유지)
+// 오전 5시 자동 리셋 — 분류된 항목만 다음날 숨김 (미분류는 영구 유지)
 function checkBrainAutoReset(){
   const now=new Date();
-  const todayReset=new Date(now);todayReset.setHours(7,0,0,0);
+  const todayReset=new Date(now);todayReset.setHours(5,0,0,0);
   if(now<todayReset)todayReset.setDate(todayReset.getDate()-1);
   const lastReset=localStorage.getItem('brain_last_reset');
   if(!lastReset||new Date(lastReset)<todayReset){
