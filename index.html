@@ -377,7 +377,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-action-btn.danger { border-color: #c0392b; color: #c0392b; }
 
 /* Todo Detail */
-.todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .todo-detail-overlay.open { opacity: 1; pointer-events: all; }
 .todo-detail-sheet { width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px; padding: 0 0 24px; transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 88vh; overflow-y: auto; scrollbar-width: none; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
 .todo-detail-sheet::-webkit-scrollbar { display: none; }
@@ -1699,7 +1699,6 @@ function openTodoDetail(q,idx,parentQ,parentI){
   else{document.getElementById('td-sub-list').innerHTML='';}
   const actionsEl=document.querySelector('.td-actions');
   if(actionsEl)actionsEl.innerHTML=`<button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>`;
-  document.body.addEventListener('touchmove',preventBodyScroll,{passive:false});
   document.getElementById('todo-detail-popup').classList.add('open');
 }
 let currentEditQuad='';
@@ -2066,7 +2065,6 @@ function openTodoDetail(si,si,q,i){
   document.getElementById('td-add-sub').style.display='none';
   const actions=document.querySelector('.td-actions');
   if(actions)actions.innerHTML=`<button class="td-action-btn danger" onclick="deleteSubTodoItem('${q}',${i},${si})">삭제</button><button class="td-action-btn" onclick="detachSubTodo('${q}',${i},${si})">상위 해제</button>`;
-  document.body.addEventListener('touchmove',preventBodyScroll,{passive:false});
   document.getElementById('todo-detail-popup').classList.add('open');
 }
 
