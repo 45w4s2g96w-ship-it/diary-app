@@ -218,6 +218,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* PC 주간뷰 가로 캘린더 */
 @media (min-width: 768px) {
   #weekly-list { display: flex; flex-direction: column; height: 100%; }
+  #weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
   .week-overdue-row { flex-shrink: 0; display: flex; border-bottom: 2px solid var(--ink); min-height: 36px; }
   .week-overdue-label { flex-shrink: 0; width: 80px; padding: 8px 10px; border-right: 1px solid var(--rule); font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: #c0392b; display: flex; align-items: center; }
   .week-overdue-items { flex: 1; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
@@ -1136,7 +1137,8 @@ async function loadTodayRecords(){
 let currentTodoView='week';
 function switchTodoView(view){
   currentTodoView=view;
-  document.getElementById('weekly-view').style.display=view==='week'?'block':'none';
+  const isPC=window.innerWidth>=768;
+  document.getElementById('weekly-view').style.display=view==='week'?(isPC?'flex':'block'):'none';
   document.getElementById('quad-view').style.display=view==='quad'?'flex':'none';
   document.getElementById('toggle-week').className='toggle-btn '+(view==='week'?'active':'inactive');
   document.getElementById('toggle-quad').className='toggle-btn '+(view==='quad'?'active':'inactive');
@@ -1826,6 +1828,7 @@ function deleteTodoItem(){if(!confirm('Delete? This cannot be undone.'))return;c
 // 주간뷰 드래그로 날짜 변경
 let weekDragItem=null,weekDragQ=null,weekDragI=null,weekDragging=false,weekDragTimer=null,weekDragEl=null;
 function startWeekItemDrag(e,q,i){
+  if(document.getElementById('todo-detail-popup').classList.contains('open'))return;
   if(e.button!==undefined&&e.button!==0)return;
   const touch=e.touches?e.touches[0]:e;
   const startX=touch.clientX,startY=touch.clientY;
@@ -1848,6 +1851,7 @@ let todoDragItem=null,todoDragQ=null,todoDragI=null,todoDragSI=null,todoDragTime
 let todoDragOverItem=null; // 드래그 중 호버된 투두 아이템
 
 function startTodoDrag(e,q,i,si,_){
+  if(document.getElementById('todo-detail-popup').classList.contains('open'))return;
   if(e.button!==undefined&&e.button!==0)return;
   const touch=e.touches?e.touches[0]:e;
   const startX=touch.clientX,startY=touch.clientY;
@@ -2497,6 +2501,16 @@ function startHold(e,idx,item){
 // 통합 드래그 이벤트 리스너 (week / todo / brain 충돌 방지)
 // ============================================================
 document.addEventListener('touchmove',e=>{
+  const popupOpen=document.getElementById('todo-detail-popup').classList.contains('open');
+  if(popupOpen&&(weekDragging||todoDragging)){
+    // 팝업 열린 상태에서 드래그 강제 중단
+    weekDragging=false;todoDragging=false;
+    clearTimeout(weekDragTimer);clearTimeout(todoDragTimer);
+    ghost.style.display='none';
+    document.querySelectorAll('.quad-cell').forEach(c=>{c.style.outline='';c.classList.remove('drag-over');});
+    document.querySelectorAll('.week-row,.week-col').forEach(el=>el.style.outline='');
+    return;
+  }
   if(weekDragging){
     e.preventDefault();
     const t=e.touches[0];
