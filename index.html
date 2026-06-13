@@ -1618,9 +1618,21 @@ async function loadTodoFromNotion(){
     const data=await res.json();if(!data.results)return;
     const newTodo={today:[],week:[],month:[],someday:[]};
     const localSubs={};['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId&&item.subs?.length)localSubs[item.notionId]=item.subs;}));
+    // 폴링 중단 중 로컬 값 보존을 위해 현재 로컬 데이터 인덱스 구성
+    const isPaused=Date.now()<(window._pausePollingUntil||0);
+    const localMap={};
+    if(isPaused){
+      ['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId)localMap[item.notionId]={item,q};}));
+    }
     data.results.forEach(page=>{
       const id=page.id;const props=page.properties;
       const text=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!text)return;
+      // 폴링 중단 중이고 로컬에 같은 항목 있으면 로컬 값 우선
+      if(isPaused&&localMap[id]){
+        const {item,q}=localMap[id];
+        newTodo[q].push(item);
+        return;
+      }
       const quadLabel=props['사분면']?.multi_select?.[0]?.name||'Someday';
       let q={'Today':'today','This Week':'week','This Month':'month','Someday':'someday'}[quadLabel]||'someday';
       const dueDate=props['마감일']?.date?.start?new Date(props['마감일'].date.start+'T23:59:59'):null;
@@ -1635,7 +1647,7 @@ async function loadTodoFromNotion(){
         const days=(dueDate-now)/86400000;
         const todayStr=formatDate(now);
         const dueDateStr=formatDate(dueDate);
-        if(dueDateStr===todayStr||dueDateStr<todayStr) q='today';
+        if(dueDateStr<=todayStr) q='today';
         else if(days<=7) q='week';
         else if(days<=30) q='month';
         else q='someday';
@@ -1644,7 +1656,6 @@ async function loadTodoFromNotion(){
     });
     todoData=newTodo;
     saveTodoToStorage();
-    // 노션 로드 후 autoMoveTodos 실행 안 함 — 노션 데이터 그대로 신뢰
     renderAllQuads();
     if(currentTodoView==='week')renderWeeklyView();
   }catch(e){console.error('loadTodoFromNotion failed',e);}
