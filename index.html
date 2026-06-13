@@ -492,7 +492,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </button>
     <button class="tab-btn" onclick="switchTab('inbox',this)" data-num="03.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-      <span class="tab-label">Inbox</span>
+      <span class="tab-label">Briefing</span>
       <span class="tab-num">03.</span>
     </button>
     <button class="tab-btn" onclick="switchTab('book',this)" data-num="04.">
@@ -657,10 +657,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <!-- INBOX -->
   <div class="tab-content" id="tab-inbox">
     <div class="section-header">
-      <div class="section-title">Inbox</div>
+      <div class="section-title">Briefing</div>
       <select id="voice-select" onchange="saveVoicePreference()" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:4px 8px;cursor:pointer;border-radius:1px;outline:none;max-width:120px;"></select>
     </div>
-    <div class="inbox-list" id="inbox-list"><div class="inbox-empty">Messages will appear<br>as your diary is analyzed.</div></div>
+    <div class="inbox-list" id="inbox-list"><div class="inbox-empty">Your morning briefing will appear here.</div></div>
   </div>
 </div>
   </div><!-- /app-main -->
@@ -1231,7 +1231,7 @@ function renderWeeklyView(){
         </div>
         <div class="week-col-items" id="wci-${dayStr}">`;
       items.forEach(({item,q,i})=>{
-        const timeLabel=item.time?`<span style="font-size:8px;color:var(--ink-muted);">(${item.time}) </span>`:'';
+        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);">${item.time} </span>`:'';
         html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
           <div class="week-col-text${item.done?' done':''}">${timeLabel}${item.text}</div>
@@ -1281,7 +1281,7 @@ function renderWeeklyView(){
       items.forEach(({item,q,i})=>{
         const pendingSubs=(item.subs||[]).filter(s=>!s.done);
         const hasS=pendingSubs.length>0;
-        const timeLabel=item.time?`<span style="font-size:9px;color:var(--ink-muted);margin-right:3px;">(${item.time})</span>`:'';
+        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-right:3px;">${item.time}</span>`:'';
         h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();if(!weekDragging)openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleTodo('${q}',${i},event)"></div>
           <div class="week-item-text${item.done?' done':''}">${timeLabel}${item.text}</div>
@@ -1559,7 +1559,7 @@ function renderQuad(q){
   visible.forEach(item=>{
     const i=todoData[q].indexOf(item);
     const od=item.dueDate&&!item.done&&new Date(item.dueDate)<now;
-    const timeLabel=item.time?`<span style="font-family:Montserrat,sans-serif;font-size:8px;font-weight:600;color:var(--ink-muted);margin-right:3px;">(${item.time})</span>`:'';
+    const timeLabel=item.time?`<span style="font-family:'NanumSquareNeo',sans-serif;font-size:9px;font-weight:300;color:rgba(17,17,17,0.65);margin-right:3px;">${item.time}</span>`:'';
     const div=document.createElement('div');div.className='quad-item';div.dataset.q=q;div.dataset.i=i;div.dataset.type='parent';
     div.innerHTML=`<div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${timeLabel}${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}</div>`;
     div.addEventListener('click',()=>openTodoDetail(q,i));
@@ -1613,6 +1613,7 @@ async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion
 
 async function loadTodoFromNotion(){
   try{
+    if(document.getElementById('todo-detail-popup')?.classList.contains('open'))return;
     const now=new Date();const twoDaysAgo=new Date(now);twoDaysAgo.setDate(twoDaysAgo.getDate()-2);
     const res=await fetch(WORKER_URL+'/notion/databases/'+TODO_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{or:[{property:'완료',checkbox:{equals:false}},{and:[{property:'완료',checkbox:{equals:true}},{property:'완료일',date:{on_or_after:formatDate(twoDaysAgo)}}]}]},sorts:[{property:'추가일',direction:'ascending'}],page_size:100})});
     const data=await res.json();if(!data.results)return;
@@ -1681,12 +1682,14 @@ function buildParentSelectOptions(excludeQ,excludeI){
 }
 
 let currentSubSi=-1;
+let currentDetailItemNotionId=null;
 function openTodoDetail(q,idx,parentQ,parentI){
   const isSubTask=parentQ!==undefined&&parentI!==undefined;
   currentDetailQuad=isSubTask?parentQ:q;
   currentDetailIdx=isSubTask?parentI:idx;
   currentSubSi=isSubTask?idx:-1;
   const item=isSubTask?todoData[parentQ][parentI].subs[idx]:todoData[q][idx];
+  currentDetailItemNotionId=item.notionId||null;
   const cfg=QUAD_CFG[isSubTask?parentQ:q];
   document.getElementById('td-quad-tag').textContent=isSubTask?'SUBTASK':cfg.label;
   document.getElementById('td-quadrant-section').style.display='none';
@@ -1735,7 +1738,21 @@ async function saveTodoEdit(){
 
   // 하위업무인 경우
   if(currentSubSi>=0){
-    const parent=todoData[currentDetailQuad][currentDetailIdx];
+    let parent=todoData[currentDetailQuad]?.[currentDetailIdx];
+    if((!parent||!parent.subs||!parent.subs[currentSubSi])&&currentDetailItemNotionId){
+      // 부모를 notionId로는 못 찾으니, 모든 항목의 subs에서 currentDetailItemNotionId(=sub의 notionId)로 탐색
+      let found=false;
+      for(const q of ['today','week','month','someday']){
+        for(let pi=0;pi<todoData[q].length;pi++){
+          const p=todoData[q][pi];
+          const si=(p.subs||[]).findIndex(s=>s.notionId===currentDetailItemNotionId);
+          if(si>=0){currentDetailQuad=q;currentDetailIdx=pi;currentSubSi=si;parent=p;found=true;break;}
+        }
+        if(found)break;
+      }
+      if(!found){showToast('항목을 찾을 수 없어요. 다시 시도해주세요.');closeTodoDetail();return;}
+    }
+    if(!parent||!parent.subs||!parent.subs[currentSubSi]){showToast('항목을 찾을 수 없어요. 다시 시도해주세요.');closeTodoDetail();return;}
     const sub=parent.subs[currentSubSi];
     sub.text=text;sub.memo=memo;sub.time=timeVal;
     sub.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
@@ -1768,7 +1785,17 @@ async function saveTodoEdit(){
   }
 
   // 단독/상위업무인 경우
-  const item=todoData[currentDetailQuad][currentDetailIdx];
+  let item=todoData[currentDetailQuad]?.[currentDetailIdx];
+  // 폴링 등으로 todoData가 재구성되어 인덱스가 안 맞을 경우 notionId로 재탐색
+  if((!item||(currentDetailItemNotionId&&item.notionId!==currentDetailItemNotionId))&&currentDetailItemNotionId){
+    let found=false;
+    for(const q of ['today','week','month','someday']){
+      const idx=todoData[q].findIndex(it=>it.notionId===currentDetailItemNotionId);
+      if(idx>=0){currentDetailQuad=q;currentDetailIdx=idx;item=todoData[q][idx];found=true;break;}
+    }
+    if(!found){showToast('항목을 찾을 수 없어요. 다시 시도해주세요.');closeTodoDetail();return;}
+  }
+  if(!item){showToast('항목을 찾을 수 없어요. 다시 시도해주세요.');closeTodoDetail();return;}
   item.text=text;item.memo=memo;item.time=timeVal;
   item.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
 
@@ -2221,17 +2248,20 @@ async function saveBrainToNotion(text){
 }
 function renderBrainList(){
   const list=document.getElementById('brain-list');
-  if(!brainItems.length){list.innerHTML='<div class="empty-state">Swipe left to delete.</div>';return;}
-  list.innerHTML=brainItems.map((item,idx)=>`
+  const untagged=brainItems.filter(item=>!item.tag);
+  if(!untagged.length){list.innerHTML='<div class="empty-state">Swipe left to delete.</div>';return;}
+  list.innerHTML=untagged.map((item)=>{
+    const idx=brainItems.indexOf(item);
+    return `
     <div class="brain-item" id="bi-${item.id}" data-idx="${idx}">
       <div class="brain-swipe-bg">DELETE</div>
       <div class="brain-item-inner">
-        ${item.tag?`<span class="brain-tag ${item.tag}">${({record:'Log',todo:'To-Do',cart:'Cart',book:'Book',idea:'Idea'})[item.tag]||item.tag}</span>`:''}
         <div class="brain-item-text">${item.text}</div>
         <div class="brain-hold-hint">Hold to drag · Swipe to delete</div>
       </div>
-    </div>`).join('');
-  brainItems.forEach((item,idx)=>{
+    </div>`;}).join('');
+  untagged.forEach((item)=>{
+    const idx=brainItems.indexOf(item);
     const el=document.getElementById('bi-'+item.id);if(!el)return;
     const inner=el.querySelector('.brain-item-inner');
     const bg=el.querySelector('.brain-swipe-bg');
@@ -2363,7 +2393,8 @@ function markBrainDone(idx,tag){
   item.taggedAt=new Date().toISOString();
   saveBrainToStorage();renderBrainList();
   if(item.notionId){
-    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'처리완료':{checkbox:true},'분류':{select:{name:tag.toUpperCase()}}}})}).catch(e=>console.error(e));
+    // 처리완료는 다음날 자동 리셋 때 true로. 지금은 분류만 기록
+    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'분류':{select:{name:tag.toUpperCase()}}}})}).catch(e=>console.error(e));
   }
 }
 function deleteBrainItem(idx){
@@ -2669,24 +2700,19 @@ function openBrainZone(zone){
 }
 function closeBrainZone(){document.getElementById('brain-zone-panel').classList.add('hidden');}
 
-// 오전 7시 자동 리셋
+// 오전 7시 자동 리셋 — 분류된 항목만 다음날 숨김 (미분류는 영구 유지)
 function checkBrainAutoReset(){
   const now=new Date();
   const todayReset=new Date(now);todayReset.setHours(7,0,0,0);
   if(now<todayReset)todayReset.setDate(todayReset.getDate()-1);
   const lastReset=localStorage.getItem('brain_last_reset');
   if(!lastReset||new Date(lastReset)<todayReset){
-    // 미분류 자동 삭제
-    const toDelete=brainItems.filter(i=>!i.tag);
-    toDelete.forEach(item=>{
-      if(item.notionId)fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(()=>{});
-    });
-    // 분류된 항목도 삭제 (어제 옮긴 것)
+    // 분류된 항목 중 오늘 7시 이전에 분류된 것만 아카이브
     const taggedToDelete=brainItems.filter(i=>i.tag&&i.taggedAt&&new Date(i.taggedAt)<todayReset);
     taggedToDelete.forEach(item=>{
       if(item.notionId)fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(()=>{});
     });
-    brainItems=brainItems.filter(i=>i.tag&&(!i.taggedAt||new Date(i.taggedAt)>=todayReset));
+    brainItems=brainItems.filter(i=>!(i.tag&&i.taggedAt&&new Date(i.taggedAt)<todayReset));
     saveBrainToStorage();renderBrainList();
     localStorage.setItem('brain_last_reset',now.toISOString());
   }
@@ -2791,89 +2817,39 @@ async function loadInbox(){
   const list=document.getElementById('inbox-list');
   list.innerHTML='<div class="inbox-empty">Loading...</div>';
   try{
-    const db=localStorage.getItem('notion_db');
-    const todayStr=formatDate(new Date());
-
-    // 1. 다이어리 분석 (기존)
-    const [diaryRes, briefingRes] = await Promise.all([
-      fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'분석 완료',checkbox:{equals:true}},sorts:[{property:'날짜',direction:'ascending'}],page_size:30})}),
-      fetch(`${WORKER_URL}/notion/databases/${MORNING_BRIEFING_DB}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'날짜',direction:'descending'}],page_size:10})})
-    ]);
-    const diaryData=await diaryRes.json();
-    const briefingData=await briefingRes.json();
-
-    // 날짜별 브리핑 맵
-    const briefingMap={};
-    (briefingData.results||[]).forEach(page=>{
-      // 날짜 속성은 date 타입
-      const dateKey=page.properties['날짜']?.date?.start||'';
-      const content=page.properties['내용']?.rich_text?.map(t=>t.plain_text).join('')||'';
-      if(dateKey&&content) briefingMap[dateKey]=content;
-    });
-
-    if(!diaryData.results?.length && !Object.keys(briefingMap).length){
-      list.innerHTML='<div class="inbox-empty">Messages will appear<br>as your diary is analyzed.</div>';
+    const res=await fetch(`${WORKER_URL}/notion/databases/${MORNING_BRIEFING_DB}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'날짜',direction:'descending'}],page_size:14})});
+    const data=await res.json();
+    const results=data.results||[];
+    if(!results.length){
+      list.innerHTML='<div class="inbox-empty">Your morning briefing will appear here.</div>';
       return;
     }
-
     list.innerHTML='';
     const days=['일','월','화','수','목','금','토'];
-
-    // 오늘 브리핑이 있으면 맨 위에 먼저 표시 (다이어리 분석 없어도)
-    if(briefingMap[todayStr]){
-      const d=new Date(todayStr+'T00:00:00');
-      const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
-      const divEl=document.createElement('div');divEl.className='inbox-date-divider';divEl.textContent=dateLabel;
-      list.appendChild(divEl);
-      const bubble=document.createElement('div');bubble.className='inbox-bubble';
-      bubble.innerHTML=`<div class="inbox-bubble-briefing">${briefingMap[todayStr].replace(/\n/g,'<br>')}</div>`;
-      const speakBtn=document.createElement('button');
-      speakBtn.style.cssText='font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
-      speakBtn.textContent='🔊 READ';
-      const _text=briefingMap[todayStr];
-      speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;const _voice=getSelectedVoice();if(_voice)utt.voice=_voice;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
-      bubble.appendChild(speakBtn);
-      list.appendChild(bubble);
-    }
-
-    // 다이어리 분석 말풍선 (날짜별)
-    (diaryData.results||[]).forEach(page=>{
+    // URL을 클릭 가능한 링크로 변환
+    const linkify=t=>t.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" style="color:inherit;text-decoration:underline;">$1</a>');
+    results.forEach(page=>{
       const props=page.properties;
       const dateStr=props['날짜']?.date?.start||'';
-      if(!dateStr)return;
+      const content=props['내용']?.rich_text?.map(t=>t.plain_text).join('')||'';
+      if(!dateStr||!content)return;
       const d=new Date(dateStr+'T00:00:00');
       const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
-      const summary=getTextProp(props,'일기 요약')||'';
-      const encourage=getTextProp(props,'격려')||'';
-      const suggest=getTextProp(props,'제언')||'';
-      const briefing=briefingMap[dateStr]||'';
-      const cut2=t=>{if(!t)return'';const s=t.match(/[^.!?。\n]+[.!?。]?/g)||[t];return s.slice(0,2).join(' ').trim();};
-      const fmtSuggest=t=>{if(!t)return'';return t.replace(/\s*([1-9]\))/g,'\n$1').trim();};
-
-      if(dateStr===todayStr&&briefing)return;
-
       const divEl=document.createElement('div');divEl.className='inbox-date-divider';divEl.textContent=dateLabel;
       list.appendChild(divEl);
       const bubble=document.createElement('div');bubble.className='inbox-bubble';
-      bubble.innerHTML=`
-        ${briefing?`<div class="inbox-bubble-briefing">${briefing.replace(/\n/g,'<br>')}</div><hr class="inbox-bubble-divider">`:''}
-        ${summary?`<div class="inbox-bubble-summary">${cut2(summary)}</div>`:''}
-        ${encourage?`<div class="inbox-bubble-encourage">${cut2(encourage)}</div>`:''}
-        ${suggest?`<hr class="inbox-bubble-divider"><div class="inbox-bubble-suggest-label">Try this today 💡</div><div class="inbox-bubble-suggest">${fmtSuggest(suggest)}</div>`:''}`;
+      bubble.innerHTML=`<div class="inbox-bubble-briefing">${linkify(content.replace(/\n/g,'<br>'))}</div>`;
       const speakBtn=document.createElement('button');
       speakBtn.style.cssText='font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
       speakBtn.textContent='🔊 READ';
-      const _text=[briefing,summary,encourage,suggest].filter(Boolean).join(' ');
+      const _text=content;
       speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;const _voice=getSelectedVoice();if(_voice)utt.voice=_voice;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
       bubble.appendChild(speakBtn);
       list.appendChild(bubble);
     });
-
     requestAnimationFrame(()=>{list.scrollTop=list.scrollHeight;});
   }catch(e){list.innerHTML='<div class="inbox-empty">Load failed</div>';}
 }
-function getTextProp(props,key){const p=props[key];if(!p)return'';if(p.rich_text)return p.rich_text.map(t=>t.plain_text).join('');if(p.select)return p.select.name;return'';}
-
 // 음성 선택
 let availableVoices=[];
 function loadVoices(){
