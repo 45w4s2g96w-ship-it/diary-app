@@ -112,10 +112,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-item-text.done { text-decoration: line-through; color: var(--ink-muted); }
 /* 하위업무 블록 */
 .week-sub-list { width: 100%; padding: 2px 0 4px 18px; display: flex; flex-direction: column; gap: 0; }
-.week-sub-item { display: flex; align-items: center; gap: 5px; padding: 2px 0; cursor: pointer; }
-.week-sub-check { width: 10px; height: 10px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; }
-.week-sub-check.done { background: var(--ink-muted); border-color: var(--ink-muted); }
-.week-sub-text { font-size: 10px; font-weight: 300; color: var(--ink-soft); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.week-sub-text { font-size: 10px; font-weight: 300; color: var(--ink-soft); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; word-break: break-word; white-space: normal; }
+.week-sub-item { display: flex; align-items: flex-start; gap: 5px; padding: 2px 0; cursor: pointer; }
+.week-sub-check { width: 10px; height: 10px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; margin-top: 2px; }
 .week-sub-text.done { text-decoration: line-through; color: var(--rule); }
 .week-sub-more { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 1px 6px; border-radius: 1px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
 .week-overdue .week-day-name { color: #c0392b; }
@@ -447,6 +446,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .tag { font-size: 13px !important; }
   .record-tag { font-size: 12px !important; }
   .week-item-text { font-size: 13px !important; }
+  .week-sub-text { font-size: 11px !important; }
 }
 @media (min-width: 1400px) {
   :root { --pad-h: 60px; }
@@ -458,6 +458,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .brain-item-text { font-size: 16px !important; }
   .book-card-title { font-size: 16px !important; }
   .week-item-text { font-size: 14px !important; }
+  .week-sub-text { font-size: 12px !important; }
 }
 </style>
 </head>
@@ -1315,7 +1316,7 @@ function renderWeeklyView(){
         </div>`;
       });
       if(hidden.length){
-        const hj=JSON.stringify(hidden.map(s=>({text:s.text,si:(item.subs||[]).indexOf(s)}))).replace(/"/g,'&quot;');
+        const hj=JSON.stringify(hidden.map(s=>({text:s.text,si:(item.subs||[]).indexOf(s),done:!!s.done}))).replace(/"/g,'&quot;');
         h+=`<button class="week-sub-more" onclick="event.stopPropagation();toggleWeekSubs('${subId}','${q}',${i},this,${hj})">+${hidden.length}</button>`;
       }
       return h+`</div>`;
@@ -1421,13 +1422,23 @@ function applyMobileWeekOverflow(){
 
 function toggleWeekSubs(subId,q,parentI,btn,hiddenItems){
   const container=document.getElementById(subId);if(!container)return;
-  btn.remove();
-  hiddenItems.forEach(({text,si})=>{
-    const div=document.createElement('div');div.className='week-sub-item';
-    div.onclick=(e)=>{e.stopPropagation();openTodoDetail(si,si,q,parentI);};
-    div.innerHTML=`<div class="week-sub-check" onclick="event.stopPropagation();toggleSubTodoInline('${q}',${parentI},${si},event)"></div><div class="week-sub-text">${text}</div>`;
-    container.appendChild(div);
-  });
+  const isExpanded=btn.dataset.expanded==='1';
+  if(isExpanded){
+    // 접기: 추가된 항목 제거, 버튼을 +N으로 복원
+    container.querySelectorAll('.week-sub-item-extra').forEach(el=>el.remove());
+    btn.textContent='+'+hiddenItems.length;
+    btn.dataset.expanded='0';
+  }else{
+    // 펼치기: 항목 추가, 버튼을 접기로 변경
+    hiddenItems.forEach(({text,si,done})=>{
+      const div=document.createElement('div');div.className='week-sub-item week-sub-item-extra';
+      div.onclick=(e)=>{e.stopPropagation();openTodoDetail(si,si,q,parentI);};
+      div.innerHTML=`<div class="week-sub-check${done?' done':''}" onclick="event.stopPropagation();toggleSubTodoInline('${q}',${parentI},${si},event)"></div><div class="week-sub-text${done?' done':''}">${text}</div>`;
+      container.insertBefore(div,btn);
+    });
+    btn.textContent='접기';
+    btn.dataset.expanded='1';
+  }
 }
 
 function openTodoPopupWeek(dateStr){
