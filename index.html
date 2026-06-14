@@ -480,27 +480,26 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <button class="tab-btn active" onclick="switchTab('record',this)" data-num="00.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       <span class="tab-label">Log</span>
-      <span class="tab-num">00.</span>
     </button>
     <button class="tab-btn" onclick="switchTab('todo',this)" data-num="01.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       <span class="tab-label">To-Do</span>
-      <span class="tab-num">01.</span>
     </button>
     <button class="tab-btn" onclick="switchTab('dump',this)" data-num="02.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>
       <span class="tab-label">Dump</span>
-      <span class="tab-num">02.</span>
     </button>
     <button class="tab-btn" onclick="switchTab('inbox',this)" data-num="03.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
       <span class="tab-label">Briefing</span>
-      <span class="tab-num">03.</span>
     </button>
     <button class="tab-btn" onclick="switchTab('book',this)" data-num="04.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       <span class="tab-label">Book</span>
-      <span class="tab-num">04.</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('idea',this)" data-num="05.">
+      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z"/></svg>
+      <span class="tab-label">Idea</span>
     </button>
   </div>
   <div id="app-main">
@@ -654,6 +653,15 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </div>
     <div class="book-detail-header" id="book-detail-header"></div>
     <div class="review-list" id="review-list"><div class="empty-state">No reading notes yet.</div></div>
+  </div>
+
+  <!-- IDEA -->
+  <div class="tab-content" id="tab-idea">
+    <div class="section-header">
+      <div class="section-title">Idea</div>
+      <button class="add-btn-sm" onclick="openAddIdeaPopup()">+ ADD</button>
+    </div>
+    <div class="idea-list" id="idea-list"><div class="empty-state">No ideas yet.</div></div>
   </div>
 
   <!-- INBOX -->
@@ -946,6 +954,7 @@ function switchTab(tab,btn){
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
   if(tab==='inbox')loadInbox();
+  if(tab==='idea')loadIdeaFromNotion();
 }
 
 /* Auth */
@@ -2845,6 +2854,60 @@ async function confirmBookEdit(){
 function confirmBookDelete(){if(!confirm('Delete this book? This cannot be undone.'))return;bookData.splice(bookEditIdx,1);closeBookEditPopup();saveBookToStorage();renderBookList();showToast('Deleted!');}
 function openBookDetail(idx){currentBookIdx=idx;const book=bookData[idx];const notionUrl=book.notionId?'https://notion.so/'+book.notionId.replace(/-/g,''):null;const coverHtml=book.cover?`<a href="${notionUrl||'#'}" target="_blank" style="display:block;flex-shrink:0;cursor:${notionUrl?'pointer':'default'}"><img class="book-detail-cover" src="${book.cover}" style="display:block;"></a>`:`<div class="book-detail-cover" style="display:flex;align-items:center;justify-content:center;font-size:32px;">📖</div>`;const notionBtn=notionUrl?`<a href="${notionUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);border:1px solid var(--rule);padding:5px 10px;text-decoration:none;border-radius:1px;margin-top:10px;">↗ OPEN IN NOTION</a>`:'';document.getElementById('book-detail-header').innerHTML=`${coverHtml}<div class="book-detail-info"><div class="book-detail-title">${book.title}</div><div class="book-detail-author">${book.authors||''}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${book.genre?`<span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1px solid var(--rule);padding:3px 8px;">${book.genre}</span>`:''}${book.startDate?`<span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1px solid var(--rule);padding:3px 8px;">Started ${book.startDate}</span>`:''}${book.lastPage?`<span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink);border:1px solid var(--ink);padding:3px 8px;">p.${book.lastPage}</span>`:''}</div>${notionBtn}</div>`;renderReviews();document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book-detail').classList.add('active');}
 function closeBookDetail(){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book').classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-btn[onclick*="book"]').classList.add('active');}
+
+/* IDEA */
+let ideaData=[];
+const IDEA_SELECT_COLORS={anything:'#5b9bd5',life:'#6fa86f',work:'var(--ink-muted)'};
+async function loadIdeaFromNotion(){
+  try{
+    const res=await fetch(WORKER_URL+'/notion/databases/'+IDEA_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{timestamp:'created_time',direction:'descending'}],page_size:100})});
+    const data=await res.json();if(!data.results)return;
+    ideaData=data.results.map(page=>{
+      const props=page.properties;
+      const text=props['이름']?.title?.map(t=>t.plain_text).join('')||'';
+      const select=props['선택']?.select?.name||'';
+      return{text,select,notionId:page.id};
+    }).filter(i=>i.text);
+    renderIdeaList();
+  }catch(e){console.error('loadIdeaFromNotion failed',e);}
+}
+function renderIdeaList(){
+  const list=document.getElementById('idea-list');
+  if(!ideaData.length){list.innerHTML='<div class="empty-state">No ideas yet.</div>';return;}
+  list.innerHTML=ideaData.map(item=>{
+    const tag=item.select?`<span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:${IDEA_SELECT_COLORS[item.select]||'var(--ink-muted)'};border:1px solid ${IDEA_SELECT_COLORS[item.select]||'var(--rule)'};padding:2px 7px;border-radius:1px;flex-shrink:0;">${item.select}</span>`:'';
+    return `<div class="idea-item" style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule);">
+      <div style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);line-height:1.5;">${item.text}</div>
+      ${tag}
+    </div>`;
+  }).join('');
+}
+function openAddIdeaPopup(){
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';
+  const sheet=document.createElement('div');
+  sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;';
+  sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:10px;">NEW IDEA</div>
+    <textarea id="new-idea-text" rows="3" placeholder="아이디어를 적어주세요..." style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:10px;outline:none;resize:none;box-sizing:border-box;margin-bottom:12px;"></textarea>
+    <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;">CATEGORY</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">${['anything','life','work'].map(c=>`<button onclick="document.getElementById('idea-add-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}</div>
+    <button onclick="document.getElementById('idea-add-overlay').remove()" style="width:100%;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:10px;cursor:pointer;border-radius:1px;">CANCEL</button>`;
+  overlay.id='idea-add-overlay';
+  overlay.appendChild(sheet);
+  overlay.addEventListener('pick',async(e)=>{
+    const text=document.getElementById('new-idea-text').value.trim();
+    if(!text){showToast('내용을 입력해주세요');return;}
+    const select=e.detail;
+    document.getElementById('idea-add-overlay').remove();
+    try{
+      await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'선택':{select:{name:select}}}})});
+      showToast('Idea saved!');
+      loadIdeaFromNotion();
+    }catch(err){console.error(err);showToast('저장 실패');}
+  });
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  document.body.appendChild(overlay);
+}
 function renderReviews(){const list=document.getElementById('review-list');const book=bookData[currentBookIdx];if(!book.reviews.length){list.innerHTML='<div class="empty-state">아직 독서 기록이 없어요.</div>';return;}list.innerHTML=book.reviews.map(r=>{const parts=[];if(r.page)parts.push(`<div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;color:var(--ink-muted);margin-bottom:4px;">p.${r.page}</div>`);if(r.quote)parts.push(`<div style="font-size:11px;font-weight:300;color:var(--ink-soft);line-height:1.6;border-left:2px solid var(--rule);padding-left:8px;margin-bottom:6px;">${r.quote}</div>`);if(r.thought)parts.push(`<div class="review-text">${r.thought}</div>`);if(r.text)parts.push(`<div class="review-text">${r.text}</div>`);return `<div class="review-item"><div class="review-date">${r.date}</div>${parts.join('')}</div>`;}).join('');}
 function openAddReviewPopup(){const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;document.getElementById('review-date-label').textContent=dateLabel;document.getElementById('review-page-input').value='';document.getElementById('review-quote-input').value='';document.getElementById('review-thought-input').value='';document.getElementById('review-quote-photo-name').textContent='';reviewPhotoFile=null;document.getElementById('add-review-popup').classList.add('open');setTimeout(()=>document.getElementById('review-page-input').focus(),300);}
 function closeAddReviewPopup(){document.getElementById('add-review-popup').classList.remove('open');}
