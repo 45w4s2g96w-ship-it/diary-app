@@ -105,8 +105,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-items.two-col .week-item { width: 50%; }
 /* 하위업무 있는 부모는 항상 full-width */
 .week-item.has-subs { width: 100% !important; }
-.week-check { width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; flex-shrink: 0; transition: background 0.12s; }
+.week-check { width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; flex-shrink: 0; transition: background 0.12s; display: flex; align-items: center; justify-content: center; }
 .week-check.done { background: var(--ink); }
+.week-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .week-item-text { font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: none; -webkit-user-select: none; }
 .week-item-text.done { text-decoration: line-through; color: var(--ink-muted); }
 /* 하위업무 블록 */
@@ -171,7 +172,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-item:last-child { border-bottom: none; }
 .quad-check { width: 11px; height: 11px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
 .quad-check.done { background: var(--ink); border-color: var(--ink); }
-.quad-check.done::after { content: ''; display: block; width: 5px; height: 3px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
+.quad-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .quad-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 11px; font-weight: 300; line-height: 1.45; color: var(--ink); flex: 1; word-break: break-all; }
 .quad-text.done { text-decoration: line-through; color: var(--ink-muted); }
 .quad-overdue { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #c0392b; display: inline; background: rgba(192,57,43,0.15); padding: 1px 4px; border-radius: 2px; margin-left: 4px; }
@@ -234,8 +235,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .week-col-items::-webkit-scrollbar { display: none; }
   .week-col-item { display: flex; align-items: flex-start; gap: 5px; padding: 3px 2px; cursor: pointer; border-radius: 1px; user-select: none; -webkit-user-select: none; }
   .week-col-item:hover { background: rgba(0,0,0,0.03); }
-  .week-col-check { width: 11px; height: 11px; border: 1.5px solid var(--ink); border-radius: 2px; flex-shrink: 0; margin-top: 1px; }
+  .week-col-check { width: 11px; height: 11px; border: 1.5px solid var(--ink); border-radius: 2px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
   .week-col-check.done { background: var(--ink); }
+  .week-col-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
   .week-col-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; word-break: break-word; }
   .week-col-text.done { text-decoration: line-through; color: var(--ink-muted); }
   .week-col-more { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 2px 6px; border-radius: 1px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
@@ -761,8 +763,20 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <!-- 마감일 -->
       <div class="td-field-label">DUE DATE</div>
       <div style="display:flex;gap:10px;margin-bottom:14px;">
-        <input type="date" id="td-edit-date" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;">
-        <input type="time" id="td-edit-time" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;">
+        <div style="flex:1;position:relative;display:flex;align-items:center;">
+          <input type="text" id="td-edit-date" placeholder="YYYY-MM-DD" inputmode="numeric" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 32px 8px 8px;outline:none;box-sizing:border-box;">
+          <input type="date" id="td-edit-date-picker" style="position:absolute;right:4px;width:24px;height:24px;opacity:0;cursor:pointer;">
+          <span style="position:absolute;right:8px;pointer-events:none;font-size:13px;color:var(--ink-muted);">📅</span>
+        </div>
+        <div style="flex:1.3;position:relative;display:flex;align-items:center;">
+          <input type="text" id="td-edit-time" placeholder="H:MM" inputmode="numeric" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 32px 8px 8px;outline:none;box-sizing:border-box;">
+          <input type="time" id="td-edit-time-picker" step="300" style="position:absolute;right:4px;width:24px;height:24px;opacity:0;cursor:pointer;">
+          <span style="position:absolute;right:8px;pointer-events:none;font-size:13px;color:var(--ink-muted);">🕐</span>
+        </div>
+        <select id="td-edit-ampm" style="flex:0 0 60px;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 4px;outline:none;">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
       </div>
       <!-- 상위업무 -->
       <div class="td-field-label">PARENT</div>
@@ -894,6 +908,27 @@ function getMoodEmoji(m){return MOOD_EMOJI[MOOD_TYPE[m]||'etc']||'🌫️';}
 function autoResize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 function getDiaryDate(){const n=new Date();if(n.getHours()<5)n.setDate(n.getDate()-1);return n;}
 function formatDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+// 24시간(HH:MM) → {time:'H:MM', ampm:'AM'|'PM'}
+function to12h(time24){
+  if(!time24)return{time:'',ampm:'AM'};
+  const [h,m]=time24.split(':').map(Number);
+  const ampm=h<12?'AM':'PM';
+  let h12=h%12;if(h12===0)h12=12;
+  return{time:`${h12}:${String(m).padStart(2,'0')}`,ampm};
+}
+// {time:'H:MM', ampm:'AM'|'PM'} → 24시간(HH:MM)
+function to24h(time12,ampm){
+  if(!time12)return'';
+  const [h,m]=time12.split(':').map(Number);
+  let h24=h%12;if(ampm==='PM')h24+=12;
+  return `${String(h24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+// 24h(HH:MM) → 화면 표시용 "H:MM AM/PM"
+function displayTime12h(time24){
+  if(!time24)return'';
+  const t=to12h(time24);
+  return `${t.time} ${t.ampm}`;
+}
 function formatDateShort(d){return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
 function formatDateDisplay(d){const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} — ${days[d.getDay()]}`;}
 function formatTime(d){return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
@@ -1231,10 +1266,10 @@ function renderWeeklyView(){
         </div>
         <div class="week-col-items" id="wci-${dayStr}">`;
       items.forEach(({item,q,i})=>{
-        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);">${item.time} </span>`:'';
+        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
         html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
-          <div class="week-col-text${item.done?' done':''}">${timeLabel}${item.text}</div>
+          <div class="week-col-text${item.done?' done':''}">${item.text}${timeLabel}</div>
         </div>`;
         // 하위업무
         const pendingSubs=(item.subs||[]).filter(s=>!s.done);
@@ -1281,10 +1316,10 @@ function renderWeeklyView(){
       items.forEach(({item,q,i})=>{
         const pendingSubs=(item.subs||[]).filter(s=>!s.done);
         const hasS=pendingSubs.length>0;
-        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-right:3px;">${item.time}</span>`:'';
+        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
         h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();if(!weekDragging)openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleTodo('${q}',${i},event)"></div>
-          <div class="week-item-text${item.done?' done':''}">${timeLabel}${item.text}</div>
+          <div class="week-item-text${item.done?' done':''}">${item.text}${timeLabel}</div>
         </div>`;
         if(hasS)h+=buildSubsHtml(item,q,i);
       });
@@ -1559,9 +1594,9 @@ function renderQuad(q){
   visible.forEach(item=>{
     const i=todoData[q].indexOf(item);
     const od=item.dueDate&&!item.done&&new Date(item.dueDate)<now;
-    const timeLabel=item.time?`<span style="font-family:'NanumSquareNeo',sans-serif;font-size:9px;font-weight:300;color:rgba(17,17,17,0.65);margin-right:3px;">${item.time}</span>`:'';
+    const timeLabel=item.time?`<span style="font-family:'NanumSquareNeo',sans-serif;font-size:9px;font-weight:300;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
     const div=document.createElement('div');div.className='quad-item';div.dataset.q=q;div.dataset.i=i;div.dataset.type='parent';
-    div.innerHTML=`<div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${timeLabel}${item.text}${od?'<span class="quad-overdue"> Overdue</span>':''}</div>`;
+    div.innerHTML=`<div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div><div class="quad-text${item.done?' done':''}">${item.text}${timeLabel}${od?'<span class="quad-overdue"> Overdue</span>':''}</div>`;
     div.addEventListener('click',()=>openTodoDetail(q,i));
     div.addEventListener('touchstart',e=>startTodoDrag(e,q,i,null,null),{passive:true});
     div.addEventListener('mousedown',e=>startTodoDrag(e,q,i,null,null));
@@ -1697,7 +1732,11 @@ function openTodoDetail(q,idx,parentQ,parentI){
   document.getElementById('td-edit-memo').value=item.memo||'';
   const d=item.dueDate?new Date(item.dueDate):null;
   document.getElementById('td-edit-date').value=d?formatDate(d):'';
-  document.getElementById('td-edit-time').value=item.time||'';
+  document.getElementById('td-edit-date-picker').value=d?formatDate(d):'';
+  const t12=to12h(item.time||'');
+  document.getElementById('td-edit-time').value=t12.time;
+  document.getElementById('td-edit-time-picker').value=item.time||'';
+  document.getElementById('td-edit-ampm').value=t12.ampm;
   // PARENT 셀렉트
   const parentSel=document.getElementById('td-parent-select');
   if(isSubTask){
@@ -1731,8 +1770,28 @@ async function saveTodoEdit(){
   window._pausePollingUntil=Date.now()+60000;
   const text=document.getElementById('td-edit-text').value.trim();if(!text)return;
   const memo=document.getElementById('td-edit-memo').value.trim();
-  const dateVal=document.getElementById('td-edit-date').value;
-  const timeVal=document.getElementById('td-edit-time').value||'';
+  let dateVal=document.getElementById('td-edit-date').value.trim();
+  let timeVal=document.getElementById('td-edit-time').value.trim();
+  // 날짜 형식 검증 (YYYY-MM-DD, YYYY.MM.DD, YYYY/MM/DD 등 허용 후 정규화)
+  if(dateVal){
+    const dm=dateVal.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/);
+    if(dm){
+      dateVal=`${dm[1]}-${dm[2].padStart(2,'0')}-${dm[3].padStart(2,'0')}`;
+      if(isNaN(new Date(dateVal+'T00:00:00').getTime())){showToast('날짜 형식을 확인해주세요 (YYYY-MM-DD)');return;}
+    }else{
+      showToast('날짜 형식을 확인해주세요 (YYYY-MM-DD)');return;
+    }
+  }
+  // 시간 형식 검증 (12시간제 H:MM, 1~12) + AM/PM 적용 → 24h로 저장
+  if(timeVal){
+    const tm=timeVal.match(/^(\d{1,2}):(\d{2})$/);
+    const ampm=document.getElementById('td-edit-ampm').value;
+    if(tm&&parseInt(tm[1])>=1&&parseInt(tm[1])<=12&&parseInt(tm[2])<60){
+      timeVal=to24h(`${parseInt(tm[1])}:${tm[2]}`,ampm);
+    }else{
+      showToast('시간 형식을 확인해주세요 (1~12:MM)');return;
+    }
+  }
   const newQuad=currentEditQuad||currentDetailQuad;
   const parentVal=document.getElementById('td-parent-select')?.value||'';
 
@@ -2842,7 +2901,7 @@ async function loadInbox(){
       const speakBtn=document.createElement('button');
       speakBtn.style.cssText='font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
       speakBtn.textContent='🔊 READ';
-      const _text=content;
+      const _text=content.split('\n').filter(line=>!/^https?:\/\//.test(line.trim())).join('\n');
       speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;const _voice=getSelectedVoice();if(_voice)utt.voice=_voice;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
       bubble.appendChild(speakBtn);
       list.appendChild(bubble);
@@ -2870,6 +2929,15 @@ async function registerSW(){if(!('serviceWorker' in navigator))return;try{await 
 function init(){
   document.getElementById('current-date').textContent=formatDateDisplay(getDiaryDate());
   initQuadDates();
+  // 날짜/시간 picker ↔ 텍스트 입력 동기화
+  document.getElementById('td-edit-date-picker').addEventListener('change',e=>{
+    document.getElementById('td-edit-date').value=e.target.value;
+  });
+  document.getElementById('td-edit-time-picker').addEventListener('change',e=>{
+    const t12=to12h(e.target.value);
+    document.getElementById('td-edit-time').value=t12.time;
+    document.getElementById('td-edit-ampm').value=t12.ampm;
+  });
   loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();loadBrainFromStorage();
   // 로컬 데이터로 먼저 렌더
   autoMoveTodos();renderAllQuads();renderCart();renderBrainList();renderBookList();
