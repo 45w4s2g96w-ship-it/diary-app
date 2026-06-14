@@ -530,14 +530,15 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="emotion-row" style="margin-top:4px;"><div class="emotion-row-label">Neg.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">불안</span><span class="tag" onclick="selectMood(this)">무기력</span><span class="tag" onclick="selectMood(this)">답답함</span><span class="tag" onclick="selectMood(this)">외로움</span><span class="tag" onclick="selectMood(this)">피곤함</span></div></div>
       <div class="emotion-row" style="margin-top:4px;"><div class="emotion-row-label">Etc.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">멍함</span><span class="tag" onclick="selectMood(this)">복잡함</span><span class="tag" onclick="selectMood(this)">모르겠음</span></div></div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid var(--rule);">
-        <input id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:11px;padding:3px 8px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink);outline:none;">
+        <input id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:12px;padding:3px 8px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink);outline:none;">
         <button id="ctp-pos" onclick="selectCustomType('positive')" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:3px 7px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink-muted);cursor:pointer;">POS</button>
         <button id="ctp-neg" onclick="selectCustomType('negative')" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:3px 7px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink-muted);cursor:pointer;">NEG</button>
         <button id="ctp-etc" onclick="selectCustomType('etc')" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:3px 7px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink-muted);cursor:pointer;">ETC</button>
       </div>
     </div>
     <div class="input-section">
-      <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
+      <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this);suggestEmotion(this.value)"></textarea>
+      <div id="emotion-suggest" style="display:none;font-family:'NanumSquareNeo',sans-serif;font-size:11px;color:var(--ink-muted);margin-bottom:4px;">추천: <span id="emotion-suggest-tags"></span></div>
       <div class="input-actions">
         <button class="attach-btn" onclick="document.getElementById('photo-input').click()">+ PHOTO</button>
         <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
@@ -704,7 +705,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <div style="flex:1;">
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">TIME <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-        <input type="time" id="todo-time-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;background:transparent;border:1.5px solid var(--rule);padding:8px 10px;outline:none;margin-bottom:16px;color:var(--ink);border-radius:1px;">
+        <div style="display:flex;gap:4px;align-items:center;margin-bottom:16px;">
+          <select id="todo-time-hour" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;"><option value="">--</option></select>
+          <select id="todo-time-min" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;"><option value="">--</option></select>
+          <select id="todo-time-ampm" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
+          <button onclick="document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 8px;cursor:pointer;border-radius:1px;white-space:nowrap;">✕</button>
+        </div>
       </div>
     </div>
     <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">SUBTASKS <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
@@ -1046,6 +1052,37 @@ async function getTodayPageId(){
   const cd=await cr.json();cachedPageId=cd.id;cachedPageDate=dateStr;return cachedPageId;
 }
 
+/* 감정 추천 */
+const EMOTION_KEYWORDS={
+  '행복':['좋아','기뻐','신나','행복','즐거','웃','설레','만족','뿌듯','감사','좋았','잘됐','최고','사랑'],
+  '평온':['평화','고요','차분','쉬었','여유','힐링','산책','맑','깨끗','조용','평온'],
+  '불안':['걱정','불안','무서','두려','초조','긴장','떨려','어떡','모르겠','불확실','걱'],
+  '무기력':['힘들','지쳐','무기력','아무것도','하기싫','못하','의욕','귀찮','피곤','지침','쉬고싶'],
+  '답답함':['답답','막혀','안돼','왜이래','억울','이해안','모순','화나','짜증','답답'],
+  '외로움':['외로','혼자','쓸쓸','그리','보고싶','아무도','없어','외','홀로'],
+  '피곤함':['피곤','졸려','자고싶','쉬고','힘없','기운없','탈진','지쳤','녹초'],
+  '멍함':['멍','멍하','아무생각','모르겠','그냥','뭔가','이상해','공허'],
+  '복잡함':['복잡','여러','동시에','모르겠','헷갈','뒤엉','정리안','생각많'],
+};
+function suggestEmotion(text){
+  const el=document.getElementById('emotion-suggest');
+  const tagsEl=document.getElementById('emotion-suggest-tags');
+  if(!text||text.length<5){el.style.display='none';return;}
+  const scores={};
+  Object.entries(EMOTION_KEYWORDS).forEach(([emotion,kws])=>{
+    scores[emotion]=kws.filter(kw=>text.includes(kw)).length;
+  });
+  const top=Object.entries(scores).filter(([,s])=>s>0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([e])=>e);
+  if(!top.length){el.style.display='none';return;}
+  tagsEl.innerHTML=top.map(e=>`<span onclick="selectMoodByName('${e}')" style="cursor:pointer;padding:2px 8px;border:1px solid var(--rule);border-radius:1px;margin-right:4px;font-size:11px;">${e}</span>`).join('');
+  el.style.display='block';
+}
+function selectMoodByName(name){
+  document.querySelectorAll('#tab-record .tag').forEach(t=>{
+    if(t.textContent===name){t.classList.add('selected');selectedMood=name;}
+    else t.classList.remove('selected');
+  });
+}
 /* Record save */
 async function saveRecord(){
   const text=document.getElementById('memo-input').value.trim();
@@ -1300,12 +1337,14 @@ function renderWeeklyView(){
         <div class="week-col-items" id="wci-${dayStr}">`;
       items.forEach(({item,q,i})=>{
         const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
-        html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
+        const _allS=item.subs||[];const _undoneS=_allS.filter(s=>!s.done);const _doneS=_allS.length-_undoneS.length;
+        const _subBadge=_allS.length>0?`<span style="font-family:'Montserrat',sans-serif;font-size:7px;font-weight:700;color:var(--ink-muted);margin-left:3px;white-space:nowrap;">${_undoneS.length>0?'▸'+_undoneS.length:''}${_doneS>0?' ✓'+_doneS:''}</span>`:'';
+        html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
-          <div class="week-col-text${item.done?' done':''}">${item.text}${timeLabel}</div>
+          <div class="week-col-text${item.done?' done':''}">${item.text}${timeLabel}${_subBadge}</div>
         </div>`;
         // 하위업무
-        const pendingSubs=(item.subs||[]).filter(s=>!s.done);
+        const pendingSubs=_undoneS;
         pendingSubs.slice(0,2).forEach(sub=>{
           const si=(item.subs||[]).indexOf(sub);
           html+=`<div class="week-col-sub" onclick="event.stopPropagation();openTodoDetail(${si},${si},'${q}',${i})">
@@ -1353,12 +1392,15 @@ function renderWeeklyView(){
       const useTwoCol=!hasSubs&&items.filter(x=>!x.item.done).length>3;
       let h=`<div class="week-row${rowClass}" onclick="openTodoPopupWeek('${dayStr||''}')"><div class="week-day-label">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}">`;
       items.forEach(({item,q,i})=>{
-        const pendingSubs=(item.subs||[]).filter(s=>!s.done);
+        const allSubs=item.subs||[];
+        const pendingSubs=allSubs.filter(s=>!s.done);
+        const doneCnt=allSubs.length-pendingSubs.length;
         const hasS=pendingSubs.length>0;
         const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
+        const subBadge=allSubs.length>0?`<span style="font-family:'Montserrat',sans-serif;font-size:7px;font-weight:700;color:var(--ink-muted);margin-left:3px;white-space:nowrap;">${pendingSubs.length>0?'▸'+pendingSubs.length:''}${doneCnt>0?' ✓'+doneCnt:''}</span>`:'';
         h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();if(!weekDragging)openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleTodo('${q}',${i},event)"></div>
-          <div class="week-item-text${item.done?' done':''}">${item.text}${timeLabel}</div>
+          <div class="week-item-text${item.done?' done':''}">${item.text}${timeLabel}${subBadge}</div>
         </div>`;
         if(hasS)h+=buildSubsHtml(item,q,i);
       });
@@ -1536,16 +1578,27 @@ function onTodoDateInputChange(){
   const val=document.getElementById('todo-date-input').value;
   todoPopupSelectedDate=val?new Date(val+'T23:59:59'):null;
 }
+function getWeekDueDate(){
+  const d=new Date();d.setDate(d.getDate()+6);
+  if(d.getDay()===6)d.setDate(d.getDate()-1);// 토 → 금
+  return d;
+}
 function openTodoPopup(q){
   if(document.getElementById('todo-detail-popup').classList.contains('open'))return;
   currentQuad=q;const cfg=QUAD_CFG[q];
   document.getElementById('todo-popup-label').textContent=cfg.label;
   document.getElementById('todo-input').value='';
   document.getElementById('todo-memo-input').value='';
-  document.getElementById('todo-date-input').value='';
-  document.getElementById('todo-time-input').value='';
+  document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';
   document.getElementById('todo-popup-subs').innerHTML='';
   todoPopupSelectedDate=null;
+  if(q==='week'){
+    const due=getWeekDueDate();
+    todoPopupSelectedDate=due;
+    document.getElementById('todo-date-input').value=formatDate(due);
+  }else{
+    document.getElementById('todo-date-input').value='';
+  }
   todoPopupSubs=[];
   const sel=document.getElementById('todo-parent-select');
   sel.innerHTML='<option value="">— None —</option>';
@@ -1569,7 +1622,8 @@ async function confirmTodo(){
   const text=document.getElementById('todo-input').value.trim();if(!text)return;
   const memo=document.getElementById('todo-memo-input').value.trim();
   const dueDate=todoPopupSelectedDate||null;
-  const timeVal=document.getElementById('todo-time-input').value||'';
+  const _th=document.getElementById('todo-time-hour').value,_tm=document.getElementById('todo-time-min').value;
+  const timeVal=(_th&&_tm)?to24h(`${_th}:${_tm.padStart(2,'0')}`,document.getElementById('todo-time-ampm').value):'';
   const parentVal=document.getElementById('todo-parent-select').value;
   const subs=todoPopupSubs.filter(s=>(typeof s==='string'?s:s.text).trim());
   closeTodoPopup();
@@ -1666,12 +1720,17 @@ function renderQuad(q){
     const hideDays=q==='someday'?1:2;
     return(now-new Date(item.doneAt))/86400000<=hideDays;
   });
-  // 정렬: 미완료(시간순) → 미완료(오늘날짜,시간없음) → 완료(시간순)
-  const todayStr=new Date().toISOString().slice(0,10);
+  // 정렬
   visible.sort((a,b)=>{
     if(a.done!==b.done)return a.done?1:-1;
     const at=a.time||'';const bt=b.time||'';
     if(!a.done){
+      // week 쿼드: 마감일 먼저
+      if(q==='week'){
+        const ad=a.dueDate?new Date(a.dueDate).getTime():Infinity;
+        const bd=b.dueDate?new Date(b.dueDate).getTime():Infinity;
+        if(ad!==bd)return ad-bd;
+      }
       if(at&&bt)return at.localeCompare(bt);
       if(at)return -1;
       if(bt)return 1;
@@ -1705,13 +1764,15 @@ function renderQuad(q){
       if(undoneSubs.length===0)quadSubExpanded.delete(key);
       const expanded=quadSubExpanded.has(key)&&undoneSubs.length>0;
       const toggleBtn=document.createElement('div');
-      toggleBtn.style.cssText='font-family:"Montserrat",sans-serif;font-size:8px;font-weight:700;letter-spacing:0.06em;color:var(--ink-muted);padding:1px 5px;border:1px solid var(--rule);border-radius:1px;cursor:pointer;flex-shrink:0;margin-left:4px;white-space:nowrap;';
+      toggleBtn.style.cssText='font-family:"Montserrat",sans-serif;font-size:8px;font-weight:700;letter-spacing:0.06em;color:var(--ink-muted);padding:2px 4px;cursor:pointer;flex-shrink:0;white-space:nowrap;align-self:flex-start;margin-top:2px;';
       if(undoneSubs.length===0){toggleBtn.textContent=`✓${doneCnt}`;}
       else{toggleBtn.textContent=`${expanded?'▾':'▸'}${undoneSubs.length}${doneCnt>0?' ✓'+doneCnt:''}`;}
-      toggleBtn.addEventListener('click',e=>{e.stopPropagation();if(expanded)quadSubExpanded.delete(key);else quadSubExpanded.add(key);renderQuad(q);});
+      const _doToggle=e=>{e.stopPropagation();if(expanded)quadSubExpanded.delete(key);else quadSubExpanded.add(key);renderQuad(q);};
+      toggleBtn.addEventListener('click',_doToggle);
+      toggleBtn.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();if(expanded)quadSubExpanded.delete(key);else quadSubExpanded.add(key);renderQuad(q);},{passive:false});
       toggleBtn.addEventListener('mousedown',e=>e.stopPropagation());
       toggleBtn.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
-      div.querySelector('.quad-text').appendChild(toggleBtn);
+      div.appendChild(toggleBtn);
       if(expanded){
         undoneSubs.forEach((sub)=>{
           const actualSi=(item.subs||[]).indexOf(sub);
@@ -2622,7 +2683,7 @@ function confirmSubTodo(q){
   document.getElementById('todo-input').value='';
   document.getElementById('todo-memo-input').value=subDragItem.text; // 브레인덤프 텍스트 → 메모
   document.getElementById('todo-date-input').value='';
-  document.getElementById('todo-time-input').value='';
+  document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';
   document.getElementById('todo-popup-subs').innerHTML='';
   todoPopupSelectedDate=null;todoPopupSubs=[];
   const sel=document.getElementById('todo-parent-select');
@@ -3246,6 +3307,10 @@ function init(){
   const minSel=document.getElementById('td-time-min-select');
   for(let h=1;h<=12;h++)hourSel.innerHTML+=`<option value="${h}">${h}</option>`;
   for(let m=0;m<60;m+=5)minSel.innerHTML+=`<option value="${m}">${String(m).padStart(2,'0')}</option>`;
+  // 추가 팝업 시간 select도 동일하게 초기화
+  const pHour=document.getElementById('todo-time-hour'),pMin=document.getElementById('todo-time-min');
+  for(let h=1;h<=12;h++)pHour.innerHTML+=`<option value="${h}">${h}</option>`;
+  for(let m=0;m<60;m+=5)pMin.innerHTML+=`<option value="${m}">${String(m).padStart(2,'0')}</option>`;
   loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();loadBrainFromStorage();
   // 로컬 데이터로 먼저 렌더
   autoMoveTodos();renderAllQuads();renderCart();renderBrainList();renderBookList();
