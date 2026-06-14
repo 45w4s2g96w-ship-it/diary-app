@@ -1509,6 +1509,9 @@ function switchTodoCart(pane){
 /* Todo */
 const QUAD_CFG={today:{label:'Today',offset:0},week:{label:'This Week',offset:7},month:{label:'This Month',offset:30},someday:{label:'Someday',offset:null}};
 let todoData={today:[],week:[],month:[],someday:[]},currentQuad='',currentTodoPane='todo';
+const quadSubExpanded=new Set(); // 하위업무 펼친 항목 key (notionId 또는 fallback)
+function subExpandKey(q,i){const item=todoData[q]?.[i];return item?.notionId||`${q}-${i}`;}
+function autoCollapseIfAllDone(q,i){const item=todoData[q]?.[i];if(!item||!item.subs?.length)return;if(item.subs.every(s=>s.done))quadSubExpanded.delete(subExpandKey(q,i));}
 function initQuadDates(){document.getElementById('due-today').textContent=formatDateShort(new Date());document.getElementById('due-week').textContent='+7d  '+formatDateShort(getOffsetDate(7));document.getElementById('due-month').textContent='+30d  '+formatDateShort(getOffsetDate(30));}
 let todoPopupSelectedDate=null;
 let todoPopupSubs=[];
@@ -1693,22 +1696,40 @@ function renderQuad(q){
     div.addEventListener('touchstart',e=>startTodoDrag(e,q,i,null,null),{passive:true});
     div.addEventListener('mousedown',e=>startTodoDrag(e,q,i,null,null));
     c.appendChild(div);
-    const ownSubs=(item.subs||[]).filter(s=>!s.quad||s.quad===q);
-    ownSubs.forEach((sub)=>{
-      const actualSi=(item.subs||[]).indexOf(sub);
-      const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
-      sdiv.dataset.q=q;sdiv.dataset.i=i;sdiv.dataset.si=actualSi;sdiv.dataset.type='sub';
-      sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check${sub.done?' done':''}"></div><div class="quad-text${sub.done?' done':''}" style="font-size:10px;">${sub.text}</div>`;
-      const chk=sdiv.querySelector('.quad-check');
-      chk.addEventListener('click',e=>{e.stopPropagation();toggleSubTodoInline(q,i,actualSi,e);});
-      chk.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();toggleSubTodoInline(q,i,actualSi,e);},{passive:false});
-      chk.addEventListener('mousedown',e=>e.stopPropagation());
-      chk.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
-      sdiv.addEventListener('click',e=>{e.stopPropagation();openTodoDetail(actualSi,actualSi,q,i);});
-      sdiv.addEventListener('touchstart',e=>startTodoDrag(e,q,i,actualSi,null),{passive:true});
-      sdiv.addEventListener('mousedown',e=>startTodoDrag(e,q,i,actualSi,null));
-      c.appendChild(sdiv);
-    });
+    // 하위업무 토글
+    const allSubs=(item.subs||[]).filter(s=>!s.quad||s.quad===q);
+    const undoneSubs=allSubs.filter(s=>!s.done);
+    const doneCnt=allSubs.length-undoneSubs.length;
+    if(allSubs.length>0){
+      const key=subExpandKey(q,i);
+      if(undoneSubs.length===0)quadSubExpanded.delete(key);
+      const expanded=quadSubExpanded.has(key)&&undoneSubs.length>0;
+      const toggleBtn=document.createElement('div');
+      toggleBtn.style.cssText='font-family:"Montserrat",sans-serif;font-size:8px;font-weight:700;letter-spacing:0.06em;color:var(--ink-muted);padding:1px 5px;border:1px solid var(--rule);border-radius:1px;cursor:pointer;flex-shrink:0;margin-left:4px;white-space:nowrap;';
+      if(undoneSubs.length===0){toggleBtn.textContent=`✓${doneCnt}`;}
+      else{toggleBtn.textContent=`${expanded?'▾':'▸'}${undoneSubs.length}${doneCnt>0?' ✓'+doneCnt:''}`;}
+      toggleBtn.addEventListener('click',e=>{e.stopPropagation();if(expanded)quadSubExpanded.delete(key);else quadSubExpanded.add(key);renderQuad(q);});
+      toggleBtn.addEventListener('mousedown',e=>e.stopPropagation());
+      toggleBtn.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+      div.querySelector('.quad-text').appendChild(toggleBtn);
+      if(expanded){
+        undoneSubs.forEach((sub)=>{
+          const actualSi=(item.subs||[]).indexOf(sub);
+          const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
+          sdiv.dataset.q=q;sdiv.dataset.i=i;sdiv.dataset.si=actualSi;sdiv.dataset.type='sub';
+          sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check"></div><div class="quad-text" style="font-size:10px;">${sub.text}</div>`;
+          const chk=sdiv.querySelector('.quad-check');
+          chk.addEventListener('click',e=>{e.stopPropagation();toggleSubTodoInline(q,i,actualSi,e);});
+          chk.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();toggleSubTodoInline(q,i,actualSi,e);},{passive:false});
+          chk.addEventListener('mousedown',e=>e.stopPropagation());
+          chk.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+          sdiv.addEventListener('click',e=>{e.stopPropagation();openTodoDetail(actualSi,actualSi,q,i);});
+          sdiv.addEventListener('touchstart',e=>startTodoDrag(e,q,i,actualSi,null),{passive:true});
+          sdiv.addEventListener('mousedown',e=>startTodoDrag(e,q,i,actualSi,null));
+          c.appendChild(sdiv);
+        });
+      }
+    }
   });
 }
 
