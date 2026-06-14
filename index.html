@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -390,7 +391,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* Todo Detail */
 .todo-detail-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .todo-detail-overlay.open { opacity: 1; pointer-events: all; }
-.todo-detail-sheet { width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px; padding: 0 0 24px; transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 88vh; overflow-y: auto; scrollbar-width: none; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
+.todo-detail-sheet { width: 100%; max-width: 560px; background: var(--paper); border-radius: 10px; padding: 0; transform: translateY(16px) scale(0.97); transition: transform 0.25s cubic-bezier(0.32,0.72,0,1); max-height: 88vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,0.25); }
 .todo-detail-sheet::-webkit-scrollbar { display: none; }
 .todo-detail-overlay.open .todo-detail-sheet { transform: translateY(0) scale(1); }
 .td-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 12px; border-bottom: 1px solid var(--rule); }
@@ -769,13 +770,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <button class="td-close" onclick="closeTodoDetail()">✕ CLOSE</button>
     </div>
-    <div class="td-body">
-      <!-- 제목 -->
+    <!-- 고정 영역: 제목~SAVE -->
+    <div class="td-body" style="flex-shrink:0;">
       <textarea id="td-edit-text" rows="1" oninput="autoResize(this)" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:15px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);outline:none;padding:6px 0;margin-bottom:14px;resize:none;overflow:hidden;line-height:1.5;display:block;"></textarea>
-      <!-- 메모 -->
       <div class="td-field-label">MEMO</div>
       <input id="td-edit-memo" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink-soft);background:transparent;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:14px;" placeholder="링크, 참고사항...">
-      <!-- 사분면 -->
       <button onclick="toggleQuadrantSection()" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:4px 10px;cursor:pointer;border-radius:1px;margin-bottom:8px;">QUADRANT ▾</button>
       <div id="td-quadrant-section" style="display:none;margin-bottom:10px;">
         <div style="display:flex;gap:6px;">
@@ -785,7 +784,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <button onclick="setTodoEditQuad('someday')" id="tq-someday" style="flex:1;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">SOMEDAY</button>
         </div>
       </div>
-      <!-- 마감일 -->
       <div class="td-field-label">DUE DATE</div>
       <div style="display:flex;gap:8px;margin-bottom:14px;">
         <div style="flex:1.4;position:relative;display:flex;align-items:center;">
@@ -794,34 +792,33 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <span style="position:absolute;right:8px;pointer-events:none;font-size:13px;color:var(--ink-muted);">📅</span>
         </div>
         <div style="flex:1.6;display:flex;gap:6px;">
-          <select id="td-time-hour-select" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;">
+          <select id="td-time-hour-select" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;">
             <option value="">--</option>
           </select>
-          <select id="td-time-min-select" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;">
+          <select id="td-time-min-select" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;">
             <option value="">--</option>
           </select>
-          <select id="td-edit-ampm" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;">
+          <select id="td-edit-ampm" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;">
             <option value="AM">AM</option>
             <option value="PM">PM</option>
           </select>
         </div>
       </div>
-      <!-- 상위업무 -->
       <div class="td-field-label">PARENT</div>
       <select id="td-parent-select" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;background:var(--paper);border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;color:var(--ink);margin-bottom:14px;"></select>
-      <!-- 저장/취소 -->
-      <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <div style="display:flex;gap:8px;margin-bottom:0;">
         <button onclick="cancelTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
         <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
       </div>
-      <!-- 하위업무 -->
-      <div class="td-sub-label">SUBTASKS</div>
+    </div>
+    <!-- 스크롤 영역: 하위업무 + 삭제 -->
+    <div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px;border-top:1px solid var(--rule);min-height:0;">
+      <div class="td-sub-label" style="padding-top:12px;">SUBTASKS</div>
       <div id="td-sub-list"></div>
       <div class="td-add-sub">
         <input class="td-add-sub-input" id="td-sub-input" placeholder="Add subtask..." onkeydown="if(event.key==='Enter')addSubTodo()">
         <button class="td-add-sub-btn" onclick="addSubTodo()">ADD</button>
       </div>
-      <!-- 삭제 -->
       <div class="td-actions">
         <button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>
       </div>
@@ -1675,7 +1672,7 @@ function renderQuad(q){
     ownSubs.forEach((sub,si)=>{
       const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
       sdiv.dataset.q=q;sdiv.dataset.i=i;sdiv.dataset.si=si;sdiv.dataset.type='sub';
-      sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check${sub.done?' done':''}" onclick="toggleSubTodoInline('${q}',${i},${si},event)"></div><div class="quad-text${sub.done?' done':''}" style="font-size:10px;">${sub.text}</div>`;
+      sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check${sub.done?' done':''}" onclick="toggleSubTodoInline('${q}',${i},${si},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleSubTodoInline('${q}',${i},${si},event)"></div><div class="quad-text${sub.done?' done':''}" style="font-size:10px;">${sub.text}</div>`;
       sdiv.addEventListener('click',e=>{e.stopPropagation();openTodoDetail(si,si,q,i);});
       sdiv.addEventListener('touchstart',e=>startTodoDrag(e,q,i,si,null),{passive:true});
       sdiv.addEventListener('mousedown',e=>startTodoDrag(e,q,i,si,null));
@@ -2926,7 +2923,7 @@ function checkBrainAutoReset(){
     localStorage.setItem('brain_last_reset',now.toISOString());
   }
 }
-function confirmSubIdea(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;';sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div><div style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;">${text}</div><div style="display:flex;flex-direction:column;gap:6px;">${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.getElementById('idea-overlay').remove()" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;overlay.id='idea-overlay';overlay.appendChild(sheet);overlay.addEventListener('pick',async(e)=>{const cat=e.detail;document.getElementById('idea-overlay').remove();try{await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'생성일시':{date:{start:new Date().toISOString()}},'분류':{select:{name:cat}}}})});}catch(e){console.error(e);}markBrainDone(idx,'idea');showToast('Saved as Idea!');});overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});document.body.appendChild(overlay);}
+function confirmSubIdea(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;';sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div><div style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;">${text}</div><div style="display:flex;flex-direction:column;gap:6px;">${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.getElementById('idea-overlay').remove()" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;overlay.id='idea-overlay';overlay.appendChild(sheet);overlay.addEventListener('pick',async(e)=>{const cat=e.detail;document.getElementById('idea-overlay').remove();let nid=null;try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'생성일시':{date:{start:new Date().toISOString()}},'분류':{select:{name:cat}}}})});const d=await r.json();nid=d.id||null;}catch(e){console.error(e);}ideaData.unshift({text,select:cat,notionId:nid});renderIdeaList();markBrainDone(idx,'idea');showToast('Saved as Idea!');});overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});document.body.appendChild(overlay);}
 function confirmSubBookNew(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;openAddBookPopup();setTimeout(()=>{document.getElementById('book-search-input').value=text;debounceBookSearch(text);},400);markBrainDone(idx,'book');}
 
 /* Book */
