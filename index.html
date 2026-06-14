@@ -770,8 +770,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         </div>
         <div style="flex:1.3;position:relative;display:flex;align-items:center;">
           <input type="text" id="td-edit-time" placeholder="H:MM" inputmode="numeric" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 32px 8px 8px;outline:none;box-sizing:border-box;">
-          <input type="time" id="td-edit-time-picker" step="300" style="position:absolute;right:4px;width:24px;height:24px;opacity:0;cursor:pointer;">
-          <span style="position:absolute;right:8px;pointer-events:none;font-size:13px;color:var(--ink-muted);">🕐</span>
+          <span id="td-time-dropdown-btn" style="position:absolute;right:8px;cursor:pointer;font-size:13px;color:var(--ink-muted);">🕐</span>
+          <div id="td-time-dropdown-panel" class="hidden" style="position:absolute;top:calc(100% + 4px);right:0;background:var(--paper);border:1.5px solid var(--rule);border-radius:2px;display:flex;gap:4px;padding:6px;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+            <select id="td-time-hour-select" style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:2px;padding:4px;outline:none;"></select>
+            <select id="td-time-min-select" style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:2px;padding:4px;outline:none;"></select>
+          </div>
         </div>
         <select id="td-edit-ampm" style="flex:0 0 60px;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 4px;outline:none;">
           <option value="AM">AM</option>
@@ -1735,7 +1738,6 @@ function openTodoDetail(q,idx,parentQ,parentI){
   document.getElementById('td-edit-date-picker').value=d?formatDate(d):'';
   const t12=to12h(item.time||'');
   document.getElementById('td-edit-time').value=t12.time;
-  document.getElementById('td-edit-time-picker').value=item.time||'';
   document.getElementById('td-edit-ampm').value=t12.ampm;
   // PARENT 셀렉트
   const parentSel=document.getElementById('td-parent-select');
@@ -1896,6 +1898,7 @@ async function saveTodoEdit(){
 function preventBodyScroll(e){if(!e.target.closest('.todo-detail-sheet'))e.preventDefault();}
 function closeTodoDetail(){
   document.getElementById('todo-detail-popup').classList.remove('open');
+  document.getElementById('td-time-dropdown-panel')?.classList.add('hidden');
   document.body.style.overflow='';
   document.body.removeEventListener('touchmove',preventBodyScroll);
 }
@@ -2929,14 +2932,40 @@ async function registerSW(){if(!('serviceWorker' in navigator))return;try{await 
 function init(){
   document.getElementById('current-date').textContent=formatDateDisplay(getDiaryDate());
   initQuadDates();
-  // 날짜/시간 picker ↔ 텍스트 입력 동기화
+  // 날짜 picker ↔ 텍스트 입력 동기화
   document.getElementById('td-edit-date-picker').addEventListener('change',e=>{
     document.getElementById('td-edit-date').value=e.target.value;
   });
-  document.getElementById('td-edit-time-picker').addEventListener('change',e=>{
-    const t12=to12h(e.target.value);
-    document.getElementById('td-edit-time').value=t12.time;
-    document.getElementById('td-edit-ampm').value=t12.ampm;
+  // 시간 드롭다운 패널 초기화 (시: 1~12, 분: 5분 단위)
+  const hourSel=document.getElementById('td-time-hour-select');
+  const minSel=document.getElementById('td-time-min-select');
+  for(let h=1;h<=12;h++)hourSel.innerHTML+=`<option value="${h}">${h}시</option>`;
+  for(let m=0;m<60;m+=5)minSel.innerHTML+=`<option value="${m}">${String(m).padStart(2,'0')}분</option>`;
+  const timePanel=document.getElementById('td-time-dropdown-panel');
+  document.getElementById('td-time-dropdown-btn').addEventListener('click',e=>{
+    e.stopPropagation();
+    // 현재 입력값으로 드롭다운 초기화
+    const cur=document.getElementById('td-edit-time').value.trim();
+    const tm=cur.match(/^(\d{1,2}):(\d{2})$/);
+    if(tm){
+      hourSel.value=String(parseInt(tm[1])||1);
+      // 분은 5분 단위로 가장 가까운 값으로 스냅
+      let mm=Math.round(parseInt(tm[2])/5)*5;if(mm>=60)mm=55;
+      minSel.value=String(mm);
+    }
+    timePanel.classList.toggle('hidden');
+  });
+  function applyTimeDropdown(){
+    const h=hourSel.value||'12';
+    const m=(minSel.value||'0').padStart(2,'0');
+    document.getElementById('td-edit-time').value=`${h}:${m}`;
+  }
+  hourSel.addEventListener('change',applyTimeDropdown);
+  minSel.addEventListener('change',applyTimeDropdown);
+  document.addEventListener('click',e=>{
+    if(!timePanel.contains(e.target)&&e.target.id!=='td-time-dropdown-btn'){
+      timePanel.classList.add('hidden');
+    }
   });
   loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();loadBrainFromStorage();
   // 로컬 데이터로 먼저 렌더
