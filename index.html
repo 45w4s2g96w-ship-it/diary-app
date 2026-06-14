@@ -2889,7 +2889,7 @@ async function loadInbox(){
     list.innerHTML='';
     const days=['일','월','화','수','목','금','토'];
     // URL을 클릭 가능한 링크로 변환
-    const linkify=t=>t.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" style="color:inherit;text-decoration:underline;">$1</a>');
+    const linkify=t=>t.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" style="color:inherit;text-decoration:none;">🔗</a>');
     results.forEach(page=>{
       const props=page.properties;
       const dateStr=props['날짜']?.date?.start||'';
