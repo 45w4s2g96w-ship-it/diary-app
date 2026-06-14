@@ -710,18 +710,18 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')document.getElementById('todo-memo-input').focus()">
     <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">MEMO <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
     <input class="popup-input-sm" id="todo-memo-input" placeholder="메모 (링크, 참고사항...)" onkeydown="if(event.key==='Enter')document.getElementById('todo-date-input').focus()">
-    <div style="display:flex;gap:12px;">
-      <div style="flex:1;">
+    <div style="display:flex;flex-direction:column;gap:0;">
+      <div>
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-        <input type="date" id="todo-date-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;background:transparent;border:1.5px solid var(--rule);padding:8px 10px;outline:none;margin-bottom:16px;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
+        <input type="date" id="todo-date-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;background:transparent;border:1.5px solid var(--rule);padding:8px 10px;outline:none;margin-bottom:10px;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
       </div>
-      <div style="flex:1;">
+      <div>
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">TIME <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-        <div style="display:flex;gap:4px;align-items:center;margin-bottom:16px;">
-          <select id="todo-time-hour" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="">--</option></select>
-          <select id="todo-time-min" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="">--</option></select>
-          <select id="todo-time-ampm" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
-          <button onclick="document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 8px;cursor:pointer;border-radius:1px;white-space:nowrap;">✕</button>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:16px;">
+          <select id="todo-time-hour" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="">--</option></select>
+          <select id="todo-time-min" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="">--</option></select>
+          <select id="todo-time-ampm" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
+          <button onclick="document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 10px;cursor:pointer;border-radius:1px;white-space:nowrap;flex-shrink:0;">✕</button>
         </div>
       </div>
     </div>
@@ -1774,11 +1774,11 @@ function renderQuad(q){
     const doneCnt=allSubs.length-undoneSubs.length;
     if(allSubs.length>0){
       const key=subExpandKey(q,i);
-      if(undoneSubs.length===0)quadSubExpanded.delete(key);
-      const expanded=quadSubExpanded.has(key)&&undoneSubs.length>0;
+      const allDone=undoneSubs.length===0;
+      const expanded=quadSubExpanded.has(key);
       const toggleBtn=document.createElement('div');
       toggleBtn.style.cssText='font-family:"Montserrat",sans-serif;font-size:8px;font-weight:700;letter-spacing:0.06em;color:var(--ink-muted);padding:2px 4px;cursor:pointer;flex-shrink:0;white-space:nowrap;align-self:flex-start;margin-top:2px;';
-      if(undoneSubs.length===0){toggleBtn.textContent=`✓${doneCnt}`;}
+      if(allDone){toggleBtn.textContent=`${expanded?'▾':'▸'}✓${doneCnt}`;}
       else{toggleBtn.textContent=`${expanded?'▾':'▸'}${undoneSubs.length}${doneCnt>0?' ✓'+doneCnt:''}`;}
       const _doToggle=e=>{e.stopPropagation();if(expanded)quadSubExpanded.delete(key);else quadSubExpanded.add(key);renderQuad(q);};
       toggleBtn.addEventListener('click',_doToggle);
@@ -1787,11 +1787,12 @@ function renderQuad(q){
       toggleBtn.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
       div.appendChild(toggleBtn);
       if(expanded){
-        undoneSubs.forEach((sub)=>{
+        const subsToShow=allDone?allSubs:undoneSubs;
+        subsToShow.forEach((sub)=>{
           const actualSi=(item.subs||[]).indexOf(sub);
           const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
           sdiv.dataset.q=q;sdiv.dataset.i=i;sdiv.dataset.si=actualSi;sdiv.dataset.type='sub';
-          sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check"></div><div class="quad-text" style="font-size:10px;">${sub.text}</div>`;
+          sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check${sub.done?' done':''}"></div><div class="quad-text${sub.done?' done':''}" style="font-size:10px;">${sub.text}</div>`;
           const chk=sdiv.querySelector('.quad-check');
           chk.addEventListener('click',e=>{e.stopPropagation();toggleSubTodoInline(q,i,actualSi,e);});
           chk.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();toggleSubTodoInline(q,i,actualSi,e);},{passive:false});
