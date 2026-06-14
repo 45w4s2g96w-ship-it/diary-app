@@ -226,7 +226,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .week-overdue-label { flex-shrink: 0; width: 80px; padding: 8px 10px; border-right: 1px solid var(--rule); font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: #c0392b; display: flex; align-items: center; }
   .week-overdue-items { flex: 1; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
   .week-cols { flex: 1; display: flex; flex-wrap: wrap; overflow-y: auto; min-height: 0; }
-  .week-col { flex: 0 0 25%; display: flex; flex-direction: column; border-right: 1px solid var(--rule); overflow: hidden; min-width: 0; }
+  .week-col { flex: 0 0 25%; display: flex; flex-direction: column; border-right: 1px solid var(--rule); min-width: 0; }
   .week-col:nth-child(4n) { border-right: none; }
   .week-col:nth-child(n+5) { border-top: 1px solid var(--ink); }
   .week-col:last-child { border-right: none; }
@@ -1648,14 +1648,22 @@ function renderQuad(q){
     const hideDays=q==='someday'?1:2;
     return(now-new Date(item.doneAt))/86400000<=hideDays;
   });
-  // 정렬: 시간 있는 것 → 시간 없는 것 → 완료된 것
+  // 정렬: 미완료(시간순) → 미완료(오늘날짜,시간없음) → 완료(시간순)
+  const todayStr=new Date().toISOString().slice(0,10);
   visible.sort((a,b)=>{
     if(a.done!==b.done)return a.done?1:-1;
     const at=a.time||'';const bt=b.time||'';
-    if(at&&bt)return at.localeCompare(bt);
-    if(at)return -1;
-    if(bt)return 1;
-    return 0;
+    if(!a.done){
+      if(at&&bt)return at.localeCompare(bt);
+      if(at)return -1;
+      if(bt)return 1;
+      return 0;
+    } else {
+      if(at&&bt)return at.localeCompare(bt);
+      if(at)return -1;
+      if(bt)return 1;
+      return 0;
+    }
   });
   c.innerHTML='';
   visible.forEach(item=>{
@@ -1669,13 +1677,17 @@ function renderQuad(q){
     div.addEventListener('mousedown',e=>startTodoDrag(e,q,i,null,null));
     c.appendChild(div);
     const ownSubs=(item.subs||[]).filter(s=>!s.quad||s.quad===q);
-    ownSubs.forEach((sub,si)=>{
+    ownSubs.forEach((sub)=>{
+      const actualSi=(item.subs||[]).indexOf(sub);
       const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
-      sdiv.dataset.q=q;sdiv.dataset.i=i;sdiv.dataset.si=si;sdiv.dataset.type='sub';
-      sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check${sub.done?' done':''}" onclick="toggleSubTodoInline('${q}',${i},${si},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleSubTodoInline('${q}',${i},${si},event)"></div><div class="quad-text${sub.done?' done':''}" style="font-size:10px;">${sub.text}</div>`;
-      sdiv.addEventListener('click',e=>{e.stopPropagation();openTodoDetail(si,si,q,i);});
-      sdiv.addEventListener('touchstart',e=>startTodoDrag(e,q,i,si,null),{passive:true});
-      sdiv.addEventListener('mousedown',e=>startTodoDrag(e,q,i,si,null));
+      sdiv.dataset.q=q;sdiv.dataset.i=i;sdiv.dataset.si=actualSi;sdiv.dataset.type='sub';
+      sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check${sub.done?' done':''}"></div><div class="quad-text${sub.done?' done':''}" style="font-size:10px;">${sub.text}</div>`;
+      const chk=sdiv.querySelector('.quad-check');
+      chk.addEventListener('click',e=>{e.stopPropagation();toggleSubTodoInline(q,i,actualSi,e);});
+      chk.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();toggleSubTodoInline(q,i,actualSi,e);},{passive:false});
+      sdiv.addEventListener('click',e=>{e.stopPropagation();openTodoDetail(actualSi,actualSi,q,i);});
+      sdiv.addEventListener('touchstart',e=>startTodoDrag(e,q,i,actualSi,null),{passive:true});
+      sdiv.addEventListener('mousedown',e=>startTodoDrag(e,q,i,actualSi,null));
       c.appendChild(sdiv);
     });
   });
@@ -2923,7 +2935,7 @@ function checkBrainAutoReset(){
     localStorage.setItem('brain_last_reset',now.toISOString());
   }
 }
-function confirmSubIdea(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;';sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div><div style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;">${text}</div><div style="display:flex;flex-direction:column;gap:6px;">${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.getElementById('idea-overlay').remove()" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;overlay.id='idea-overlay';overlay.appendChild(sheet);overlay.addEventListener('pick',async(e)=>{const cat=e.detail;document.getElementById('idea-overlay').remove();let nid=null;try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'생성일시':{date:{start:new Date().toISOString()}},'분류':{select:{name:cat}}}})});const d=await r.json();nid=d.id||null;}catch(e){console.error(e);}ideaData.unshift({text,select:cat,notionId:nid});renderIdeaList();markBrainDone(idx,'idea');showToast('Saved as Idea!');});overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});document.body.appendChild(overlay);}
+function confirmSubIdea(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;';sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div><div style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;">${text}</div><div style="display:flex;flex-direction:column;gap:6px;">${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.getElementById('idea-overlay').remove()" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;overlay.id='idea-overlay';overlay.appendChild(sheet);overlay.addEventListener('pick',async(e)=>{const cat=e.detail;document.getElementById('idea-overlay').remove();let nid=null;try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'선택':{select:{name:cat}}}})});const d=await r.json();nid=d.id||null;}catch(e){console.error(e);}ideaData.unshift({text,select:cat,notionId:nid});renderIdeaList();markBrainDone(idx,'idea');showToast('Saved as Idea!');});overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});document.body.appendChild(overlay);}
 function confirmSubBookNew(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;openAddBookPopup();setTimeout(()=>{document.getElementById('book-search-input').value=text;debounceBookSearch(text);},400);markBrainDone(idx,'book');}
 
 /* Book */
