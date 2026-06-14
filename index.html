@@ -440,7 +440,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .review-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
   .book-detail-header { padding-left: var(--pad-h); padding-right: var(--pad-h); }
   .section-title { font-size: 32px !important; }
-  .record-text { font-size: 14px !important; }
+  .record-text { font-size: 12px !important; }
   .quad-text { font-size: 13px !important; }
   .brain-item-text { font-size: 14px !important; }
   .book-card-title { font-size: 15px !important; }
@@ -451,7 +451,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 @media (min-width: 1400px) {
   :root { --pad-h: 60px; }
   .section-title { font-size: 40px !important; }
-  .record-text { font-size: 16px !important; }
+  .record-text { font-size: 12px !important; }
   .quad-text { font-size: 14px !important; }
   .tag { font-size: 14px !important; }
   .record-tag { font-size: 13px !important; }
@@ -770,24 +770,24 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <!-- 마감일 -->
       <div class="td-field-label">DUE DATE</div>
-      <div style="display:flex;gap:10px;margin-bottom:14px;">
-        <div style="flex:1;position:relative;display:flex;align-items:center;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <div style="flex:1.4;position:relative;display:flex;align-items:center;">
           <input type="text" id="td-edit-date" placeholder="YYYY-MM-DD" inputmode="numeric" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 32px 8px 8px;outline:none;box-sizing:border-box;">
           <input type="date" id="td-edit-date-picker" style="position:absolute;right:4px;width:24px;height:24px;opacity:0;cursor:pointer;">
           <span style="position:absolute;right:8px;pointer-events:none;font-size:13px;color:var(--ink-muted);">📅</span>
         </div>
-        <div style="flex:1.3;position:relative;display:flex;align-items:center;">
-          <input type="text" id="td-edit-time" placeholder="H:MM" inputmode="numeric" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 32px 8px 8px;outline:none;box-sizing:border-box;">
-          <span id="td-time-dropdown-btn" style="position:absolute;right:8px;cursor:pointer;font-size:13px;color:var(--ink-muted);">🕐</span>
-          <div id="td-time-dropdown-panel" class="hidden" style="position:absolute;top:calc(100% + 4px);right:0;background:var(--paper);border:1.5px solid var(--rule);border-radius:2px;display:flex;gap:4px;padding:6px;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-            <select id="td-time-hour-select" style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:2px;padding:4px;outline:none;"></select>
-            <select id="td-time-min-select" style="font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:2px;padding:4px;outline:none;"></select>
-          </div>
+        <div style="flex:1.6;display:flex;gap:6px;">
+          <select id="td-time-hour-select" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;">
+            <option value="">--</option>
+          </select>
+          <select id="td-time-min-select" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;">
+            <option value="">--</option>
+          </select>
+          <select id="td-edit-ampm" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;">
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
+          </select>
         </div>
-        <select id="td-edit-ampm" style="flex:0 0 60px;font-family:'NanumSquareNeo',sans-serif;font-size:13px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 4px;outline:none;">
-          <option value="AM">AM</option>
-          <option value="PM">PM</option>
-        </select>
       </div>
       <!-- 상위업무 -->
       <div class="td-field-label">PARENT</div>
@@ -1639,7 +1639,7 @@ async function saveTodoToNotion(quad,text,dueDate,memo,time){
     if(dueDate&&!isNaN(new Date(dueDate)))props['마감일']={date:{start:formatDate(new Date(dueDate))}};
     if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
     if(time)props['시간']={rich_text:[{text:{content:time}}]};
-    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},icon:{type:'emoji',emoji:'📁'},properties:props})});
     if(!res.ok){const et=await res.text().catch(()=>'');console.error('todo save failed:',res.status,et);showToast('Notion 저장 실패 '+res.status);return null;}
     const data=await res.json();
     if(data.object==='error'){console.error('Notion err:',data);showToast('Notion 오류: '+data.code);return null;}
@@ -1649,14 +1649,15 @@ async function saveTodoToNotion(quad,text,dueDate,memo,time){
 async function saveSubTodoToNotion(text,parentId,memo,dueDate){
   try{
     const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};
-    if(parentId)props['상위항목']={relation:[{id:parentId}]};
+    if(parentId)props['상위 항목']={relation:[{id:parentId}]};
     if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
     if(dueDate&&!isNaN(new Date(dueDate)))props['마감일']={date:{start:formatDate(new Date(dueDate))}};
-    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},properties:props})});
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},icon:{type:'emoji',emoji:'🔹'},properties:props})});
     const data=await res.json();return data.id||null;
   }catch(e){return null;}
 }
 async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'완료':{checkbox:done}}})});}catch(e){}}
+async function updateTodoNotionDoneFull(id,done){try{const props={'완료':{checkbox:done}};if(done)props['완료일']={date:{start:formatDate(new Date())}};else props['완료일']={date:null};await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});}catch(e){}}
 
 async function loadTodoFromNotion(){
   try{
@@ -1665,33 +1666,41 @@ async function loadTodoFromNotion(){
     const res=await fetch(WORKER_URL+'/notion/databases/'+TODO_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{or:[{property:'완료',checkbox:{equals:false}},{and:[{property:'완료',checkbox:{equals:true}},{property:'완료일',date:{on_or_after:formatDate(twoDaysAgo)}}]}]},sorts:[{property:'추가일',direction:'ascending'}],page_size:100})});
     const data=await res.json();if(!data.results)return;
     const newTodo={today:[],week:[],month:[],someday:[]};
-    const localSubs={};['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId&&item.subs?.length)localSubs[item.notionId]=item.subs;}));
     // 폴링 중단 중 로컬 값 보존을 위해 현재 로컬 데이터 인덱스 구성
     const isPaused=Date.now()<(window._pausePollingUntil||0);
     const localMap={};
     if(isPaused){
       ['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId)localMap[item.notionId]={item,q};}));
     }
+    // 1차 패스: 부모 항목과 하위업무(상위 항목 relation 있는 것)를 분리
+    const parentEntries=[]; // {q,obj}
+    const subEntries=[]; // {parentId, sub}
+    const idToParentIdx={}; // notionId -> {q,idx}
     data.results.forEach(page=>{
       const id=page.id;const props=page.properties;
       const text=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!text)return;
-      // 폴링 중단 중이고 로컬에 같은 항목 있으면 로컬 값 우선
-      if(isPaused&&localMap[id]){
-        const {item,q}=localMap[id];
-        newTodo[q].push(item);
-        return;
-      }
-      const quadLabel=props['사분면']?.multi_select?.[0]?.name||'Someday';
-      let q={'Today':'today','This Week':'week','This Month':'month','Someday':'someday'}[quadLabel]||'someday';
-      const dueDate=props['마감일']?.date?.start?new Date(props['마감일'].date.start+'T23:59:59'):null;
+      const parentRel=props['상위 항목']?.relation?.[0]?.id||null;
       const done=props['완료']?.checkbox||false;
       const doneAtStr=props['완료일']?.date?.start||null;
       const doneAt=doneAtStr?new Date(doneAtStr).toISOString():null;
       const memo=props['메모']?.rich_text?.map(t=>t.plain_text).join('')||'';
       const time=props['시간']?.rich_text?.map(t=>t.plain_text).join('')||'';
+      const dueDate=props['마감일']?.date?.start?new Date(props['마감일'].date.start+'T23:59:59'):null;
+      if(parentRel){
+        // 하위업무
+        subEntries.push({parentId:parentRel,sub:{text,memo,time,dueDate,done,doneAt,notionId:id}});
+        return;
+      }
+      // 폴링 중단 중이고 로컬에 같은 항목 있으면 로컬 값 우선 (단, subs는 새로 채움)
+      if(isPaused&&localMap[id]){
+        const {item,q}=localMap[id];
+        parentEntries.push({q,obj:item});
+        return;
+      }
+      const quadLabel=props['사분면']?.multi_select?.[0]?.name||'Someday';
+      let q={'Today':'today','This Week':'week','This Month':'month','Someday':'someday'}[quadLabel]||'someday';
       // 마감일 기준으로 사분면 재배치 (완료 안 된 항목만)
       if(!done&&dueDate){
-        const now=new Date();
         const days=(dueDate-now)/86400000;
         const todayStr=formatDate(now);
         const dueDateStr=formatDate(dueDate);
@@ -1700,7 +1709,19 @@ async function loadTodoFromNotion(){
         else if(days<=30) q='month';
         else q='someday';
       }
-      newTodo[q].push({text,memo,time,dueDate,done,doneAt,addedAt:new Date(),notionId:id,subs:localSubs[id]||[]});
+      parentEntries.push({q,obj:{text,memo,time,dueDate,done,doneAt,addedAt:new Date(),notionId:id,subs:[]}});
+    });
+    // 2차 패스: 부모를 newTodo에 배치하고 인덱스 기록
+    parentEntries.forEach(({q,obj})=>{
+      if(!obj.subs)obj.subs=[];
+      newTodo[q].push(obj);
+      if(obj.notionId)idToParentIdx[obj.notionId]={q,idx:newTodo[q].length-1};
+    });
+    // 3차 패스: 하위업무를 부모의 subs에 병합
+    subEntries.forEach(({parentId,sub})=>{
+      const loc=idToParentIdx[parentId];
+      if(!loc)return; // 부모를 찾을 수 없으면 스킵(고아 항목)
+      newTodo[loc.q][loc.idx].subs.push(sub);
     });
     todoData=newTodo;
     saveTodoToStorage();
@@ -1746,7 +1767,15 @@ function openTodoDetail(q,idx,parentQ,parentI){
   document.getElementById('td-edit-date').value=d?formatDate(d):'';
   document.getElementById('td-edit-date-picker').value=d?formatDate(d):'';
   const t12=to12h(item.time||'');
-  document.getElementById('td-edit-time').value=t12.time;
+  if(t12.time){
+    const [h,m]=t12.time.split(':');
+    document.getElementById('td-time-hour-select').value=h;
+    let mm=Math.round(parseInt(m)/5)*5;if(mm>=60)mm=55;
+    document.getElementById('td-time-min-select').value=String(mm);
+  }else{
+    document.getElementById('td-time-hour-select').value='';
+    document.getElementById('td-time-min-select').value='';
+  }
   document.getElementById('td-edit-ampm').value=t12.ampm;
   // PARENT 셀렉트
   const parentSel=document.getElementById('td-parent-select');
@@ -1782,7 +1811,16 @@ async function saveTodoEdit(){
   const text=document.getElementById('td-edit-text').value.trim();if(!text)return;
   const memo=document.getElementById('td-edit-memo').value.trim();
   let dateVal=document.getElementById('td-edit-date').value.trim();
-  let timeVal=document.getElementById('td-edit-time').value.trim();
+  let timeVal='';
+  // 시(시/분 select)에서 값 읽어 24h로 변환
+  {
+    const hourVal=document.getElementById('td-time-hour-select').value;
+    const minVal=document.getElementById('td-time-min-select').value;
+    if(hourVal!==''&&minVal!==''){
+      const ampm=document.getElementById('td-edit-ampm').value;
+      timeVal=to24h(`${hourVal}:${minVal.padStart(2,'0')}`,ampm);
+    }
+  }
   // 날짜 형식 검증 (YYYY-MM-DD, YYYY.MM.DD, YYYY/MM/DD 등 허용 후 정규화)
   if(dateVal){
     const dm=dateVal.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/);
@@ -1791,16 +1829,6 @@ async function saveTodoEdit(){
       if(isNaN(new Date(dateVal+'T00:00:00').getTime())){showToast('날짜 형식을 확인해주세요 (YYYY-MM-DD)');return;}
     }else{
       showToast('날짜 형식을 확인해주세요 (YYYY-MM-DD)');return;
-    }
-  }
-  // 시간 형식 검증 (12시간제 H:MM, 1~12) + AM/PM 적용 → 24h로 저장
-  if(timeVal){
-    const tm=timeVal.match(/^(\d{1,2}):(\d{2})$/);
-    const ampm=document.getElementById('td-edit-ampm').value;
-    if(tm&&parseInt(tm[1])>=1&&parseInt(tm[1])<=12&&parseInt(tm[2])<60){
-      timeVal=to24h(`${parseInt(tm[1])}:${tm[2]}`,ampm);
-    }else{
-      showToast('시간 형식을 확인해주세요 (1~12:MM)');return;
     }
   }
   const newQuad=currentEditQuad||currentDetailQuad;
@@ -1834,7 +1862,7 @@ async function saveTodoEdit(){
         todoData[newPQ][ni].subs=todoData[newPQ][ni].subs||[];
         todoData[newPQ][ni].subs.push(sub);
         if(sub.notionId&&todoData[newPQ][ni].notionId){
-          fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'상위항목':{relation:[{id:todoData[newPQ][ni].notionId}]}}})}).catch(console.error);
+          fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({icon:{type:'emoji',emoji:'🔹'},properties:{'이름':{title:[{text:{content:text}}]},'상위 항목':{relation:[{id:todoData[newPQ][ni].notionId}]}}})}).catch(console.error);
         }
         closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
       }
@@ -1842,13 +1870,14 @@ async function saveTodoEdit(){
       // None 선택 → 독립 투두로
       parent.subs.splice(currentSubSi,1);
       todoData[currentDetailQuad].push({text,memo,time:timeVal,dueDate:sub.dueDate,done:sub.done,doneAt:sub.doneAt||null,addedAt:new Date(),notionId:sub.notionId,subs:[]});
-      if(sub.notionId){fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'상위항목':{relation:[]}}})}).catch(console.error);}
+      if(sub.notionId){fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'상위 항목':{relation:[]},'사분면':{multi_select:[{name:QUAD_CFG[currentDetailQuad].label}]}}})}).catch(console.error);}
       closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
     }
     if(sub.notionId){
       const props={'이름':{title:[{text:{content:text}}]}};
       if(sub.dueDate)props['마감일']={date:{start:formatDate(sub.dueDate)}};else props['마감일']={date:null};
       if(timeVal)props['시간']={rich_text:[{text:{content:timeVal}}]};else props['시간']={rich_text:[]};
+      if(memo)props['메모']={rich_text:[{text:{content:memo}}]};else props['메모']={rich_text:[]};
       fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
     }
     saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();closeTodoDetail();showToast('Updated!');return;
@@ -1877,7 +1906,7 @@ async function saveTodoEdit(){
     newParent.subs=newParent.subs||[];
     newParent.subs.push({text,memo,time:timeVal,dueDate:item.dueDate,done:item.done,doneAt:item.doneAt||null,notionId:item.notionId});
     if(item.notionId&&newParent.notionId){
-      fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'상위항목':{relation:[{id:newParent.notionId}]}}})}).catch(console.error);
+      fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({icon:{type:'emoji',emoji:'🔹'},properties:{'이름':{title:[{text:{content:text}}]},'상위 항목':{relation:[{id:newParent.notionId}]}}})}).catch(console.error);
     }
     closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
   }
@@ -1907,7 +1936,6 @@ async function saveTodoEdit(){
 function preventBodyScroll(e){if(!e.target.closest('.todo-detail-sheet'))e.preventDefault();}
 function closeTodoDetail(){
   document.getElementById('todo-detail-popup').classList.remove('open');
-  document.getElementById('td-time-dropdown-panel')?.classList.add('hidden');
   document.body.style.overflow='';
   document.body.removeEventListener('touchmove',preventBodyScroll);
 }
@@ -1922,8 +1950,41 @@ function renderSubList(){
       <button onclick="event.stopPropagation();deleteSubItem(${i})" style="font-family:'Montserrat',sans-serif;font-size:10px;color:var(--rule);background:none;border:none;cursor:pointer;padding:0 4px;flex-shrink:0;">✕</button>
     </div>`).join('');
 }
-function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];item.subs[i].done=!item.subs[i].done;if(item.subs[i].notionId)updateTodoNotionDone(item.subs[i].notionId,item.subs[i].done);renderSubList();renderAllQuads();saveTodoToStorage();}
-function addSubTodo(){const text=document.getElementById('td-sub-input').value.trim();if(!text)return;const item=todoData[currentDetailQuad][currentDetailIdx];if(!item.subs)item.subs=[];const sub={text,done:false,notionId:null};item.subs.push(sub);document.getElementById('td-sub-input').value='';renderSubList();renderAllQuads();saveTodoToStorage();saveSubTodoToNotion(text,item.notionId).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});}
+function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];const sub=item.subs[i];sub.done=!sub.done;sub.doneAt=sub.done?new Date().toISOString():null;if(sub.notionId)updateTodoNotionDoneFull(sub.notionId,sub.done);renderSubList();renderAllQuads();saveTodoToStorage();}
+// 현재 폼에 입력된 상위업무 필드(제목/메모/마감일/시간)를 item에 동기화하고 노션에 PATCH
+function syncParentFieldsFromForm(){
+  if(currentSubSi>=0)return; // 하위업무 편집 중이면 스킵
+  const item=todoData[currentDetailQuad]?.[currentDetailIdx];
+  if(!item)return;
+  const text=document.getElementById('td-edit-text').value.trim();
+  const memo=document.getElementById('td-edit-memo').value.trim();
+  let dateVal=document.getElementById('td-edit-date').value.trim();
+  let timeVal='';
+  const hourVal=document.getElementById('td-time-hour-select').value;
+  const minVal=document.getElementById('td-time-min-select').value;
+  if(hourVal!==''&&minVal!==''){
+    const ampm=document.getElementById('td-edit-ampm').value;
+    timeVal=to24h(`${hourVal}:${minVal.padStart(2,'0')}`,ampm);
+  }
+  if(dateVal){
+    const dm=dateVal.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/);
+    if(dm)dateVal=`${dm[1]}-${dm[2].padStart(2,'0')}-${dm[3].padStart(2,'0')}`;
+    else dateVal='';
+  }
+  if(text)item.text=text;
+  item.memo=memo;
+  item.time=timeVal;
+  item.dueDate=dateVal&&!isNaN(new Date(dateVal+'T00:00:00').getTime())?new Date(dateVal+'T23:59:59'):null;
+  saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();
+  if(item.notionId){
+    const props={'이름':{title:[{text:{content:item.text}}]}};
+    if(item.dueDate)props['마감일']={date:{start:formatDate(item.dueDate)}};else props['마감일']={date:null};
+    if(memo)props['메모']={rich_text:[{text:{content:memo}}]};else props['메모']={rich_text:[]};
+    if(timeVal)props['시간']={rich_text:[{text:{content:timeVal}}]};else props['시간']={rich_text:[]};
+    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
+  }
+}
+function addSubTodo(){const text=document.getElementById('td-sub-input').value.trim();if(!text)return;syncParentFieldsFromForm();const item=todoData[currentDetailQuad][currentDetailIdx];if(!item.subs)item.subs=[];const sub={text,done:false,notionId:null};item.subs.push(sub);document.getElementById('td-sub-input').value='';renderSubList();renderAllQuads();saveTodoToStorage();saveSubTodoToNotion(text,item.notionId).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});}
 function deleteTodoItem(){if(!confirm('Delete? This cannot be undone.'))return;const _di=todoData[currentDetailQuad][currentDetailIdx];todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();if(currentTodoView==='week')renderWeeklyView();showToast('Deleted!');if(_di&&_di.notionId){fetch(WORKER_URL+'/notion/pages/'+_di.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));}}
 
 // 주간뷰 드래그로 날짜 변경
@@ -2032,7 +2093,7 @@ function endTodoDrag(targetQ,targetItemEl){
       parent.subs.push(sub);
       // 노션 상위항목 연결
       if(item.notionId&&parent.notionId){
-        fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'상위항목':{relation:[{id:parent.notionId}]}}})}).catch(console.error);
+        fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({icon:{type:'emoji',emoji:'🔹'},properties:{'상위 항목':{relation:[{id:parent.notionId}]}}})}).catch(console.error);
       }
       saveTodoToStorage();renderAllQuads();showToast('하위업무로 편입!');
       todoDragItem=null;todoDragQ=null;todoDragI=null;todoDragSI=null;
@@ -2078,7 +2139,8 @@ function endTodoDrag(targetQ,targetItemEl){
 function toggleSubTodoInline(q,i,si,e){
   e.stopPropagation();
   const sub=todoData[q][i].subs[si];sub.done=!sub.done;
-  if(sub.notionId)updateTodoNotionDone(sub.notionId,sub.done);
+  sub.doneAt=sub.done?new Date().toISOString():null;
+  if(sub.notionId)updateTodoNotionDoneFull(sub.notionId,sub.done);
   renderAllQuads();saveTodoToStorage();
 }
 function detachSubTodo(q,i,si){
@@ -2090,7 +2152,7 @@ function detachSubTodo(q,i,si){
   todoData[q].push(newItem);
   // 노션 상위항목 연결 해제
   if(sub.notionId){
-    fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'상위항목':{relation:[]}}})}).catch(console.error);
+    fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({icon:{type:'emoji',emoji:'📁'},properties:{'상위 항목':{relation:[]},'사분면':{multi_select:[{name:QUAD_CFG[q].label}]}}})}).catch(console.error);
   }
   closeTodoDetail();saveTodoToStorage();renderAllQuads();
   if(currentTodoView==='week')renderWeeklyView();
@@ -2282,7 +2344,7 @@ async function loadBrainFromNotion(){
     const newItems=[];
     data.results.forEach(page=>{
       const id=page.id;
-      const text=page.properties['이름']?.title?.map(t=>t.plain_text).join('')||'';
+      const text=page.properties['제목']?.title?.map(t=>t.plain_text).join('')||'';
       if(!text)return;
       if(localIds.has(id)){
         // 로컬 항목 유지
@@ -2311,7 +2373,7 @@ async function addBrainItem(){
 }
 async function saveBrainToNotion(text){
   try{
-    const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'입력일':{date:{start:new Date().toISOString()}},'처리완료':{checkbox:false}}})});
+    const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'제목':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'입력일':{date:{start:new Date().toISOString()}},'처리완료':{checkbox:false}}})});
     const d=await r.json();
     if(!r.ok){console.error('brain save failed',r.status,d);return null;}
     return d.id||null;
@@ -2967,7 +3029,7 @@ async function loadInbox(){
       const speakBtn=document.createElement('button');
       speakBtn.style.cssText='font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
       speakBtn.textContent='🔊 READ';
-      const _text=content.split('\n').filter(line=>!/^https?:\/\//.test(line.trim())).join('\n');
+      const _text=content.split('\n').filter(line=>!/^https?:\/\//.test(line.trim())).join('\n').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu,'').replace(/[ \t]+/g,' ').replace(/^\s+/gm,'');
       speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;const _voice=getSelectedVoice();if(_voice)utt.voice=_voice;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
       bubble.appendChild(speakBtn);
       list.appendChild(bubble);
@@ -2999,37 +3061,11 @@ function init(){
   document.getElementById('td-edit-date-picker').addEventListener('change',e=>{
     document.getElementById('td-edit-date').value=e.target.value;
   });
-  // 시간 드롭다운 패널 초기화 (시: 1~12, 분: 5분 단위)
+  // 시간 select 옵션 초기화 (시: 1~12, 분: 5분 단위, '없음' 옵션 포함)
   const hourSel=document.getElementById('td-time-hour-select');
   const minSel=document.getElementById('td-time-min-select');
   for(let h=1;h<=12;h++)hourSel.innerHTML+=`<option value="${h}">${h}시</option>`;
   for(let m=0;m<60;m+=5)minSel.innerHTML+=`<option value="${m}">${String(m).padStart(2,'0')}분</option>`;
-  const timePanel=document.getElementById('td-time-dropdown-panel');
-  document.getElementById('td-time-dropdown-btn').addEventListener('click',e=>{
-    e.stopPropagation();
-    // 현재 입력값으로 드롭다운 초기화
-    const cur=document.getElementById('td-edit-time').value.trim();
-    const tm=cur.match(/^(\d{1,2}):(\d{2})$/);
-    if(tm){
-      hourSel.value=String(parseInt(tm[1])||1);
-      // 분은 5분 단위로 가장 가까운 값으로 스냅
-      let mm=Math.round(parseInt(tm[2])/5)*5;if(mm>=60)mm=55;
-      minSel.value=String(mm);
-    }
-    timePanel.classList.toggle('hidden');
-  });
-  function applyTimeDropdown(){
-    const h=hourSel.value||'12';
-    const m=(minSel.value||'0').padStart(2,'0');
-    document.getElementById('td-edit-time').value=`${h}:${m}`;
-  }
-  hourSel.addEventListener('change',applyTimeDropdown);
-  minSel.addEventListener('change',applyTimeDropdown);
-  document.addEventListener('click',e=>{
-    if(!timePanel.contains(e.target)&&e.target.id!=='td-time-dropdown-btn'){
-      timePanel.classList.add('hidden');
-    }
-  });
   loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();loadBrainFromStorage();
   // 로컬 데이터로 먼저 렌더
   autoMoveTodos();renderAllQuads();renderCart();renderBrainList();renderBookList();
