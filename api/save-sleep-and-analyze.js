@@ -1,15 +1,19 @@
 import { handleSaveSleepAndAnalyze } from '../lib/core.js';
+import { toWebRequest, sendWebResponse } from '../lib/adapter.js';
 
 export const config = {
-  runtime: 'edge',
   regions: ['icn1'],
+  api: {
+    bodyParser: false,
+  },
 };
 
-export default async function handler(request) {
-  const url = new URL(request.url);
+export default async function handler(req, res) {
+  const url = new URL(req.url, `https://${req.headers.host}`);
 
   if (url.searchParams.get('secret') !== process.env.AUTH_SECRET) {
-    return new Response('Unauthorized', { status: 401 });
+    res.status(401).send('Unauthorized');
+    return;
   }
 
   const notionHeaders = {
@@ -18,5 +22,7 @@ export default async function handler(request) {
     'Content-Type': 'application/json'
   };
 
-  return handleSaveSleepAndAnalyze(request, process.env, notionHeaders);
+  const webRequest = toWebRequest(req);
+  const response = await handleSaveSleepAndAnalyze(webRequest, process.env, notionHeaders);
+  await sendWebResponse(response, res);
 }
