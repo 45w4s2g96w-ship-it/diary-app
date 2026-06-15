@@ -709,17 +709,17 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')document.getElementById('todo-memo-input').focus()">
     <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">MEMO <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
     <input class="popup-input-sm" id="todo-memo-input" placeholder="메모 (링크, 참고사항...)" onkeydown="if(event.key==='Enter')document.getElementById('todo-date-input').focus()">
-    <div style="display:flex;flex-direction:column;gap:0;">
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px;">
       <div>
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-        <input type="date" id="todo-date-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;background:transparent;border:1.5px solid var(--rule);padding:8px 10px;outline:none;margin-bottom:10px;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
+        <input type="date" id="todo-date-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;background:transparent;border:1.5px solid var(--rule);padding:8px 10px;outline:none;color:var(--ink);border-radius:1px;" onchange="onTodoDateInputChange()">
       </div>
       <div>
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">TIME <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;">
-          <select id="todo-time-hour" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="">--</option></select>
-          <select id="todo-time-min" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="">--</option></select>
-          <select id="todo-time-ampm" style="flex:1;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+          <select id="todo-time-hour" style="flex:1 1 0;min-width:48px;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="">--</option></select>
+          <select id="todo-time-min" style="flex:1 1 0;min-width:48px;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="">--</option></select>
+          <select id="todo-time-ampm" style="flex:1 1 0;min-width:48px;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
           <button onclick="document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 10px;cursor:pointer;border-radius:1px;white-space:nowrap;flex-shrink:0;">✕</button>
         </div>
       </div>
@@ -1698,6 +1698,7 @@ function toggleCurrentItemDone(){
     item.done=!item.done;
     item.doneAt=item.done?new Date().toISOString():null;
     if(item.notionId)updateTodoNotionDoneFull(item.notionId,item.done);
+    syncParentDoneFromSubs(parent);
   } else {
     item=todoData[currentDetailQuad][currentDetailIdx];
     item.done=!item.done;
@@ -2153,7 +2154,21 @@ function deleteSubItem(si){
   renderSubList();renderAllQuads();saveTodoToStorage();
   if(currentTodoView==='week')renderWeeklyView();
 }
-function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];const sub=item.subs[i];sub.done=!sub.done;sub.doneAt=sub.done?new Date().toISOString():null;if(sub.notionId)updateTodoNotionDoneFull(sub.notionId,sub.done);renderSubList();renderAllQuads();saveTodoToStorage();}
+function syncParentDoneFromSubs(item){
+  if(!item.subs||!item.subs.length)return false;
+  const allDone=item.subs.every(s=>s.done);
+  if(item.done===allDone)return false;
+  item.done=allDone;
+  item.doneAt=allDone?new Date().toISOString():null;
+  if(item.notionId){
+    const props={'완료':{checkbox:item.done}};
+    if(item.done)props['완료일']={date:{start:formatDate(new Date())}};
+    else props['완료일']={date:null};
+    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(e=>console.error(e));
+  }
+  return true;
+}
+function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];const sub=item.subs[i];sub.done=!sub.done;sub.doneAt=sub.done?new Date().toISOString():null;if(sub.notionId)updateTodoNotionDoneFull(sub.notionId,sub.done);syncParentDoneFromSubs(item);renderSubList();renderAllQuads();saveTodoToStorage();}
 // 현재 폼에 입력된 상위업무 필드(제목/메모/마감일/시간)를 item에 동기화하고 노션에 PATCH
 function syncParentFieldsFromForm(){
   if(currentSubSi>=0)return; // 하위업무 편집 중이면 스킵
@@ -2341,9 +2356,11 @@ function endTodoDrag(targetQ,targetItemEl){
 }
 function toggleSubTodoInline(q,i,si,e){
   if(e)e.stopPropagation();
-  const sub=todoData[q][i].subs[si];sub.done=!sub.done;
+  const item=todoData[q][i];
+  const sub=item.subs[si];sub.done=!sub.done;
   sub.doneAt=sub.done?new Date().toISOString():null;
   if(sub.notionId)updateTodoNotionDoneFull(sub.notionId,sub.done);
+  syncParentDoneFromSubs(item);
   renderAllQuads();saveTodoToStorage();
   if(currentTodoView==='week')renderWeeklyView();
 }
