@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -3270,36 +3269,75 @@ async function loadInbox(){
   const list=document.getElementById('inbox-list');
   list.innerHTML='<div class="inbox-empty">Loading...</div>';
   try{
-    const res=await fetch(`${WORKER_URL}/notion/databases/${MORNING_BRIEFING_DB}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'날짜',direction:'descending'}],page_size:14})});
+    const d=getDiaryDate();const dateStr=formatDate(d);
+    const res=await fetch(`${WORKER_URL}/notion/databases/${MORNING_BRIEFING_DB}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}},page_size:1})});
     const data=await res.json();
-    const results=data.results||[];
-    if(!results.length){
+    const page=(data.results||[])[0];
+    if(!page){
       list.innerHTML='<div class="inbox-empty">Your morning briefing will appear here.</div>';
       return;
     }
+    // 본문 블록 조회 (페이지네이션)
+    let blocks=[];let cursor=null;
+    do{
+      const url=WORKER_URL+'/notion/blocks/'+page.id+'/children'+(cursor?'?start_cursor='+cursor:'');
+      const br=await fetch(url,{headers:notionHeaders()});
+      const bd=await br.json();
+      blocks=blocks.concat(bd.results||[]);
+      cursor=bd.has_more?bd.next_cursor:null;
+    }while(cursor);
+
     list.innerHTML='';
     const days=['일','월','화','수','목','금','토'];
-    // URL을 클릭 가능한 링크로 변환
-    const linkify=t=>t.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" style="color:inherit;text-decoration:none;">🔗</a>');
-    results.forEach(page=>{
-      const props=page.properties;
-      const dateStr=props['날짜']?.date?.start||'';
-      const content=props['내용']?.rich_text?.map(t=>t.plain_text).join('')||'';
-      if(!dateStr||!content)return;
-      const d=new Date(dateStr+'T00:00:00');
-      const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
-      const divEl=document.createElement('div');divEl.className='inbox-date-divider';divEl.textContent=dateLabel;
-      list.appendChild(divEl);
-      const bubble=document.createElement('div');bubble.className='inbox-bubble';
-      bubble.innerHTML=`<div class="inbox-bubble-briefing">${linkify(content.replace(/\n/g,'<br>'))}</div>`;
-      const speakBtn=document.createElement('button');
-      speakBtn.style.cssText='font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
-      speakBtn.textContent='🔊 READ';
-      const _text=content.split('\n').filter(line=>!/^https?:\/\//.test(line.trim())).join('\n').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu,'').replace(/[ \t]+/g,' ').replace(/^\s+/gm,'');
-      speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;const _voice=getSelectedVoice();if(_voice)utt.voice=_voice;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
-      bubble.appendChild(speakBtn);
-      list.appendChild(bubble);
+    const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+    const divEl=document.createElement('div');divEl.className='inbox-date-divider';divEl.textContent=dateLabel;
+    list.appendChild(divEl);
+
+    // URL을 클릭 가능한 링크로 변환 (plain text용)
+
+    const htmlParts=[];
+    const textParts=[];
+    blocks.forEach(block=>{
+      if(block.type==='divider'){
+        htmlParts.push('');
+        textParts.push('');
+        return;
+      }
+      if(block.type!=='paragraph')return;
+      const rich=block.paragraph?.rich_text||[];
+      if(!rich.length){
+        htmlParts.push('');
+        textParts.push('');
+        return;
+      }
+      const isHeading=rich.some(t=>t.annotations?.bold&&t.annotations?.underline);
+      let lineHtml='';
+      let lineText='';
+      rich.forEach(t=>{
+        const content=t.plain_text||t.text?.content||'';
+        lineText+=content;
+        let piece=content;
+        if(t.text?.link?.url){
+          piece=`<a href="${t.text.link.url}" target="_blank" style="color:inherit;text-decoration:underline;">${content}</a>`;
+        }else if(t.annotations?.bold){
+          piece=`<b>${content}</b>`;
+        }
+        lineHtml+=piece;
+      });
+      if(isHeading)lineHtml=`<b>${lineHtml}</b>`;
+      htmlParts.push(lineHtml);
+      textParts.push(lineText);
     });
+
+    const bubble=document.createElement('div');bubble.className='inbox-bubble';
+    bubble.innerHTML=`<div class="inbox-bubble-briefing">${htmlParts.join('<br>')}</div>`;
+    const speakBtn=document.createElement('button');
+    speakBtn.style.cssText='font-family:Montserrat,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
+    speakBtn.textContent='🔊 READ';
+    const _text=textParts.filter(line=>!/^https?:\/\//.test(line.trim())).join('\n').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu,'').replace(/[ \t]+/g,' ').replace(/^\s+/gm,'');
+    speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;const _voice=getSelectedVoice();if(_voice)utt.voice=_voice;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
+    bubble.appendChild(speakBtn);
+    list.appendChild(bubble);
     requestAnimationFrame(()=>{list.scrollTop=0;});
   }catch(e){list.innerHTML='<div class="inbox-empty">Load failed</div>';}
 }
