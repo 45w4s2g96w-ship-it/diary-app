@@ -1,15 +1,16 @@
 import { runDiaryAnalysis } from '../lib/core.js';
+import { sendWebResponse } from '../lib/adapter.js';
 
 export const config = {
-  runtime: 'edge',
   regions: ['icn1'],
 };
 
-export default async function handler(request) {
-  const url = new URL(request.url);
+export default async function handler(req, res) {
+  const url = new URL(req.url, `https://${req.headers.host}`);
 
   if (url.searchParams.get('secret') !== process.env.AUTH_SECRET) {
-    return new Response('Unauthorized', { status: 401 });
+    res.status(401).send('Unauthorized');
+    return;
   }
 
   const notionHeaders = {
@@ -24,5 +25,6 @@ export default async function handler(request) {
   const defaultDate = yesterday.toISOString().split('T')[0];
   const yesterdayStr = url.searchParams.get('date') || defaultDate;
 
-  return runDiaryAnalysis(process.env, notionHeaders, yesterdayStr, null);
+  const response = await runDiaryAnalysis(process.env, notionHeaders, yesterdayStr, null);
+  await sendWebResponse(response, res);
 }
