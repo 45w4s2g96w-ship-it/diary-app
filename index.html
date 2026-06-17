@@ -221,13 +221,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 @media (min-width: 768px) {
   #weekly-list { display: flex; flex-direction: column; height: 100%; }
   #weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .week-overdue-row { flex-shrink: 0; display: flex; border-bottom: 2px solid var(--ink); min-height: 36px; }
+  .week-overdue-row { flex-shrink: 0; display: flex; border-bottom: 2px solid var(--ink); min-height: 40px; }
   .week-overdue-label { flex-shrink: 0; width: 80px; padding: 8px 10px; border-right: 1px solid var(--rule); font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: #c0392b; display: flex; align-items: center; }
   .week-overdue-items { flex: 1; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-  .week-cols { flex: 1; display: flex; flex-wrap: wrap; overflow-y: auto; min-height: 0; }
-  .week-col { flex: 0 0 25%; display: flex; flex-direction: column; border-right: 1px solid var(--rule); min-width: 0; }
+  .week-cols { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; min-height: 0; }
+  .week-col { display: flex; flex-direction: column; border-right: 1px solid var(--rule); min-width: 0; overflow: hidden; }
   .week-col:nth-child(4n) { border-right: none; }
-  .week-col:nth-child(n+5) { border-top: 1px solid var(--ink); }
+  .week-col:nth-child(n+5) { border-top: 2px solid var(--ink); }
   .week-col:last-child { border-right: none; }
   .week-col-header { flex-shrink: 0; padding: 6px 8px; border-bottom: 1px solid var(--rule); background: transparent; }
   .week-col-header.today { background: rgba(0,0,0,0.04); }
@@ -598,15 +598,16 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <!-- TODO -->
   <div class="tab-content" id="tab-todo">
-    <div style="padding:12px var(--pad-h) 0;border-bottom:2px solid var(--ink);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;">
-      <div class="todo-toggle" style="margin-right:auto;">
-        <button class="toggle-btn active" id="toggle-week" onclick="switchTodoView('week')">WEEK</button>
-        <button class="toggle-btn inactive" id="toggle-quad" onclick="switchTodoView('quad')">QUAD</button>
+    <div class="section-header" style="padding-left:var(--pad-h);">
+      <div style="display:flex;align-items:baseline;gap:0;">
+        <button id="toggle-week" onclick="switchTodoView('week')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink);cursor:pointer;">WEEK</button>
+        <div style="width:2px;height:20px;background:var(--ink);margin:0 12px;flex-shrink:0;align-self:center;"></div>
+        <button id="toggle-quad" onclick="switchTodoView('quad')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink-muted);cursor:pointer;">QUAD</button>
       </div>
-      <div class="section-title" id="todo-section-title" style="display:none;">To-Do</div>
-      <div class="todo-toggle">
-        <button class="toggle-btn active" id="toggle-todo" onclick="switchTodoCart('todo')">TO-DO</button>
-        <button class="toggle-btn inactive" id="toggle-cart" onclick="switchTodoCart('cart')">CART</button>
+      <div style="display:flex;align-items:baseline;gap:0;">
+        <button id="toggle-todo" onclick="switchTodoCart('todo')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink);cursor:pointer;">TODO</button>
+        <div style="width:2px;height:20px;background:var(--ink);margin:0 12px;flex-shrink:0;align-self:center;"></div>
+        <button id="toggle-cart" onclick="switchTodoCart('cart')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink-muted);cursor:pointer;">CART</button>
       </div>
     </div>
     <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
@@ -1263,8 +1264,8 @@ function switchTodoView(view){
   const isPC=window.innerWidth>=768;
   document.getElementById('weekly-view').style.display=view==='week'?(isPC?'flex':'block'):'none';
   document.getElementById('quad-view').style.display=view==='quad'?'flex':'none';
-  document.getElementById('toggle-week').className='toggle-btn '+(view==='week'?'active':'inactive');
-  document.getElementById('toggle-quad').className='toggle-btn '+(view==='quad'?'active':'inactive');
+  document.getElementById('toggle-week').style.color=view==='week'?'var(--ink)':'var(--ink-muted)';
+  document.getElementById('toggle-quad').style.color=view==='quad'?'var(--ink)':'var(--ink-muted)';
   if(view==='week')renderWeeklyView();
   else renderAllQuads();
 }
@@ -1556,8 +1557,8 @@ function switchTodoCart(pane){
   const tp=document.getElementById('todo-pane'),cp=document.getElementById('cart-pane');
   const tt=document.getElementById('toggle-todo'),tc=document.getElementById('toggle-cart');
   const title=document.getElementById('todo-section-title');
-  if(pane==='todo'){tp.style.display='flex';cp.style.display='none';tt.className='toggle-btn active';tc.className='toggle-btn inactive';title.textContent='To-Do';}
-  else{tp.style.display='none';cp.style.display='flex';tt.className='toggle-btn inactive';tc.className='toggle-btn active';title.textContent='Cart';}
+  if(pane==='todo'){tp.style.display='flex';cp.style.display='none';tt.style.color='var(--ink)';tc.style.color='var(--ink-muted)';}
+  else{tp.style.display='none';cp.style.display='flex';tt.style.color='var(--ink-muted)';tc.style.color='var(--ink)';}
 }
 
 /* Todo */
