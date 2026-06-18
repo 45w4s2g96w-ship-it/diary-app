@@ -225,7 +225,7 @@ export async function runDiaryAnalysis(env, notionHeaders, yesterdayStr, sleepIn
 
       if (isTarget) {
         targetText += `\n\n[날짜: ${pageDate} (분석 대상)]\n`;
-        targetText += await extractText(page.id, 0, globalFetchCount, 10);
+        targetText += await extractText(page.id, 0, globalFetchCount, 25);
       } else {
         // 일기 요약 없으면 기록 없는 날 → 스킵
         const summary = page.properties['일기 요약']?.rich_text?.map(t => t.plain_text || '').join('').trim() || '';
