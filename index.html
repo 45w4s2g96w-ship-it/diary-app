@@ -119,9 +119,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-sub-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .week-sub-text.done { text-decoration: line-through; color: var(--rule); }
 .week-sub-more { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 1px 6px; border-radius: 1px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
-.week-overdue .week-day-name { color: #c0392b; }
-.week-overdue .week-day-date { color: #c0392b; }
-.section-header { padding: 28px var(--pad-h) 16px var(--pad-h); border-bottom: 2px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
+.week-overdue .week-day-name { color: #c0392b; display:none; }
+.week-overdue .week-day-date { color: #c0392b; display:none; }
+.week-row.week-overdue { display: none; }
+.section-header { padding: 28px var(--pad-h) 16px var(--pad-h); border-bottom: 1px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
 .section-title { padding-left: 0; font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
 .settings-btn { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; }
 .add-btn-sm { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; background: var(--ink); color: var(--paper); border: none; padding: 6px 12px; cursor: pointer; border-radius: 1px; }
@@ -221,10 +222,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 @media (min-width: 768px) {
   #weekly-list { display: flex; flex-direction: column; height: 100%; }
   #weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .week-overdue-row { flex-shrink: 0; display: flex; border-bottom: 2px solid var(--ink); min-height: 40px; }
+  .week-overdue-row { display: none; }
   .week-overdue-label { flex-shrink: 0; width: 80px; padding: 8px 10px; border-right: 1px solid var(--rule); font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: #c0392b; display: flex; align-items: center; }
   .week-overdue-items { flex: 1; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-  .week-cols { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; min-height: 0; }
+  .week-cols { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; min-height: 0; border-top: 1px solid var(--ink); }
   .week-col { display: flex; flex-direction: column; border-right: 1px solid var(--rule); min-width: 0; overflow: hidden; }
   .week-col:nth-child(4n) { border-right: none; }
   .week-col:nth-child(n+5) { border-top: 2px solid var(--ink); }
@@ -598,15 +599,15 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <!-- TODO -->
   <div class="tab-content" id="tab-todo">
-    <div class="section-header" style="padding-left:var(--pad-h);">
+    <div class="section-header">
       <div style="display:flex;align-items:baseline;gap:0;">
         <button id="toggle-week" onclick="switchTodoView('week')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink);cursor:pointer;">WEEK</button>
-        <div style="width:2px;height:20px;background:var(--ink);margin:0 12px;flex-shrink:0;align-self:center;"></div>
+        <div style="width:1.5px;height:18px;background:var(--ink);margin:0 14px;flex-shrink:0;align-self:center;opacity:0.35;"></div>
         <button id="toggle-quad" onclick="switchTodoView('quad')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink-muted);cursor:pointer;">QUAD</button>
       </div>
       <div style="display:flex;align-items:baseline;gap:0;">
         <button id="toggle-todo" onclick="switchTodoCart('todo')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink);cursor:pointer;">TODO</button>
-        <div style="width:2px;height:20px;background:var(--ink);margin:0 12px;flex-shrink:0;align-self:center;"></div>
+        <div style="width:1.5px;height:18px;background:var(--ink);margin:0 14px;flex-shrink:0;align-self:center;opacity:0.35;"></div>
         <button id="toggle-cart" onclick="switchTodoCart('cart')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink-muted);cursor:pointer;">CART</button>
       </div>
     </div>
@@ -1321,19 +1322,7 @@ function renderWeeklyView(){
     // ===== PC: 가로 캘린더 레이아웃 =====
     let html='';
     // 미처리 행
-    html+=`<div class="week-overdue-row"><div class="week-overdue-label">미처리</div><div class="week-overdue-items">`;
-    if(overdue.length){
-      overdue.forEach(({item,q,i})=>{
-        html+=`<div class="week-col-item" style="width:auto;flex-shrink:0;" onclick="openTodoDetail('${q}',${i})">
-          <div class="week-col-check"></div>
-          <div class="week-col-text" style="color:#c0392b;">${item.text}</div>
-        </div>`;
-      });
-    } else {
-      html+=`<span style="font-size:10px;color:var(--rule);">없음</span>`;
-    }
-    html+=`</div></div>`;
-    // 날짜 컬럼들
+    // 미처리 항목은 오늘 칼럼에 빨간 글씨로 표시 (별도 행 없음)
     html+=`<div class="week-cols">`;
     for(let d=0;d<8;d++){
       const day=new Date(now);day.setDate(now.getDate()+d);
@@ -1354,7 +1343,7 @@ function renderWeeklyView(){
         const _subBadge=_allS.length>0?`<span style="font-family:'Montserrat',sans-serif;font-size:7px;font-weight:700;color:var(--ink-muted);margin-left:3px;white-space:nowrap;">${_undoneS.length>0?'▸'+_undoneS.length:''}${_doneS>0?' ✓'+_doneS:''}</span>`:'';
         html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
-          <div class="week-col-text${item.done?' done':''}">${item.text}${timeLabel}${_subBadge}</div>
+          <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}${_subBadge}</div>
         </div>`;
         // 하위업무
         const pendingSubs=_undoneS;
@@ -1413,7 +1402,7 @@ function renderWeeklyView(){
         const subBadge=allSubs.length>0?`<span style="font-family:'Montserrat',sans-serif;font-size:7px;font-weight:700;color:var(--ink-muted);margin-left:3px;white-space:nowrap;">${pendingSubs.length>0?'▸'+pendingSubs.length:''}${doneCnt>0?' ✓'+doneCnt:''}</span>`:'';
         h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();if(!weekDragging)openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleTodo('${q}',${i},event)"></div>
-          <div class="week-item-text${item.done?' done':''}">${item.text}${timeLabel}${subBadge}</div>
+          <div class="week-item-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}${subBadge}</div>
         </div>`;
         if(hasS)h+=buildSubsHtml(item,q,i);
       });
@@ -1421,11 +1410,7 @@ function renderWeeklyView(){
     }
 
     let html='';
-    if(overdue.length){
-      html+=buildRowHtml(overdue,`<div class="week-day-name">미처리</div>`,' week-overdue',null);
-    } else {
-      html+=`<div class="week-row week-overdue"><div class="week-day-label"><div class="week-day-name">미처리</div></div><div class="week-items"><div style="font-size:10px;color:var(--rule);padding:4px 0;">없음</div></div></div>`;
-    }
+    // 미처리 항목은 오늘 칼럼에 빨간 글씨로 표시 (별도 행 없음)
     for(let d=0;d<8;d++){
       const day=new Date(now);day.setDate(now.getDate()+d);
       const dayStr=formatDate(day);const isToday=(d===0);
