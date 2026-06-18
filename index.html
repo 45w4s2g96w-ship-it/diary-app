@@ -486,6 +486,31 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .td-add-sub-input { font-size: 13px !important; }
   .setup-input { font-size: 13px !important; }
 }
+
+/* Todo 헤더 네비게이션 버튼 */
+.todo-nav-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+.todo-nav-divider {
+  width: 1.5px;
+  height: 14px;
+  background: var(--ink);
+  margin: 0 10px;
+  flex-shrink: 0;
+  opacity: 0.3;
+}
+@media (min-width: 768px) {
+  .todo-nav-btn { font-size: 30px; }
+  .todo-nav-divider { height: 20px; margin: 0 16px; }
+}
 </style>
 </head>
 <body>
@@ -599,16 +624,16 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <!-- TODO -->
   <div class="tab-content" id="tab-todo">
-    <div class="section-header">
-      <div style="display:flex;align-items:baseline;gap:0;">
-        <button id="toggle-week" onclick="switchTodoView('week')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink);cursor:pointer;">WEEK</button>
-        <div style="width:1.5px;height:18px;background:var(--ink);margin:0 14px;flex-shrink:0;align-self:center;opacity:0.35;"></div>
-        <button id="toggle-quad" onclick="switchTodoView('quad')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink-muted);cursor:pointer;">QUAD</button>
+    <div class="section-header todo-header">
+      <div style="display:flex;align-items:center;gap:0;">
+        <button id="toggle-week" onclick="switchTodoView('week')" class="todo-nav-btn" style="color:var(--ink);">WEEK</button>
+        <div class="todo-nav-divider"></div>
+        <button id="toggle-quad" onclick="switchTodoView('quad')" class="todo-nav-btn" style="color:var(--ink-muted);">QUAD</button>
       </div>
-      <div style="display:flex;align-items:baseline;gap:0;">
-        <button id="toggle-todo" onclick="switchTodoCart('todo')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink);cursor:pointer;">TODO</button>
-        <div style="width:1.5px;height:18px;background:var(--ink);margin:0 14px;flex-shrink:0;align-self:center;opacity:0.35;"></div>
-        <button id="toggle-cart" onclick="switchTodoCart('cart')" style="font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;letter-spacing:-0.02em;line-height:1;padding:0;border:none;background:transparent;color:var(--ink-muted);cursor:pointer;">CART</button>
+      <div style="display:flex;align-items:center;gap:0;">
+        <button id="toggle-todo" onclick="switchTodoCart('todo')" class="todo-nav-btn" style="color:var(--ink);">TODO</button>
+        <div class="todo-nav-divider"></div>
+        <button id="toggle-cart" onclick="switchTodoCart('cart')" class="todo-nav-btn" style="color:var(--ink-muted);">CART</button>
       </div>
     </div>
     <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
