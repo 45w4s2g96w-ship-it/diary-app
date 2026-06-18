@@ -487,6 +487,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .setup-input { font-size: 13px !important; }
 }
 
+/* 모바일에서 Book, Idea 탭 숨김 */
+@media (max-width: 767px) {
+  .tab-btn[onclick*="book"],
+  .tab-btn[onclick*="idea"] { display: none; }
+}
 /* Todo 헤더 네비게이션 버튼 */
 .todo-nav-btn {
   font-family: 'Montserrat', sans-serif;
@@ -1600,6 +1605,7 @@ function addTodoPopupSub(){
 function onTodoDateInputChange(){
   const val=document.getElementById('todo-date-input').value;
   todoPopupSelectedDate=val?new Date(val+'T23:59:59'):null;
+  // 날짜 선택 시 시간 select 초기화하지 않음 — 기존 시간 유지
 }
 function getWeekDueDate(){
   const d=new Date();d.setDate(d.getDate()+6);
@@ -1646,7 +1652,7 @@ async function confirmTodo(){
   const memo=document.getElementById('todo-memo-input').value.trim();
   const dueDate=todoPopupSelectedDate||null;
   const _th=document.getElementById('todo-time-hour').value,_tm=document.getElementById('todo-time-min').value;
-  const timeVal=(_th&&_tm)?to24h(`${_th}:${_tm.padStart(2,'0')}`,document.getElementById('todo-time-ampm').value):'';
+  const timeVal=_th?to24h(`${_th}:${(_tm||'0').padStart(2,'0')}`,document.getElementById('todo-time-ampm').value):'';
   const parentVal=document.getElementById('todo-parent-select').value;
   const subs=todoPopupSubs.filter(s=>(typeof s==='string'?s:s.text).trim());
   closeTodoPopup();
@@ -1798,7 +1804,7 @@ function renderQuad(q){
       toggleBtn.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
       div.appendChild(toggleBtn);
       if(expanded){
-        const subsToShow=allDone?allSubs:undoneSubs;
+        const subsToShow=allSubs; // 완료된 것도 표시
         subsToShow.forEach((sub)=>{
           const actualSi=(item.subs||[]).indexOf(sub);
           const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
@@ -1829,7 +1835,7 @@ async function saveTodoToNotion(quad,text,dueDate,memo,time){
   try{
     const cfg=QUAD_CFG[quad];
     const props={'이름':{title:[{text:{content:text}}]},'사분면':{select:{name:cfg.label}},'추가일':{date:{start:formatDate(new Date())}},'완료':{checkbox:false}};
-    if(dueDate&&!isNaN(new Date(dueDate)))props['마감일']={date:{start:formatDate(new Date(dueDate))}};
+    if(dueDate&&!isNaN(new Date(dueDate))){const _ds=formatDate(new Date(dueDate));props['마감일']={date:{start:time?`${_ds}T${time}:00+09:00`:_ds}};}
     if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
     if(time)props['시간']={rich_text:[{text:{content:time}}]};
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},icon:{type:'emoji',emoji:'📁'},properties:props})});
@@ -1844,7 +1850,7 @@ async function saveSubTodoToNotion(text,parentId,memo,dueDate,time){
     const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};
     if(parentId)props['상위 항목']={relation:[{id:parentId}]};
     if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
-    if(dueDate&&!isNaN(new Date(dueDate)))props['마감일']={date:{start:formatDate(new Date(dueDate))}};
+    if(dueDate&&!isNaN(new Date(dueDate))){const _ds2=formatDate(new Date(dueDate));props['마감일']={date:{start:time?`${_ds2}T${time}:00+09:00`:_ds2}};}
     if(time)props['시간']={rich_text:[{text:{content:time}}]};
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},icon:{type:'emoji',emoji:'🔹'},properties:props})});
     const data=await res.json();return data.id||null;
@@ -2016,9 +2022,9 @@ async function saveTodoEdit(){
   {
     const hourVal=document.getElementById('td-time-hour-select').value;
     const minVal=document.getElementById('td-time-min-select').value;
-    if(hourVal!==''&&minVal!==''){
+    if(hourVal!==''){
       const ampm=document.getElementById('td-edit-ampm').value;
-      timeVal=to24h(`${hourVal}:${minVal.padStart(2,'0')}`,ampm);
+      timeVal=to24h(`${hourVal}:${(minVal||'0').padStart(2,'0')}`,ampm);
     }
   }
   // 날짜 형식 검증 (YYYY-MM-DD, YYYY.MM.DD, YYYY/MM/DD 등 허용 후 정규화)
