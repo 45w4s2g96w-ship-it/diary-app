@@ -3,6 +3,23 @@
 // sleepInfo: { sleep_start, sleep_end } 또는 null
 // ============================================
 export async function runDiaryAnalysis(env, notionHeaders, yesterdayStr, sleepInfo) {
+    // ---- 디버그/안정성용: Notion fetch 실패(429 등) 캡처 + 자동 재시도 ----
+    const fetchErrors = [];
+    async function safeNotionFetch(url, retries = 2) {
+      for (let i = 0; i <= retries; i++) {
+        const res = await fetch(url, { headers: notionHeaders });
+        if (res.ok) return res.json();
+        if (res.status === 429 && i < retries) {
+          await new Promise(r => setTimeout(r, 400 * (i + 1)));
+          continue;
+        }
+        const body = await res.text().catch(() => '');
+        fetchErrors.push({ url, status: res.status, body: body.slice(0, 200) });
+        return { results: [] };
+      }
+      return { results: [] };
+    }
+
     function parseRichText(text) {
       if (!text) return [{ type: 'text', text: { content: '' } }];
       const lines = text.split('\n');
@@ -109,11 +126,9 @@ export async function runDiaryAnalysis(env, notionHeaders, yesterdayStr, sleepIn
       if (fetchCount.n >= maxFetch) return '';
       fetchCount.n++;
 
-      const res = await fetch(
-        `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`,
-        { headers: notionHeaders }
+      const data = await safeNotionFetch(
+        `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`
       );
-      const data = await res.json();
       const columns = data.results || [];
 
       let planText = '';
@@ -125,11 +140,9 @@ export async function runDiaryAnalysis(env, notionHeaders, yesterdayStr, sleepIn
         if (fetchCount.n >= maxFetch) break;
         fetchCount.n++;
 
-        const colRes = await fetch(
-          `https://api.notion.com/v1/blocks/${col.id}/children?page_size=100`,
-          { headers: notionHeaders }
+        const colData = await safeNotionFetch(
+          `https://api.notion.com/v1/blocks/${col.id}/children?page_size=100`
         );
-        const colData = await colRes.json();
         const colBlocks = colData.results || [];
 
         // 첫 번째 컬럼 = Plan, 두 번째 = Goal
@@ -158,11 +171,9 @@ export async function runDiaryAnalysis(env, notionHeaders, yesterdayStr, sleepIn
       if (depth > 5 || fetchCount.n >= maxFetch) return '';
       fetchCount.n++;
 
-      const res = await fetch(
-        `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`,
-        { headers: notionHeaders }
+      const data = await safeNotionFetch(
+        `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`
       );
-      const data = await res.json();
       let text = '';
 
       for (const block of data.results || []) {
@@ -178,11 +189,9 @@ export async function runDiaryAnalysis(env, notionHeaders, yesterdayStr, sleepIn
       if (depth > 5 || fetchCount.n >= maxFetch) return '';
       fetchCount.n++;
 
-      const res = await fetch(
-        `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`,
-        { headers: notionHeaders }
+      const data = await safeNotionFetch(
+        `https://api.notion.com/v1/blocks/${blockId}/children?page_size=100`
       );
-      const data = await res.json();
       let text = '';
 
       for (const block of data.results || []) {
@@ -225,7 +234,7 @@ export async function runDiaryAnalysis(env, notionHeaders, yesterdayStr, sleepIn
 
       if (isTarget) {
         targetText += `\n\n[날짜: ${pageDate} (분석 대상)]\n`;
-        targetText += await extractText(page.id, 0, globalFetchCount, 25);
+        targetText += await extractText(page.id, 0, globalFetchCount, 40);
       } else {
         // 일기 요약 없으면 기록 없는 날 → 스킵
         const summary = page.properties['일기 요약']?.rich_text?.map(t => t.plain_text || '').join('').trim() || '';
@@ -435,8 +444,17 @@ JSON만 응답 (격려 외 나머지는 빈 문자열): {"에너지레벨":"","�
       );
     }
 
+    // ---- 디버그용: targetText / fetchErrors 포함. 문제 해결되면 이 두 필드는 빼도 됨 ----
     return new Response(
-      JSON.stringify({ success: true, date: yesterdayStr, hasContent, fetchCount: globalFetchCount.n, analysis }),
+      JSON.stringify({
+        success: true,
+        date: yesterdayStr,
+        hasContent,
+        fetchCount: globalFetchCount.n,
+        fetchErrors,
+        targetText,
+        analysis
+      }),
       { headers: { 'Content-Type': 'application/json' } }
     );
 }
@@ -782,8 +800,5 @@ export async function handleSaveSleepAndAnalyze(request, env, notionHeaders) {
     ? { sleep_start, sleep_end }
     : null;
 
-  return new Response(
-  JSON.stringify({ success: true, date: yesterdayStr, hasContent, fetchCount: globalFetchCount.n, targetText, analysis }),
-  { headers: { 'Content-Type': 'application/json' } }
-);
-
+  return runDiaryAnalysis(env, notionHeaders, iso_date, sleepInfo);
+}
