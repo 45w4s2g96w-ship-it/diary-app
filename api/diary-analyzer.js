@@ -782,10 +782,7 @@ export async function handleSaveSleepAndAnalyze(request, env, notionHeaders) {
     ? { sleep_start, sleep_end }
     : null;
 
-  return runDiaryAnalysis(env, notionHeaders, iso_date, sleepInfo);
-}
-
-return new Response(
+  return new Response(
   JSON.stringify({ success: true, date: yesterdayStr, hasContent, fetchCount: globalFetchCount.n, targetText, analysis }),
   { headers: { 'Content-Type': 'application/json' } }
 );
