@@ -1,17 +1,7 @@
 {
-  "regions": ["icn1"],
   "functions": {
-    "api/extract-diary.js": {
-      "maxDuration": 30
-    },
-    "api/analyze-diary.js": {
-      "maxDuration": 30
-    },
-    "api/create-morning-page.js": {
-      "maxDuration": 30
-    },
-    "api/save-sleep-and-analyze.js": {
-      "maxDuration": 30
+    "api/**/*.js": {
+      "maxDuration": 300
     }
   }
 }
