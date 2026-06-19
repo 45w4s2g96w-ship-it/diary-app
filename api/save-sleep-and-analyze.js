@@ -1,6 +1,9 @@
 import { handleSaveSleepAndAnalyze } from '../lib/core.js';
 import { toWebRequest, sendWebResponse } from '../lib/adapter.js';
 
+// Vercel 함수 최대 실행 시간을 300초(5분)로 연장
+export const maxDuration = 300;
+
 export const config = {
   regions: ['icn1'],
   api: {
