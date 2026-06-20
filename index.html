@@ -510,7 +510,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </button>
     <button class="tab-btn" onclick="switchTab('dump',this)" data-num="02.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>
-      <span class="tab-label">Dump</span>
+      <span class="tab-label">Memo</span>
     </button>
     <button class="tab-btn" onclick="switchTab('inbox',this)" data-num="03.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
@@ -570,13 +570,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <div class="tab-content" id="tab-dump">
     <div class="section-header">
-      <div class="section-title">Dump</div>
+      <div class="section-title">Memo</div>
       <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
     </div>
     <div style="display:flex;flex:1;overflow:hidden;min-height:0;">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
         <div class="brain-input-wrap">
-          <textarea class="brain-textarea" id="brain-input" placeholder="Dump everything on your mind." oninput="autoResize(this)"></textarea>
+          <textarea class="brain-textarea" id="brain-input" placeholder="Write a memo." oninput="autoResize(this)"></textarea>
           <button class="brain-add-btn" onclick="addBrainItem()">ADD</button>
         </div>
         <div class="brain-list" id="brain-list"><div class="empty-state">Swipe left to delete.</div></div>
@@ -2266,7 +2266,7 @@ function loadBrainFromStorage(){try{const d=localStorage.getItem('brain_items');
 
 async function loadBrainFromNotion(){
   try{
-    const res=await fetch(WORKER_URL+'/notion/databases/'+BRAIN_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'처리완료',checkbox:{equals:false}},sorts:[{property:'입력일',direction:'descending'}],page_size:50})});
+    const res=await fetch(WORKER_URL+'/notion/databases/'+BRAIN_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'처리완료',checkbox:{equals:false}},sorts:[{property:'생성일시',direction:'descending'}],page_size:50})});
     const data=await res.json();if(!data.results)return;
     const localIds=new Set(brainItems.map(i=>i.notionId).filter(Boolean));
     const newItems=[];
@@ -2298,7 +2298,7 @@ async function addBrainItem(){
 }
 async function saveBrainToNotion(text){
   try{
-    const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'제목':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'입력일':{date:{start:new Date().toISOString()}},'처리완료':{checkbox:false}}})});
+    const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BRAIN_DB},properties:{'제목':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'처리완료':{checkbox:false}}})});
     const d=await r.json();
     if(!r.ok){console.error('brain save failed',r.status,d);return null;}
     return d.id||null;
