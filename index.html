@@ -12,6 +12,7 @@
 <meta name="theme-color" content="#111111">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Gothic+A1:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
+  .rp-photo-add-full { width:100%; padding:14px; border:1.5px dashed var(--rule); background:transparent; color:var(--ink-muted); font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.08em; cursor:pointer; border-radius:2px; }
 @font-face {
   font-family: 'NanumSquareNeo';
   src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/NanumSquareNeo-Variable.woff2') format('woff2');
@@ -71,6 +72,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* Tablet / PC */
 @media (min-width: 768px) {
   :root { --pad-h: 48px; }
+  .todo-header { padding-left: var(--pad-h) !important; }  /* <-- 방금 추가한 부분! */
   body { position: fixed; inset: 0; overflow: hidden; }
   #app { flex-direction: row; height: 100%; }
   .tab-bar { flex-direction: column; justify-content: flex-start; border-top: none; border-right: 2px solid var(--ink); width: 180px; flex-shrink: 0; padding-bottom: 0; height: 100%; overflow-y: auto; order: 0; }
@@ -1116,52 +1118,7 @@ async function getTodayPageId(){
 }
 
 /* ROUTINE — 오늘 루틴 체크리스트 */
-const ROUTINE_GROUPS=[
-  {label:'🌤️ 아침',items:['🌤️물 한잔','🌤️아침 약','🌤️10분 명상','🌤️스트레칭']},
-  {label:'☀️ 종일',items:['☀️물 2리터 마시기','☀️틈틈이 기록','☀️산책']},
-  {label:'🌙 저녁',items:['🌙책상 치우기','🌙설거지','🌙저녁 약','🌙일기 쓰기']}
-];
-let routineSelected=[];
-function switchRecordPane(pane){
-  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';
-  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';
-  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';
-  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';
-  if(pane==='routine')loadRoutineState();
-}
-function renderRoutineChecklist(){
-  const c=document.getElementById('routine-checklist');
-  c.innerHTML=ROUTINE_GROUPS.map(g=>`
-    <div style="margin-bottom:18px;">
-      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>
-      ${g.items.map(item=>{
-        const done=routineSelected.includes(item);
-        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${item.replace(/'/g,"\\'")}')">
-          <div class="quad-check${done?' done':''}"></div>
-          <div class="quad-text${done?' done':''}">${item.replace(/^[^\s]+\s/,'')}</div>
-        </div>`;
-      }).join('')}
-    </div>`).join('');
-}
-async function loadRoutineState(){
-  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">Loading...</div>';
-  try{
-    const pageId=await getTodayPageId();
-    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});
-    const data=await res.json();
-    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);
-  }catch(e){console.error(e);routineSelected=[];}
-  renderRoutineChecklist();
-}
-async function toggleRoutineItem(item){
-  if(routineSelected.includes(item))routineSelected=routineSelected.filter(i=>i!==item);
-  else routineSelected.push(item);
-  renderRoutineChecklist();
-  try{
-    const pageId=await getTodayPageId();
-    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});
-  }catch(e){console.error(e);showToast('저장 실패');}
-}
+const ROUTINE_GROUPS=[  {label:'🌤️ 아침',items:[    {key:'🌤️물 한잔',label:'물 한잔'},    {key:'🌤️아침 약',label:'아침 약'},    {key:'🌤️10분 명상',label:'10분 명상'},    {key:'🌤️스트레칭',label:'스트레칭'}  ]},  {label:'☀️ 종일',items:[    {key:'☀️물 2리터 마시기',label:'물 2리터 마시기'},    {key:'☀️틈틈이 기록',label:'틈틈이 기록'},    {key:'☀️산책',label:'산책'}  ]},  {label:'🌙 저녁',items:[    {key:'🌙책상 치우기',label:'책상 치우기'},    {key:'🌙설거지',label:'설거지'},    {key:'🌙저녁 약',label:'저녁 약'},    {key:'🌙일기 쓰기',label:'일기 쓰기'}  ]}];let routineSelected=[];function switchRecordPane(pane){  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';  if(pane==='routine')loadRoutineState();}function renderRoutineChecklist(){  const c=document.getElementById('routine-checklist');  c.innerHTML=ROUTINE_GROUPS.map(g=>`    <div style="margin-bottom:18px;">      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>      ${g.items.map(it=>{        const done=routineSelected.includes(it.key);        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${it.key.replace(/'/g,"\\'")}')">          <div class="quad-check${done?' done':''}"></div>          <div class="quad-text${done?' done':''}">${it.label}</div>        </div>`;      }).join('')}    </div>`).join('');}async function loadRoutineState(){  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">Loading...</div>';  try{    const pageId=await getTodayPageId();    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});    const data=await res.json();    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);  }catch(e){console.error(e);routineSelected=[];}  renderRoutineChecklist();}async function toggleRoutineItem(key){  if(routineSelected.includes(key))routineSelected=routineSelected.filter(i=>i!==key);  else routineSelected.push(key);  renderRoutineChecklist();  try{    const pageId=await getTodayPageId();    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});  }catch(e){console.error(e);showToast('저장 실패');}}
 
 /* 감정 추천 */
 const EMOTION_KEYWORDS={
@@ -1247,8 +1204,7 @@ function openRecordPopup(time,mood,text,photoUrls,notionUrl,blockId,photoBlockId
 }
 function renderPopupPhotos(photos,id){
   const c=document.getElementById(id);if(!c)return;
-  if(id!=='rp-photos'){
-    if(!photos||!photos.length){c.innerHTML='';c.style.display='none';return;}
+  if(id!=='rp-photos'){c.innerHTML='';if(!photos||!photos.length){  c.style.display='block';  if(!currentPopupBlockId)return;  const addBtn=document.createElement('button');  addBtn.className='rp-photo-add-full';  addBtn.textContent='+ 사진 추가';  addBtn.onclick=()=>{    let fi=document.getElementById('rp-photo-add-input');    if(!fi){fi=document.createElement('input');fi.type='file';fi.id='rp-photo-add-input';fi.accept='image/*';fi.multiple=true;fi.style.display='none';document.body.appendChild(fi);}    fi.onchange=e=>addRecordPhotosInline(e.target);    fi.click();  };  c.appendChild(addBtn);  return;}c.style.display='grid';photos.forEach((u,i)=>{  const wrap=document.createElement('div');wrap.style.cssText='position:relative;aspect-ratio:1;';  const img=document.createElement('img');img.src=u;img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:2px;cursor:pointer;';  img.onclick=()=>openLightbox(i);  const del=document.createElement('button');del.innerHTML='&times;';  del.style.cssText='position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;';  del.onclick=e=>{e.stopPropagation();removeRecordPhotoInline(i);};  wrap.appendChild(img);wrap.appendChild(del);c.appendChild(wrap);});if(currentPopupBlockId&&photos.length<3){  const addBtn=document.createElement('button');addBtn.textContent='+';  addBtn.style.cssText='aspect-ratio:1;border:1.5px dashed var(--rule);background:transparent;color:var(--ink-muted);font-size:18px;cursor:pointer;border-radius:2px;';  addBtn.onclick=()=>{    let fi=document.getElementById('rp-photo-add-input');    if(!fi){fi=document.createElement('input');fi.type='file';fi.id='rp-photo-add-input';fi.accept='image/*';fi.multiple=true;fi.style.display='none';document.body.appendChild(fi);}    fi.onchange=e=>addRecordPhotosInline(e.target);    fi.click();  };  c.appendChild(addBtn);}}
     c.style.display='grid';
     c.innerHTML=photos.map((u,i)=>`<img src="${u}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:2px;cursor:pointer;" onclick="openLightbox(${i})">`).join('');
     return;
