@@ -81,7 +81,7 @@ export default async function handler(request) {
 
   // ── 자식을 부모에 붙이기 ──
   // 부모가 오늘 마감 목록에 없을 수도 있으므로, 없는 경우 별도 처리
-  const orphanChildren = []; // 부모가 목록에 없는 자식
+  const orphanChildren = []; // 부모는 목록에 없는 자식
 
   for (const child of children) {
     if (pageMap[child.parentId]) {
@@ -186,6 +186,19 @@ export default async function handler(request) {
     ];
   }
 
+  // ── 감사 일기 quote 블록 생성 헬퍼 ──
+  function buildQuoteBlock(title) {
+    return {
+      object: 'block',
+      type: 'quote',
+      quote: {
+        rich_text: [{ type: 'text', text: { content: title }, annotations: { bold: true } }],
+        color: 'default',
+        children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [] } }]
+      }
+    };
+  }
+
   const pageBody = {
     parent: { database_id: '37451f4140c5808e9141c8804e892661' },
     properties: {
@@ -219,11 +232,11 @@ export default async function handler(request) {
       },
       {
         object: 'block',
-        type: 'paragraph',
-        paragraph: {
+        type: 'quote',
+        quote: {
           rich_text: [
             { type: 'text', text: { content: '00:00' }, annotations: { italic: true, color: 'gray' } },
-            { type: 'text', text: { content: '\n내용' } }
+            { type: 'text', text: { content: '\n내용' }, annotations: { bold: true } }
           ]
         }
       },
@@ -233,46 +246,10 @@ export default async function handler(request) {
         type: 'heading_4',
         heading_4: { rich_text: [{ text: { content: '◾️ 감사 일기' } }], color: 'gray_background' }
       },
-      {
-        object: 'block',
-        type: 'callout',
-        callout: {
-          rich_text: [{ type: 'text', text: { content: '감사한 일' }, annotations: { bold: true } }],
-          icon: { type: 'emoji', emoji: '🙂' },
-          color: 'default',
-          children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [] } }]
-        }
-      },
-      {
-        object: 'block',
-        type: 'callout',
-        callout: {
-          rich_text: [{ type: 'text', text: { content: '칭찬' }, annotations: { bold: true } }],
-          icon: { type: 'emoji', emoji: '🤩' },
-          color: 'default',
-          children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [] } }]
-        }
-      },
-      {
-        object: 'block',
-        type: 'callout',
-        callout: {
-          rich_text: [{ type: 'text', text: { content: '나를 위해 한 일' }, annotations: { bold: true } }],
-          icon: { type: 'emoji', emoji: '😉' },
-          color: 'default',
-          children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [] } }]
-        }
-      },
-      {
-        object: 'block',
-        type: 'callout',
-        callout: {
-          rich_text: [{ type: 'text', text: { content: '가장 노력한 일' }, annotations: { bold: true } }],
-          icon: { type: 'emoji', emoji: '🤗' },
-          color: 'default',
-          children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [] } }]
-        }
-      },
+      buildQuoteBlock('감사한 일'),
+      buildQuoteBlock('칭찬'),
+      buildQuoteBlock('나를 위해 한 일'),
+      buildQuoteBlock('가장 노력한 일'),
       { object: 'block', type: 'paragraph', paragraph: { rich_text: [] } },
       {
         object: 'block',
