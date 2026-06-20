@@ -590,6 +590,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="input-section">
       <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this);suggestEmotion(this.value)"></textarea>
       <div id="emotion-suggest" style="display:none;font-family:'NanumSquareNeo',sans-serif;font-size:11px;color:var(--ink-muted);margin-bottom:4px;">추천: <span id="emotion-suggest-tags"></span></div>
+      <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
       <div class="input-actions">
         <button class="attach-btn" onclick="document.getElementById('photo-input').click()">+ PHOTO</button>
         <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
@@ -1080,17 +1081,21 @@ function selectCustomType(type){
 
 /* Photos */
 let selectedPhotos=[];
-function handlePhotos(input){Array.from(input.files).slice(0,6-selectedPhotos.length).forEach(file=>{const r=new FileReader();r.onload=e=>{selectedPhotos.push({file,dataUrl:e.target.result});};r.readAsDataURL(file);});input.value='';}
-async function uploadToCloudinary(file){
-  const cn=localStorage.getItem('cloud_name');
-  if(!cn){console.error('cloud_name 없음');return null;}
-  const fd=new FormData();fd.append('file',file);fd.append('upload_preset','diary_app');
-  try{
-    const r=await fetch(`https://api.cloudinary.com/v1_1/${cn}/image/upload`,{method:'POST',body:fd});
-    const d=await r.json();
-    if(!r.ok||!d.secure_url){console.error('cloudinary 업로드 실패',r.status,d);return null;}
-    return d.secure_url;
-  }catch(e){console.error('cloudinary 오류',e);return null;}
+function handlePhotos(input){
+  Array.from(input.files).slice(0,3-selectedPhotos.length).forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      selectedPhotos.push({file,dataUrl:e.target.result});
+      renderInputPhotoPreview();
+    };
+    r.readAsDataURL(file);
+  });
+  input.value='';
+}
+function renderInputPhotoPreview(){
+  const c=document.getElementById('input-photo-preview');
+  if(!c)return;
+  c.innerHTML=selectedPhotos.map((p,i)=>`<div style="position:relative;aspect-ratio:1;"><img src="${p.dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:2px;"><button onclick="selectedPhotos.splice(${i},1);renderInputPhotoPreview()" style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;">&times;</button></div>`).join('');
 }
 
 /* Notion helpers */
@@ -1154,7 +1159,7 @@ function selectMoodByName(name){
 /* Record save */
 async function saveRecord(){
   const text=document.getElementById('memo-input').value.trim();
-  if(!text&&selectedPhotos.length===0){showToast('내용을 입력해주세요');return;}
+  if(!text&&selectedPhotos.length===0){showToast('Please enter content');return;}
   const btn=document.getElementById('save-btn');btn.disabled=true;document.getElementById('loading').classList.remove('hidden');
   try{
     const now=new Date();const timeStr=formatTime(now);
@@ -1174,11 +1179,11 @@ async function saveRecord(){
       blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
       photoBlockId=(photoUrls.length>0&&ad.results&&ad.results[1])?ad.results[1].id:null;
     }
-    if(uploadFailed)showToast('일부 사진 업로드 실패');
+    if(uploadFailed)showToast('Failed to upload some photos');
     addRecordToUI(timeStr,selectedMood,text,photoUrls,notionUrl,blockId,photoBlockId);
     document.getElementById('memo-input').value='';document.getElementById('memo-input').style.height='';
-    selectedMood='';selectedPhotos=[];document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));showToast('Saved!');
-  }catch(e){showToast('오류 발생');console.error(e);}
+    selectedMood='';selectedPhotos=[];document.getElementById('input-photo-preview').innerHTML='';document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));showToast('Saved!');
+  }catch(e){showToast('error');console.error(e);}
   btn.disabled=false;document.getElementById('loading').classList.add('hidden');
 }
 
@@ -1200,6 +1205,8 @@ function openRecordPopup(time,mood,text,photoUrls,notionUrl,blockId,photoBlockId
   document.getElementById('rp-edit-wrap').style.display='none';document.getElementById('rp-save-actions').style.display='none';
   document.getElementById('rp-actions').style.display=blockId?'flex':'none';
   renderPopupPhotos(currentPopupPhotos,'rp-photos');
+  document.getElementById('rp-photos').style.display='grid';
+  document.getElementById('rp-photos-edit').style.display='none';
   document.getElementById('record-popup').classList.add('open');
 }
 function renderPopupPhotos(photos,id){
@@ -1211,7 +1218,7 @@ function renderPopupPhotos(photos,id){
       if(!currentPopupBlockId)return;
       const addBtn=document.createElement('button');
       addBtn.className='rp-photo-add-full';
-      addBtn.textContent='+ 사진 추가';
+      addBtn.textContent='+ ADD PHOTO';
       addBtn.onclick=()=>{
         let fi=document.getElementById('rp-photo-add-input');
         if(!fi){fi=document.createElement('input');fi.type='file';fi.id='rp-photo-add-input';fi.accept='image/*';fi.multiple=true;fi.style.display='none';document.body.appendChild(fi);}
@@ -1271,7 +1278,7 @@ function updateRecordListThumbnails(){
   }else if(photoDiv)photoDiv.remove();
 }
 async function addRecordPhotosInline(input){
-  if(!currentPopupBlockId){showToast('이 기록은 사진을 추가할 수 없어요');return;}
+  if(!currentPopupBlockId){showToast('error');return;}
   const files=Array.from(input.files).slice(0,3-currentPopupPhotos.length);input.value='';
   if(!files.length)return;
   document.getElementById('loading').classList.remove('hidden');
@@ -1280,21 +1287,23 @@ async function addRecordPhotosInline(input){
     for(const f of files){const u=await uploadToCloudinary(f);if(u)currentPopupPhotos.push(u);else failed=true;}
     await syncRecordPhotosToNotion();
     renderPopupPhotos(currentPopupPhotos,'rp-photos');
+    renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
     updateRecordListThumbnails();
-    showToast(failed?'일부 사진 업로드 실패':'사진 추가 완료!');
-  }catch(e){console.error(e);showToast('사진 추가 실패');}
+    showToast(failed?'Failed to upload some photos':'added!');
+  }catch(e){console.error(e);showToast('Failed');}
   document.getElementById('loading').classList.add('hidden');
 }
 async function removeRecordPhotoInline(idx){
-  if(!confirm('사진을 삭제할까요?'))return;
+  if(!confirm('Delete?'))return;
   currentPopupPhotos.splice(idx,1);
   document.getElementById('loading').classList.remove('hidden');
   try{
     await syncRecordPhotosToNotion();
     renderPopupPhotos(currentPopupPhotos,'rp-photos');
+    renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
     updateRecordListThumbnails();
-    showToast('사진 삭제 완료!');
-  }catch(e){console.error(e);showToast('사진 삭제 실패');}
+    showToast('deleted!');
+  }catch(e){console.error(e);showToast('Failed');}
   document.getElementById('loading').classList.add('hidden');
 }
 let lbPhotos=[],lbIdx=0;
@@ -1306,12 +1315,17 @@ function toggleRecordEdit(){
   isEditing=!isEditing;
   const textEl=document.getElementById('rp-text'),editWrap=document.getElementById('rp-edit-wrap'),editInput=document.getElementById('rp-edit-input');
   const actions=document.getElementById('rp-actions'),saveActions=document.getElementById('rp-save-actions');
+  const pView=document.getElementById('rp-photos'),pEdit=document.getElementById('rp-photos-edit');
   if(isEditing){
     editInput.value=textEl.textContent;
     textEl.style.display='none';editWrap.style.display='';actions.style.display='none';saveActions.style.display='flex';
+    pView.style.display='none';pEdit.style.display='grid';
+    renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
     setTimeout(()=>autoResize(editInput),0);
   }else{
     textEl.style.display='';editWrap.style.display='none';actions.style.display=currentPopupBlockId?'flex':'none';saveActions.style.display='none';
+    pView.style.display='grid';pEdit.style.display='none';
+    renderPopupPhotos(currentPopupPhotos,'rp-photos');
   }
 }
 async function saveRecordEdit(){
@@ -3210,7 +3224,7 @@ function openAddIdeaPopup(){
   overlay.appendChild(sheet);
   overlay.addEventListener('pick',async(e)=>{
     const text=document.getElementById('new-idea-text').value.trim();
-    if(!text){showToast('내용을 입력해주세요');return;}
+    if(!text){showToast('Please enter content');return;}
     const select=e.detail;
     document.getElementById('idea-add-overlay').remove();
     try{
