@@ -1012,11 +1012,11 @@ function switchTab(tab,btn){
 function logout(){if(!confirm('Log out?'))return;localStorage.clear();location.reload();}
 async function saveSettings(){
   const pw=document.getElementById('app-password').value.trim();
-  if(!pw){showToast('비밀번호를 입력해주세요');return;}
-  const btn=document.querySelector('.setup-save-btn');btn.textContent='확인 중...';btn.disabled=true;
+  if(!pw){showToast('password');return;}
+  const btn=document.querySelector('.setup-save-btn');btn.textContent='confirming...';btn.disabled=true;
   try{
     const res=await fetch(WORKER_URL+'/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
-    if(!res.ok){const e=await res.text().catch(()=>'');showToast('오류: '+res.status+' '+e.slice(0,30));btn.textContent='START →';btn.disabled=false;return;}
+    if(!res.ok){const e=await res.text().catch(()=>'');showToast('error: '+res.status+' '+e.slice(0,30));btn.textContent='START →';btn.disabled=false;return;}
     const data=await res.json();
     localStorage.setItem('notion_token',data.notion_token);localStorage.setItem('notion_db',data.notion_db);
     localStorage.setItem('cloud_name',data.cloud_name);localStorage.setItem('cloud_key',data.cloud_key);localStorage.setItem('app_authed','1');
@@ -1057,7 +1057,7 @@ async function uploadToCloudinary(file) {
   const uploadPreset = 'diary_app'; 
   
   if (!cloudName) {
-    showToast('클라우드 이름이 없습니다.');
+    showToast('no name');
     return null;
   }
   
@@ -1075,7 +1075,7 @@ async function uploadToCloudinary(file) {
     return data.secure_url;
   } catch (e) {
     console.error('Cloudinary upload error:', e);
-    showToast('사진 업로드 실패');
+    showToast('fail');
     return null;
   }
 }
@@ -1122,7 +1122,7 @@ async function getTodayPageId(){
 }
 
 /* ROUTINE — 오늘 루틴 체크리스트 */
-const ROUTINE_GROUPS=[  {label:'🌤️ 아침',items:[    {key:'🌤️물 한잔',label:'물 한잔'},    {key:'🌤️아침 약',label:'아침 약'},    {key:'🌤️10분 명상',label:'10분 명상'},    {key:'🌤️스트레칭',label:'스트레칭'}  ]},  {label:'☀️ 종일',items:[    {key:'☀️물 2리터 마시기',label:'물 2리터 마시기'},    {key:'☀️틈틈이 기록',label:'틈틈이 기록'},    {key:'☀️산책',label:'산책'}  ]},  {label:'🌙 저녁',items:[    {key:'🌙책상 치우기',label:'책상 치우기'},    {key:'🌙설거지',label:'설거지'},    {key:'🌙저녁 약',label:'저녁 약'},    {key:'🌙일기 쓰기',label:'일기 쓰기'}  ]}];let routineSelected=[];function switchRecordPane(pane){  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';  if(pane==='routine')loadRoutineState();}function renderRoutineChecklist(){  const c=document.getElementById('routine-checklist');  c.innerHTML=ROUTINE_GROUPS.map(g=>`    <div style="margin-bottom:18px;">      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>      ${g.items.map(it=>{        const done=routineSelected.includes(it.key);        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${it.key.replace(/'/g,"\\'")}')">          <div class="quad-check${done?' done':''}"></div>          <div class="quad-text${done?' done':''}">${it.label}</div>        </div>`;      }).join('')}    </div>`).join('');}async function loadRoutineState(){  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">Loading...</div>';  try{    const pageId=await getTodayPageId();    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});    const data=await res.json();    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);  }catch(e){console.error(e);routineSelected=[];}  renderRoutineChecklist();}async function toggleRoutineItem(key){  if(routineSelected.includes(key))routineSelected=routineSelected.filter(i=>i!==key);  else routineSelected.push(key);  renderRoutineChecklist();  try{    const pageId=await getTodayPageId();    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});  }catch(e){console.error(e);showToast('저장 실패');}}
+const ROUTINE_GROUPS=[  {label:'🌤️ 아침',items:[    {key:'🌤️물 한잔',label:'물 한잔'},    {key:'🌤️아침 약',label:'아침 약'},    {key:'🌤️10분 명상',label:'10분 명상'},    {key:'🌤️스트레칭',label:'스트레칭'}  ]},  {label:'☀️ 종일',items:[    {key:'☀️물 2리터 마시기',label:'물 2리터 마시기'},    {key:'☀️틈틈이 기록',label:'틈틈이 기록'},    {key:'☀️산책',label:'산책'}  ]},  {label:'🌙 저녁',items:[    {key:'🌙책상 치우기',label:'책상 치우기'},    {key:'🌙설거지',label:'설거지'},    {key:'🌙저녁 약',label:'저녁 약'},    {key:'🌙일기 쓰기',label:'일기 쓰기'}  ]}];let routineSelected=[];function switchRecordPane(pane){  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';  if(pane==='routine')loadRoutineState();}function renderRoutineChecklist(){  const c=document.getElementById('routine-checklist');  c.innerHTML=ROUTINE_GROUPS.map(g=>`    <div style="margin-bottom:18px;">      <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>      ${g.items.map(it=>{        const done=routineSelected.includes(it.key);        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${it.key.replace(/'/g,"\\'")}')">          <div class="quad-check${done?' done':''}"></div>          <div class="quad-text${done?' done':''}">${it.label}</div>        </div>`;      }).join('')}    </div>`).join('');}async function loadRoutineState(){  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">Loading...</div>';  try{    const pageId=await getTodayPageId();    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});    const data=await res.json();    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);  }catch(e){console.error(e);routineSelected=[];}  renderRoutineChecklist();}async function toggleRoutineItem(key){  if(routineSelected.includes(key))routineSelected=routineSelected.filter(i=>i!==key);  else routineSelected.push(key);  renderRoutineChecklist();  try{    const pageId=await getTodayPageId();    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});  }catch(e){console.error(e);showToast('fail');}}
 
 /* 감정 추천 */
 const EMOTION_KEYWORDS={
@@ -1389,7 +1389,7 @@ async function saveRecordEdit(){
     toggleRecordEdit();
     showToast('Updated!');
   }catch(e){
-    showToast('수정 실패');
+    showToast('fail');
     console.error(e);
   }
   document.getElementById('loading').classList.add('hidden');
@@ -1976,11 +1976,11 @@ async function saveTodoToNotion(quad,text,dueDate,memo,time){
     if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
     if(time)props['시간']={rich_text:[{text:{content:time}}]};
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},icon:{type:'emoji',emoji:'📁'},properties:props})});
-    if(!res.ok){const et=await res.text().catch(()=>'');console.error('todo save failed:',res.status,et);showToast('Notion 저장 실패 '+res.status);return null;}
+    if(!res.ok){const et=await res.text().catch(()=>'');console.error('todo save failed:',res.status,et);showToast('Notion save failed '+res.status);return null;}
     const data=await res.json();
-    if(data.object==='error'){console.error('Notion err:',data);showToast('Notion 오류: '+data.code);return null;}
+    if(data.object==='error'){console.error('Notion err:',data);showToast('Notion error: '+data.code);return null;}
     return data.id||null;
-  }catch(e){console.error(e);showToast('저장 오류: '+e.message);return null;}
+  }catch(e){console.error(e);showToast('error: '+e.message);return null;}
 }
 async function saveSubTodoToNotion(text,parentId,memo,dueDate,time){
   try{
@@ -2157,9 +2157,9 @@ async function saveTodoEdit(){
     const dm=dateVal.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/);
     if(dm){
       dateVal=`${dm[1]}-${dm[2].padStart(2,'0')}-${dm[3].padStart(2,'0')}`;
-      if(isNaN(new Date(dateVal+'T00:00:00').getTime())){showToast('날짜 형식을 확인해주세요 (YYYY-MM-DD)');return;}
+      if(isNaN(new Date(dateVal+'T00:00:00').getTime())){showToast('check date (YYYY-MM-DD)');return;}
     }else{
-      showToast('날짜 형식을 확인해주세요 (YYYY-MM-DD)');return;
+      showToast('check date (YYYY-MM-DD)');return;
     }
   }
   const newQuad=currentEditQuad||currentDetailQuad;
@@ -2177,9 +2177,9 @@ async function saveTodoEdit(){
         }
         if(found)break;
       }
-      if(!found){showToast('항목을 찾을 수 없어요. 다시 시도해주세요.');closeTodoDetail();return;}
+      if(!found){showToast('not found. try again.');closeTodoDetail();return;}
     }
-    if(!parent||!parent.subs||!parent.subs[currentSubSi]){showToast('항목을 찾을 수 없어요. 다시 시도해주세요.');closeTodoDetail();return;}
+    if(!parent||!parent.subs||!parent.subs[currentSubSi]){showToast('not found. try again.');closeTodoDetail();return;}
     const sub=parent.subs[currentSubSi];
     sub.text=text;sub.memo=memo;sub.time=timeVal;
     sub.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
@@ -2217,9 +2217,9 @@ async function saveTodoEdit(){
       const idx=todoData[q].findIndex(it=>it.notionId===currentDetailItemNotionId);
       if(idx>=0){currentDetailQuad=q;currentDetailIdx=idx;item=todoData[q][idx];found=true;break;}
     }
-    if(!found){showToast('항목을 찾을 수 없어요. 다시 시도해주세요.');closeTodoDetail();return;}
+    if(!found){showToast('not found. try again.');closeTodoDetail();return;}
   }
-  if(!item){showToast('항목을 찾을 수 없어요. 다시 시도해주세요.');closeTodoDetail();return;}
+  if(!item){showToast('not found. try again.');closeTodoDetail();return;}
   item.text=text;item.memo=memo;item.time=timeVal;
   item.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
 
