@@ -1142,7 +1142,7 @@ async function saveRecord(){
       rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});
       if(selectedMood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(selectedMood)+' '+selectedMood},annotations:{color:'gray',italic:true,bold:false}});
       rich.push({type:'text',text:{content:'\n'+(text||'')},annotations:{bold:true,italic:false,color:'default'}});
-      const children=[{object:'block',type:'callout',callout:{rich_text:rich,color:'default'}}];
+      const children=[{object:'block',type:'quote',quote:{rich_text:rich,color:'default'}}];
       if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
       const ar=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})});
       const ad=await ar.json();blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
@@ -1222,7 +1222,7 @@ async function saveRecordEdit(){
   try{
     const finalPhotos=[];for(const p of editingPhotos){if(typeof p==='string')finalPhotos.push(p);else{const u=await uploadToCloudinary(p.file);if(u)finalPhotos.push(u);}}
     const rich=[];rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});if(mood)rich.push({type:'text',text:{content:getMoodEmoji(mood)+' '+mood+'\n'},annotations:{italic:true}});if(newText)rich.push({type:'text',text:{content:newText},annotations:{bold:true}});
-    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({paragraph:{rich_text:rich}})});
+    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({quote:{rich_text:rich}})});
     if(currentPhotoBlockId){await fetch(WORKER_URL+'/notion/blocks/'+currentPhotoBlockId,{method:'DELETE',headers:notionHeaders()});currentPhotoBlockId=null;}
     if(finalPhotos.length>0){const cols=finalPhotos.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}));while(cols.length<3)cols.push({object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}}]}});const pr=await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children:[{object:'block',type:'column_list',column_list:{children:cols}}]})});const pd=await pr.json();currentPhotoBlockId=pd.results?.[0]?.id||null;}
     currentPopupPhotos=finalPhotos;document.getElementById('rp-text').textContent=newText;if(currentPopupItem){const t=currentPopupItem.querySelector('.record-text');if(t)t.textContent=newText;}
@@ -1249,8 +1249,8 @@ async function loadTodayRecords(){
     }while(cursor);
     let i=0;
     while(i<allBlocks.length){
-      const block=allBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'){i++;continue;}
-      const texts=(block.type==='callout'?block.callout:block.paragraph)?.rich_text||[];if(!texts.length){i++;continue;}
+      const block=allBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'&&block.type!=='quote'){i++;continue;}
+      const texts=(block[block.type])?.rich_text||[];if(!texts.length){i++;continue;}
       const content=texts.map(t=>t?.text?.content||'').join('');
       const lines=content.split('\n').map(l=>l.trim()).filter(l=>l);if(!lines.length){i++;continue;}
       if(!/^\d{2}:\d{2}/.test(lines[0])){i++;continue;}
