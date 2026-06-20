@@ -236,7 +236,7 @@ export default async function handler(request) {
         quote: {
           rich_text: [
             { type: 'text', text: { content: '00:00' }, annotations: { italic: true, color: 'gray' } },
-            { type: 'text', text: { content: '\n내용' }, annotations: { bold: true } }
+            { type: 'text', text: { content: '\n내용' }, annotations: { bold: false } }
           ]
         }
       },
