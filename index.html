@@ -1052,10 +1052,12 @@ let selectedPhotos=[];
 
 async function uploadToCloudinary(file) {
   const cloudName = localStorage.getItem('cloud_name');
-  const uploadPreset = localStorage.getItem('cloud_key');
   
-  if (!cloudName || !uploadPreset) {
-    showToast('클라우드 설정 정보가 없습니다.');
+  // 👇 원래 Cloudinary에서 쓰시던 프리셋 이름(예: 'diary_preset', 'ml_default' 등)을 '' 사이에 직접 적어주세요!
+  const uploadPreset = 'diary_app'; 
+  
+  if (!cloudName) {
+    showToast('클라우드 이름이 없습니다.');
     return null;
   }
   
@@ -1068,20 +1070,12 @@ async function uploadToCloudinary(file) {
       method: 'POST',
       body: formData
     });
-    
-    if (!res.ok) {
-      // 💡 실패 시 Cloudinary가 알려주는 진짜 원인을 파싱합니다.
-      const errData = await res.json();
-      console.error('Cloudinary API Error:', errData);
-      throw new Error(errData.error?.message || 'Upload failed');
-    }
-    
+    if (!res.ok) throw new Error('Upload failed');
     const data = await res.json();
     return data.secure_url;
   } catch (e) {
     console.error('Cloudinary upload error:', e);
-    // 화면 하단 알림창에 진짜 실패 이유를 보여줍니다.
-    showToast('업로드 실패: ' + e.message);
+    showToast('사진 업로드 실패');
     return null;
   }
 }
