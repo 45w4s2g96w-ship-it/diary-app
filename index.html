@@ -1297,12 +1297,15 @@ async function addRecordPhotosInline(input){
   document.getElementById('loading').classList.add('hidden');
 }
 
+/* 여기서부터 복사해서 덮어씌우세요 */
+
 async function removeRecordPhotoInline(idx){
   if(!confirm('Delete this photo?'))return;
   currentPopupPhotos.splice(idx,1);
   document.getElementById('loading').classList.remove('hidden');
   try{
     await syncRecordPhotosToNotion();
+    renderPopupPhotos(currentPopupPhotos,'rp-photos');
     renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
     updateRecordListThumbnails();
     showToast('Photo deleted!');
@@ -1311,21 +1314,55 @@ async function removeRecordPhotoInline(idx){
 }
 
 let lbPhotos=[],lbIdx=0;
-function openLightbox(idx){lbPhotos=currentPopupPhotos;lbIdx=idx;document.getElementById('rp-lightbox').style.display='flex';document.getElementById('rp-lb-img').src=lbPhotos[idx];}
-function closeLightbox(){document.getElementById('rp-lightbox').style.display='none';}
-function closeRecordPopup(){document.getElementById('record-popup').classList.remove('open');}
-function cancelRecordEdit(){if(!confirm('Discard changes?'))return;toggleRecordEdit();}
+
+function openLightbox(idx){
+  lbPhotos=currentPopupPhotos;
+  lbIdx=idx;
+  document.getElementById('rp-lightbox').style.display='flex';
+  document.getElementById('rp-lb-img').src=lbPhotos[idx];
+}
+
+function closeLightbox(){
+  document.getElementById('rp-lightbox').style.display='none';
+}
+
+function closeRecordPopup(){
+  document.getElementById('record-popup').classList.remove('open');
+}
+
+function cancelRecordEdit(){
+  if(!confirm('Discard changes?'))return;
+  toggleRecordEdit();
+}
 
 function toggleRecordEdit(){
   isEditing=!isEditing;
-  const textEl=document.getElementById('rp-text'),editWrap=document.getElementById('rp-edit-wrap'),editInput=document.getElementById('rp-edit-input');
-  const actions=document.getElementById('rp-actions'),saveActions=document.getElementById('rp-save-actions');
+  const textEl=document.getElementById('rp-text'),
+        editWrap=document.getElementById('rp-edit-wrap'),
+        editInput=document.getElementById('rp-edit-input');
+  const actions=document.getElementById('rp-actions'),
+        saveActions=document.getElementById('rp-save-actions');
+  const pView=document.getElementById('rp-photos'),
+        pEdit=document.getElementById('rp-photos-edit');
+        
   if(isEditing){
     editInput.value=textEl.textContent;
-    textEl.style.display='none';editWrap.style.display='';actions.style.display='none';saveActions.style.display='flex';
+    textEl.style.display='none';
+    editWrap.style.display='';
+    actions.style.display='none';
+    saveActions.style.display='flex';
+    pView.style.display='none';
+    pEdit.style.display='grid';
+    renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
     setTimeout(()=>autoResize(editInput),0);
   }else{
-    textEl.style.display='';editWrap.style.display='none';actions.style.display=currentPopupBlockId?'flex':'none';saveActions.style.display='none';
+    textEl.style.display='';
+    editWrap.style.display='none';
+    actions.style.display=currentPopupBlockId?'flex':'none';
+    saveActions.style.display='none';
+    pView.style.display='grid';
+    pEdit.style.display='none';
+    renderPopupPhotos(currentPopupPhotos,'rp-photos');
   }
 }
 
@@ -1336,62 +1373,31 @@ async function saveRecordEdit(){
   const mood=document.getElementById('rp-mood').querySelector('.rp-mood')?.textContent||'';
   document.getElementById('loading').classList.remove('hidden');
   try{
-    const rich=[];rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});if(mood)rich.push({type:'text',text:{content:getMoodEmoji(mood)+' '+mood+'\n'},annotations:{italic:true}});if(newText)rich.push({type:'text',text:{content:newText},annotations:{bold:true}});
-    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({quote:{rich_text:rich}})});
-    document.getElementById('rp-text').textContent=newText;if(currentPopupItem){const t=currentPopupItem.querySelector('.record-text');if(t)t.textContent=newText;}
-    toggleRecordEdit();showToast('Updated!');
-  }catch(e){showToast('Update failed');console.error(e);}
-  document.getElementById('loading').classList.add('hidden');
-}
-async function removeRecordPhotoInline(idx){
-  if(!confirm('Delete?'))return;
-  currentPopupPhotos.splice(idx,1);
-  document.getElementById('loading').classList.remove('hidden');
-  try{
-    await syncRecordPhotosToNotion();
-    renderPopupPhotos(currentPopupPhotos,'rp-photos');
-    renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
-    updateRecordListThumbnails();
-    showToast('deleted!');
-  }catch(e){console.error(e);showToast('Failed');}
-  document.getElementById('loading').classList.add('hidden');
-}
-let lbPhotos=[],lbIdx=0;
-function openLightbox(idx){lbPhotos=currentPopupPhotos;lbIdx=idx;document.getElementById('rp-lightbox').style.display='flex';document.getElementById('rp-lb-img').src=lbPhotos[idx];}
-function closeLightbox(){document.getElementById('rp-lightbox').style.display='none';}
-function closeRecordPopup(){document.getElementById('record-popup').classList.remove('open');}
-function cancelRecordEdit(){if(!confirm('Discard changes?'))return;toggleRecordEdit();}
-function toggleRecordEdit(){
-  isEditing=!isEditing;
-  const textEl=document.getElementById('rp-text'),editWrap=document.getElementById('rp-edit-wrap'),editInput=document.getElementById('rp-edit-input');
-  const actions=document.getElementById('rp-actions'),saveActions=document.getElementById('rp-save-actions');
-  const pView=document.getElementById('rp-photos'),pEdit=document.getElementById('rp-photos-edit');
-  if(isEditing){
-    editInput.value=textEl.textContent;
-    textEl.style.display='none';editWrap.style.display='';actions.style.display='none';saveActions.style.display='flex';
-    pView.style.display='none';pEdit.style.display='grid';
-    renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
-    setTimeout(()=>autoResize(editInput),0);
-  }else{
-    textEl.style.display='';editWrap.style.display='none';actions.style.display=currentPopupBlockId?'flex':'none';saveActions.style.display='none';
-    pView.style.display='grid';pEdit.style.display='none';
-    renderPopupPhotos(currentPopupPhotos,'rp-photos');
+    const rich=[];
+    rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});
+    if(mood)rich.push({type:'text',text:{content:getMoodEmoji(mood)+' '+mood+'\n'},annotations:{italic:true}});
+    if(newText)rich.push({type:'text',text:{content:newText},annotations:{bold:true}});
+    
+    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{
+      method:'PATCH',
+      headers:notionHeaders(),
+      body:JSON.stringify({quote:{rich_text:rich}})
+    });
+    
+    document.getElementById('rp-text').textContent=newText;
+    if(currentPopupItem){
+      const t=currentPopupItem.querySelector('.record-text');
+      if(t)t.textContent=newText;
+    }
+    toggleRecordEdit();
+    showToast('Updated!');
+  }catch(e){
+    showToast('수정 실패');
+    console.error(e);
   }
-}
-async function saveRecordEdit(){
-  if(!currentPopupBlockId)return;
-  const newText=document.getElementById('rp-edit-input').value.trim();
-  const timeStr=document.getElementById('rp-time').textContent;
-  const mood=document.getElementById('rp-mood').querySelector('.rp-mood')?.textContent||'';
-  document.getElementById('loading').classList.remove('hidden');
-  try{
-    const rich=[];rich.push({type:'text',text:{content:timeStr+'\n'},annotations:{color:'gray'}});if(mood)rich.push({type:'text',text:{content:getMoodEmoji(mood)+' '+mood+'\n'},annotations:{italic:true}});if(newText)rich.push({type:'text',text:{content:newText},annotations:{bold:true}});
-    await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({quote:{rich_text:rich}})});
-    document.getElementById('rp-text').textContent=newText;if(currentPopupItem){const t=currentPopupItem.querySelector('.record-text');if(t)t.textContent=newText;}
-    toggleRecordEdit();showToast('Updated!');
-  }catch(e){showToast('수정 실패');console.error(e);}
   document.getElementById('loading').classList.add('hidden');
 }
+
 async function deleteRecord(){
   if(!currentPopupBlockId)return;
   if(!confirm('Delete? This cannot be undone.'))return;
