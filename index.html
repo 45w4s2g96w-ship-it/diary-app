@@ -72,7 +72,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* Tablet / PC */
 @media (min-width: 768px) {
   :root { --pad-h: 48px; }
-  .todo-header { padding-left: var(--pad-h) !important; }  /* <-- 방금 추가한 부분! */
+  .todo-header { padding-left: var(--pad-h) !important; }
   body { position: fixed; inset: 0; overflow: hidden; }
   #app { flex-direction: row; height: 100%; }
   .tab-bar { flex-direction: column; justify-content: flex-start; border-top: none; border-right: 2px solid var(--ink); width: 180px; flex-shrink: 0; padding-bottom: 0; height: 100%; overflow-y: auto; order: 0; }
@@ -93,7 +93,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .tab-btn { padding: 26px 24px; }
 }
 
-/* Weekly view — [FIX #2] 폰트 크기를 다른 탭과 통일 */
+/* Weekly view */
 .week-row { display: flex; border-bottom: 1px solid var(--rule); min-height: 32px; }
 .week-row.today { background: rgba(0,0,0,0.03); }
 .week-day-label { flex-shrink: 0; width: 58px; padding: 8px 6px 8px 10px; display: flex; flex-direction: column; justify-content: flex-start; border-right: 1px solid var(--rule); }
@@ -102,17 +102,14 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-row.today .week-day-name { color: var(--ink); }
 .week-row.today .week-day-date { color: var(--ink); }
 .week-items { flex: 1; padding: 5px 0 5px 10px; display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
-/* 1열 기본, .two-col 클래스 붙으면 2열 */
 .week-item { display: flex; align-items: center; gap: 6px; padding: 3px 4px 3px 0; cursor: pointer; width: 100%; min-width: 0; user-select: none; -webkit-user-select: none; }
 .week-items.two-col .week-item { width: 50%; }
-/* 하위업무 있는 부모는 항상 full-width */
 .week-item.has-subs { width: 100% !important; }
 .week-check { width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; flex-shrink: 0; transition: background 0.12s; display: flex; align-items: center; justify-content: center; }
 .week-check.done { background: var(--ink); }
 .week-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .week-item-text { font-size: 12px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: none; -webkit-user-select: none; }
 .week-item-text.done { text-decoration: line-through; color: var(--ink-muted); }
-/* 하위업무 블록 */
 .week-sub-list { width: 100%; padding: 2px 0 4px 18px; display: flex; flex-direction: column; gap: 0; }
 .week-sub-text { font-size: 12px; font-weight: 300; color: var(--ink-soft); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; word-break: break-word; white-space: normal; }
 .week-sub-item { display: flex; align-items: flex-start; gap: 5px; padding: 2px 0; cursor: pointer; }
@@ -161,7 +158,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
 /* Quadrant */
-/* [FIX #5] quad-cell: overflow hidden + fixed height layout */
 .quad-grid { flex: 1; overflow: hidden; margin: var(--pad-h); border: 1.5px solid var(--ink); border-radius: 2px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 .quad-cell { padding: 12px 10px; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; transition: background 0.12s; position: relative; }
 .quad-cell:nth-child(1) { border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
@@ -187,7 +183,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-sub-item { background: rgba(0,0,0,0.02); border-left: 2px solid var(--rule) !important; margin-left: 4px; }
 .quad-sub-cross { border-left-color: var(--ink-muted) !important; }
 .quad-memo { font-family: 'NanumSquareNeo', sans-serif; font-size: 10px; font-weight: 300; color: var(--ink-muted); display: block; }
-/* [FIX #5] +N more toggle button */
 .quad-more-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 2px 7px; border-radius: 1px; cursor: pointer; margin-top: 3px; align-self: flex-start; flex-shrink: 0; }
 
 /* Todo/Cart toggle */
@@ -197,7 +192,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .toggle-btn.active { background: var(--ink); color: var(--paper); }
 .toggle-btn.inactive { background: transparent; color: var(--ink-muted); }
 
-/* Braindump swipe — fixed */
+/* Braindump */
 .brain-item { position: relative; overflow: hidden; border-bottom: 1px solid var(--rule); background: var(--paper); }
 .brain-item-inner { display: flex; flex-direction: column; background: var(--paper); transition: transform 0.15s; padding: 10px 0; will-change: transform; position: relative; z-index: 1; }
 .brain-swipe-bg { position: absolute; right: 0; top: 0; bottom: 0; width: 0; max-width: 80px; background: #c0392b; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; color: white; letter-spacing: 0.08em; pointer-events: none; z-index: 0; overflow: hidden; transition: width 0.15s; }
@@ -252,7 +247,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .week-col-sub-check.done { background: var(--ink); border-color: var(--ink); }
   .week-col-sub-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
   .week-col-sub-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 10px; font-weight: 300; color: var(--ink-soft); line-height: 1.3; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  /* 모바일 week-row는 PC에서 숨김 */
   .week-row { display: none; }
   .week-overdue-row { display: flex; }
 }
@@ -401,7 +395,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .td-body { padding: 14px 20px; }
 .td-title { font-family: 'NanumSquareNeo', sans-serif; font-size: 16px; font-weight: 400; color: var(--ink); margin-bottom: 4px; line-height: 1.4; }
 .td-due { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.06em; margin-bottom: 8px; }
-/* [FIX #3] memo display in detail */
 .td-memo-display { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; padding: 8px 10px; background: rgba(0,0,0,0.03); border-radius: 2px; border-left: 2px solid var(--rule); white-space: pre-wrap; }
 .td-field-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 4px; }
 .td-sub-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; border-top: 1px solid var(--rule); padding-top: 12px; }
@@ -563,7 +556,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
   <div id="app-main">
 
-  <!-- RECORD -->
   <div class="tab-content active" id="tab-record">
     <div class="section-header">
       <div class="section-title" id="current-date"></div>
@@ -605,14 +597,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </div>
   </div>
 
-  <!-- DUMP -->
   <div class="tab-content" id="tab-dump">
     <div class="section-header">
       <div class="section-title">Dump</div>
       <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
     </div>
     <div style="display:flex;flex:1;overflow:hidden;min-height:0;">
-      <!-- 메인 리스트 -->
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
         <div class="brain-input-wrap">
           <textarea class="brain-textarea" id="brain-input" placeholder="Dump everything on your mind." oninput="autoResize(this)"></textarea>
@@ -620,7 +610,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         </div>
         <div class="brain-list" id="brain-list"><div class="empty-state">Swipe left to delete.</div></div>
       </div>
-      <!-- 오른쪽 사이드탭 -->
       <div style="width:48px;display:flex;flex-direction:column;border-left:1.5px solid var(--ink);flex-shrink:0;">
         <div class="brain-side-tab" onclick="openBrainZone('record')" id="bst-record">
           <svg class="brain-side-svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -642,7 +631,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </div>
   </div>
 
-  <!-- TODO -->
   <div class="tab-content" id="tab-todo">
     <div class="section-header todo-header">
       <div style="display:flex;align-items:center;gap:0;">
@@ -657,11 +645,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
     </div>
     <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-      <!-- WEEKLY VIEW -->
       <div id="weekly-view" style="flex:1;overflow-y:auto;">
         <div id="weekly-list"></div>
       </div>
-      <!-- QUAD VIEW -->
       <div id="quad-view" style="flex:1;overflow:hidden;display:none;">
         <div class="quad-grid">
           <div class="quad-cell" onclick="openTodoPopup('today')">
@@ -702,7 +688,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <div class="quad-items" id="items-want"></div>
         </div>
       </div>
-      <!-- Pass 섹션 -->
       <div id="cart-pass-section" style="flex:0 0 40%;border-top:2px solid var(--ink);display:flex;flex-direction:column;overflow:hidden;padding:10px var(--pad-h);">
         <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;flex-shrink:0;">PASS — 사지 않기로 함 <span style="font-size:8px;font-weight:400;color:var(--rule);">드래그해서 옮기면 자동 처리</span></div>
         <div id="items-pass" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;scrollbar-width:none;"></div>
@@ -710,7 +695,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </div>
   </div>
 
-  <!-- BOOK -->
   <div class="tab-content" id="tab-book">
     <div class="section-header">
       <div class="section-title">Book</div>
@@ -719,7 +703,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="book-list" id="book-list"><div class="empty-state">No books added yet.</div></div>
   </div>
 
-  <!-- BOOK DETAIL -->
   <div class="tab-content" id="tab-book-detail">
     <div class="section-header">
       <button class="back-btn" onclick="closeBookDetail()">← BACK</button>
@@ -729,7 +712,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="review-list" id="review-list"><div class="empty-state">No reading notes yet.</div></div>
   </div>
 
-  <!-- IDEA -->
   <div class="tab-content" id="tab-idea">
     <div class="section-header">
       <div class="section-title">Idea</div>
@@ -738,7 +720,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="idea-list" id="idea-list" style="flex:1;overflow-y:auto;padding:0 var(--pad-h);scrollbar-width:none;"><div class="empty-state">No ideas yet.</div></div>
   </div>
 
-  <!-- INBOX -->
   <div class="tab-content" id="tab-inbox">
     <div class="section-header">
       <div class="section-title">Briefing</div>
@@ -747,10 +728,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="inbox-list" id="inbox-list"><div class="inbox-empty">Your morning briefing will appear here.</div></div>
   </div>
 </div>
-  </div><!-- /app-main -->
-
-<!-- Todo popup — [FIX #3] 메모 필드 추가 -->
-<div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
+  </div><div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
   <div class="popup-sheet" style="max-height:90vh;overflow-y:auto;">
     <div class="popup-label" id="todo-popup-label"></div>
     <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')document.getElementById('todo-memo-input').focus()">
@@ -782,7 +760,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<!-- Cart popup -->
 <div class="popup-overlay" id="cart-popup" onclick="if(event.target===this)closeCartPopup()">
   <div class="popup-sheet">
     <div class="popup-label" id="cart-popup-label"></div>
@@ -792,7 +769,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<!-- Sub popup (drag) -->
 <div class="sub-popup-overlay" id="sub-popup" onclick="if(event.target===this)closeSubPopup()">
   <div class="sub-popup-sheet">
     <div class="sub-popup-title" id="sub-popup-title"></div>
@@ -802,7 +778,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<!-- Record popup -->
 <div class="record-popup-overlay" id="record-popup" onclick="if(event.target===this)closeRecordPopup()">
   <div class="record-popup-sheet">
     <div class="rp-header"><div class="rp-time" id="rp-time"></div><button class="rp-close" onclick="closeRecordPopup()">✕ CLOSE</button></div>
@@ -824,7 +799,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<!-- Todo detail popup -->
 <div class="todo-detail-overlay" id="todo-detail-popup" onclick="if(event.target===this)closeTodoDetail()">
   <div class="todo-detail-sheet">
     <div class="td-header">
@@ -834,7 +808,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <button class="td-close" onclick="closeTodoDetail()">✕ CLOSE</button>
     </div>
-    <!-- 고정 영역: 제목~SAVE -->
     <div class="td-body" style="flex-shrink:0;">
       <textarea id="td-edit-text" rows="1" oninput="autoResize(this)" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);outline:none;padding:6px 0;margin-bottom:14px;resize:none;overflow:hidden;line-height:1.5;display:block;"></textarea>
       <div class="td-field-label">MEMO</div>
@@ -876,7 +849,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
       </div>
     </div>
-    <!-- 스크롤 영역: 하위업무 + 삭제 -->
     <div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px;border-top:1px solid var(--rule);min-height:0;">
       <div class="td-sub-label" style="padding-top:12px;">SUBTASKS</div>
       <div id="td-sub-list"></div>
@@ -891,7 +863,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<!-- Book Edit popup -->
 <div class="popup-overlay" id="book-edit-popup" onclick="if(event.target===this)closeBookEditPopup()">
   <div class="popup-sheet">
     <div class="popup-label">EDIT BOOK</div>
@@ -947,7 +918,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<!-- Add Review popup -->
 <div class="popup-overlay" id="add-review-popup" onclick="if(event.target===this)closeAddReviewPopup()">
   <div class="popup-sheet" style="max-height:90vh;overflow-y:auto;">
     <div class="popup-label">독서 기록</div>
@@ -967,13 +937,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<!-- Lightbox -->
 <div class="rp-lightbox" id="rp-lightbox" onclick="closeLightbox()">
   <button class="rp-lightbox-close" onclick="closeLightbox()">✕ CLOSE</button>
   <img id="rp-lb-img" src="">
 </div>
 
-<!-- Brain zone panels -->
 <div class="brain-zone-panel hidden" id="brain-zone-panel">
   <div class="brain-zone-header">
     <div class="brain-zone-title" id="brain-zone-title"></div>
@@ -1081,23 +1049,17 @@ function selectCustomType(type){
 
 /* Photos */
 let selectedPhotos=[];
-  /* Photos */
-let selectedPhotos=[];
 
-// 👇 여기에 아래의 uploadToCloudinary 함수를 추가해 주세요! 👇
 async function uploadToCloudinary(file) {
   const cloudName = localStorage.getItem('cloud_name');
   const uploadPreset = localStorage.getItem('cloud_key');
-  
   if (!cloudName || !uploadPreset) {
     showToast('클라우드(Cloudinary) 설정 정보가 없습니다.');
     return null;
   }
-  
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', uploadPreset);
-  
   try {
     const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
       method: 'POST',
@@ -1112,13 +1074,7 @@ async function uploadToCloudinary(file) {
     return null;
   }
 }
-// 👆 여기까지 추가 👆
 
-function handlePhotos(input){
-  Array.from(input.files).slice(0,3-selectedPhotos.length).forEach(file=>{
-    const r=new FileReader();
-    r.onload=e=>{
-// ... (이하 기존 코드 동일) ...
 function handlePhotos(input){
   Array.from(input.files).slice(0,3-selectedPhotos.length).forEach(file=>{
     const r=new FileReader();
@@ -1334,8 +1290,6 @@ async function addRecordPhotosInline(input){
   }catch(e){console.error(e);showToast('Failed to add photo');}
   document.getElementById('loading').classList.add('hidden');
 }
-
-/* 여기서부터 복사해서 덮어씌우세요 */
 
 async function removeRecordPhotoInline(idx){
   if(!confirm('Delete this photo?'))return;
@@ -2507,6 +2461,7 @@ function endTodoDrag(targetQ,targetItemEl){
   saveTodoToStorage();renderAllQuads();showToast('Moved to '+cfg.label);
   todoDragItem=null;todoDragQ=null;todoDragI=null;todoDragSI=null;
 }
+
 function toggleSubTodoInline(q,i,si,e){
   if(e)e.stopPropagation();
   const sub=todoData[q][i].subs[si];sub.done=!sub.done;
@@ -2515,6 +2470,7 @@ function toggleSubTodoInline(q,i,si,e){
   renderAllQuads();saveTodoToStorage();
   if(currentTodoView==='week')renderWeeklyView();
 }
+
 function detachSubTodo(q,i,si){
   if(!confirm('상위업무 연결을 해제하고 독립 투두로 만들까요?'))return;
   const parent=todoData[q][i];
@@ -2529,6 +2485,7 @@ function detachSubTodo(q,i,si){
   if(currentTodoView==='week')renderWeeklyView();
   showToast('독립 투두로 분리했어요!');
 }
+
 function deleteSubTodoItem(q,i,si){
   if(!confirm('Delete this subtask?'))return;
   const sub=todoData[q][i].subs[si];
@@ -2700,6 +2657,7 @@ async function saveCartToNotion(section,text,memo){
     const d=await res.json();return d.id||null;
   }catch(e){console.error(e);return null;}
 }
+
 /* Braindump */
 let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost');
@@ -2819,15 +2777,17 @@ function renderBrainList(){
     });
     inner.addEventListener('mouseleave',()=>{if(mouseDragging){mouseDragging=false;inner.style.transform='';bg.style.width='0';}});
     inner.addEventListener('touchstart',e=>startHold(e,idx,item),{passive:false});
-    inner.addEventListener('mousedown',e=>startHold(e,idx,item));;
+    inner.addEventListener('mousedown',e=>startHold(e,idx,item));
   });
 }
+
 let subDragZone='',subDragItem=null,subDragIdx=-1;
 function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragIdx=idx;document.getElementById('sub-popup-text').textContent=item.text;const wrap=document.getElementById('sub-choices-wrap');wrap.innerHTML='';if(zone==='record'){document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';const grid=document.createElement('div');grid.className='sub-mood-grid';['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{const btn=document.createElement('button');btn.className='sub-mood-btn';btn.textContent=m;btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);grid.appendChild(btn);});wrap.appendChild(grid);}else if(zone==='todo'){document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(QUAD_CFG).forEach(([q,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':'');btn.onclick=()=>confirmSubTodo(q);div.appendChild(btn);});wrap.appendChild(div);}else if(zone==='cart'){document.getElementById('sub-popup-title').textContent='CART — 분류 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label;btn.onclick=()=>confirmSubCart(s);div.appendChild(btn);});wrap.appendChild(div);}
   else if(zone==='idea'){document.getElementById('sub-popup-title').textContent='IDEA — Save as Idea';const div=document.createElement('div');div.className='sub-choices';const btn=document.createElement('button');btn.className='sub-choice';btn.textContent='Save to Idea DB';btn.style.cssText='border-color:var(--ink);font-weight:600;';btn.onclick=()=>confirmSubIdea();div.appendChild(btn);wrap.appendChild(div);}
   else if(zone==='book'){document.getElementById('sub-popup-title').textContent='BOOK — 책 선택 또는 입력';const div=document.createElement('div');div.className='sub-choices';if(bookData.length){bookData.forEach((book,i)=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=book.title;btn.onclick=()=>confirmSubBook(i);div.appendChild(btn);});}const newBtn=document.createElement('button');newBtn.className='sub-choice';newBtn.textContent='+ 새 책으로 독후감 추가';newBtn.style.cssText='border-color:var(--ink);font-weight:600;';newBtn.onclick=()=>confirmSubBookNew();div.appendChild(newBtn);wrap.appendChild(div);}
   document.getElementById('sub-popup').classList.add('open');}
 function closeSubPopup(){document.getElementById('sub-popup').classList.remove('open');}
+
 async function confirmSubRecord(mood){
   closeSubPopup();
   const text=subDragItem.text;
@@ -2844,6 +2804,7 @@ async function confirmSubRecord(mood){
   markBrainDone(brainIdx,'record');
   showToast('Log 탭으로 이동했어요');
 }
+
 function confirmSubTodo(q){
   closeSubPopup();
   currentQuad=q;
@@ -2867,6 +2828,7 @@ function confirmSubTodo(q){
   document.getElementById('todo-popup').classList.add('open');
   setTimeout(()=>document.getElementById('todo-input').focus(),300);
 }
+
 function confirmSubCart(section){
   closeSubPopup();
   const brainIdx=subDragIdx;
@@ -2878,6 +2840,7 @@ function confirmSubCart(section){
   document.getElementById('cart-popup').classList.add('open');
   setTimeout(()=>document.getElementById('cart-memo').focus(),300);
 }
+
 function markBrainDone(idx,tag){
   const item=brainItems[idx];
   item.tag=tag;
@@ -2887,6 +2850,7 @@ function markBrainDone(idx,tag){
     fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'분류':{select:{name:tag.toUpperCase()}}}})}).catch(e=>console.error(e));
   }
 }
+
 function deleteBrainItem(idx){
   ghost.style.display='none';
   isDragging=false;dragItem=null;dragIdx=-1;
@@ -2897,6 +2861,7 @@ function deleteBrainItem(idx){
     fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));
   }
 }
+
 function resetBrain(){
   const untagged=brainItems.filter(i=>!i.tag);
   if(!untagged.length){showToast('미분류 항목이 없어요');return;}
@@ -3195,7 +3160,47 @@ function checkBrainAutoReset(){
     localStorage.setItem('brain_last_reset',now.toISOString());
   }
 }
-function confirmSubIdea(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';const sheet=document.createElement('div');sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;';sheet.innerHTML=`<div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div><div style="font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;">${text}</div><div style="display:flex;flex-direction:column;gap:6px;">${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:12px;"><button onclick="document.getElementById('idea-overlay').remove()" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button></div>`;overlay.id='idea-overlay';overlay.appendChild(sheet);overlay.addEventListener('pick',async(e)=>{const cat=e.detail;document.getElementById('idea-overlay').remove();let nid=null;try{const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'선택':{select:{name:cat}}}})});const d=await r.json();nid=d.id||null;}catch(e){console.error(e);}ideaData.unshift({text,select:cat,notionId:nid});renderIdeaList();markBrainDone(idx,'idea');showToast('Saved as Idea!');});overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});document.body.appendChild(overlay);}
+function confirmSubIdea(){
+  closeSubPopup();
+  const text=subDragItem.text;
+  const idx=subDragIdx;
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(17,17,17,0.55);z-index:600;display:flex;align-items:flex-end;justify-content:center;';
+  
+  const sheet=document.createElement('div');
+  sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border-radius:4px 4px 0 0;padding:20px 20px 36px;max-height:85vh;overflow-y:auto;';
+  
+  sheet.innerHTML=`
+    <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div>
+    <div style="font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;max-height:30vh;overflow-y:auto;word-break:break-word;">${text}</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      ${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+      <button onclick="document.getElementById('idea-overlay').remove()" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button>
+    </div>
+  `;
+  
+  overlay.id='idea-overlay';
+  overlay.appendChild(sheet);
+  overlay.addEventListener('pick',async(e)=>{
+    const cat=e.detail;
+    document.getElementById('idea-overlay').remove();
+    let nid=null;
+    try{
+      const r=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'선택':{select:{name:cat}}}})});
+      const d=await r.json();
+      nid=d.id||null;
+    }catch(e){console.error(e);}
+    ideaData.unshift({text,select:cat,notionId:nid});
+    renderIdeaList();
+    markBrainDone(idx,'idea');
+    showToast('Saved as Idea!');
+  });
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  document.body.appendChild(overlay);
+}
+
 function confirmSubBookNew(){closeSubPopup();const text=subDragItem.text;const idx=subDragIdx;openAddBookPopup();setTimeout(()=>{document.getElementById('book-search-input').value=text;debounceBookSearch(text);},400);markBrainDone(idx,'book');}
 
 /* Book */
