@@ -104,20 +104,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-items { flex: 1; padding: 5px 0 5px 10px; display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
 .week-item { display: flex; align-items: center; gap: 6px; padding: 3px 4px 3px 0; cursor: pointer; width: 100%; min-width: 0; user-select: none; -webkit-user-select: none; }
 .week-items.two-col .week-item { width: 50%; }
-.week-item.has-subs { width: 100% !important; }
 .week-check { width: 12px; height: 12px; border: 1.5px solid var(--ink); border-radius: 2px; flex-shrink: 0; transition: background 0.12s; display: flex; align-items: center; justify-content: center; }
 .week-check.done { background: var(--ink); }
 .week-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .week-item-text { font-size: 12px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: none; -webkit-user-select: none; }
 .week-item-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.week-sub-list { width: 100%; padding: 2px 0 4px 18px; display: flex; flex-direction: column; gap: 0; }
-.week-sub-text { font-size: 12px; font-weight: 300; color: var(--ink-soft); line-height: 1.3; flex: 1; font-family: 'NanumSquareNeo', sans-serif; word-break: break-word; white-space: normal; }
-.week-sub-item { display: flex; align-items: flex-start; gap: 5px; padding: 2px 0; cursor: pointer; }
-.week-sub-check { width: 12px; height: 12px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; }
-.week-sub-check.done { background: var(--ink); border-color: var(--ink); }
-.week-sub-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
-.week-sub-text.done { text-decoration: line-through; color: var(--rule); }
-.week-sub-more { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 1px 6px; border-radius: 1px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
 .week-overdue .week-day-name { color: #c0392b; display:none; }
 .week-overdue .week-day-date { color: #c0392b; display:none; }
 .week-row.week-overdue { display: none; }
@@ -176,12 +167,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.45; color: var(--ink); flex: 1; word-break: break-all; }
 .quad-text.done { text-decoration: line-through; color: var(--ink-muted); }
 .quad-overdue { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #c0392b; display: inline; background: rgba(192,57,43,0.15); padding: 1px 4px; border-radius: 2px; margin-left: 4px; }
-.quad-sub-count { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 600; color: var(--ink-muted); margin-left: 3px; }
 .quad-item { user-select: none; -webkit-user-select: none; touch-action: pan-y; }
 .quad-item.dragging { opacity: 0.4; }
 .quad-cell.drag-over { background: rgba(0,0,0,0.06); outline: 2px solid var(--ink) !important; }
-.quad-sub-item { background: rgba(0,0,0,0.02); border-left: 2px solid var(--rule) !important; margin-left: 4px; }
-.quad-sub-cross { border-left-color: var(--ink-muted) !important; }
 .quad-memo { font-family: 'NanumSquareNeo', sans-serif; font-size: 10px; font-weight: 300; color: var(--ink-muted); display: block; }
 .quad-more-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 2px 7px; border-radius: 1px; cursor: pointer; margin-top: 3px; align-self: flex-start; flex-shrink: 0; }
 
@@ -242,11 +230,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .week-col-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; word-break: break-word; }
   .week-col-text.done { text-decoration: line-through; color: var(--ink-muted); }
   .week-col-more { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 2px 6px; border-radius: 1px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
-  .week-col-sub { display: flex; align-items: center; gap: 4px; padding: 1px 0 1px 14px; cursor: pointer; }
-  .week-col-sub-check { width: 12px; height: 12px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-  .week-col-sub-check.done { background: var(--ink); border-color: var(--ink); }
-  .week-col-sub-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
-  .week-col-sub-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 10px; font-weight: 300; color: var(--ink-soft); line-height: 1.3; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .week-row { display: none; }
   .week-overdue-row { display: flex; }
 }
@@ -398,18 +381,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .td-due { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.06em; margin-bottom: 8px; }
 .td-memo-display { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; padding: 8px 10px; background: rgba(0,0,0,0.03); border-radius: 2px; border-left: 2px solid var(--rule); white-space: pre-wrap; }
 .td-field-label { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 4px; }
-.td-sub-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px; border-top: 1px solid var(--rule); padding-top: 12px; }
-.td-sub-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--rule); }
-.td-sub-item:last-child { border-bottom: none; }
-.td-sub-check { width: 13px; height: 13px; border: 1.5px solid var(--ink-muted); border-radius: 1px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.td-sub-check.done { background: var(--ink); border-color: var(--ink); }
-.td-sub-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
-.td-sub-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink); flex: 1; }
-.td-sub-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.td-add-sub { display: flex; gap: 8px; margin-top: 10px; }
-.td-add-sub-input { flex: 1; font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink); background: transparent; border: none; border-bottom: 1px solid var(--rule); outline: none; padding: 6px 0; }
-.td-add-sub-input::placeholder { color: var(--rule); }
-.td-add-sub-btn { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; background: var(--ink); color: var(--paper); border: none; padding: 6px 14px; cursor: pointer; border-radius: 1px; }
 .td-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rule); }
 .td-action-btn { flex: 1; padding: 9px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 2px; }
 .td-action-btn.danger { border-color: #c0392b; color: #c0392b; }
@@ -456,9 +427,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .tag { font-size: 12px !important; }
   .record-tag { font-size: 12px !important; }
   .week-item-text { font-size: 13px !important; }
-  .week-sub-text { font-size: 12px !important; }
   .week-col-text { font-size: 13px !important; }
-  .week-col-sub-text { font-size: 12px !important; }
 }
 @media (min-width: 1400px) {
   :root { --pad-h: 60px; }
@@ -470,9 +439,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .brain-item-text { font-size: 13px !important; }
   .book-card-title { font-size: 13px !important; }
   .week-item-text { font-size: 13px !important; }
-  .week-sub-text { font-size: 12px !important; }
   .week-col-text { font-size: 13px !important; }
-  .week-col-sub-text { font-size: 12px !important; }
   .popup-input { font-size: 13px !important; }
   .popup-input-sm { font-size: 13px !important; }
   .rp-text { font-size: 13px !important; }
@@ -482,7 +449,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .review-text { font-size: 13px !important; }
   .sub-choice { font-size: 13px !important; }
   .sub-popup-text { font-size: 13px !important; }
-  .td-sub-text { font-size: 13px !important; }
   .td-add-sub-input { font-size: 13px !important; }
   .setup-input { font-size: 13px !important; }
 }
@@ -754,13 +720,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         </div>
       </div>
     </div>
-    <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">SUBTASKS <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-    <div id="todo-popup-subs" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;"></div>
-    <button onclick="addTodoPopupSub()" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px dashed var(--rule);padding:7px 12px;cursor:pointer;margin-bottom:10px;width:100%;text-align:left;">+ ADD SUBTASK</button>
-    <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">LINK TO PARENT <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-    <select id="todo-parent-select" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;background:var(--paper);border:1.5px solid var(--rule);padding:8px 12px;outline:none;margin-bottom:10px;color:var(--ink);border-radius:1px;box-sizing:border-box;">
-      <option value="">— None —</option>
-    </select>
     <div class="popup-btns"><button class="popup-cancel" onclick="closeTodoPopup()">CANCEL</button><button class="popup-ok" onclick="confirmTodo()">OK</button></div>
   </div>
 </div>
@@ -847,20 +806,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <button onclick="document.getElementById('td-time-hour-select').value='';document.getElementById('td-time-min-select').value='';" style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 8px;cursor:pointer;border-radius:1px;white-space:nowrap;">✕</button>
         </div>
       </div>
-      <div class="td-field-label">PARENT</div>
-      <select id="td-parent-select" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;background:var(--paper);border:1.5px solid var(--rule);border-radius:2px;padding:8px;outline:none;color:var(--ink);margin-bottom:14px;"></select>
       <div style="display:flex;gap:8px;margin-bottom:0;">
         <button onclick="cancelTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
         <button onclick="saveTodoEdit()" style="flex:1;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
       </div>
     </div>
     <div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px;border-top:1px solid var(--rule);min-height:0;">
-      <div class="td-sub-label" style="padding-top:12px;">SUBTASKS</div>
-      <div id="td-sub-list"></div>
-      <div class="td-add-sub">
-        <input class="td-add-sub-input" id="td-sub-input" placeholder="Add subtask..." onkeydown="if(event.key==='Enter')addSubTodo()">
-        <button class="td-add-sub-btn" onclick="addSubTodo()">ADD</button>
-      </div>
       <div class="td-actions">
         <button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>
       </div>
@@ -1571,68 +1522,26 @@ function renderWeeklyView(){
         <div class="week-col-items" id="wci-${dayStr}">`;
       items.forEach(({item,q,i})=>{
         const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
-        const _allS=item.subs||[];const _undoneS=_allS.filter(s=>!s.done);const _doneS=_allS.length-_undoneS.length;
-        const _subBadge=_allS.length>0?`<span style="font-family:'Montserrat',sans-serif;font-size:7px;font-weight:700;color:var(--ink-muted);margin-left:3px;white-space:nowrap;">${_undoneS.length>0?'▸'+_undoneS.length:''}${_doneS>0?' ✓'+_doneS:''}</span>`:'';
         html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
-          <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}${_subBadge}</div>
+          <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
         </div>`;
-        const pendingSubs=_undoneS;
-        pendingSubs.slice(0,2).forEach(sub=>{
-          const si=(item.subs||[]).indexOf(sub);
-          html+=`<div class="week-col-sub" onclick="event.stopPropagation();openTodoDetail(${si},${si},'${q}',${i})">
-            <div class="week-col-sub-check${sub.done?' done':''}" data-q="${q}" data-i="${i}" data-si="${si}"></div>
-            <div class="week-col-sub-text">${sub.text}</div>
-          </div>`;
-        });
       });
       html+=`</div></div>`;
     }
     html+=`</div>`;
     list.innerHTML=html;
-    list.querySelectorAll('.week-col-sub-check').forEach(chk=>{
-      const {q,i,si}=chk.dataset;
-      chk.addEventListener('click',e=>{e.stopPropagation();toggleSubTodoInline(q,parseInt(i),parseInt(si),e);});
-      chk.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();toggleSubTodoInline(q,parseInt(i),parseInt(si),e);},{passive:false});
-    });
     requestAnimationFrame(()=>applyPCWeekOverflow());
   } else {
-    function buildSubsHtml(item,q,i){
-      const pendingSubs=(item.subs||[]).filter(s=>!s.done);
-      if(!pendingSubs.length)return '';
-      const MAX=3;const visible=pendingSubs.slice(0,MAX);const hidden=pendingSubs.slice(MAX);
-      const subId=`wsub-${q}-${i}`;
-      let h=`<div class="week-sub-list" id="${subId}">`;
-      visible.forEach(sub=>{
-        const realSi=(item.subs||[]).indexOf(sub);
-        h+=`<div class="week-sub-item" onclick="event.stopPropagation();openTodoDetail(${realSi},${realSi},'${q}',${i})">
-          <div class="week-sub-check${sub.done?' done':''}" data-q="${q}" data-i="${i}" data-si="${realSi}"></div>
-          <div class="week-sub-text${sub.done?' done':''}">${sub.text}</div>
-        </div>`;
-      });
-      if(hidden.length){
-        const hj=JSON.stringify(hidden.map(s=>({text:s.text,si:(item.subs||[]).indexOf(s),done:!!s.done}))).replace(/"/g,'&quot;');
-        h+=`<button class="week-sub-more" onclick="event.stopPropagation();toggleWeekSubs('${subId}','${q}',${i},this,${hj})">+${hidden.length}</button>`;
-      }
-      return h+`</div>`;
-    }
-
     function buildRowHtml(items,labelHtml,rowClass,dayStr){
-      const hasSubs=items.some(({item})=>(item.subs||[]).some(s=>!s.done));
-      const useTwoCol=!hasSubs&&items.filter(x=>!x.item.done).length>3;
+      const useTwoCol=items.filter(x=>!x.item.done).length>3;
       let h=`<div class="week-row${rowClass}" onclick="openTodoPopupWeek('${dayStr||''}')"><div class="week-day-label">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}">`;
       items.forEach(({item,q,i})=>{
-        const allSubs=item.subs||[];
-        const pendingSubs=allSubs.filter(s=>!s.done);
-        const doneCnt=allSubs.length-pendingSubs.length;
-        const hasS=pendingSubs.length>0;
         const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
-        const subBadge=allSubs.length>0?`<span style="font-family:'Montserrat',sans-serif;font-size:7px;font-weight:700;color:var(--ink-muted);margin-left:3px;white-space:nowrap;">${pendingSubs.length>0?'▸'+pendingSubs.length:''}${doneCnt>0?' ✓'+doneCnt:''}</span>`:'';
-        h+=`<div class="week-item${hasS?' has-subs':''}" onclick="event.stopPropagation();if(!weekDragging)openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
+        h+=`<div class="week-item" onclick="event.stopPropagation();if(!weekDragging)openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
           <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleTodo('${q}',${i},event)"></div>
-          <div class="week-item-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}${subBadge}</div>
+          <div class="week-item-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
         </div>`;
-        if(hasS)h+=buildSubsHtml(item,q,i);
       });
       return h+`</div></div>`;
     }
@@ -1648,11 +1557,6 @@ function renderWeeklyView(){
       html+=buildRowHtml(items,labelHtml,isToday?' today':'',dayStr);
     }
     list.innerHTML=html;
-    list.querySelectorAll('.week-sub-check').forEach(chk=>{
-      const {q,i,si}=chk.dataset;
-      chk.addEventListener('click',e=>{e.stopPropagation();toggleSubTodoInline(q,parseInt(i),parseInt(si),e);});
-      chk.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();toggleSubTodoInline(q,parseInt(i),parseInt(si),e);},{passive:false});
-    });
     requestAnimationFrame(()=>applyMobileWeekOverflow());
   }
 }
@@ -1702,7 +1606,7 @@ function applyMobileWeekOverflow(){
     hidden.forEach(el=>el.style.display='none');
     const itemsWrap=row.querySelector('.week-items');
     const btn=document.createElement('button');
-    btn.className='week-sub-more';
+    btn.className='week-more-btn';
     btn.textContent=`+${hidden.length}`;
     btn.onclick=(e)=>{e.stopPropagation();hidden.forEach(el=>el.style.display='');btn.remove();};
     itemsWrap?.appendChild(btn);
@@ -1711,27 +1615,6 @@ function applyMobileWeekOverflow(){
   }
 }
 
-function toggleWeekSubs(subId,q,parentI,btn,hiddenItems){
-  const container=document.getElementById(subId);if(!container)return;
-  const isExpanded=btn.dataset.expanded==='1';
-  if(isExpanded){
-    container.querySelectorAll('.week-sub-item-extra').forEach(el=>el.remove());
-    btn.textContent='+'+hiddenItems.length;
-    btn.dataset.expanded='0';
-  }else{
-    hiddenItems.forEach(({text,si,done})=>{
-      const div=document.createElement('div');div.className='week-sub-item week-sub-item-extra';
-      div.onclick=(e)=>{e.stopPropagation();openTodoDetail(si,si,q,parentI);};
-      div.innerHTML=`<div class="week-sub-check${done?' done':''}" data-q="${q}" data-i="${parentI}" data-si="${si}"></div><div class="week-sub-text${done?' done':''}">${text}</div>`;
-      const chk=div.querySelector('.week-sub-check');
-      chk.addEventListener('click',e=>{e.stopPropagation();toggleSubTodoInline(q,parentI,si,e);});
-      chk.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();toggleSubTodoInline(q,parentI,si,e);},{passive:false});
-      container.insertBefore(div,btn);
-    });
-    btn.textContent='접기';
-    btn.dataset.expanded='1';
-  }
-}
 
 function openTodoPopupWeek(dateStr){
   if(document.getElementById('todo-detail-popup').classList.contains('open'))return;
@@ -1742,14 +1625,6 @@ function openTodoPopupWeek(dateStr){
   document.getElementById('todo-date-input').value=dateStr||'';
   document.getElementById('todo-popup-subs').innerHTML='';
   todoPopupSelectedDate=dateStr?new Date(dateStr+'T23:59:59'):null;
-  todoPopupSubs=[];
-  const sel=document.getElementById('todo-parent-select');
-  sel.innerHTML='<option value="">— None —</option>';
-  ['today','week','month','someday'].forEach(pq=>{
-    todoData[pq].forEach((item,i)=>{
-      if(!item.done){const opt=document.createElement('option');opt.value=pq+'|'+i;opt.textContent=item.text+' ('+QUAD_CFG[pq].label+')';sel.appendChild(opt);}
-    });
-  });
   document.getElementById('todo-popup').classList.add('open');
   setTimeout(()=>document.getElementById('todo-input').focus(),300);
 }
@@ -1765,29 +1640,8 @@ function switchTodoCart(pane){
 /* Todo */
 const QUAD_CFG={today:{label:'Today',offset:0},week:{label:'This Week',offset:7},month:{label:'This Month',offset:30},someday:{label:'Someday',offset:null}};
 let todoData={today:[],week:[],month:[],someday:[]},currentQuad='',currentTodoPane='todo';
-const quadSubExpanded=new Set();
-function subExpandKey(q,i){const item=todoData[q]?.[i];return item?.notionId||`${q}-${i}`;}
-function autoCollapseIfAllDone(q,i){const item=todoData[q]?.[i];if(!item||!item.subs?.length)return;if(item.subs.every(s=>s.done))quadSubExpanded.delete(subExpandKey(q,i));}
 function initQuadDates(){document.getElementById('due-today').textContent=formatDateShort(new Date());document.getElementById('due-week').textContent='+7d  '+formatDateShort(getOffsetDate(7));document.getElementById('due-month').textContent='+30d  '+formatDateShort(getOffsetDate(30));}
 let todoPopupSelectedDate=null;
-let todoPopupSubs=[];
-function addTodoPopupSub(){
-  const idx=todoPopupSubs.length;
-  todoPopupSubs.push({text:'',dueDate:null});
-  const wrap=document.getElementById('todo-popup-subs');
-  const row=document.createElement('div');row.style.cssText='display:flex;flex-direction:column;gap:4px;padding:8px 10px;border:1px solid var(--rule);border-radius:2px;margin-bottom:4px;';
-  row.innerHTML=`
-    <div style="display:flex;gap:6px;align-items:center;">
-      <input placeholder="Subtask ${idx+1}" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:12px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;background:transparent;color:var(--ink);" oninput="todoPopupSubs[${idx}].text=this.value">
-      <button onclick="this.closest('div').parentElement.remove();todoPopupSubs.splice(${idx},1)" style="font-size:14px;background:transparent;border:none;cursor:pointer;color:var(--ink-muted);padding:0 4px;flex-shrink:0;">✕</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;">
-      <span style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);">DUE</span>
-      <input type="date" style="flex:1;font-family:'NanumSquareNeo',sans-serif;font-size:11px;background:transparent;border:1px solid var(--rule);padding:3px 6px;outline:none;color:var(--ink);border-radius:1px;" onchange="todoPopupSubs[${idx}].dueDate=this.value?new Date(this.value+'T23:59:59'):null">
-      <span style="font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">없으면 상위 마감일 상속</span>
-    </div>`;
-  wrap.appendChild(row);
-}
 function onTodoDateInputChange(){
   const val=document.getElementById('todo-date-input').value;
   todoPopupSelectedDate=val?new Date(val+'T23:59:59'):null;
@@ -1813,19 +1667,6 @@ function openTodoPopup(q){
   }else{
     document.getElementById('todo-date-input').value='';
   }
-  todoPopupSubs=[];
-  const sel=document.getElementById('todo-parent-select');
-  sel.innerHTML='<option value="">— None —</option>';
-  ['today','week','month','someday'].forEach(pq=>{
-    todoData[pq].forEach((item,i)=>{
-      if(!item.done){
-        const opt=document.createElement('option');
-        opt.value=pq+'|'+i;
-        opt.textContent=item.text+' ('+QUAD_CFG[pq].label+')';
-        sel.appendChild(opt);
-      }
-    });
-  });
   document.getElementById('todo-popup').classList.add('open');
   setTimeout(()=>document.getElementById('todo-input').focus(),300);
 }
@@ -1837,40 +1678,14 @@ async function confirmTodo(){
   const dueDate=todoPopupSelectedDate||null;
   const _th=document.getElementById('todo-time-hour').value,_tm=document.getElementById('todo-time-min').value;
   const timeVal=_th?to24h(`${_th}:${(_tm||'0').padStart(2,'0')}`,document.getElementById('todo-time-ampm').value):'';
-  const parentVal=document.getElementById('todo-parent-select').value;
-  const subs=todoPopupSubs.filter(s=>(typeof s==='string'?s:s.text).trim());
   closeTodoPopup();
 
-  if(parentVal){
-    const [pq,pi]=parentVal.split('|');
-    const pidx=parseInt(pi);
-    const sub={text,memo,time:timeVal,done:false,doneAt:null,quad:pq,notionId:null};
-    todoData[pq][pidx].subs=todoData[pq][pidx].subs||[];
-    todoData[pq][pidx].subs.push(sub);
-    renderAllQuads();saveTodoToStorage();
-    if(currentTodoView==='week')renderWeeklyView();
-    const parentId=todoData[pq][pidx].notionId;
-    const subId=await saveSubTodoToNotion(text,parentId,memo);
-    if(subId){sub.notionId=subId;saveTodoToStorage();}
-  } else {
-    const item={text,memo,time:timeVal,dueDate,done:false,doneAt:null,addedAt:new Date(),notionId:null,subs:[]};
-    todoData[currentQuad].push(item);
-    renderAllQuads();saveTodoToStorage();
-    if(currentTodoView==='week')renderWeeklyView();
-    const id=await saveTodoToNotion(currentQuad,text,dueDate,memo,timeVal);
-    if(id){
-      item.notionId=id;saveTodoToStorage();
-      for(const subObj of subs){
-        const subText=typeof subObj==='string'?subObj:subObj.text;
-        const subDue=(typeof subObj==='object'&&subObj.dueDate)?subObj.dueDate:dueDate;
-        const sub={text:subText,memo:'',done:false,doneAt:null,quad:currentQuad,dueDate:subDue,notionId:null};
-        item.subs.push(sub);
-        const subId=await saveSubTodoToNotion(subText,id,'',subDue);
-        if(subId){sub.notionId=subId;}
-      }
-      if(subs.length){saveTodoToStorage();renderAllQuads();}
-    }
-  }
+  const item={text,memo,time:timeVal,dueDate,done:false,doneAt:null,addedAt:new Date(),notionId:null};
+  todoData[currentQuad].push(item);
+  renderAllQuads();saveTodoToStorage();
+  if(currentTodoView==='week')renderWeeklyView();
+  const id=await saveTodoToNotion(currentQuad,text,dueDate,memo,timeVal);
+  if(id){item.notionId=id;saveTodoToStorage();}
   showToast('Added!');
   if(window._brainTodoCallback){
     markBrainDone(window._brainTodoCallback.idx,'todo');
@@ -1892,28 +1707,18 @@ function toggleTodo(q,idx,e){
   if(currentTodoView==='week')renderWeeklyView();
 }
 function toggleCurrentItemDone(){
-  let item;
-  if(currentSubSi>=0){
-    const parent=todoData[currentDetailQuad][currentDetailIdx];
-    item=parent.subs[currentSubSi];
-    item.done=!item.done;
-    item.doneAt=item.done?new Date().toISOString():null;
-    if(item.notionId)updateTodoNotionDoneFull(item.notionId,item.done);
-  } else {
-    item=todoData[currentDetailQuad][currentDetailIdx];
-    item.done=!item.done;
-    item.doneAt=item.done?new Date().toISOString():null;
-    if(item.notionId){
-      const props={'완료':{checkbox:item.done}};
-      if(item.done)props['완료일']={date:{start:formatDate(new Date())}};
-      else props['완료일']={date:null};
-      fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(e=>console.error(e));
-    }
+  const item=todoData[currentDetailQuad][currentDetailIdx];
+  item.done=!item.done;
+  item.doneAt=item.done?new Date().toISOString():null;
+  if(item.notionId){
+    const props={'완료':{checkbox:item.done}};
+    if(item.done)props['완료일']={date:{start:formatDate(new Date())}};
+    else props['완료일']={date:null};
+    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(e=>console.error(e));
   }
   document.getElementById('td-done-check').classList.toggle('done',!!item.done);
   renderAllQuads();saveTodoToStorage();
   if(currentTodoView==='week')renderWeeklyView();
-  renderSubList();
 }
 function autoMoveTodos(){const now=new Date();['month','week'].forEach(q=>{const keep=[];todoData[q].forEach(item=>{if(item.done||!item.dueDate){keep.push(item);return;}const days=(item.dueDate-now)/86400000;if(q==='month'&&days<=7){item.movedFrom='month';todoData.week.push(item);}else if(q==='week'&&days<=0){item.movedFrom='week';todoData.today.push(item);}else keep.push(item);});todoData[q]=keep;});}
 
@@ -1963,49 +1768,13 @@ function renderQuad(q){
     div.addEventListener('touchstart',e=>startTodoDrag(e,q,i,null,null),{passive:true});
     div.addEventListener('mousedown',e=>startTodoDrag(e,q,i,null,null));
     c.appendChild(div);
-    const allSubs=(item.subs||[]).filter(s=>!s.quad||s.quad===q);
-    const undoneSubs=allSubs.filter(s=>!s.done);
-    const doneCnt=allSubs.length-undoneSubs.length;
-    if(allSubs.length>0){
-      const key=subExpandKey(q,i);
-      const allDone=undoneSubs.length===0;
-      const expanded=quadSubExpanded.has(key);
-      const toggleBtn=document.createElement('div');
-      toggleBtn.style.cssText='font-family:"Montserrat",sans-serif;font-size:8px;font-weight:700;letter-spacing:0.06em;color:var(--ink-muted);padding:2px 4px;cursor:pointer;flex-shrink:0;white-space:nowrap;align-self:flex-start;margin-top:2px;';
-      if(allDone){toggleBtn.textContent=`${expanded?'▾':'▸'}✓${doneCnt}`;}
-      else{toggleBtn.textContent=`${expanded?'▾':'▸'}${undoneSubs.length}${doneCnt>0?' ✓'+doneCnt:''}`;}
-      const _doToggle=e=>{e.stopPropagation();if(expanded)quadSubExpanded.delete(key);else quadSubExpanded.add(key);renderQuad(q);};
-      toggleBtn.addEventListener('click',_doToggle);
-      toggleBtn.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();if(expanded)quadSubExpanded.delete(key);else quadSubExpanded.add(key);renderQuad(q);},{passive:false});
-      toggleBtn.addEventListener('mousedown',e=>e.stopPropagation());
-      toggleBtn.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
-      div.appendChild(toggleBtn);
-      if(expanded){
-        const subsToShow=allSubs;
-        subsToShow.forEach((sub)=>{
-          const actualSi=(item.subs||[]).indexOf(sub);
-          const sdiv=document.createElement('div');sdiv.className='quad-item quad-sub-item';
-          sdiv.dataset.q=q;sdiv.dataset.i=i;sdiv.dataset.si=actualSi;sdiv.dataset.type='sub';
-          sdiv.innerHTML=`<div style="width:8px;flex-shrink:0;"></div><div class="quad-check${sub.done?' done':''}"></div><div class="quad-text${sub.done?' done':''}" style="font-size:10px;">${sub.text}</div>`;
-          const chk=sdiv.querySelector('.quad-check');
-          chk.addEventListener('click',e=>{e.stopPropagation();toggleSubTodoInline(q,i,actualSi,e);});
-          chk.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();toggleSubTodoInline(q,i,actualSi,e);},{passive:false});
-          chk.addEventListener('mousedown',e=>e.stopPropagation());
-          chk.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
-          sdiv.addEventListener('click',e=>{e.stopPropagation();openTodoDetail(actualSi,actualSi,q,i);});
-          sdiv.addEventListener('touchstart',e=>startTodoDrag(e,q,i,actualSi,null),{passive:true});
-          sdiv.addEventListener('mousedown',e=>startTodoDrag(e,q,i,actualSi,null));
-          c.appendChild(sdiv);
-        });
-      }
-    }
   });
 }
 
 function renderAllQuads(){['today','week','month','someday'].forEach(q=>{document.getElementById('items-'+q).dataset.colKey=q;renderQuad(q);});}
 
 function saveTodoToStorage(){localStorage.setItem('todo_data',JSON.stringify(todoData));}
-function loadTodoFromStorage(){try{const d=localStorage.getItem('todo_data');if(d){const p=JSON.parse(d);Object.keys(p).forEach(q=>{if(todoData[q])todoData[q]=p[q].map(i=>({...i,dueDate:i.dueDate?new Date(i.dueDate):null,subs:i.subs||[]}));});}}catch(e){}}
+function loadTodoFromStorage(){try{const d=localStorage.getItem('todo_data');if(d){const p=JSON.parse(d);Object.keys(p).forEach(q=>{if(todoData[q])todoData[q]=p[q].map(i=>({...i,dueDate:i.dueDate?new Date(i.dueDate):null}));});}}catch(e){}}
 
 async function saveTodoToNotion(quad,text,dueDate,memo,time){
   try{
@@ -2020,17 +1789,6 @@ async function saveTodoToNotion(quad,text,dueDate,memo,time){
     if(data.object==='error'){console.error('Notion err:',data);showToast('Notion error: '+data.code);return null;}
     return data.id||null;
   }catch(e){console.error(e);showToast('error: '+e.message);return null;}
-}
-async function saveSubTodoToNotion(text,parentId,memo,dueDate,time){
-  try{
-    const props={'이름':{title:[{text:{content:text}}]},'완료':{checkbox:false},'추가일':{date:{start:formatDate(new Date())}}};
-    if(parentId)props['상위 항목']={relation:[{id:parentId}]};
-    if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
-    if(dueDate&&!isNaN(new Date(dueDate))){const _ds2=formatDate(new Date(dueDate));props['마감일']={date:{start:time?`${_ds2}T${time}:00+09:00`:_ds2}};}
-    if(time)props['시간']={rich_text:[{text:{content:time}}]};
-    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:TODO_DB},icon:{type:'emoji',emoji:'🔹'},properties:props})});
-    const data=await res.json();return data.id||null;
-  }catch(e){return null;}
 }
 async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'완료':{checkbox:done}}})});}catch(e){}}
 async function updateTodoNotionDoneFull(id,done){try{const props={'완료':{checkbox:done}};if(done)props['완료일']={date:{start:formatDate(new Date())}};else props['완료일']={date:null};await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});}catch(e){}}
@@ -2047,13 +1805,9 @@ async function loadTodoFromNotion(){
     if(isPaused){
       ['today','week','month','someday'].forEach(q=>todoData[q].forEach(item=>{if(item.notionId)localMap[item.notionId]={item,q};}));
     }
-    const parentEntries=[];
-    const subEntries=[];
-    const idToParentIdx={};
     data.results.forEach(page=>{
       const id=page.id;const props=page.properties;
       const text=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!text)return;
-      const parentRel=props['상위 항목']?.relation?.[0]?.id||null;
       const done=props['완료']?.checkbox||false;
       const doneAtStr=props['완료일']?.date?.start||null;
       const doneAt=doneAtStr?new Date(doneAtStr).toISOString():null;
@@ -2065,13 +1819,9 @@ async function loadTodoFromNotion(){
         if(_ds.includes('T')){dueDate=new Date(_ds);if(!time){const d=new Date(_ds);time=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}}
         else{dueDate=new Date(_ds+'T23:59:59');}
       }
-      if(parentRel){
-        subEntries.push({parentId:parentRel,sub:{text,memo,time,dueDate,done,doneAt,notionId:id}});
-        return;
-      }
       if(isPaused&&localMap[id]){
         const {item,q}=localMap[id];
-        parentEntries.push({q,obj:item});
+        newTodo[q].push(item);
         return;
       }
       const quadLabel=props['사분면']?.select?.name||'Someday';
@@ -2085,17 +1835,7 @@ async function loadTodoFromNotion(){
         else if(days<=30) q='month';
         else q='someday';
       }
-      parentEntries.push({q,obj:{text,memo,time,dueDate,done,doneAt,addedAt:new Date(),notionId:id,subs:[]}});
-    });
-    parentEntries.forEach(({q,obj})=>{
-      if(!obj.subs)obj.subs=[];
-      newTodo[q].push(obj);
-      if(obj.notionId)idToParentIdx[obj.notionId]={q,idx:newTodo[q].length-1};
-    });
-    subEntries.forEach(({parentId,sub})=>{
-      const loc=idToParentIdx[parentId];
-      if(!loc)return;
-      newTodo[loc.q][loc.idx].subs.push(sub);
+      newTodo[q].push({text,memo,time,dueDate,done,doneAt,addedAt:new Date(),notionId:id});
     });
     todoData=newTodo;
     saveTodoToStorage();
@@ -2110,30 +1850,16 @@ function toggleQuadrantSection(){
   s.style.display=s.style.display==='none'?'block':'none';
 }
 
-function buildParentSelectOptions(excludeQ,excludeI){
-  let opts='<option value="">— None —</option>';
-  ['today','week','month','someday'].forEach(q=>{
-    todoData[q].forEach((item,i)=>{
-      if(q===excludeQ&&i===excludeI)return;
-      if(item.done)return;
-      opts+=`<option value="${q}|${i}">${item.text} (${QUAD_CFG[q].label})</option>`;
-    });
-  });
-  return opts;
-}
 
-let currentSubSi=-1;
 let currentDetailItemNotionId=null;
-function openTodoDetail(q,idx,parentQ,parentI){
-  const isSubTask=parentQ!==undefined&&parentI!==undefined;
-  currentDetailQuad=isSubTask?parentQ:q;
-  currentDetailIdx=isSubTask?parentI:idx;
-  currentSubSi=isSubTask?idx:-1;
-  const item=isSubTask?todoData[parentQ][parentI].subs[idx]:todoData[q][idx];
+function openTodoDetail(q,idx){
+  currentDetailQuad=q;
+  currentDetailIdx=idx;
+  const item=todoData[q][idx];
   currentDetailItemNotionId=item.notionId||null;
   document.getElementById('td-done-check').classList.toggle('done',!!item.done);
-  const cfg=QUAD_CFG[isSubTask?parentQ:q];
-  document.getElementById('td-quad-tag').textContent=isSubTask?'SUBTASK':cfg.label;
+  const cfg=QUAD_CFG[q];
+  document.getElementById('td-quad-tag').textContent=cfg.label;
   document.getElementById('td-quadrant-section').style.display='none';
   const _tEl=document.getElementById('td-edit-text');_tEl.value=item.text||'';setTimeout(()=>autoResize(_tEl),0);
   document.getElementById('td-edit-memo').value=item.memo||'';
@@ -2151,18 +1877,8 @@ function openTodoDetail(q,idx,parentQ,parentI){
     document.getElementById('td-time-min-select').value='';
   }
   document.getElementById('td-edit-ampm').value=t12.ampm;
-  const parentSel=document.getElementById('td-parent-select');
-  if(isSubTask){
-    parentSel.innerHTML=buildParentSelectOptions(null,null);
-    parentSel.value=`${parentQ}|${parentI}`;
-  } else {
-    parentSel.innerHTML=buildParentSelectOptions(q,idx);
-    parentSel.value='';
-  }
-  currentEditQuad=isSubTask?parentQ:q;
-  if(!isSubTask)setTodoEditQuad(q);
-  if(!isSubTask){renderSubList();document.getElementById('td-sub-input').value='';}
-  else{document.getElementById('td-sub-list').innerHTML='';}
+  currentEditQuad=q;
+  setTodoEditQuad(q);
   const actionsEl=document.querySelector('.td-actions');
   if(actionsEl)actionsEl.innerHTML=`<button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>`;
   document.getElementById('todo-detail-popup').classList.add('open');
@@ -2202,52 +1918,6 @@ async function saveTodoEdit(){
     }
   }
   const newQuad=currentEditQuad||currentDetailQuad;
-  const parentVal=document.getElementById('td-parent-select')?.value||'';
-
-  if(currentSubSi>=0){
-    let parent=todoData[currentDetailQuad]?.[currentDetailIdx];
-    if((!parent||!parent.subs||!parent.subs[currentSubSi])&&currentDetailItemNotionId){
-      let found=false;
-      for(const q of ['today','week','month','someday']){
-        for(let pi=0;pi<todoData[q].length;pi++){
-          const p=todoData[q][pi];
-          const si=(p.subs||[]).findIndex(s=>s.notionId===currentDetailItemNotionId);
-          if(si>=0){currentDetailQuad=q;currentDetailIdx=pi;currentSubSi=si;parent=p;found=true;break;}
-        }
-        if(found)break;
-      }
-      if(!found){showToast('not found. try again.');closeTodoDetail();return;}
-    }
-    if(!parent||!parent.subs||!parent.subs[currentSubSi]){showToast('not found. try again.');closeTodoDetail();return;}
-    const sub=parent.subs[currentSubSi];
-    sub.text=text;sub.memo=memo;sub.time=timeVal;
-    sub.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
-    if(parentVal){
-      const [newPQ,newPI]=parentVal.split('|');const ni=parseInt(newPI);
-      if(newPQ!==currentDetailQuad||ni!==currentDetailIdx){
-        parent.subs.splice(currentSubSi,1);
-        todoData[newPQ][ni].subs=todoData[newPQ][ni].subs||[];
-        todoData[newPQ][ni].subs.push(sub);
-        if(sub.notionId&&todoData[newPQ][ni].notionId){
-          fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({icon:{type:'emoji',emoji:'🔹'},properties:{'이름':{title:[{text:{content:text}}]},'상위 항목':{relation:[{id:todoData[newPQ][ni].notionId}]}}})}).catch(console.error);
-        }
-        closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
-      }
-    } else {
-      parent.subs.splice(currentSubSi,1);
-      todoData[currentDetailQuad].push({text,memo,time:timeVal,dueDate:sub.dueDate,done:sub.done,doneAt:sub.doneAt||null,addedAt:new Date(),notionId:sub.notionId,subs:[]});
-      if(sub.notionId){fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'상위 항목':{relation:[]},'사분면':{select:{name:QUAD_CFG[currentDetailQuad].label}}}})}).catch(console.error);}
-      closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
-    }
-    if(sub.notionId){
-      const props={'이름':{title:[{text:{content:text}}]}};
-      if(dateVal)props['마감일']={date:{start:timeVal?`${dateVal}T${timeVal}:00+09:00`:dateVal}};else props['마감일']={date:null};
-      if(timeVal)props['시간']={rich_text:[{text:{content:timeVal}}]};else props['시간']={rich_text:[]};
-      if(memo)props['메모']={rich_text:[{text:{content:memo}}]};else props['메모']={rich_text:[]};
-      fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
-    }
-    saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();closeTodoDetail();showToast('Updated!');return;
-  }
 
   let item=todoData[currentDetailQuad]?.[currentDetailIdx];
   if((!item||(currentDetailItemNotionId&&item.notionId!==currentDetailItemNotionId))&&currentDetailItemNotionId){
@@ -2262,25 +1932,10 @@ async function saveTodoEdit(){
   item.text=text;item.memo=memo;item.time=timeVal;
   item.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
 
-  if(parentVal){
-    const [newPQ,newPI]=parentVal.split('|');const ni=parseInt(newPI);
-    todoData[currentDetailQuad].splice(currentDetailIdx,1);
-    const newParent=todoData[newPQ][ni];
-    newParent.subs=newParent.subs||[];
-    newParent.subs.push({text,memo,time:timeVal,dueDate:item.dueDate,done:item.done,doneAt:item.doneAt||null,notionId:item.notionId});
-    if(item.notionId&&newParent.notionId){
-      fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({icon:{type:'emoji',emoji:'🔹'},properties:{'이름':{title:[{text:{content:text}}]},'상위 항목':{relation:[{id:newParent.notionId}]}}})}).catch(console.error);
-    }
-    closeTodoDetail();saveTodoToStorage();renderAllQuads();if(currentTodoView==='week')renderWeeklyView();showToast('Updated!');return;
-  }
-
   if(newQuad!==currentDetailQuad){
     todoData[currentDetailQuad].splice(currentDetailIdx,1);
     todoData[newQuad].push(item);
     currentDetailQuad=newQuad;currentDetailIdx=todoData[newQuad].length-1;
-    (item.subs||[]).forEach(sub=>{
-      if(sub.notionId)fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'사분면':{select:{name:QUAD_CFG[newQuad].label}}}})}).catch(console.error);
-    });
   }
   document.getElementById('td-quad-tag').textContent=QUAD_CFG[currentDetailQuad].label;
   renderAllQuads();saveTodoToStorage();if(currentTodoView==='week')renderWeeklyView();
@@ -2301,34 +1956,7 @@ function closeTodoDetail(){
   document.body.style.overflow='';
   document.body.removeEventListener('touchmove',preventBodyScroll);
 }
-function renderSubList(){
-  const item=todoData[currentDetailQuad][currentDetailIdx];
-  const list=document.getElementById('td-sub-list');
-  if(!item.subs||!item.subs.length){list.innerHTML='';return;}
-  const sorted=[...item.subs.map((s,i)=>({s,i}))].sort((a,b)=>{
-    if(a.s.done!==b.s.done)return a.s.done?1:-1;
-    const at=a.s.time||'';const bt=b.s.time||'';
-    if(at&&bt)return at.localeCompare(bt);
-    if(at)return -1;if(bt)return 1;return 0;
-  });
-  list.innerHTML=sorted.map(({s,i})=>`
-    <div class="td-sub-item" id="tsi-${i}" onclick="openTodoDetail(${i},${i},'${currentDetailQuad}',${currentDetailIdx})" style="cursor:pointer;">
-      <div class="td-sub-check${s.done?' done':''}" onclick="event.stopPropagation();toggleSubTodo(${i})"></div>
-      <div class="td-sub-text${s.done?' done':''}">${s.text}${s.dueDate?`<span style="font-size:9px;color:var(--ink-muted);margin-left:6px;">${formatDateShort(new Date(s.dueDate))}${s.time?' ('+displayTime12h(s.time)+')':''}</span>`:''}</div>
-      <button onclick="event.stopPropagation();deleteSubItem(${i})" style="font-family:'Montserrat',sans-serif;font-size:14px;line-height:1;color:var(--ink-muted);background:none;border:none;cursor:pointer;padding:0 6px;flex-shrink:0;">✕</button>
-    </div>`).join('');
-}
-function deleteSubItem(si){
-  const item=todoData[currentDetailQuad][currentDetailIdx];
-  const sub=item.subs[si];
-  item.subs.splice(si,1);
-  if(sub&&sub.notionId)fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(console.error);
-  renderSubList();renderAllQuads();saveTodoToStorage();
-  if(currentTodoView==='week')renderWeeklyView();
-}
-function toggleSubTodo(i){const item=todoData[currentDetailQuad][currentDetailIdx];const sub=item.subs[i];sub.done=!sub.done;sub.doneAt=sub.done?new Date().toISOString():null;if(sub.notionId)updateTodoNotionDoneFull(sub.notionId,sub.done);renderSubList();renderAllQuads();saveTodoToStorage();}
 function syncParentFieldsFromForm(){
-  if(currentSubSi>=0)return;
   const item=todoData[currentDetailQuad]?.[currentDetailIdx];
   if(!item)return;
   const text=document.getElementById('td-edit-text').value.trim();
@@ -2359,7 +1987,6 @@ function syncParentFieldsFromForm(){
     fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
   }
 }
-function addSubTodo(){const text=document.getElementById('td-sub-input').value.trim();if(!text)return;syncParentFieldsFromForm();const item=todoData[currentDetailQuad][currentDetailIdx];if(!item.subs)item.subs=[];const sub={text,done:false,notionId:null,dueDate:item.dueDate||null,time:item.time||''};item.subs.push(sub);document.getElementById('td-sub-input').value='';renderSubList();renderAllQuads();saveTodoToStorage();saveSubTodoToNotion(text,item.notionId,null,sub.dueDate,sub.time).then(id=>{if(id){sub.notionId=id;saveTodoToStorage();}});}
 function deleteTodoItem(){if(!confirm('Delete? This cannot be undone.'))return;const _di=todoData[currentDetailQuad][currentDetailIdx];todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();if(currentTodoView==='week')renderWeeklyView();showToast('Deleted!');if(_di&&_di.notionId){fetch(WORKER_URL+'/notion/pages/'+_di.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));}}
 
 let weekDragItem=null,weekDragQ=null,weekDragI=null,weekDragging=false,weekDragTimer=null,weekDragEl=null;
@@ -2405,7 +2032,7 @@ function startWeekItemDrag(e,q,i){
   document.addEventListener('touchmove',onMove,{passive:true});
   document.addEventListener('touchend',onEnd,{once:true});
 }
-let todoDragItem=null,todoDragQ=null,todoDragI=null,todoDragSI=null,todoDragTimer=null,todoDragging=false,todoDragEl=null;
+let todoDragItem=null,todoDragQ=null,todoDragI=null,todoDragTimer=null,todoDragging=false,todoDragEl=null;
 let todoDragOverItem=null;
 
 function startTodoDrag(e,q,i,si,_){
@@ -2415,8 +2042,8 @@ function startTodoDrag(e,q,i,si,_){
   const startX=touch.clientX,startY=touch.clientY;
   clearTimeout(todoDragTimer);
   todoDragTimer=setTimeout(()=>{
-    todoDragging=true;todoDragQ=q;todoDragI=i;todoDragSI=si;
-    const item=si!==null?todoData[q][i].subs[si]:todoData[q][i];
+    todoDragging=true;todoDragQ=q;todoDragI=i;
+    const item=todoData[q][i];
     todoDragItem=item;
     ghost.textContent=item.text;ghost.style.display='block';
     ghost.style.left=Math.min(startX-60,window.innerWidth-260)+'px';
@@ -2452,95 +2079,24 @@ function endTodoDrag(targetQ,targetItemEl){
   document.querySelectorAll('.quad-item[data-type="parent"]').forEach(el=>{el.style.outline='';el.style.background='';});
   document.querySelectorAll('.quad-item').forEach(el=>el.classList.remove('drag-over-item'));
 
-  if(targetItemEl&&todoDragSI===null){
-    const pq=targetItemEl.dataset.q;
-    const pi=parseInt(targetItemEl.dataset.i);
-    if(pq&&!isNaN(pi)&&!(pq===todoDragQ&&pi===todoDragI)){
-      const item=todoData[todoDragQ][todoDragI];
-      todoData[todoDragQ].splice(todoDragI,1);
-      const parent=todoData[pq][pi];
-      if(!parent.subs)parent.subs=[];
-      const sub={text:item.text,memo:item.memo||'',time:item.time||'',dueDate:item.dueDate,done:item.done,doneAt:item.doneAt||null,notionId:item.notionId};
-      parent.subs.push(sub);
-      if(item.notionId&&parent.notionId){
-        fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({icon:{type:'emoji',emoji:'🔹'},properties:{'상위 항목':{relation:[{id:parent.notionId}]}}})}).catch(console.error);
-      }
-      saveTodoToStorage();renderAllQuads();showToast('하위업무로 편입!');
-      todoDragItem=null;todoDragQ=null;todoDragI=null;todoDragSI=null;
-      return;
-    }
-  }
-
-  if(!targetQ||targetQ===todoDragQ){todoDragItem=null;todoDragQ=null;todoDragI=null;todoDragSI=null;return;}
+  if(!targetQ||targetQ===todoDragQ){todoDragItem=null;todoDragQ=null;todoDragI=null;return;}
   const cfg=QUAD_CFG[targetQ];
   let newDue=null;
   if(cfg.offset!==null){newDue=new Date();newDue.setDate(newDue.getDate()+cfg.offset);newDue.setHours(23,59,59,0);}
-  if(todoDragSI!==null){
-    const sub=todoData[todoDragQ][todoDragI].subs[todoDragSI];
-    sub.quad=targetQ;
-    if(sub.notionId){
-      const props={'사분면':{select:{name:cfg.label}}};
-      if(newDue)props['마감일']={date:{start:formatDate(newDue)}};
-      fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
-    }
-  }else{
-    const item=todoData[todoDragQ][todoDragI];
-    todoData[todoDragQ].splice(todoDragI,1);
-    item.dueDate=newDue;
-    todoData[targetQ].push(item);
-    (item.subs||[]).forEach(sub=>{
-      if(sub.notionId){
-        const subProps={'사분면':{select:{name:cfg.label}}};
-        if(newDue)subProps['마감일']={date:{start:formatDate(newDue)}};
-        fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:subProps})}).catch(console.error);
-      }
-    });
-    if(item.notionId){
-      const props={'사분면':{select:{name:cfg.label}}};
-      if(newDue)props['마감일']={date:{start:formatDate(newDue)}};
-      else props['마감일']={date:null};
-      fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
-    }
+  const item=todoData[todoDragQ][todoDragI];
+  todoData[todoDragQ].splice(todoDragI,1);
+  item.dueDate=newDue;
+  todoData[targetQ].push(item);
+  if(item.notionId){
+    const props={'사분면':{select:{name:cfg.label}}};
+    if(newDue)props['마감일']={date:{start:formatDate(newDue)}};
+    else props['마감일']={date:null};
+    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
   }
   saveTodoToStorage();renderAllQuads();showToast('Moved to '+cfg.label);
-  todoDragItem=null;todoDragQ=null;todoDragI=null;todoDragSI=null;
+  todoDragItem=null;todoDragQ=null;todoDragI=null;
 }
 
-function toggleSubTodoInline(q,i,si,e){
-  if(e)e.stopPropagation();
-  const sub=todoData[q][i].subs[si];sub.done=!sub.done;
-  sub.doneAt=sub.done?new Date().toISOString():null;
-  if(sub.notionId)updateTodoNotionDoneFull(sub.notionId,sub.done);
-  renderAllQuads();saveTodoToStorage();
-  if(currentTodoView==='week')renderWeeklyView();
-}
-
-function detachSubTodo(q,i,si){
-  if(!confirm('상위업무 연결을 해제하고 독립 투두로 만들까요?'))return;
-  const parent=todoData[q][i];
-  const sub=parent.subs[si];
-  parent.subs.splice(si,1);
-  const newItem={text:sub.text,memo:sub.memo||'',time:sub.time||'',dueDate:sub.dueDate||null,done:sub.done,doneAt:sub.doneAt||null,addedAt:new Date(),notionId:sub.notionId,subs:[]};
-  todoData[q].push(newItem);
-  if(sub.notionId){
-    fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({icon:{type:'emoji',emoji:'📁'},properties:{'상위 항목':{relation:[]},'사분면':{select:{name:QUAD_CFG[q].label}}}})}).catch(console.error);
-  }
-  closeTodoDetail();saveTodoToStorage();renderAllQuads();
-  if(currentTodoView==='week')renderWeeklyView();
-  showToast('독립 투두로 분리했어요!');
-}
-
-function deleteSubTodoItem(q,i,si){
-  if(!confirm('Delete this subtask?'))return;
-  const sub=todoData[q][i].subs[si];
-  todoData[q][i].subs.splice(si,1);
-  saveTodoToStorage();renderAllQuads();
-  if(currentTodoView==='week')renderWeeklyView();
-  restoreTodoDetailUI();showToast('Deleted!');
-  if(sub.notionId){
-    fetch(WORKER_URL+'/notion/pages/'+sub.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));
-  }
-}
 
 /* Cart */
 const CART_SECTIONS={'need-buy':{label:'Need & Buy'},'need-want':{label:'Need & Want'},'need-later':{label:'Need Later'},'want':{label:'Just Want'}};
@@ -2859,14 +2415,7 @@ function confirmSubTodo(q){
   document.getElementById('todo-date-input').value='';
   document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';
   document.getElementById('todo-popup-subs').innerHTML='';
-  todoPopupSelectedDate=null;todoPopupSubs=[];
-  const sel=document.getElementById('todo-parent-select');
-  sel.innerHTML='<option value="">— None —</option>';
-  ['today','week','month','someday'].forEach(pq=>{
-    todoData[pq].forEach((item,i)=>{
-      if(!item.done){const opt=document.createElement('option');opt.value=pq+'|'+i;opt.textContent=item.text+' ('+QUAD_CFG[pq].label+')';sel.appendChild(opt);}
-    });
-  });
+  todoPopupSelectedDate=null;
   const brainIdx=subDragIdx;
   window._brainTodoCallback={idx:brainIdx};
   document.getElementById('todo-popup').classList.add('open');
