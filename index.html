@@ -1053,24 +1053,35 @@ let selectedPhotos=[];
 async function uploadToCloudinary(file) {
   const cloudName = localStorage.getItem('cloud_name');
   const uploadPreset = localStorage.getItem('cloud_key');
+  
   if (!cloudName || !uploadPreset) {
-    showToast('클라우드(Cloudinary) 설정 정보가 없습니다.');
+    showToast('클라우드 설정 정보가 없습니다.');
     return null;
   }
+  
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', uploadPreset);
+  
   try {
     const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
       method: 'POST',
       body: formData
     });
-    if (!res.ok) throw new Error('Upload failed');
+    
+    if (!res.ok) {
+      // 💡 실패 시 Cloudinary가 알려주는 진짜 원인을 파싱합니다.
+      const errData = await res.json();
+      console.error('Cloudinary API Error:', errData);
+      throw new Error(errData.error?.message || 'Upload failed');
+    }
+    
     const data = await res.json();
     return data.secure_url;
   } catch (e) {
     console.error('Cloudinary upload error:', e);
-    showToast('사진 업로드에 실패했습니다.');
+    // 화면 하단 알림창에 진짜 실패 이유를 보여줍니다.
+    showToast('업로드 실패: ' + e.message);
     return null;
   }
 }
