@@ -153,7 +153,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .record-time { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: var(--ink-muted); padding-top: 2px; }
 .record-tag { display: inline-block; font-size: 10px; font-weight: 600; color: var(--ink-soft); border: 1px solid var(--ink-soft); padding: 1px 6px; border-radius: 1px; margin-bottom: 3px; }
 .record-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.55; color: var(--ink); }
-.record-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 5px; justify-items: center; }
+.record-photos { display: grid; gap: 3px; margin-top: 5px; }
 .record-photo { width: 100%; height: auto; object-fit: contain; border-radius: 2px; }
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
@@ -373,7 +373,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-body { padding: 14px 22px; }
 .rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: var(--ink); border: 1.5px solid var(--ink); padding: 2px 10px; border-radius: 1px; margin-bottom: 10px; }
 .rp-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.75; color: var(--ink); white-space: pre-wrap; margin-bottom: 12px; }
-.rp-photos { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin-bottom: 14px; justify-items: center; }
+.rp-photos { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin-bottom: 14px; }
+.rp-photo-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 2px; cursor: pointer; display: block; }
 .rp-photos-edit { margin-bottom: 10px; }
 .rp-edit-input { width: 100%; font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--ink); border-radius: 2px; padding: 10px; outline: none; resize: none; line-height: 1.6; margin-bottom: 10px; overflow: hidden; }
 .rp-actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--rule); }
@@ -414,9 +415,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .td-action-btn.danger { border-color: #c0392b; color: #c0392b; }
 
 /* Lightbox */
-.rp-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 700; display: none; align-items: center; justify-content: center; }
-.rp-lightbox img { max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 3px; }
+.rp-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 700; display: none; align-items: center; justify-content: center; touch-action: pan-y; }
+.rp-lightbox img { max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 3px; user-select: none; }
 .rp-lightbox-close { position: absolute; top: 20px; right: 20px; font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); background: none; border: none; cursor: pointer; }
+.rp-lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: white; font-size: 20px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.rp-lb-nav.prev { left: 14px; }
+.rp-lb-nav.next { right: 14px; }
+.rp-lb-counter { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-family: 'Montserrat', sans-serif; font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
 
 /* Toast & Loading */
 .toast { position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--paper); font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 400; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 600; }
@@ -937,9 +942,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 </div>
 
-<div class="rp-lightbox" id="rp-lightbox" onclick="closeLightbox()">
+<div class="rp-lightbox" id="rp-lightbox">
   <button class="rp-lightbox-close" onclick="closeLightbox()">✕ CLOSE</button>
+  <button class="rp-lb-nav prev" id="rp-lb-prev" onclick="lbNav(-1)">&#8249;</button>
   <img id="rp-lb-img" src="">
+  <button class="rp-lb-nav next" id="rp-lb-next" onclick="lbNav(1)">&#8250;</button>
+  <div class="rp-lb-counter" id="rp-lb-counter"></div>
 </div>
 
 <div class="brain-zone-panel hidden" id="brain-zone-panel">
@@ -1086,7 +1094,7 @@ async function uploadToCloudinary(file) {
 }
 
 function handlePhotos(input){
-  Array.from(input.files).slice(0,3-selectedPhotos.length).forEach(file=>{
+  Array.from(input.files).forEach(file=>{
     const r=new FileReader();
     r.onload=e=>{
       selectedPhotos.push({file,dataUrl:e.target.result});
@@ -1177,7 +1185,7 @@ async function saveRecord(){
       if(selectedMood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(selectedMood)+' '+selectedMood},annotations:{color:'gray',italic:true,bold:false}});
       rich.push({type:'text',text:{content:'\n'+(text||'')},annotations:{bold:false,italic:false,color:'default'}});
       const children=[{object:'block',type:'quote',quote:{rich_text:rich,color:'default'}}];
-      if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
+      if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
       const ar=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})});
       const ad=await ar.json();
       blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
@@ -1197,7 +1205,8 @@ let currentPopupBlockId=null,currentPopupItem=null,isEditing=false,currentPopupP
 function addRecordToUI(time,mood,text,photoUrls,notionUrl,blockId,photoBlockId){
   const list=document.getElementById('record-list');const empty=list.querySelector('.empty-state');if(empty)empty.remove();
   const item=document.createElement('div');item.className='record-item';if(blockId)item.dataset.blockId=blockId;
-  const thumbHtml=photoUrls&&photoUrls.length?'<div class="record-photos">'+photoUrls.slice(0,3).map(u=>'<img class="record-photo" src="'+u+'">').join('')+'</div>':'';
+  const cols=photoUrls&&photoUrls.length?(photoUrls.length===1?1:photoUrls.length===2?2:3):0;
+  const thumbHtml=cols?'<div class="record-photos" style="grid-template-columns:repeat('+cols+',1fr)">'+photoUrls.map((u,i)=>'<img class="record-photo" src="'+u+'" onclick="event.stopPropagation();openLightboxFromThumb(this,'+i+')">').join('')+'</div>':'';
   item.innerHTML=`<div class="record-time">${time}</div><div>${mood?'<span class="record-tag">'+mood+'</span>':''}<div class="record-text">${text}</div>${thumbHtml}</div>`;
   item.addEventListener('click',()=>openRecordPopup(time,mood,text,photoUrls||[],notionUrl,blockId,photoBlockId||null,item));
   list.insertBefore(item,list.firstChild);
@@ -1237,17 +1246,17 @@ function renderPopupPhotos(photos,id){
     c.appendChild(addBtn);
     return;
   }
-  c.style.display='grid';
+  c.style.display='flex';c.style.flexWrap='wrap';c.style.gap='4px';
   photos.forEach((u,i)=>{
-    const wrap=document.createElement('div');wrap.style.cssText='position:relative;';
-    const img=document.createElement('img');img.src=u;img.style.cssText='width:100%;height:auto;object-fit:contain;border-radius:2px;cursor:pointer;display:block;';
+    const wrap=document.createElement('div');wrap.style.cssText='position:relative;width:64px;height:64px;flex-shrink:0;';
+    const img=document.createElement('img');img.src=u;img.className='rp-photo-thumb';
     img.onclick=()=>openLightbox(i);
     const del=document.createElement('button');del.innerHTML='&times;';
     del.style.cssText='position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:11px;cursor:pointer;';
     del.onclick=e=>{e.stopPropagation();removeRecordPhotoInline(i);};
     wrap.appendChild(img);wrap.appendChild(del);c.appendChild(wrap);
   });
-  if(currentPopupBlockId&&photos.length<3){
+  if(currentPopupBlockId){
     const addBtn=document.createElement('button');addBtn.textContent='+';
     addBtn.style.cssText='aspect-ratio:1;border:1.5px dashed var(--rule);background:transparent;color:var(--ink-muted);font-size:18px;cursor:pointer;border-radius:2px;';
     addBtn.onclick=()=>{
@@ -1266,8 +1275,7 @@ async function syncRecordPhotosToNotion(){
     currentPhotoBlockId=null;
   }
   if(currentPopupPhotos.length>0&&currentPopupBlockId){
-    const cols=currentPopupPhotos.slice(0,3).map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}));
-    while(cols.length<3)cols.push({object:'block',type:'column',column:{children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:' '}}]}}]}});
+    const cols=currentPopupPhotos.map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}));
     const pr=await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children:[{object:'block',type:'column_list',column_list:{children:cols}}]})});
     const pd=await pr.json();
     currentPhotoBlockId=pd.results?.[0]?.id||null;
@@ -1279,15 +1287,16 @@ function updateRecordListThumbnails(){
   const textWrap=currentPopupItem.children[1];
   let photoDiv=currentPopupItem.querySelector('.record-photos');
   if(currentPopupPhotos.length){
-    const html=currentPopupPhotos.slice(0,3).map(u=>`<img class="record-photo" src="${u}">`).join('');
-    if(photoDiv)photoDiv.innerHTML=html;
-    else{photoDiv=document.createElement('div');photoDiv.className='record-photos';photoDiv.innerHTML=html;textWrap.appendChild(photoDiv);}
+    const cols2=currentPopupPhotos.length===1?1:currentPopupPhotos.length===2?2:3;
+    const html=currentPopupPhotos.map((u,i)=>`<img class="record-photo" src="${u}" onclick="event.stopPropagation();openLightboxFromThumb(this,${i})">`).join('');
+    if(photoDiv){photoDiv.style.gridTemplateColumns=`repeat(${cols2},1fr)`;photoDiv.innerHTML=html;}
+    else{photoDiv=document.createElement('div');photoDiv.className='record-photos';photoDiv.style.gridTemplateColumns=`repeat(${cols2},1fr)`;photoDiv.innerHTML=html;textWrap.appendChild(photoDiv);}
   }else if(photoDiv)photoDiv.remove();
 }
 
 async function addRecordPhotosInline(input){
   if(!currentPopupBlockId){showToast('Cannot add photos to this log');return;}
-  const files=Array.from(input.files).slice(0,3-currentPopupPhotos.length);input.value='';
+  const files=Array.from(input.files);input.value='';
   if(!files.length)return;
   document.getElementById('loading').classList.remove('hidden');
   try{
@@ -1317,11 +1326,36 @@ async function removeRecordPhotoInline(idx){
 
 let lbPhotos=[],lbIdx=0;
 
-function openLightbox(idx){
-  lbPhotos=currentPopupPhotos;
+function openLightboxFromThumb(imgEl,idx){
+  const photoDiv=imgEl.closest('.record-photos');
+  const imgs=Array.from(photoDiv.querySelectorAll('img'));
+  openLightbox(idx,imgs.map(i=>i.src));
+}
+
+function openLightbox(idx,photos){
+  lbPhotos=photos||currentPopupPhotos;
   lbIdx=idx;
-  document.getElementById('rp-lightbox').style.display='flex';
-  document.getElementById('rp-lb-img').src=lbPhotos[idx];
+  const lb=document.getElementById('rp-lightbox');
+  lb.style.display='flex';
+  lbRender();
+  // swipe
+  let tx=0;
+  lb.ontouchstart=e=>{tx=e.touches[0].clientX;};
+  lb.ontouchend=e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)lbNav(dx<0?1:-1);};
+  lb.onclick=e=>{if(e.target===lb)closeLightbox();};
+}
+
+function lbRender(){
+  document.getElementById('rp-lb-img').src=lbPhotos[lbIdx];
+  const counter=document.getElementById('rp-lb-counter');
+  counter.textContent=lbPhotos.length>1?(lbIdx+1)+' / '+lbPhotos.length:'';
+  document.getElementById('rp-lb-prev').style.display=lbPhotos.length>1?'flex':'none';
+  document.getElementById('rp-lb-next').style.display=lbPhotos.length>1?'flex':'none';
+}
+
+function lbNav(dir){
+  lbIdx=(lbIdx+dir+lbPhotos.length)%lbPhotos.length;
+  lbRender();
 }
 
 function closeLightbox(){
