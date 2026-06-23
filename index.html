@@ -571,9 +571,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content" id="tab-dump">
     <div class="section-header">
       <div class="section-title">Memo</div>
-      <button class="brain-reset-btn" onclick="openTrashPopup()" style="padding:6px 8px;display:flex;align-items:center;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-      </button>
+      <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
     </div>
     <div style="display:flex;flex:1;overflow:hidden;min-height:0;">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
@@ -582,13 +580,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <button class="brain-add-btn" onclick="addBrainItem()">ADD</button>
         </div>
         <div class="brain-list" id="brain-list"><div class="empty-state">Swipe left to delete.</div></div>
-        <div id="brain-select-bar" style="display:none;padding:10px var(--pad-h);border-top:1.5px solid var(--ink);background:var(--paper);flex-shrink:0;align-items:center;justify-content:space-between;">
-          <span id="brain-select-count" style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--ink-muted);">0개 선택됨</span>
-          <div style="display:flex;gap:8px;">
-            <button class="popup-cancel" onclick="exitSelectMode()">CANCEL</button>
-            <button class="popup-ok" onclick="deleteSelectedBrainItems()">DELETE</button>
-          </div>
-        </div>
       </div>
       <div style="width:48px;display:flex;flex-direction:column;border-left:1.5px solid var(--ink);flex-shrink:0;">
         <div class="brain-side-tab" onclick="openBrainZone('record')" id="bst-record">
@@ -748,18 +739,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="sub-popup-text" id="sub-popup-text"></div>
     <div id="sub-choices-wrap"></div>
     <div class="popup-btns"><button class="popup-cancel" onclick="closeSubPopup()">CANCEL</button></div>
-  </div>
-</div>
-
-<div class="sub-popup-overlay" id="trash-popup" onclick="if(event.target===this)closeTrashPopup()">
-  <div class="sub-popup-sheet">
-    <div class="sub-popup-title">DELETE</div>
-    <div class="sub-choices">
-      <button class="sub-choice" onclick="deleteTaggedBrainItems()">분류 완료된 항목 지우기</button>
-      <button class="sub-choice" onclick="resetBrain()">미분류 항목 지우기</button>
-      <button class="sub-choice" onclick="enterSelectMode()">선택 항목 지우기</button>
-    </div>
-    <div class="popup-btns"><button class="popup-cancel" onclick="closeTrashPopup()">CANCEL</button></div>
   </div>
 </div>
 
@@ -2281,7 +2260,6 @@ async function saveCartToNotion(section,text,memo){
 
 /* Braindump */
 let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
-let brainSelectMode=false,brainSelected=new Set();
 const ghost=document.getElementById('drag-ghost');
 function saveBrainToStorage(){try{localStorage.setItem('brain_items',JSON.stringify(brainItems));}catch(e){}}
 function loadBrainFromStorage(){try{const d=localStorage.getItem('brain_items');if(d)brainItems=JSON.parse(d);}catch(e){}}
@@ -2330,20 +2308,6 @@ function renderBrainList(){
   const list=document.getElementById('brain-list');
   const untagged=brainItems.filter(item=>!item.tag);
   if(!untagged.length){list.innerHTML='<div class="empty-state">Swipe left to delete.</div>';return;}
-  if(brainSelectMode){
-    list.innerHTML=untagged.map((item)=>{
-      const idx=brainItems.indexOf(item);
-      const checked=brainSelected.has(item.id);
-      return `<div class="brain-item" id="bi-${item.id}" data-idx="${idx}" onclick="toggleBrainSelect(${item.id})" style="cursor:pointer;">
-        <div class="brain-item-inner" style="flex-direction:row;align-items:center;gap:12px;padding:10px 0;">
-          <div style="width:16px;height:16px;border:1.5px solid var(--ink);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;${checked?'background:var(--ink);':''}">
-            ${checked?'<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><polyline points="1 4 4 7 9 1" stroke="var(--paper)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
-          </div>
-          <div class="brain-item-text">${item.text}</div>
-        </div>
-      </div>`;}).join('');
-    return;
-  }
   list.innerHTML=untagged.map((item)=>{
     const idx=brainItems.indexOf(item);
     return `
@@ -2491,23 +2455,7 @@ function deleteBrainItem(idx){
   }
 }
 
-function openTrashPopup(){document.getElementById('trash-popup').classList.add('open');}
-function closeTrashPopup(){document.getElementById('trash-popup').classList.remove('open');}
-
-function deleteTaggedBrainItems(){
-  closeTrashPopup();
-  const tagged=brainItems.filter(i=>i.tag&&i.tag!=='_deleted');
-  if(!tagged.length){showToast('분류 완료된 항목이 없어요');return;}
-  if(!confirm(`분류 완료된 항목 ${tagged.length}개를 삭제할까요?`))return;
-  tagged.forEach(item=>{
-    if(item.notionId)fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));
-  });
-  brainItems=brainItems.filter(i=>!i.tag||i.tag==='_deleted');
-  saveBrainToStorage();renderBrainList();showToast('분류 완료 항목 삭제!');
-}
-
 function resetBrain(){
-  closeTrashPopup();
   const untagged=brainItems.filter(i=>!i.tag);
   if(!untagged.length){showToast('미분류 항목이 없어요');return;}
   if(!confirm(`미분류 항목 ${untagged.length}개를 삭제할까요?`))return;
@@ -2516,47 +2464,6 @@ function resetBrain(){
   });
   brainItems=brainItems.filter(i=>i.tag);
   saveBrainToStorage();renderBrainList();showToast('미분류 항목 삭제!');
-}
-
-function enterSelectMode(){
-  closeTrashPopup();
-  brainSelectMode=true;
-  brainSelected=new Set();
-  renderBrainList();
-  const bar=document.getElementById('brain-select-bar');
-  bar.style.display='flex';
-  updateSelectCount();
-}
-
-function exitSelectMode(){
-  brainSelectMode=false;
-  brainSelected=new Set();
-  renderBrainList();
-  document.getElementById('brain-select-bar').style.display='none';
-}
-
-function toggleBrainSelect(id){
-  if(brainSelected.has(id))brainSelected.delete(id);
-  else brainSelected.add(id);
-  updateSelectCount();
-  renderBrainList();
-}
-
-function updateSelectCount(){
-  document.getElementById('brain-select-count').textContent=brainSelected.size+'개 선택됨';
-}
-
-function deleteSelectedBrainItems(){
-  if(!brainSelected.size){showToast('선택된 항목이 없어요');return;}
-  if(!confirm(`선택한 ${brainSelected.size}개를 삭제할까요?`))return;
-  brainSelected.forEach(id=>{
-    const item=brainItems.find(i=>i.id===id);
-    if(item){item.tag='_deleted';item.taggedAt=new Date().toISOString();
-      if(item.notionId)fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));
-    }
-  });
-  exitSelectMode();
-  saveBrainToStorage();showToast('선택 항목 삭제!');
 }
 
 let brainSideDragItem=null,brainSideDragIdx=-1;
