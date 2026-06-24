@@ -1623,7 +1623,6 @@ function openTodoPopupWeek(dateStr){
   document.getElementById('todo-input').value='';
   document.getElementById('todo-memo-input').value='';
   document.getElementById('todo-date-input').value=dateStr||'';
-  document.getElementById('todo-popup-subs').innerHTML='';
   todoPopupSelectedDate=dateStr?new Date(dateStr+'T23:59:59'):null;
   document.getElementById('todo-popup').classList.add('open');
   setTimeout(()=>document.getElementById('todo-input').focus(),300);
@@ -1658,7 +1657,6 @@ function openTodoPopup(q){
   document.getElementById('todo-input').value='';
   document.getElementById('todo-memo-input').value='';
   document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';
-  document.getElementById('todo-popup-subs').innerHTML='';
   todoPopupSelectedDate=null;
   if(q==='week'){
     const due=getWeekDueDate();
@@ -2414,7 +2412,6 @@ function confirmSubTodo(q){
   document.getElementById('todo-memo-input').value=subDragItem.text;
   document.getElementById('todo-date-input').value='';
   document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';
-  document.getElementById('todo-popup-subs').innerHTML='';
   todoPopupSelectedDate=null;
   const brainIdx=subDragIdx;
   window._brainTodoCallback={idx:brainIdx};
