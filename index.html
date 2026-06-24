@@ -968,6 +968,7 @@ function switchTab(tab,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
+  localStorage.setItem('last_tab',tab);
   if(tab==='inbox')loadInbox();
   if(tab==='idea')loadIdeaFromNotion();
 }
@@ -1456,6 +1457,7 @@ async function loadTodayRecords(){
 let currentTodoView='week';
 function switchTodoView(view){
   currentTodoView=view;
+  localStorage.setItem('last_todo_view',view);
   const isPC=window.innerWidth>=768;
   document.getElementById('weekly-view').style.display=view==='week'?(isPC?'flex':'block'):'none';
   document.getElementById('quad-view').style.display=view==='quad'?'flex':'none';
@@ -3107,7 +3109,11 @@ function init(){
   for(let m=0;m<60;m+=5)pMin.innerHTML+=`<option value="${m}">${String(m).padStart(2,'0')}</option>`;
   loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();loadBrainFromStorage();
   autoMoveTodos();renderAllQuads();renderCart();renderBrainList();renderBookList();
-  switchTodoView('week');
+  const _lastTodoView=localStorage.getItem('last_todo_view')||'week';
+  switchTodoView(_lastTodoView);
+  const _lastTab=localStorage.getItem('last_tab')||'record';
+  const _lastBtn=document.querySelector(`.tab-btn[onclick*="switchTab('${_lastTab}'"]`);
+  if(_lastBtn)switchTab(_lastTab,_lastBtn);
   loadTodayRecords();registerSW();
   loadTodoFromNotion();
   loadBookFromNotion();
