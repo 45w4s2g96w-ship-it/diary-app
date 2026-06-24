@@ -317,6 +317,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .inbox-bubble-briefing { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.9; white-space: pre-wrap; margin-bottom: 4px; }
 .inbox-empty { padding: 60px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
+@keyframes ptr-spin { to { transform: rotate(360deg); } }
 /* Popups */
 .popup-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.55); z-index: 400; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .popup-overlay.open { opacity: 1; pointer-events: all; }
@@ -526,7 +527,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </button>
   </div>
   <div id="app-main">
-  <div id="ptr-indicator" style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;height:0;overflow:hidden;transition:none;z-index:50;pointer-events:none;">
+  <div id="ptr-indicator" style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:7px;height:0;overflow:hidden;transition:none;z-index:50;pointer-events:none;">
+    <span id="ptr-spinner" style="display:none;width:13px;height:13px;border:2px solid var(--rule);border-top-color:var(--ink);border-radius:50%;animation:ptr-spin 0.7s linear infinite;flex-shrink:0;"></span>
     <span id="ptr-label" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);opacity:0;transition:opacity 0.15s;">↓ 당겨서 새로고침</span>
   </div>
 
@@ -3167,8 +3169,12 @@ window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.get
     if(!ptrActive)return;
     ptrActive=false;
     if(ptrDy>=THRESHOLD){
+      const spinner=document.getElementById('ptr-spinner');
+      indicator.style.height='44px';
+      spinner.style.display='block';
       label.textContent='새로고침 중...';
-      setTimeout(()=>location.reload(),200);
+      label.style.opacity='1';
+      setTimeout(()=>location.reload(),600);
     }else{
       indicator.style.transition='height 0.2s';
       indicator.style.height='0';
