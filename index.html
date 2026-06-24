@@ -526,6 +526,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </button>
   </div>
   <div id="app-main">
+  <div id="ptr-indicator" style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;height:0;overflow:hidden;transition:none;z-index:50;pointer-events:none;">
+    <span id="ptr-label" style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);opacity:0;transition:opacity 0.15s;">↓ 당겨서 새로고침</span>
+  </div>
 
   <div class="tab-content active" id="tab-record">
     <div class="section-header">
@@ -3119,6 +3122,58 @@ function init(){
   },30000);
 }
 window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.getItem('notion_token')){document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();}};
+
+/* Pull-to-refresh */
+(function(){
+  const THRESHOLD=70;
+  let ptrStartY=0,ptrDy=0,ptrActive=false;
+  const indicator=document.getElementById('ptr-indicator');
+  const label=document.getElementById('ptr-label');
+
+  function activeTabScrollTop(){
+    const el=document.querySelector('.tab-content.active');
+    return el?el.scrollTop:1;
+  }
+  function anyPopupOpen(){
+    return document.querySelector('.popup-overlay.open,.todo-detail-overlay.open')!==null;
+  }
+
+  document.addEventListener('touchstart',e=>{
+    if(anyPopupOpen())return;
+    if(activeTabScrollTop()>0)return;
+    ptrStartY=e.touches[0].clientY;
+    ptrDy=0;
+    ptrActive=true;
+  },{passive:true});
+
+  document.addEventListener('touchmove',e=>{
+    if(!ptrActive)return;
+    if(activeTabScrollTop()>0){ptrActive=false;return;}
+    const dy=e.touches[0].clientY-ptrStartY;
+    if(dy<=0){ptrActive=false;indicator.style.height='0';label.style.opacity='0';return;}
+    if(weekDragging||todoDragging||isDragging){ptrActive=false;indicator.style.height='0';label.style.opacity='0';return;}
+    ptrDy=Math.min(dy,THRESHOLD*1.5);
+    const h=Math.min(ptrDy*0.6,44);
+    indicator.style.height=h+'px';
+    label.style.opacity=ptrDy>=THRESHOLD?'1':''+Math.max(0,(ptrDy-20)/50);
+    label.textContent=ptrDy>=THRESHOLD?'↑ 놓으면 새로고침':'↓ 당겨서 새로고침';
+  },{passive:true});
+
+  document.addEventListener('touchend',()=>{
+    if(!ptrActive)return;
+    ptrActive=false;
+    if(ptrDy>=THRESHOLD){
+      label.textContent='새로고침 중...';
+      setTimeout(()=>location.reload(),200);
+    }else{
+      indicator.style.transition='height 0.2s';
+      indicator.style.height='0';
+      label.style.opacity='0';
+      setTimeout(()=>{indicator.style.transition='none';},220);
+    }
+    ptrDy=0;
+  });
+})();
 </script>
 </body>
 </html>
