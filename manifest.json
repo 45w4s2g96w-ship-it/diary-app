@@ -2,7 +2,7 @@
   "name": "daily note",
   "short_name": "daily note",
   "description": "나만의 일기 & 할일 앱",
-  "start_url": "/diary-app/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#efefed",
   "theme_color": "#111111",
