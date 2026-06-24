@@ -713,14 +713,14 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div style="display:flex;flex-direction:column;gap:0;">
       <div>
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-        <input type="date" id="todo-date-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;background:transparent;border:1.5px solid var(--rule);padding:8px 10px;outline:none;margin-bottom:10px;color:var(--ink);border-radius:1px;box-sizing:border-box;" onchange="onTodoDateInputChange()">
+        <input type="date" id="todo-date-input" style="width:100%;font-family:'NanumSquareNeo',sans-serif;font-size:12px;background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 0;outline:none;margin-bottom:10px;color:var(--ink);box-sizing:border-box;" onchange="onTodoDateInputChange()">
       </div>
       <div>
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">TIME <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;width:100%;">
-          <select id="todo-time-hour" style="flex:1 1 0;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="">--</option></select>
-          <select id="todo-time-min" style="flex:1 1 0;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="">--</option></select>
-          <select id="todo-time-ampm" style="flex:1 1 0;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
+          <select id="todo-time-hour" style="flex:1 1 0;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="">--</option></select>
+          <select id="todo-time-min" style="flex:1 1 0;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="">--</option></select>
+          <select id="todo-time-ampm" style="flex:1 1 0;min-width:0;font-family:'NanumSquareNeo',sans-serif;font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
           <button onclick="document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';" style="flex:0 0 auto;font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:8px 9px;cursor:pointer;border-radius:1px;white-space:nowrap;box-sizing:border-box;">✕</button>
         </div>
       </div>
@@ -3158,7 +3158,7 @@ document.addEventListener('touchmove',e=>{
   document.addEventListener('touchstart',e=>{
     ptrCanStart=false;ptrActive=false;ptrDy=0;
     if(anyPopupOpen())return;
-    if(!e.target.closest('.section-header'))return; // section-header에서만 PTR 시작
+    if(!e.target.closest('#app-main'))return;
     ptrStartY=e.touches[0].clientY;
     ptrCanStart=true;
   },{passive:true});
