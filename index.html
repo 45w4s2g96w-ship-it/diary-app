@@ -3126,7 +3126,8 @@ window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.get
 /* Pull-to-refresh */
 (function(){
   const THRESHOLD=70;
-  let ptrStartY=0,ptrDy=0,ptrActive=false;
+  const ACTIVATE_MIN=15; // 이 거리 이상 아래로 당겨야 pull-to-refresh로 확정
+  let ptrStartY=0,ptrDy=0,ptrCanStart=false,ptrActive=false;
   const indicator=document.getElementById('ptr-indicator');
   const label=document.getElementById('ptr-label');
 
@@ -3139,27 +3140,31 @@ window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.get
   }
 
   document.addEventListener('touchstart',e=>{
+    ptrCanStart=false;ptrActive=false;ptrDy=0;
     if(anyPopupOpen())return;
     if(activeTabScrollTop()>0)return;
     ptrStartY=e.touches[0].clientY;
-    ptrDy=0;
-    ptrActive=true;
+    ptrCanStart=true; // 가능성만 열어둠, 아직 활성화 아님
   },{passive:true});
 
   document.addEventListener('touchmove',e=>{
-    if(!ptrActive)return;
-    if(activeTabScrollTop()>0){ptrActive=false;return;}
+    if(!ptrCanStart)return;
+    if(activeTabScrollTop()>0){ptrCanStart=false;return;}
+    if(weekDragging||todoDragging||isDragging){ptrCanStart=false;ptrActive=false;indicator.style.height='0';label.style.opacity='0';return;}
     const dy=e.touches[0].clientY-ptrStartY;
-    if(dy<=0){ptrActive=false;indicator.style.height='0';label.style.opacity='0';return;}
-    if(weekDragging||todoDragging||isDragging){ptrActive=false;indicator.style.height='0';label.style.opacity='0';return;}
+    if(dy<=0){ptrCanStart=false;ptrActive=false;indicator.style.height='0';label.style.opacity='0';return;}
+    // ACTIVATE_MIN 이상 아래로 당겼을 때만 pull-to-refresh 활성화
+    if(!ptrActive&&dy<ACTIVATE_MIN)return;
+    ptrActive=true;
     ptrDy=Math.min(dy,THRESHOLD*1.5);
     const h=Math.min(ptrDy*0.6,44);
     indicator.style.height=h+'px';
-    label.style.opacity=ptrDy>=THRESHOLD?'1':''+Math.max(0,(ptrDy-20)/50);
+    label.style.opacity=ptrDy>=THRESHOLD?'1':''+Math.max(0,(ptrDy-ACTIVATE_MIN)/(THRESHOLD-ACTIVATE_MIN));
     label.textContent=ptrDy>=THRESHOLD?'↑ 놓으면 새로고침':'↓ 당겨서 새로고침';
   },{passive:true});
 
   document.addEventListener('touchend',()=>{
+    ptrCanStart=false;
     if(!ptrActive)return;
     ptrActive=false;
     if(ptrDy>=THRESHOLD){
