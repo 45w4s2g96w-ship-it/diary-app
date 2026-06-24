@@ -704,7 +704,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="popup-label" id="todo-popup-label"></div>
     <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')document.getElementById('todo-memo-input').focus()">
     <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">MEMO <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
-    <textarea class="popup-input-sm" id="todo-memo-input" placeholder="메모 (링크, 참고사항...)" rows="2"></textarea>
+    <textarea class="popup-input-sm" id="todo-memo-input" placeholder="메모 (링크, 참고사항...)" rows="2" oninput="autoResize(this)"></textarea>
     <div style="display:flex;flex-direction:column;gap:0;">
       <div>
         <div style="font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">DUE DATE <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:'NanumSquareNeo',sans-serif;font-size:9px;color:var(--rule);">optional</span></div>
@@ -1621,7 +1621,7 @@ function openTodoPopupWeek(dateStr){
   currentQuad='week';
   document.getElementById('todo-popup-label').textContent='This Week';
   document.getElementById('todo-input').value='';
-  document.getElementById('todo-memo-input').value='';
+  const _memoW=document.getElementById('todo-memo-input');_memoW.value='';_memoW.style.height='';
   document.getElementById('todo-date-input').value=dateStr||'';
   todoPopupSelectedDate=dateStr?new Date(dateStr+'T23:59:59'):null;
   document.getElementById('todo-popup').classList.add('open');
@@ -1655,7 +1655,7 @@ function openTodoPopup(q){
   currentQuad=q;const cfg=QUAD_CFG[q];
   document.getElementById('todo-popup-label').textContent=cfg.label;
   document.getElementById('todo-input').value='';
-  document.getElementById('todo-memo-input').value='';
+  const _memo=document.getElementById('todo-memo-input');_memo.value='';_memo.style.height='';
   document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';
   todoPopupSelectedDate=null;
   if(q==='week'){
