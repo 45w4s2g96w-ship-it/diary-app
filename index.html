@@ -626,19 +626,19 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <div id="quad-view" style="flex:1;overflow:hidden;display:none;">
         <div class="quad-grid">
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('today')" ontouchend="if(!todoDragging&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('today')}">
+          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('today')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('today')}">
             <div class="quad-label">Today</div><div class="quad-due" id="due-today"></div>
             <div class="quad-items" id="items-today"></div>
           </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('week')" ontouchend="if(!todoDragging&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('week')}">
+          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('week')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('week')}">
             <div class="quad-label">This Week</div><div class="quad-due" id="due-week"></div>
             <div class="quad-items" id="items-week"></div>
           </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('month')" ontouchend="if(!todoDragging&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('month')}">
+          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('month')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('month')}">
             <div class="quad-label">This Month</div><div class="quad-due" id="due-month"></div>
             <div class="quad-items" id="items-month"></div>
           </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('someday')" ontouchend="if(!todoDragging&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('someday')}">
+          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('someday')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('someday')}">
             <div class="quad-label">Someday</div><div class="quad-due" style="color:var(--rule);">No deadline</div>
             <div class="quad-items" id="items-someday"></div>
           </div>
@@ -1540,7 +1540,7 @@ function renderWeeklyView(){
   } else {
     function buildRowHtml(items,labelHtml,rowClass,dayStr){
       const useTwoCol=items.filter(x=>!x.item.done).length>3;
-      let h=`<div class="week-row${rowClass}" data-date="${dayStr||''}"><div class="week-day-label" onclick="openTodoPopupWeek('${dayStr||''}')" ontouchend="event.stopPropagation();if(!weekDragging){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}" onclick="if(!event.target.closest('.week-item'))openTodoPopupWeek('')" ontouchend="if(!weekDragging&&!event.target.closest('.week-item')){event.preventDefault();openTodoPopupWeek('')}" style="cursor:pointer;">`;
+      let h=`<div class="week-row${rowClass}" data-date="${dayStr||''}"><div class="week-day-label" onclick="openTodoPopupWeek('${dayStr||''}')" ontouchend="event.stopPropagation();if(!weekDragging&&!lastTouchMoved){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}" onclick="if(!event.target.closest('.week-item'))openTodoPopupWeek('')" ontouchend="if(!weekDragging&&!lastTouchMoved&&!event.target.closest('.week-item')){event.preventDefault();openTodoPopupWeek('')}" style="cursor:pointer;">`;
       items.forEach(({item,q,i})=>{
         const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
         h+=`<div class="week-item" onclick="event.stopPropagation();if(!weekDragging)openTodoDetail('${q}',${i})" onmousedown="startWeekItemDrag(event,'${q}',${i})" ontouchstart="startWeekItemDrag(event,'${q}',${i})">
@@ -3125,6 +3125,20 @@ function init(){
 }
 window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.getItem('notion_token')){document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();}};
 
+/* 탭 vs 드래그 구분: 이동 거리 10px 이상이면 lastTouchMoved=true */
+let lastTouchStartX=0,lastTouchStartY=0,lastTouchMoved=false;
+document.addEventListener('touchstart',e=>{
+  lastTouchStartX=e.touches[0].clientX;
+  lastTouchStartY=e.touches[0].clientY;
+  lastTouchMoved=false;
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  if(lastTouchMoved)return;
+  const dx=e.touches[0].clientX-lastTouchStartX;
+  const dy=e.touches[0].clientY-lastTouchStartY;
+  if(dx*dx+dy*dy>100)lastTouchMoved=true;
+},{passive:true});
+
 /* Pull-to-refresh */
 (function(){
   const THRESHOLD=70;
@@ -3144,7 +3158,7 @@ window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.get
   document.addEventListener('touchstart',e=>{
     ptrCanStart=false;ptrActive=false;ptrDy=0;
     if(anyPopupOpen())return;
-    if(activeTabScrollTop()>0)return;
+    if(!e.target.closest('.section-header'))return; // section-header에서만 PTR 시작
     ptrStartY=e.touches[0].clientY;
     ptrCanStart=true;
   },{passive:true});
