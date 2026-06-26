@@ -1143,9 +1143,7 @@ async function saveRecord(){
       rich.push({type:'text',text:{content:'\n'+(text||'')},annotations:{bold:false,italic:false,color:'default'}});
       const children=[{object:'block',type:'quote',quote:{rich_text:rich,color:'default'}}];
       if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
-      let targetId=pageId;
-      try{const pbr=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{headers:notionHeaders()});const pbd=await pbr.json();const rt=(pbd.results||[]).find(b=>b.type==='heading_4'&&(b.heading_4?.rich_text||[]).some(t=>(t.plain_text||t.text?.content||'').includes('기록')));if(rt)targetId=rt.id;}catch(e){}
-      const ar=await fetch(WORKER_URL+'/notion/blocks/'+targetId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})});
+      const ar=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})});
       const ad=await ar.json();
       blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
       photoBlockId=(photoUrls.length>0&&ad.results&&ad.results[1])?ad.results[1].id:null;
@@ -1406,11 +1404,9 @@ async function loadTodayRecords(){
   try{
     const pageId=await getTodayPageId();if(!pageId)return;
     const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
-    let sourceId=pageId;
-    try{const pbr=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{headers:notionHeaders()});const pbd=await pbr.json();const rt=(pbd.results||[]).find(b=>b.type==='heading_4'&&(b.heading_4?.rich_text||[]).some(t=>(t.plain_text||t.text?.content||'').includes('기록')));if(rt)sourceId=rt.id;}catch(e){}
     let allBlocks=[],cursor;
     do{
-      const url=WORKER_URL+'/notion/blocks/'+sourceId+'/children'+(cursor?'?start_cursor='+cursor:'');
+      const url=WORKER_URL+'/notion/blocks/'+pageId+'/children'+(cursor?'?start_cursor='+cursor:'');
       const res=await fetch(url,{headers:notionHeaders()});
       const data=await res.json();
       allBlocks=allBlocks.concat(data.results||[]);
