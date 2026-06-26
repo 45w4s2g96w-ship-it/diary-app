@@ -173,7 +173,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-memo { font-family: 'NanumSquareNeo', sans-serif; font-size: 10px; font-weight: 300; color: var(--ink-muted); display: block; }
 .quad-more-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 2px 7px; border-radius: 1px; cursor: pointer; margin-top: 3px; align-self: flex-start; flex-shrink: 0; }
 
-/* Todo/Cart toggle */
 .todo-toggle-bar { display: flex; justify-content: flex-end; padding: 10px var(--pad-h) 0; flex-shrink: 0; }
 .todo-toggle { display: flex; border: 1.5px solid var(--ink); border-radius: 2px; overflow: hidden; }
 .toggle-btn { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 12px; border: none; cursor: pointer; transition: all 0.15s; }
@@ -246,7 +245,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .brain-tag { display: inline-block; font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 1px; margin-bottom: 4px; }
 .brain-tag.record { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
 .brain-tag.todo { border: 1px solid var(--ink); color: var(--ink); }
-.brain-tag.cart { border: 1px solid var(--ink-soft); color: var(--ink-soft); }
 .brain-tag.book { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
 .brain-tag.idea { border: 1px solid #b8860b; color: #b8860b; }
 .brain-hold-hint { font-family: 'Montserrat', sans-serif; font-size: 8px; color: var(--rule); margin-bottom: 4px; }
@@ -595,10 +593,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <svg class="brain-side-svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="currentColor"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           <span class="brain-side-label">TODO</span>
         </div>
-        <div class="brain-side-tab" onclick="openBrainZone('cart')" id="bst-cart">
-          <svg class="brain-side-svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span class="brain-side-label">CART</span>
-        </div>
         <div class="brain-side-tab" onclick="openBrainZone('idea')" id="bst-idea">
           <svg class="brain-side-svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="currentColor"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
           <span class="brain-side-label">IDEA</span>
@@ -613,11 +607,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <button id="toggle-week" onclick="switchTodoView('week')" class="todo-nav-btn" style="color:var(--ink);">WEEK</button>
         <div class="todo-nav-divider"></div>
         <button id="toggle-quad" onclick="switchTodoView('quad')" class="todo-nav-btn" style="color:var(--ink-muted);">QUAD</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:0;">
-        <button id="toggle-todo" onclick="switchTodoCart('todo')" class="todo-nav-btn" style="color:var(--ink);">TODO</button>
-        <div class="todo-nav-divider"></div>
-        <button id="toggle-cart" onclick="switchTodoCart('cart')" class="todo-nav-btn" style="color:var(--ink-muted);">CART</button>
       </div>
     </div>
     <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
@@ -643,30 +632,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
             <div class="quad-items" id="items-someday"></div>
           </div>
         </div>
-      </div>
-    </div>
-    <div id="cart-pane" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
-      <div class="quad-grid" style="flex:0 0 60%;min-height:0;">
-        <div class="quad-cell" onclick="openCartPopup('need-buy')">
-          <div class="quad-label">Need &<br>Buy</div>
-          <div class="quad-items" id="items-need-buy"></div>
-        </div>
-        <div class="quad-cell" onclick="openCartPopup('need-want')">
-          <div class="quad-label">Need &<br>Want</div>
-          <div class="quad-items" id="items-need-want"></div>
-        </div>
-        <div class="quad-cell" onclick="openCartPopup('need-later')">
-          <div class="quad-label">Need<br>Later</div>
-          <div class="quad-items" id="items-need-later"></div>
-        </div>
-        <div class="quad-cell" onclick="openCartPopup('want')">
-          <div class="quad-label">Just<br>Want</div>
-          <div class="quad-items" id="items-want"></div>
-        </div>
-      </div>
-      <div id="cart-pass-section" style="flex:0 0 40%;border-top:2px solid var(--ink);display:flex;flex-direction:column;overflow:hidden;padding:10px var(--pad-h);">
-        <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;flex-shrink:0;">PASS — 사지 않기로 함 <span style="font-size:8px;font-weight:400;color:var(--rule);">드래그해서 옮기면 자동 처리</span></div>
-        <div id="items-pass" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;scrollbar-width:none;"></div>
       </div>
     </div>
   </div>
@@ -726,15 +691,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
     </div>
     <div class="popup-btns"><button class="popup-cancel" onclick="closeTodoPopup()">CANCEL</button><button class="popup-ok" onclick="confirmTodo()">OK</button></div>
-  </div>
-</div>
-
-<div class="popup-overlay" id="cart-popup" onclick="if(event.target===this)closeCartPopup()">
-  <div class="popup-sheet">
-    <div class="popup-label" id="cart-popup-label"></div>
-    <input class="popup-input" id="cart-input" placeholder="Item name" onkeydown="if(event.key==='Enter')document.getElementById('cart-memo').focus()">
-    <input class="popup-input-sm" id="cart-memo" placeholder="Memo (link, store, note...)" onkeydown="if(event.key==='Enter')confirmCart()">
-    <div class="popup-btns"><button class="popup-cancel" onclick="closeCartPopup()">CANCEL</button><button class="popup-ok" onclick="confirmCart()">OK</button></div>
   </div>
 </div>
 
@@ -920,7 +876,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <script>
 const WORKER_URL='https://empty-haze-c7f9.aa01064822791.workers.dev';
 const BRAIN_DB='37751f4140c580e4b680c979ee1d0f2a';
-const CART_DB='37751f4140c580598f09f7903db2248f';
 const TODO_DB='37651f4140c5805e875cdc92a5715d21';
 const BOOK_DB='37851f4140c580c995d6f55451f2c1f7';
 const IDEA_DB='37a51f4140c580e4bcf9f6279769ae26';
@@ -1637,10 +1592,8 @@ function openTodoPopupWeek(dateStr){
 
 function switchTodoCart(pane){
   currentTodoPane=pane;
-  const tp=document.getElementById('todo-pane'),cp=document.getElementById('cart-pane');
-  const tt=document.getElementById('toggle-todo'),tc=document.getElementById('toggle-cart');
-  if(pane==='todo'){tp.style.display='flex';cp.style.display='none';tt.style.color='var(--ink)';tc.style.color='var(--ink-muted)';}
-  else{tp.style.display='none';cp.style.display='flex';tt.style.color='var(--ink-muted)';tc.style.color='var(--ink)';}
+  const tp=document.getElementById('todo-pane');
+  tp.style.display='flex';
 }
 
 /* Todo */
@@ -2103,166 +2056,6 @@ function endTodoDrag(targetQ,targetItemEl){
 }
 
 
-/* Cart */
-const CART_SECTIONS={'need-buy':{label:'Need & Buy'},'need-want':{label:'Need & Want'},'need-later':{label:'Need Later'},'want':{label:'Just Want'}};
-const CART_PASS_LABEL='Pass';
-let cartData={'need-buy':[],'need-want':[],'need-later':[],'want':[],'pass':[]},currentCartSection='';
-let cartDragItem=null,cartDragSection=null,cartDragIdx=-1,cartDragTimer=null,cartDragging=false,cartDragEl=null;
-
-function openCartPopup(section){
-  if(document.getElementById('todo-detail-popup').classList.contains('open'))return;
-  currentCartSection=section;
-  document.getElementById('cart-popup-label').textContent=CART_SECTIONS[section]?.label||section;
-  document.getElementById('cart-input').value='';document.getElementById('cart-memo').value='';
-  document.getElementById('cart-popup').classList.add('open');setTimeout(()=>document.getElementById('cart-input').focus(),300);
-}
-function closeCartPopup(){document.getElementById('cart-popup').classList.remove('open');}
-
-function confirmCart(){
-  const text=document.getElementById('cart-input').value.trim();if(!text)return;
-  const memo=document.getElementById('cart-memo').value.trim();
-  const item={text,memo,done:false,notionId:null,doneAt:null};
-  cartData[currentCartSection].push(item);
-  closeCartPopup();renderCart();showToast('Added!');
-  saveCartToNotion(currentCartSection,text,memo).then(id=>{if(id){item.notionId=id;saveCartToStorage();}});
-  saveCartToStorage();
-  if(window._brainCartCallback){markBrainDone(window._brainCartCallback.idx,'cart');window._brainCartCallback=null;}
-}
-
-function toggleCart(section,idx,e){
-  e.stopPropagation();
-  const item=cartData[section][idx];
-  item.done=!item.done;item.doneAt=item.done?new Date().toISOString():null;
-  renderCart();saveCartToStorage();
-  if(item.notionId){
-    const props={'구매완료':{checkbox:item.done}};
-    if(item.done)props['완료일']={date:{start:formatDate(new Date())}};else props['완료일']={date:null};
-    fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
-  }
-}
-
-function moveCartSection(fromSection,idx,toSection){
-  if(fromSection===toSection)return;
-  const item=cartData[fromSection][idx];
-  cartData[fromSection].splice(idx,1);
-  if(toSection==='pass'){
-    item.done=true;item.doneAt=new Date().toISOString();
-    cartData['pass'].push(item);
-    if(item.notionId)fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'유형':{select:{name:CART_PASS_LABEL}},'구매완료':{checkbox:true},'완료일':{date:{start:formatDate(new Date())}}}})}).catch(console.error);
-  } else {
-    cartData[toSection].push(item);
-    if(item.notionId)fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'유형':{select:{name:CART_SECTIONS[toSection].label}}}})}).catch(console.error);
-  }
-  saveCartToStorage();renderCart();showToast('이동 완료!');
-}
-
-function renderPassSection(){
-  const c=document.getElementById('items-pass');if(!c)return;
-  const now=new Date();
-  const visible=(cartData['pass']||[]).filter(item=>{
-    if(!item.doneAt)return true;
-    const d=new Date(item.doneAt);d.setHours(0,0,0,0);
-    const next=new Date(d);next.setDate(next.getDate()+1);return now<next;
-  });
-  if(!visible.length){c.innerHTML='<div style="font-size:11px;color:var(--rule);padding:6px 0;">없음</div>';return;}
-  c.innerHTML=visible.map(item=>`<div class="quad-item" style="opacity:0.6;"><div class="quad-check done"></div><div style="flex:1"><div class="quad-text done">${item.text}</div>${item.memo?'<span class="quad-memo">'+item.memo+'</span>':''}</div></div>`).join('');
-}
-
-function renderCartSection(section){
-  const c=document.getElementById('items-'+section);if(!c)return;
-  const now=new Date();
-  const items=cartData[section]||[];
-  const visible=items.filter(item=>{
-    if(!item.done)return true;
-    if(!item.doneAt)return false;
-    const d=new Date(item.doneAt);d.setHours(0,0,0,0);
-    const next=new Date(d);next.setDate(next.getDate()+1);return now<next;
-  });
-  c.innerHTML='';
-  visible.forEach(item=>{
-    const realIdx=items.indexOf(item);
-    const div=document.createElement('div');div.className='quad-item';
-    div.innerHTML=`<div class="quad-check${item.done?' done':''}" onclick="toggleCart('${section}',${realIdx},event)"></div><div style="flex:1"><div class="quad-text${item.done?' done':''}">${item.text}</div>${item.memo?'<span class="quad-memo">'+item.memo+'</span>':''}</div>`;
-    let ct=null;
-    div.addEventListener('touchstart',e=>{ct=setTimeout(()=>startCartDrag(e,section,realIdx,div),1500);},{passive:true});
-    div.addEventListener('touchend',()=>clearTimeout(ct));div.addEventListener('touchmove',()=>clearTimeout(ct));
-    div.addEventListener('mousedown',e=>{ct=setTimeout(()=>startCartDrag(e,section,realIdx,div),1500);});
-    div.addEventListener('mouseup',()=>clearTimeout(ct));
-    c.appendChild(div);
-  });
-}
-
-function renderCart(){Object.keys(CART_SECTIONS).forEach(renderCartSection);renderPassSection();}
-
-function startCartDrag(e,section,idx,el){
-  cartDragging=true;cartDragSection=section;cartDragIdx=idx;cartDragEl=el;
-  cartDragItem=cartData[section][idx];
-  const touch=e.touches?e.touches[0]:e;
-  ghost.textContent=cartDragItem.text;ghost.style.display='block';
-  ghost.style.left=Math.min(touch.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(touch.clientY-20)+'px';
-  ghost.style.background='var(--ink)';ghost.style.color='var(--paper)';
-  el.style.opacity='0.4';
-  document.querySelectorAll('.quad-cell').forEach(cell=>cell.style.outline='2px dashed rgba(0,0,0,0.15)');
-  const passEl=document.getElementById('cart-pass-section');if(passEl)passEl.style.outline='2px dashed rgba(0,0,0,0.15)';
-  if(navigator.vibrate)navigator.vibrate(40);
-}
-
-function endCartDrag(clientX,clientY){
-  cartDragging=false;ghost.style.display='none';
-  if(cartDragEl)cartDragEl.style.opacity='';
-  let toSection=null;
-  const smap={'items-need-buy':'need-buy','items-need-want':'need-want','items-need-later':'need-later','items-want':'want'};
-  document.querySelectorAll('.quad-cell').forEach(cell=>{
-    const r=cell.getBoundingClientRect();
-    if(clientX>=r.left&&clientX<=r.right&&clientY>=r.top&&clientY<=r.bottom){const id=cell.querySelector('.quad-items')?.id;if(id)toSection=smap[id]||null;}
-    cell.style.outline='';
-  });
-  const passEl=document.getElementById('cart-pass-section');
-  if(passEl){const r=passEl.getBoundingClientRect();if(clientX>=r.left&&clientX<=r.right&&clientY>=r.top&&clientY<=r.bottom)toSection='pass';passEl.style.outline='';}
-  if(toSection&&cartDragSection)moveCartSection(cartDragSection,cartDragIdx,toSection);
-  cartDragItem=null;cartDragSection=null;cartDragIdx=-1;cartDragEl=null;
-}
-
-document.addEventListener('touchmove',e=>{if(cartDragging){e.preventDefault();const t=e.touches[0];ghost.style.left=Math.min(t.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(t.clientY-20)+'px';document.querySelectorAll('.quad-cell').forEach(cell=>{const r=cell.getBoundingClientRect();cell.style.outline=(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)?'2px solid var(--ink)':'2px dashed rgba(0,0,0,0.15)';});const p=document.getElementById('cart-pass-section');if(p){const r=p.getBoundingClientRect();p.style.outline=(t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom)?'2px solid #c0392b':'2px dashed rgba(0,0,0,0.15)';};}},{passive:false});
-document.addEventListener('touchend',e=>{if(!cartDragging)return;const t=e.changedTouches[0];endCartDrag(t.clientX,t.clientY);});
-document.addEventListener('mousemove',e=>{if(cartDragging){ghost.style.left=Math.min(e.clientX-60,window.innerWidth-260)+'px';ghost.style.top=(e.clientY-20)+'px';document.querySelectorAll('.quad-cell').forEach(cell=>{const r=cell.getBoundingClientRect();cell.style.outline=(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)?'2px solid var(--ink)':'2px dashed rgba(0,0,0,0.15)';});const p=document.getElementById('cart-pass-section');if(p){const r=p.getBoundingClientRect();p.style.outline=(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)?'2px solid #c0392b':'2px dashed rgba(0,0,0,0.15)';};}});
-document.addEventListener('mouseup',e=>{if(!cartDragging)return;endCartDrag(e.clientX,e.clientY);});
-
-function saveCartToStorage(){localStorage.setItem('cart_data',JSON.stringify(cartData));}
-function loadCartFromStorage(){try{const d=localStorage.getItem('cart_data');if(d){const p=JSON.parse(d);const m={'need-buy':[],'need-want':[],'need-later':[],'want':[],'pass':[]};if(p['need-now'])m['need-buy']=p['need-now'];['need-buy','need-want','need-later','want','pass'].forEach(k=>{if(p[k])m[k]=p[k];});cartData=m;}}catch(e){}}
-
-async function loadCartFromNotion(){
-  try{
-    const res=await fetch(WORKER_URL+'/notion/databases/'+CART_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'추가일',direction:'descending'}],page_size:100})});
-    const data=await res.json();if(!data.results)return;
-    const smap={'Need & Buy':'need-buy','Need & Want':'need-want','Need Later':'need-later','Just Want':'want','Pass':'pass'};
-    const newCart={'need-buy':[],'need-want':[],'need-later':[],'want':[],'pass':[]};
-    const now=new Date();
-    data.results.forEach(page=>{
-      const props=page.properties;
-      const text=props['이름']?.title?.map(t=>t.plain_text).join('')||'';if(!text)return;
-      const section=smap[props['유형']?.select?.name||'']||'want';
-      const memo=props['메모']?.rich_text?.map(t=>t.plain_text).join('')||'';
-      const done=props['구매완료']?.checkbox||false;
-      const doneAtStr=props['완료일']?.date?.start||null;
-      const doneAt=doneAtStr?new Date(doneAtStr).toISOString():null;
-      if(doneAt){const d=new Date(doneAt);d.setHours(0,0,0,0);const next=new Date(d);next.setDate(next.getDate()+1);if(now>=next)return;}
-      newCart[section].push({text,memo,done,doneAt,notionId:page.id});
-    });
-    cartData=newCart;saveCartToStorage();renderCart();
-  }catch(e){console.error('loadCartFromNotion failed',e);}
-}
-
-async function saveCartToNotion(section,text,memo){
-  try{
-    const label=section==='pass'?CART_PASS_LABEL:(CART_SECTIONS[section]?.label||section);
-    const props={'이름':{title:[{text:{content:text}}]},'유형':{select:{name:label}},'추가일':{date:{start:formatDate(new Date())}}};
-    if(memo)props['메모']={rich_text:[{text:{content:memo}}]};
-    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:CART_DB},properties:props})});
-    const d=await res.json();return d.id||null;
-  }catch(e){console.error(e);return null;}
-}
-
 /* Braindump */
 let brainItems=[],dragItem=null,dragIdx=-1,holdTimer=null,isDragging=false;
 const ghost=document.getElementById('drag-ghost');
@@ -2387,7 +2180,7 @@ function renderBrainList(){
 }
 
 let subDragZone='',subDragItem=null,subDragIdx=-1;
-function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragIdx=idx;document.getElementById('sub-popup-text').textContent=item.text;const wrap=document.getElementById('sub-choices-wrap');wrap.innerHTML='';if(zone==='record'){document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';const grid=document.createElement('div');grid.className='sub-mood-grid';['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{const btn=document.createElement('button');btn.className='sub-mood-btn';btn.textContent=m;btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);grid.appendChild(btn);});wrap.appendChild(grid);}else if(zone==='todo'){document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(QUAD_CFG).forEach(([q,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':'');btn.onclick=()=>confirmSubTodo(q);div.appendChild(btn);});wrap.appendChild(div);}else if(zone==='cart'){document.getElementById('sub-popup-title').textContent='CART — 분류 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(CART_SECTIONS).forEach(([s,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label;btn.onclick=()=>confirmSubCart(s);div.appendChild(btn);});wrap.appendChild(div);}
+function openSubPopup(zone,item,idx){subDragZone=zone;subDragItem=item;subDragIdx=idx;document.getElementById('sub-popup-text').textContent=item.text;const wrap=document.getElementById('sub-choices-wrap');wrap.innerHTML='';if(zone==='record'){document.getElementById('sub-popup-title').textContent='RECORD — 감정 선택';const grid=document.createElement('div');grid.className='sub-mood-grid';['평온함','뿌듯함','감사함','행복함','설렘','불안','무기력','답답함','외로움','피곤함','멍함','복잡함','모르겠음','없음'].forEach(m=>{const btn=document.createElement('button');btn.className='sub-mood-btn';btn.textContent=m;btn.onclick=()=>confirmSubRecord(m==='없음'?'':m);grid.appendChild(btn);});wrap.appendChild(grid);}else if(zone==='todo'){document.getElementById('sub-popup-title').textContent='TO-DO — 사분면 선택';const div=document.createElement('div');div.className='sub-choices';Object.entries(QUAD_CFG).forEach(([q,cfg])=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=cfg.label+(cfg.offset!==null?' (+'+cfg.offset+'d)':'');btn.onclick=()=>confirmSubTodo(q);div.appendChild(btn);});wrap.appendChild(div);}
   else if(zone==='idea'){document.getElementById('sub-popup-title').textContent='IDEA — Save as Idea';const div=document.createElement('div');div.className='sub-choices';const btn=document.createElement('button');btn.className='sub-choice';btn.textContent='Save to Idea DB';btn.style.cssText='border-color:var(--ink);font-weight:600;';btn.onclick=()=>confirmSubIdea();div.appendChild(btn);wrap.appendChild(div);}
   else if(zone==='book'){document.getElementById('sub-popup-title').textContent='BOOK — 책 선택 또는 입력';const div=document.createElement('div');div.className='sub-choices';if(bookData.length){bookData.forEach((book,i)=>{const btn=document.createElement('button');btn.className='sub-choice';btn.textContent=book.title;btn.onclick=()=>confirmSubBook(i);div.appendChild(btn);});}const newBtn=document.createElement('button');newBtn.className='sub-choice';newBtn.textContent='+ 새 책으로 독후감 추가';newBtn.style.cssText='border-color:var(--ink);font-weight:600;';newBtn.onclick=()=>confirmSubBookNew();div.appendChild(newBtn);wrap.appendChild(div);}
   document.getElementById('sub-popup').classList.add('open');}
@@ -2424,18 +2217,6 @@ function confirmSubTodo(q){
   window._brainTodoCallback={idx:brainIdx};
   document.getElementById('todo-popup').classList.add('open');
   setTimeout(()=>document.getElementById('todo-input').focus(),300);
-}
-
-function confirmSubCart(section){
-  closeSubPopup();
-  const brainIdx=subDragIdx;
-  currentCartSection=section;
-  document.getElementById('cart-popup-label').textContent=CART_SECTIONS[section].label;
-  document.getElementById('cart-input').value=subDragItem.text;
-  document.getElementById('cart-memo').value='';
-  window._brainCartCallback={idx:brainIdx};
-  document.getElementById('cart-popup').classList.add('open');
-  setTimeout(()=>document.getElementById('cart-memo').focus(),300);
 }
 
 function markBrainDone(idx,tag){
@@ -2727,7 +2508,7 @@ document.addEventListener('mouseup',e=>{
   }
 });
 
-const BRAIN_ZONE_LABELS={record:'Log',todo:'To-Do',cart:'Cart',idea:'Idea'};
+const BRAIN_ZONE_LABELS={record:'Log',todo:'To-Do',idea:'Idea'};
 function openBrainZone(zone){
   const panel=document.getElementById('brain-zone-panel');
   const title=document.getElementById('brain-zone-title');
@@ -3004,28 +2785,49 @@ function saveBookToStorage(){localStorage.setItem('book_data',JSON.stringify(boo
 function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(d)bookData=JSON.parse(d);}catch(e){}}
 
 /* Inbox */
-const MORNING_BRIEFING_DB='37d51f4140c580dca4d5cbec7e5534e3';
+const DIARY_DB='37451f4140c5808e9141c8804e892661';
 async function loadInbox(){
   const list=document.getElementById('inbox-list');
   list.innerHTML='<div class="inbox-empty">Loading...</div>';
   try{
     const d=getDiaryDate();const dateStr=formatDate(d);
-    const res=await fetch(`${WORKER_URL}/notion/databases/${MORNING_BRIEFING_DB}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}},page_size:1})});
+    // 1. DIARY_DB에서 오늘 날짜 페이지 찾기
+    const res=await fetch(`${WORKER_URL}/notion/databases/${DIARY_DB}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}},page_size:1})});
     const data=await res.json();
     const page=(data.results||[])[0];
     if(!page){
+      list.innerHTML='<div class="inbox-empty">오늘 다이어리 페이지가 없습니다.</div>';
+      return;
+    }
+    // 2. 페이지 children에서 heading_4 + is_toggleable + "모닝브리핑" 포함하는 토글 찾기
+    let pageBlocks=[];let pageCursor=null;
+    do{
+      const url=WORKER_URL+'/notion/blocks/'+page.id+'/children'+(pageCursor?'?start_cursor='+pageCursor:'');
+      const br=await fetch(url,{headers:notionHeaders()});
+      const bd=await br.json();
+      pageBlocks=pageBlocks.concat(bd.results||[]);
+      pageCursor=bd.has_more?bd.next_cursor:null;
+    }while(pageCursor);
+    const toggleBlock=pageBlocks.find(b=>b.type==='heading_4'&&b.heading_4?.is_toggleable&&(b.heading_4?.rich_text||[]).some(t=>(t.plain_text||'').includes('모닝브리핑')));
+    if(!toggleBlock){
       list.innerHTML='<div class="inbox-empty">Your morning briefing will appear here.</div>';
       return;
     }
+    // 3. 토글의 children 블록 읽기
     let blocks=[];let cursor=null;
     do{
-      const url=WORKER_URL+'/notion/blocks/'+page.id+'/children'+(cursor?'?start_cursor='+cursor:'');
+      const url=WORKER_URL+'/notion/blocks/'+toggleBlock.id+'/children'+(cursor?'?start_cursor='+cursor:'');
       const br=await fetch(url,{headers:notionHeaders()});
       const bd=await br.json();
       blocks=blocks.concat(bd.results||[]);
       cursor=bd.has_more?bd.next_cursor:null;
     }while(cursor);
+    if(!blocks.length){
+      list.innerHTML='<div class="inbox-empty">Your morning briefing will appear here.</div>';
+      return;
+    }
 
+    // 4. 기존 렌더링 로직 유지
     list.innerHTML='';
     const days=['일','월','화','수','목','금','토'];
     const dateLabel=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
@@ -3107,8 +2909,8 @@ function init(){
   const pHour=document.getElementById('todo-time-hour'),pMin=document.getElementById('todo-time-min');
   for(let h=1;h<=12;h++)pHour.innerHTML+=`<option value="${h}">${h}</option>`;
   for(let m=0;m<60;m+=5)pMin.innerHTML+=`<option value="${m}">${String(m).padStart(2,'0')}</option>`;
-  loadTodoFromStorage();loadCartFromStorage();loadBookFromStorage();loadBrainFromStorage();
-  autoMoveTodos();renderAllQuads();renderCart();renderBrainList();renderBookList();
+  loadTodoFromStorage();loadBookFromStorage();loadBrainFromStorage();
+  autoMoveTodos();renderAllQuads();renderBrainList();renderBookList();
   const _lastTodoView=localStorage.getItem('last_todo_view')||'week';
   switchTodoView(_lastTodoView);
   const _lastTab=localStorage.getItem('last_tab')||'record';
@@ -3118,7 +2920,6 @@ function init(){
   loadTodoFromNotion();
   loadBookFromNotion();
   loadBrainFromNotion();
-  loadCartFromNotion();
   checkBrainAutoReset();
   window._pausePollingUntil=0;
   setInterval(()=>{
@@ -3126,7 +2927,6 @@ function init(){
     loadTodoFromNotion();
     loadBrainFromNotion();
     loadBookFromNotion();
-    loadCartFromNotion();
   },30000);
 }
 window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.getItem('notion_token')){document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();}};
