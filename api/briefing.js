@@ -3,11 +3,8 @@ export const config = { regions: ['icn1'], api: { bodyParser: false } };
 const DIARY_DB = '37451f4140c5808e9141c8804e892661';
 
 export default async function handler(req, res) {
-  const authHeader = req.headers['authorization'] || '';
-  const queryKey = req.query?.key;
-  const isCron = authHeader === `Bearer ${process.env.CRON_SECRET}`;
-  const isManual = queryKey === process.env.CRON_SECRET;
-  if (process.env.CRON_SECRET && !isCron && !isManual) {
+  const secret = req.query?.secret;
+  if (secret !== process.env.AUTH_SECRET) {
     return res.status(401).json({ error: 'unauthorized' });
   }
   try {
