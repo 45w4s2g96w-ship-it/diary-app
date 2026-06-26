@@ -1,7 +1,6 @@
 export const config = { regions: ['icn1'], api: { bodyParser: false } };
 
 const DIARY_DB = '37451f4140c5808e9141c8804e892661';
-const MORNING_BRIEFING_DB = '37d51f4140c580dca4d5cbec7e5534e3';
 
 export default async function handler(req, res) {
   const authHeader = req.headers['authorization'] || '';
@@ -153,77 +152,68 @@ ${newsText || '(없음)'}
     };
   }
 
-  const titleLabel = `${mo}월 ${d}일 ${dayName}요일 모닝 브리핑입니다.`;
   const newBlocks = buildBriefingBlocksFromJSON(parsed);
 
-  let existingPageId = null;
+  const diaryPageId = await findTodayDiaryPage(NOTION_TOKEN, todayStr);
+  if (!diaryPageId) {
+    return { ok: false, todayStr, error: 'no diary page found for today', briefing: parsed, debug: briefingResult.debug };
+  }
+
+  const toggleId = await findMorningBriefingToggle(NOTION_TOKEN, diaryPageId);
+  if (!toggleId) {
+    return { ok: false, todayStr, error: 'morning briefing toggle not found', briefing: parsed, debug: briefingResult.debug };
+  }
+
   try {
-    const searchRes = await fetch(`https://api.notion.com/v1/databases/${MORNING_BRIEFING_DB}/query`, {
-      method: 'POST',
-      headers: notionHeaders(NOTION_TOKEN),
-      body: JSON.stringify({ filter: { property: '날짜', date: { equals: todayStr } }, page_size: 1 }),
-    });
-    existingPageId = (await searchRes.json()).results?.[0]?.id || null;
-  } catch (e) {
-    console.error('existing page search failed', e);
-  }
+    const childrenData = await (await fetch(
+      `https://api.notion.com/v1/blocks/${toggleId}/children?page_size=100`,
+      { headers: notionHeaders(NOTION_TOKEN) }
+    )).json();
+    for (const block of (childrenData.results || [])) {
+      await fetch(`https://api.notion.com/v1/blocks/${block.id}`, { method: 'DELETE', headers: notionHeaders(NOTION_TOKEN) });
+    }
+  } catch (e) { console.error('toggle children cleanup failed', e); }
 
-  let pageResult;
-  if (existingPageId) {
-    try {
-      await fetch(`https://api.notion.com/v1/pages/${existingPageId}`, {
-        method: 'PATCH',
-        headers: notionHeaders(NOTION_TOKEN),
-        body: JSON.stringify({ properties: { '제목': { title: [{ text: { content: titleLabel } }] } } })
-      });
-      const childrenData = await (await fetch(
-        `https://api.notion.com/v1/blocks/${existingPageId}/children?page_size=100`,
-        { headers: notionHeaders(NOTION_TOKEN) }
-      )).json();
-      for (const block of (childrenData.results || [])) {
-        await fetch(`https://api.notion.com/v1/blocks/${block.id}`, { method: 'DELETE', headers: notionHeaders(NOTION_TOKEN) });
-      }
-    } catch (e) { console.error('update failed', e); }
-    const appendRes = await fetch(`https://api.notion.com/v1/blocks/${existingPageId}/children`, {
-      method: 'PATCH',
-      headers: notionHeaders(NOTION_TOKEN),
-      body: JSON.stringify({ children: newBlocks }),
-    });
-    pageResult = { ok: appendRes.ok, mode: 'updated', pageId: existingPageId };
-  } else {
-    const createRes = await fetch(`https://api.notion.com/v1/pages`, {
-      method: 'POST',
-      headers: notionHeaders(NOTION_TOKEN),
-      body: JSON.stringify({
-        parent: { database_id: MORNING_BRIEFING_DB },
-        properties: {
-          '제목': { title: [{ text: { content: titleLabel } }] },
-          '날짜': { date: { start: todayStr } }
-        },
-      }),
-    });
-    const createData = await createRes.json();
-    const newPageId = createData.id;
-
-    try {
-      const childrenData = await (await fetch(
-        `https://api.notion.com/v1/blocks/${newPageId}/children?page_size=100`,
-        { headers: notionHeaders(NOTION_TOKEN) }
-      )).json();
-      for (const block of (childrenData.results || [])) {
-        await fetch(`https://api.notion.com/v1/blocks/${block.id}`, { method: 'DELETE', headers: notionHeaders(NOTION_TOKEN) });
-      }
-    } catch (e) { console.error('template cleanup failed', e); }
-
-    const appendRes = await fetch(`https://api.notion.com/v1/blocks/${newPageId}/children`, {
-      method: 'PATCH',
-      headers: notionHeaders(NOTION_TOKEN),
-      body: JSON.stringify({ children: newBlocks }),
-    });
-    pageResult = { ok: appendRes.ok && createRes.ok, mode: 'created', pageId: newPageId };
-  }
+  const appendRes = await fetch(`https://api.notion.com/v1/blocks/${toggleId}/children`, {
+    method: 'PATCH',
+    headers: notionHeaders(NOTION_TOKEN),
+    body: JSON.stringify({ children: newBlocks }),
+  });
+  const pageResult = { ok: appendRes.ok, mode: 'inserted', toggleId, diaryPageId };
 
   return { ok: pageResult.ok, todayStr, briefing: parsed, debug: briefingResult.debug, notion: pageResult };
+}
+
+async function findTodayDiaryPage(token, todayStr) {
+  try {
+    const res = await fetch(`https://api.notion.com/v1/databases/${DIARY_DB}/query`, {
+      method: 'POST',
+      headers: notionHeaders(token),
+      body: JSON.stringify({ filter: { property: '날짜', date: { equals: todayStr } }, page_size: 1 }),
+    });
+    const data = await res.json();
+    return data.results?.[0]?.id || null;
+  } catch (e) {
+    console.error('diary page search failed', e);
+    return null;
+  }
+}
+
+async function findMorningBriefingToggle(token, pageId) {
+  try {
+    const res = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, {
+      headers: notionHeaders(token),
+    });
+    const data = await res.json();
+    const toggle = (data.results || []).find(
+      (b) => b.type === 'heading_4' && b.heading_4?.is_toggleable &&
+        b.heading_4?.rich_text?.some((t) => t.plain_text?.includes('모닝브리핑'))
+    );
+    return toggle?.id || null;
+  } catch (e) {
+    console.error('toggle search failed', e);
+    return null;
+  }
 }
 
 async function callClaude(apiKey, systemPrompt, userPrompt) {

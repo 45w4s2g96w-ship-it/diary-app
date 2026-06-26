@@ -4,9 +4,6 @@
       "maxDuration": 300
     }
   },
-  "crons": [
-    { "path": "/api/briefing", "schedule": "0 21 * * *" }
-  ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)", "dest": "/$1" }
