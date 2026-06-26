@@ -111,7 +111,8 @@ async function runBriefing(overrideDate = null) {
 - 이모지/구어체 금지. 음성으로 읽히는 글이므로 괄호·기호 최소화 (URL 제외).
 - 섹션별 말투:
   - weather: 기상캐스터식 ~ㅂ니다/~입니다 어미만 사용.
-  - schedule, news, suggestion: 비서 말투, ~요/~입니다 자연스럽게 섞어 쓴다.
+  - news: 기자처럼 ~ㅂ니다/~입니다 어미만 사용.
+  - schedule, suggestion: 비서 말투, ~요/~입니다 자연스럽게 섞어 쓴다.
   - yesterday: 심리상담가처럼 ~요/~ㅂ니다를 적절히 섞어 부드럽고 따뜻하게 서술.
 
 [섹션별 내용 규칙]
