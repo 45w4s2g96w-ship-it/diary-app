@@ -71,8 +71,8 @@ export default async function handler(req, res) {
       });
       ok = appendRes.ok;
     } else {
-      // 토글이 없으면 토글+자식 블록을 페이지에 새로 추가
-      const appendRes = await fetch(`https://api.notion.com/v1/blocks/${diaryPageId}/children`, {
+      // 토글이 없으면 1단계: 토글 블록만 먼저 생성
+      const createRes = await fetch(`https://api.notion.com/v1/blocks/${diaryPageId}/children`, {
         method: 'PATCH', headers,
         body: JSON.stringify({
           children: [{
@@ -83,9 +83,17 @@ export default async function handler(req, res) {
               is_toggleable: true,
               color: 'default',
             },
-            children: newBlocks,
           }],
         }),
+      });
+      const createData = await createRes.json();
+      const newToggleId = createData.results?.[0]?.id;
+      if (!newToggleId) { results.push({ date: dateStr, skip: 'toggle creation failed', detail: createData }); continue; }
+
+      // 2단계: 새 토글에 브리핑 블록 삽입
+      const appendRes = await fetch(`https://api.notion.com/v1/blocks/${newToggleId}/children`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ children: newBlocks }),
       });
       ok = appendRes.ok;
     }
