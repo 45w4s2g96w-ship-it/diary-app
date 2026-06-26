@@ -170,35 +170,6 @@ export default async function handler(request) {
 
   const todoRichText = buildTodoRichText(parents, orphanChildren);
 
-  function buildColumnChildren(headingText, headingColor) {
-    return [
-      {
-        object: 'block',
-        type: 'heading_4',
-        heading_4: {
-          rich_text: [{ type: 'text', text: { content: headingText } }],
-          color: headingColor
-        }
-      },
-      toTextBlock(todoRichText, '오늘 할일이 없습니다'),
-      { object: 'block', type: 'divider', divider: {} },
-      toScheduleBlock(schedules, '오늘 일정이 없습니다')
-    ];
-  }
-
-  // ── 감사 일기 quote 블록 생성 헬퍼 ──
-  function buildQuoteBlock(title) {
-    return {
-      object: 'block',
-      type: 'quote',
-      quote: {
-        rich_text: [{ type: 'text', text: { content: title }, annotations: { bold: true } }],
-        color: 'default',
-        children: [{ object: 'block', type: 'paragraph', paragraph: { rich_text: [] } }]
-      }
-    };
-  }
-
   const pageBody = {
     parent: { database_id: '37451f4140c5808e9141c8804e892661' },
     properties: {
@@ -208,55 +179,48 @@ export default async function handler(request) {
     children: [
       {
         object: 'block',
-        type: 'column_list',
-        column_list: {
-          children: [
-            {
-              object: 'block',
-              type: 'column',
-              column: { children: buildColumnChildren("📋 Today's Plan", 'gray_background') }
-            },
-            {
-              object: 'block',
-              type: 'column',
-              column: { children: buildColumnChildren("🎯 Today's Goal", 'yellow_background') }
-            }
-          ]
+        type: 'heading_4',
+        heading_4: {
+          rich_text: [{ type: 'text', text: { content: '☀️ 모닝브리핑' } }],
+          is_toggleable: true,
+          color: 'default'
         }
       },
-      { object: 'block', type: 'paragraph', paragraph: { rich_text: [] } },
+      { object: 'block', type: 'divider', divider: {} },
       {
         object: 'block',
         type: 'heading_4',
-        heading_4: { rich_text: [{ text: { content: '◾️ 오늘 생각' } }], color: 'gray_background' }
+        heading_4: {
+          rich_text: [{ type: 'text', text: { content: '📝 기록' } }],
+          is_toggleable: true,
+          color: 'default'
+        }
+      },
+      { object: 'block', type: 'divider', divider: {} },
+      {
+        object: 'block',
+        type: 'heading_4',
+        heading_4: {
+          rich_text: [{ type: 'text', text: { content: '🌙 일기' } }],
+          color: 'default'
+        }
       },
       {
         object: 'block',
         type: 'quote',
         quote: {
-          rich_text: [
-            { type: 'text', text: { content: '00:00' }, annotations: { italic: true, color: 'gray' } },
-            { type: 'text', text: { content: '\n내용' }, annotations: { bold: false } }
-          ]
+          rich_text: [{ type: 'text', text: { content: '감사한 일\n' } }],
+          color: 'default'
         }
       },
-      { object: 'block', type: 'paragraph', paragraph: { rich_text: [] } },
       {
         object: 'block',
-        type: 'heading_4',
-        heading_4: { rich_text: [{ text: { content: '◾️ 감사 일기' } }], color: 'gray_background' }
-      },
-      buildQuoteBlock('감사한 일'),
-      buildQuoteBlock('칭찬'),
-      buildQuoteBlock('나를 위해 한 일'),
-      buildQuoteBlock('가장 노력한 일'),
-      { object: 'block', type: 'paragraph', paragraph: { rich_text: [] } },
-      {
-        object: 'block',
-        type: 'heading_4',
-        heading_4: { rich_text: [{ text: { content: '◾️ 틈틈이 기록' } }], color: 'gray_background' }
-      },
-      { object: 'block', type: 'paragraph', paragraph: { rich_text: [] } }
+        type: 'quote',
+        quote: {
+          rich_text: [{ type: 'text', text: { content: '노력한 일\n' } }],
+          color: 'default'
+        }
+      }
     ]
   };
 
@@ -267,6 +231,31 @@ export default async function handler(request) {
   });
 
   const notionData = await notionRes.json();
+
+  // ☀️ 모닝브리핑 토글 안에 할일/일정 추가
+  if (notionRes.ok && notionData.id) {
+    const blocksRes = await fetch(`https://api.notion.com/v1/blocks/${notionData.id}/children`, {
+      headers: notionHeaders
+    });
+    const blocksData = await blocksRes.json();
+    const morningToggle = (blocksData.results || []).find(b =>
+      b.type === 'heading_4' &&
+      (b.heading_4?.rich_text || []).some(t => (t.plain_text || t.text?.content || '').includes('모닝브리핑'))
+    );
+    if (morningToggle) {
+      await fetch(`https://api.notion.com/v1/blocks/${morningToggle.id}/children`, {
+        method: 'PATCH',
+        headers: notionHeaders,
+        body: JSON.stringify({
+          children: [
+            toTextBlock(todoRichText, '오늘 할일이 없습니다'),
+            { object: 'block', type: 'divider', divider: {} },
+            toScheduleBlock(schedules, '오늘 일정이 없습니다')
+          ]
+        })
+      });
+    }
+  }
 
   return new Response(JSON.stringify(notionData), {
     status: notionRes.status,
