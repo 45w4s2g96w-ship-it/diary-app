@@ -50,28 +50,45 @@ export default async function handler(req, res) {
       (b) => b.type === 'heading_4' && b.heading_4?.is_toggleable &&
         b.heading_4?.rich_text?.some((t) => t.plain_text?.includes('모닝브리핑'))
     );
-    if (!toggle) { results.push({ date: dateStr, skip: 'no toggle' }); continue; }
-
-    // 기존 토글 자식 삭제
-    const existingRes = await fetch(`https://api.notion.com/v1/blocks/${toggle.id}/children?page_size=100`, { headers });
-    for (const b of (await existingRes.json()).results || []) {
-      await fetch(`https://api.notion.com/v1/blocks/${b.id}`, { method: 'DELETE', headers });
-    }
 
     // 브리핑 DB 페이지의 블록 읽기
     const srcRes = await fetch(`https://api.notion.com/v1/blocks/${bPage.id}/children?page_size=100`, { headers });
     const srcBlocks = (await srcRes.json()).results || [];
 
-    // 복사할 블록 형태로 변환 (id 등 읽기전용 필드 제거)
     const newBlocks = srcBlocks.map(stripBlock).filter(Boolean);
     if (!newBlocks.length) { results.push({ date: dateStr, skip: 'empty source' }); continue; }
 
-    // 토글에 블록 삽입
-    const appendRes = await fetch(`https://api.notion.com/v1/blocks/${toggle.id}/children`, {
-      method: 'PATCH', headers,
-      body: JSON.stringify({ children: newBlocks }),
-    });
-    const ok = appendRes.ok;
+    let ok;
+    if (toggle) {
+      // 기존 토글 자식 삭제 후 삽입
+      const existingRes = await fetch(`https://api.notion.com/v1/blocks/${toggle.id}/children?page_size=100`, { headers });
+      for (const b of (await existingRes.json()).results || []) {
+        await fetch(`https://api.notion.com/v1/blocks/${b.id}`, { method: 'DELETE', headers });
+      }
+      const appendRes = await fetch(`https://api.notion.com/v1/blocks/${toggle.id}/children`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ children: newBlocks }),
+      });
+      ok = appendRes.ok;
+    } else {
+      // 토글이 없으면 토글+자식 블록을 페이지에 새로 추가
+      const appendRes = await fetch(`https://api.notion.com/v1/blocks/${diaryPageId}/children`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({
+          children: [{
+            object: 'block',
+            type: 'heading_4',
+            heading_4: {
+              rich_text: [{ type: 'text', text: { content: '☀️ 모닝브리핑' } }],
+              is_toggleable: true,
+              color: 'default',
+            },
+            children: newBlocks,
+          }],
+        }),
+      });
+      ok = appendRes.ok;
+    }
 
     // 브리핑 DB 페이지 아카이브
     if (ok) {
