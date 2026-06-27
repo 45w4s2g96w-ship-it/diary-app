@@ -1096,7 +1096,7 @@ async function saveRecord(){
       rich.push({type:'text',text:{content:timeStr},annotations:{color:'gray',bold:false,italic:false}});
       if(selectedMood)rich.push({type:'text',text:{content:'  '+getMoodEmoji(selectedMood)+' '+selectedMood},annotations:{color:'gray',italic:true,bold:false}});
       rich.push({type:'text',text:{content:'\n'+(text||'')},annotations:{bold:false,italic:false,color:'default'}});
-      const children=[{object:'block',type:'quote',quote:{rich_text:rich,color:'default'}}];
+      const children=[{object:'block',type:'paragraph',paragraph:{rich_text:rich,color:'default'}}];
       if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
       const ar=await fetch('/api/insert-record',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({notionToken:localStorage.getItem('notion_token')||'',pageId,children})});
       const ad=await ar.json();
@@ -1329,7 +1329,7 @@ async function saveRecordEdit(){
     await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{
       method:'PATCH',
       headers:notionHeaders(),
-      body:JSON.stringify({quote:{rich_text:rich}})
+      body:JSON.stringify({paragraph:{rich_text:rich}})
     });
     
     document.getElementById('rp-text').textContent=newText;
