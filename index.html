@@ -1098,16 +1098,7 @@ async function saveRecord(){
       rich.push({type:'text',text:{content:'\n'+(text||'')},annotations:{bold:false,italic:false,color:'default'}});
       const children=[{object:'block',type:'quote',quote:{rich_text:rich,color:'default'}}];
       if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
-      let afterBlockId=null;
-      try{
-        const pbData=await(await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{headers:notionHeaders()})).json();
-        const pb=pbData.results||[];let inG=false;
-        for(let bi=0;bi<pb.length;bi++){const b=pb[bi];
-          if(!inG){if(b.type==='heading_4'&&!b.heading_4?.is_toggleable&&b.heading_4?.rich_text?.some(t=>t.plain_text?.includes('기록'))){afterBlockId=b.id;inG=true;}}
-          else{const nx=pb[bi+1];if(b.type==='heading_4'&&b.heading_4?.rich_text?.some(t=>t.plain_text?.includes('일기')))break;if(b.type==='divider'&&nx?.type==='heading_4'&&nx?.heading_4?.rich_text?.some(t=>t.plain_text?.includes('일기')))break;afterBlockId=b.id;}}
-      }catch(e){console.error('find girok pos failed',e);}
-      const insertBody=afterBlockId?{after:afterBlockId,children}:{children};
-      const ar=await fetch(WORKER_URL+'/notion/blocks/'+pageId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify(insertBody)});
+      const ar=await fetch('/api/insert-record',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({notionToken:localStorage.getItem('notion_token')||'',pageId,children})});
       const ad=await ar.json();
       blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
       photoBlockId=(photoUrls.length>0&&ad.results&&ad.results[1])?ad.results[1].id:null;
