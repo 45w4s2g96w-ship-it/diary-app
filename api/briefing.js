@@ -44,6 +44,30 @@ async function fetchGoogleNewsRSS() {
   }
 }
 
+async function fetchSeoulWeather() {
+  try {
+    const res = await fetch('https://wttr.in/Seoul?format=j1', {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' }
+    });
+    const data = await res.json();
+    const cur = data.current_condition?.[0];
+    const today = data.weather?.[0];
+    if (!cur || !today) return '';
+    const desc = cur.lang_ko?.[0]?.value || cur.weatherDesc?.[0]?.value || '';
+    return [
+      `현재기온: ${cur.temp_C}°C (체감 ${cur.FeelsLikeC}°C)`,
+      `최고: ${today.maxtempC}°C / 최저: ${today.mintempC}°C`,
+      `날씨: ${desc}`,
+      `습도: ${cur.humidity}%`,
+      `풍속: ${cur.windspeedKmph}km/h`,
+      `강수량: ${cur.precipMM}mm`,
+    ].join(', ');
+  } catch (e) {
+    console.error('weather fetch failed', e);
+    return '';
+  }
+}
+
 async function fetchDiary(token, yesterdayStr) {
   try {
     const res = await fetch(`https://api.notion.com/v1/databases/${DIARY_DB}/query`, {
@@ -76,10 +100,11 @@ async function runBriefing(overrideDate = null) {
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = yesterday.toISOString().slice(0, 10);
 
-  const [todaySchedule, diaryResult, newsItems] = await Promise.all([
+  const [todaySchedule, diaryResult, newsItems, seoulWeather] = await Promise.all([
     fetchTodayEvents(ICLOUD_CALENDAR_URLS, todayStr).catch(() => ''),
     fetchDiary(NOTION_TOKEN, yesterdayStr),
     fetchGoogleNewsRSS(),
+    fetchSeoulWeather().catch(() => ''),
   ]);
 
   const { diarySummary, diarySuggest } = diaryResult;
@@ -116,7 +141,7 @@ async function runBriefing(overrideDate = null) {
   - yesterday: ~ㅂ니다/~입니다 50%, ~요 50% 비율로 섞어 심리상담가처럼 부드럽게 서술.
 
 [섹션별 내용 규칙]
-- weather: 250자 이내, 한 문단 3~4문장, 줄바꿈 없음. ~ㅂ니다/~입니다 어미만 사용. web_search로 오늘 서울 날씨 섭씨 기준 검색. 검색 출처나 검색 과정 언급 절대 금지 — 결과만 자연스럽게 서술. "서울은 오늘 최고기온 N도..." 형식으로 시작, 체감/생활 조언으로 마무리.
+- weather: 250자 이내, 한 문단 3~4문장, 줄바꿈 없음. ~ㅂ니다/~입니다 어미만 사용. 아래 user 메시지에 제공된 서울 날씨 데이터를 바탕으로 서술. 검색 출처나 검색 과정 언급 절대 금지 — 결과만 자연스럽게 서술. "서울은 오늘 최고기온 N도..." 형식으로 시작, 체감/생활 조언으로 마무리.
 - schedule: 250자 이내. 비서가 하루 일정을 사람에게 직접 말해주듯 자연스럽게 서술. 시간과 내용을 단순 나열하지 말고 맥락과 흐름을 담아 문장으로 연결. 일정이 아예 없으면 어제 일기와 날씨를 참고해서 오늘 하루에 어울리는 활동이나 리프레시를 구체적으로 제안.
 - news: 정확히 2개 항목 배열. 각 {"summary": "...", "url": "..."}. summary는 300자 이내, 2~4문장, ~입니다로 종결, "OOO에 따르면" 같은 출처표기 금지. ${excludeSources.join('/')} 출처 기사는 제외.
 - yesterday: 300자 이내, 한 문단 3~4문장, 줄바꿈 없음. 요약 + 격려.
@@ -129,6 +154,9 @@ async function runBriefing(overrideDate = null) {
   const userPrompt = `오늘(${todayStr}, ${dayName}요일) 일정: ${todaySchedule || '(없음)'}
 어제(${yesterdayStr}) 일기 요약: ${diarySummary || '(없음)'}
 어제 제언: ${diarySuggest || '(없음)'}
+
+서울 날씨 데이터:
+${seoulWeather || '(없음)'}
 
 기사 목록:
 ${newsText || '(없음)'}
@@ -218,37 +246,24 @@ async function findMorningBriefingToggle(token, pageId) {
 
 async function callClaude(apiKey, systemPrompt, userPrompt) {
   try {
-    const messages = [{ role: 'user', content: userPrompt }];
-    let finalText = '';
-    for (let turn = 0; turn < 3; turn++) {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 2200,
-          system: systemPrompt,
-          messages,
-          tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 1 }]
-        })
-      });
-      const data = await res.json();
-      if (!res.ok || data.error) return { text: '', debug: { stage: 'claude_error', raw: data } };
-      const textBlocks = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text);
-      if (data.stop_reason !== 'tool_use') { finalText = textBlocks.join('\n').trim(); break; }
-      messages.push({ role: 'assistant', content: data.content });
-      messages.push({
-        role: 'user',
-        content: (data.content || [])
-          .filter((b) => b.type === 'tool_use')
-          .map((b) => ({ type: 'tool_result', tool_use_id: b.id, content: '(검색 완료, 결과 반영해서 JSON으로 응답)' }))
-      });
-    }
-    return { text: finalText.trim(), debug: finalText ? null : { stage: 'no_final_text' } };
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2200,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) return { text: '', debug: { stage: 'claude_error', raw: data } };
+    const finalText = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
+    return { text: finalText, debug: finalText ? null : { stage: 'no_final_text' } };
   } catch (error) {
     return { text: '', debug: { stage: 'claude_exception', error: String(error) } };
   }
