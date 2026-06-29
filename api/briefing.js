@@ -121,6 +121,7 @@ async function runBriefing(overrideDate = null) {
   ]);
 
   const { diarySummary, diarySuggest } = diaryResult;
+  const hasDiarySummary = !!diarySummary;
 
   const excludeSources = ['조선일보', '중앙일보', '동아일보', 'Chosun', 'JoongAng', 'Donga'];
   const newsText = newsItems
@@ -155,10 +156,10 @@ async function runBriefing(overrideDate = null) {
 
 [섹션별 내용 규칙]
 - weather: 300자 이내, 한 문단 4~5문장, 줄바꿈 없음. ~ㅂ니다/~입니다 어미만 사용. 아래 user 메시지에 제공된 서울 날씨 데이터를 바탕으로 서술. 검색 출처나 검색 과정 언급 절대 금지 — 결과만 자연스럽게 서술. "서울은 오늘 최고기온 N도, 최저기온 N도..." 형식으로 시작, 현재기온과 체감온도도 언급. 마지막 문장은 반드시 오늘 날씨에 맞는 구체적인 옷차림 추천으로 마무리 (예: "얇은 긴팔에 가디건 정도가 적당합니다", "가벼운 반팔 한 장으로 충분합니다", "우산과 방수 재킷을 챙기는 것이 좋겠습니다" 등).
-- schedule: 250자 이내. 비서가 하루 일정을 사람에게 직접 말해주듯 자연스럽게 서술. 시간과 내용을 단순 나열하지 말고 맥락과 흐름을 담아 문장으로 연결. 일정이 아예 없으면 어제 일기와 날씨를 참고해서 오늘 하루에 어울리는 활동이나 리프레시를 구체적으로 제안.
+- schedule: 250자 이내. 비서가 하루 일정을 사람에게 직접 말해주듯 자연스럽게 서술. 시간과 내용을 단순 나열하지 말고 맥락과 흐름을 담아 문장으로 연결. 일정이 아예 없으면 날씨를 참고해서 오늘 하루에 어울리는 활동이나 리프레시를 구체적으로 제안.
 - news: 정확히 2개 항목 배열. 각 {"summary": "...", "url": "..."}. summary는 300자 이내, 2~4문장, ~입니다로 종결, "OOO에 따르면" 같은 출처표기 금지. ${excludeSources.join('/')} 출처 기사는 제외.
-- yesterday: 300자 이내, 한 문단 3~4문장, 줄바꿈 없음. 요약 + 격려.
-- suggestion: 400자 이내. 행동제안 3~4문장 + 줄바꿈 + 인지전환 3~4문장. 일기/제언 참고해서 구체적으로. 일정에 등장하는 인물과 일기에 등장하는 인물 사이의 관계를 임의로 가정하지 말 것 — 서로 모르는 사이일 수 있으므로 두 인물을 연결하는 제안 절대 금지.
+- yesterday: ${hasDiarySummary ? '300자 이내, 한 문단 3~4문장, 줄바꿈 없음. 요약 + 격려.' : '어제 일기 기록이 없으므로 반드시 빈 문자열("")로 두세요.'}
+- suggestion: ${hasDiarySummary ? '400자 이내. 행동제안 3~4문장 + 줄바꿈 + 인지전환 3~4문장. 일기/제언 참고해서 구체적으로.' : '아래 user 메시지의 "어제 제언"을 그대로 자연스러운 비서 말투로 재서술. 400자 이내. 내용 추가나 변경 금지.'} 일정에 등장하는 인물과 일기에 등장하는 인물 사이의 관계를 임의로 가정하지 말 것 — 서로 모르는 사이일 수 있으므로 두 인물을 연결하는 제안 절대 금지.
 - 평일(월~금)인데 일정이 없으면 쉬는 날 취급하지 말고, 출근 전 짧은 리프레시나 퇴근 후 소소한 일정을 제안.
 
 [출력 JSON 스키마 - 이 형식 그대로]
@@ -311,13 +312,16 @@ function linkParagraph(text, url) {
 }
 
 function buildBriefingBlocksFromJSON(data) {
-  const sections = [
+  const allSections = [
     { official: '오늘 날씨입니다.', body: data.weather },
     { official: '오늘 일정입니다.', body: data.schedule },
     { official: '오늘 뉴스입니다.', news: data.news },
     { official: '어제는 이런 하루를 보냈어요.', body: data.yesterday },
     { official: '오늘은 이렇게 해보는 게 어떨까요?', body: data.suggestion },
   ];
+  const sections = allSections.filter((s) =>
+    s.news ? Array.isArray(s.news) && s.news.length > 0 : !!String(s.body || '').trim()
+  );
   const blocks = [];
   sections.forEach((s, i) => {
     if (i > 0) blocks.push(dividerBlock());
