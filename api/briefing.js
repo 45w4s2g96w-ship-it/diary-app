@@ -44,23 +44,36 @@ async function fetchGoogleNewsRSS() {
   }
 }
 
+const WMO_KO = {
+  0: '맑음', 1: '대체로 맑음', 2: '부분 흐림', 3: '흐림',
+  45: '안개', 48: '착빙 안개',
+  51: '가벼운 이슬비', 53: '이슬비', 55: '짙은 이슬비',
+  61: '가벼운 비', 63: '비', 65: '강한 비',
+  71: '가벼운 눈', 73: '눈', 75: '강한 눈',
+  80: '소나기', 81: '강한 소나기', 82: '매우 강한 소나기',
+  95: '천둥번개', 96: '우박 동반 천둥번개', 99: '심한 우박 동반 천둥번개',
+};
+
 async function fetchSeoulWeather() {
   try {
-    const res = await fetch('https://wttr.in/Seoul?format=j1', {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' }
-    });
+    const url = 'https://api.open-meteo.com/v1/forecast'
+      + '?latitude=37.5665&longitude=126.9780'
+      + '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m'
+      + '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum'
+      + '&timezone=Asia%2FSeoul&forecast_days=1';
+    const res = await fetch(url);
     const data = await res.json();
-    const cur = data.current_condition?.[0];
-    const today = data.weather?.[0];
-    if (!cur || !today) return '';
-    const desc = cur.lang_ko?.[0]?.value || cur.weatherDesc?.[0]?.value || '';
+    const cur = data.current;
+    const daily = data.daily;
+    if (!cur) return '';
+    const desc = WMO_KO[cur.weather_code] ?? `코드 ${cur.weather_code}`;
     return [
-      `현재기온: ${cur.temp_C}°C (체감 ${cur.FeelsLikeC}°C)`,
-      `최고: ${today.maxtempC}°C / 최저: ${today.mintempC}°C`,
+      `현재기온: ${cur.temperature_2m}°C (체감 ${cur.apparent_temperature}°C)`,
+      `최고: ${daily.temperature_2m_max[0]}°C / 최저: ${daily.temperature_2m_min[0]}°C`,
       `날씨: ${desc}`,
-      `습도: ${cur.humidity}%`,
-      `풍속: ${cur.windspeedKmph}km/h`,
-      `강수량: ${cur.precipMM}mm`,
+      `습도: ${cur.relative_humidity_2m}%`,
+      `풍속: ${cur.wind_speed_10m}km/h`,
+      `현재강수: ${cur.precipitation}mm`,
     ].join(', ');
   } catch (e) {
     console.error('weather fetch failed', e);
@@ -145,7 +158,7 @@ async function runBriefing(overrideDate = null) {
 - schedule: 250자 이내. 비서가 하루 일정을 사람에게 직접 말해주듯 자연스럽게 서술. 시간과 내용을 단순 나열하지 말고 맥락과 흐름을 담아 문장으로 연결. 일정이 아예 없으면 어제 일기와 날씨를 참고해서 오늘 하루에 어울리는 활동이나 리프레시를 구체적으로 제안.
 - news: 정확히 2개 항목 배열. 각 {"summary": "...", "url": "..."}. summary는 300자 이내, 2~4문장, ~입니다로 종결, "OOO에 따르면" 같은 출처표기 금지. ${excludeSources.join('/')} 출처 기사는 제외.
 - yesterday: 300자 이내, 한 문단 3~4문장, 줄바꿈 없음. 요약 + 격려.
-- suggestion: 400자 이내. 행동제안 3~4문장 + 줄바꿈 + 인지전환 3~4문장. 일기/제언 참고해서 구체적으로.
+- suggestion: 400자 이내. 행동제안 3~4문장 + 줄바꿈 + 인지전환 3~4문장. 일기/제언 참고해서 구체적으로. 일정에 등장하는 인물과 일기에 등장하는 인물 사이의 관계를 임의로 가정하지 말 것 — 서로 모르는 사이일 수 있으므로 두 인물을 연결하는 제안 절대 금지.
 - 평일(월~금)인데 일정이 없으면 쉬는 날 취급하지 말고, 출근 전 짧은 리프레시나 퇴근 후 소소한 일정을 제안.
 
 [출력 JSON 스키마 - 이 형식 그대로]
