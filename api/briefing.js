@@ -44,6 +44,43 @@ async function fetchGoogleNewsRSS() {
   }
 }
 
+const WMO_KO = {
+  0: '맑음', 1: '대체로 맑음', 2: '부분 흐림', 3: '흐림',
+  45: '안개', 48: '착빙 안개',
+  51: '가벼운 이슬비', 53: '이슬비', 55: '짙은 이슬비',
+  61: '가벼운 비', 63: '비', 65: '강한 비',
+  71: '가벼운 눈', 73: '눈', 75: '강한 눈',
+  80: '소나기', 81: '강한 소나기', 82: '매우 강한 소나기',
+  95: '천둥번개', 96: '우박 동반 천둥번개', 99: '심한 우박 동반 천둥번개',
+};
+
+async function fetchSeoulWeather() {
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast'
+      + '?latitude=37.5665&longitude=126.9780'
+      + '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m'
+      + '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum'
+      + '&timezone=Asia%2FSeoul&forecast_days=1';
+    const res = await fetch(url);
+    const data = await res.json();
+    const cur = data.current;
+    const daily = data.daily;
+    if (!cur) return '';
+    const desc = WMO_KO[cur.weather_code] ?? `코드 ${cur.weather_code}`;
+    return [
+      `현재기온: ${cur.temperature_2m}°C (체감 ${cur.apparent_temperature}°C)`,
+      `최고: ${daily.temperature_2m_max[0]}°C / 최저: ${daily.temperature_2m_min[0]}°C`,
+      `날씨: ${desc}`,
+      `습도: ${cur.relative_humidity_2m}%`,
+      `풍속: ${cur.wind_speed_10m}km/h`,
+      `현재강수: ${cur.precipitation}mm`,
+    ].join(', ');
+  } catch (e) {
+    console.error('weather fetch failed', e);
+    return '';
+  }
+}
+
 async function fetchDiary(token, yesterdayStr) {
   try {
     const res = await fetch(`https://api.notion.com/v1/databases/${DIARY_DB}/query`, {
@@ -76,13 +113,15 @@ async function runBriefing(overrideDate = null) {
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = yesterday.toISOString().slice(0, 10);
 
-  const [todaySchedule, diaryResult, newsItems] = await Promise.all([
+  const [todaySchedule, diaryResult, newsItems, seoulWeather] = await Promise.all([
     fetchTodayEvents(ICLOUD_CALENDAR_URLS, todayStr).catch(() => ''),
     fetchDiary(NOTION_TOKEN, yesterdayStr),
     fetchGoogleNewsRSS(),
+    fetchSeoulWeather().catch(() => ''),
   ]);
 
   const { diarySummary, diarySuggest } = diaryResult;
+  const hasDiarySummary = !!diarySummary;
 
   const excludeSources = ['조선일보', '중앙일보', '동아일보', 'Chosun', 'JoongAng', 'Donga'];
   const newsText = newsItems
@@ -116,11 +155,11 @@ async function runBriefing(overrideDate = null) {
   - yesterday: ~ㅂ니다/~입니다 50%, ~요 50% 비율로 섞어 심리상담가처럼 부드럽게 서술.
 
 [섹션별 내용 규칙]
-- weather: 250자 이내, 한 문단 3~4문장, 줄바꿈 없음. ~ㅂ니다/~입니다 어미만 사용. web_search로 오늘 서울 날씨 섭씨 기준 검색. 검색 출처나 검색 과정 언급 절대 금지 — 결과만 자연스럽게 서술. "서울은 오늘 최고기온 N도..." 형식으로 시작, 체감/생활 조언으로 마무리.
-- schedule: 250자 이내. 비서가 하루 일정을 사람에게 직접 말해주듯 자연스럽게 서술. 시간과 내용을 단순 나열하지 말고 맥락과 흐름을 담아 문장으로 연결. 일정이 아예 없으면 어제 일기와 날씨를 참고해서 오늘 하루에 어울리는 활동이나 리프레시를 구체적으로 제안.
+- weather: 300자 이내, 한 문단 4~5문장, 줄바꿈 없음. ~ㅂ니다/~입니다 어미만 사용. 아래 user 메시지에 제공된 서울 날씨 데이터를 바탕으로 서술. 검색 출처나 검색 과정 언급 절대 금지 — 결과만 자연스럽게 서술. "서울은 오늘 최고기온 N도, 최저기온 N도..." 형식으로 시작, 현재기온과 체감온도도 언급. 마지막 문장은 반드시 오늘 날씨에 맞는 구체적인 옷차림 추천으로 마무리 (예: "얇은 긴팔에 가디건 정도가 적당합니다", "가벼운 반팔 한 장으로 충분합니다", "우산과 방수 재킷을 챙기는 것이 좋겠습니다" 등).
+- schedule: 250자 이내. 비서가 하루 일정을 사람에게 직접 말해주듯 자연스럽게 서술. 시간과 내용을 단순 나열하지 말고 맥락과 흐름을 담아 문장으로 연결. 일정이 아예 없으면 날씨를 참고해서 오늘 하루에 어울리는 활동이나 리프레시를 구체적으로 제안.
 - news: 정확히 2개 항목 배열. 각 {"summary": "...", "url": "..."}. summary는 300자 이내, 2~4문장, ~입니다로 종결, "OOO에 따르면" 같은 출처표기 금지. ${excludeSources.join('/')} 출처 기사는 제외.
-- yesterday: 300자 이내, 한 문단 3~4문장, 줄바꿈 없음. 요약 + 격려.
-- suggestion: 400자 이내. 행동제안 3~4문장 + 줄바꿈 + 인지전환 3~4문장. 일기/제언 참고해서 구체적으로.
+- yesterday: ${hasDiarySummary ? '300자 이내, 한 문단 3~4문장, 줄바꿈 없음. 요약 + 격려.' : '어제 일기 기록이 없으므로 반드시 빈 문자열("")로 두세요.'}
+- suggestion: ${hasDiarySummary ? '400자 이내. 행동제안 3~4문장 + 줄바꿈 + 인지전환 3~4문장. 일기/제언 참고해서 구체적으로.' : '아래 user 메시지의 "어제 제언"을 그대로 자연스러운 비서 말투로 재서술. 400자 이내. 내용 추가나 변경 금지.'} 일정에 등장하는 인물과 일기에 등장하는 인물 사이의 관계를 임의로 가정하지 말 것 — 서로 모르는 사이일 수 있으므로 두 인물을 연결하는 제안 절대 금지.
 - 평일(월~금)인데 일정이 없으면 쉬는 날 취급하지 말고, 출근 전 짧은 리프레시나 퇴근 후 소소한 일정을 제안.
 
 [출력 JSON 스키마 - 이 형식 그대로]
@@ -129,6 +168,9 @@ async function runBriefing(overrideDate = null) {
   const userPrompt = `오늘(${todayStr}, ${dayName}요일) 일정: ${todaySchedule || '(없음)'}
 어제(${yesterdayStr}) 일기 요약: ${diarySummary || '(없음)'}
 어제 제언: ${diarySuggest || '(없음)'}
+
+서울 날씨 데이터:
+${seoulWeather || '(없음)'}
 
 기사 목록:
 ${newsText || '(없음)'}
@@ -218,37 +260,24 @@ async function findMorningBriefingToggle(token, pageId) {
 
 async function callClaude(apiKey, systemPrompt, userPrompt) {
   try {
-    const messages = [{ role: 'user', content: userPrompt }];
-    let finalText = '';
-    for (let turn = 0; turn < 3; turn++) {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 2200,
-          system: systemPrompt,
-          messages,
-          tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 1 }]
-        })
-      });
-      const data = await res.json();
-      if (!res.ok || data.error) return { text: '', debug: { stage: 'claude_error', raw: data } };
-      const textBlocks = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text);
-      if (data.stop_reason !== 'tool_use') { finalText = textBlocks.join('\n').trim(); break; }
-      messages.push({ role: 'assistant', content: data.content });
-      messages.push({
-        role: 'user',
-        content: (data.content || [])
-          .filter((b) => b.type === 'tool_use')
-          .map((b) => ({ type: 'tool_result', tool_use_id: b.id, content: '(검색 완료, 결과 반영해서 JSON으로 응답)' }))
-      });
-    }
-    return { text: finalText.trim(), debug: finalText ? null : { stage: 'no_final_text' } };
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2200,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) return { text: '', debug: { stage: 'claude_error', raw: data } };
+    const finalText = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
+    return { text: finalText, debug: finalText ? null : { stage: 'no_final_text' } };
   } catch (error) {
     return { text: '', debug: { stage: 'claude_exception', error: String(error) } };
   }
@@ -283,13 +312,16 @@ function linkParagraph(text, url) {
 }
 
 function buildBriefingBlocksFromJSON(data) {
-  const sections = [
+  const allSections = [
     { official: '오늘 날씨입니다.', body: data.weather },
     { official: '오늘 일정입니다.', body: data.schedule },
     { official: '오늘 뉴스입니다.', news: data.news },
     { official: '어제는 이런 하루를 보냈어요.', body: data.yesterday },
     { official: '오늘은 이렇게 해보는 게 어떨까요?', body: data.suggestion },
   ];
+  const sections = allSections.filter((s) =>
+    s.news ? Array.isArray(s.news) && s.news.length > 0 : !!String(s.body || '').trim()
+  );
   const blocks = [];
   sections.forEach((s, i) => {
     if (i > 0) blocks.push(dividerBlock());
