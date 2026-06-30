@@ -144,6 +144,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .record-time { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: var(--ink-muted); padding-top: 2px; }
 .record-tag { display: inline-block; font-size: 10px; font-weight: 600; color: var(--ink-soft); border: 1px solid var(--ink-soft); padding: 1px 6px; border-radius: 1px; margin-bottom: 3px; }
 .record-text { font-family: 'NanumSquareNeo', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.55; color: var(--ink); }
+.record-hidden-placeholder { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--rule); display: block; padding: 3px 0; }
 .record-photos { display: grid; gap: 3px; margin-top: 5px; }
 .record-photo { width: 100%; height: auto; object-fit: contain; border-radius: 2px; }
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
@@ -714,6 +715,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="rp-photos-edit" id="rp-photos-edit" style="display:none"></div>
       <div class="rp-actions" id="rp-actions" style="display:none">
         <button class="rp-action-btn danger" onclick="deleteRecord()">DELETE</button>
+        <button class="rp-action-btn" id="rp-hide-btn" onclick="toggleHideRecord()">HIDE</button>
         <button class="rp-action-btn" onclick="toggleRecordEdit()">EDIT</button>
       </div>
       <div class="rp-actions" id="rp-save-actions" style="display:none">
@@ -1114,14 +1116,51 @@ async function saveRecord(){
 /* Record UI */
 let currentPopupBlockId=null,currentPopupItem=null,isEditing=false,currentPopupPhotos=[],currentPhotoBlockId=null,editingPhotos=[];
 
+function getHiddenRecords(){try{return new Set(JSON.parse(localStorage.getItem('hidden_records')||'[]'));}catch{return new Set();}}
+function saveHiddenRecords(set){localStorage.setItem('hidden_records',JSON.stringify([...set]));}
+function isRecordHidden(blockId){return getHiddenRecords().has(blockId);}
+
 function addRecordToUI(time,mood,text,photoUrls,notionUrl,blockId,photoBlockId){
   const list=document.getElementById('record-list');const empty=list.querySelector('.empty-state');if(empty)empty.remove();
-  const item=document.createElement('div');item.className='record-item';if(blockId)item.dataset.blockId=blockId;
+  const item=document.createElement('div');item.className='record-item';
+  if(blockId)item.dataset.blockId=blockId;
+  item.dataset.text=text||'';item.dataset.mood=mood||'';
+  const isHidden=blockId&&isRecordHidden(blockId);
   const cols=photoUrls&&photoUrls.length?(photoUrls.length===1?1:photoUrls.length===2?2:3):0;
   const thumbHtml=cols?'<div class="record-photos" style="grid-template-columns:repeat('+cols+',1fr)">'+photoUrls.map((u,i)=>'<img class="record-photo" src="'+u+'" onclick="event.stopPropagation();openLightboxFromThumb(this,'+i+')">').join('')+'</div>':'';
-  item.innerHTML=`<div class="record-time">${time}</div><div>${mood?'<span class="record-tag">'+mood+'</span>':''}<div class="record-text">${text}</div>${thumbHtml}</div>`;
+  if(isHidden){
+    item.innerHTML=`<div class="record-time">${time}</div><div><span class="record-hidden-placeholder">— hidden —</span></div>`;
+  } else {
+    item.innerHTML=`<div class="record-time">${time}</div><div>${mood?'<span class="record-tag">'+mood+'</span>':''}<div class="record-text">${text}</div>${thumbHtml}</div>`;
+  }
   item.addEventListener('click',()=>openRecordPopup(time,mood,text,photoUrls||[],notionUrl,blockId,photoBlockId||null,item));
   list.insertBefore(item,list.firstChild);
+}
+
+function toggleHideRecord(){
+  if(!currentPopupBlockId)return;
+  const hidden=getHiddenRecords();
+  const wasHidden=hidden.has(currentPopupBlockId);
+  if(wasHidden)hidden.delete(currentPopupBlockId);
+  else hidden.add(currentPopupBlockId);
+  saveHiddenRecords(hidden);
+  const btn=document.getElementById('rp-hide-btn');
+  if(btn)btn.textContent=wasHidden?'HIDE':'SHOW';
+  if(currentPopupItem){
+    const mood=currentPopupItem.dataset.mood||'';
+    const text=currentPopupItem.dataset.text||'';
+    const photos=currentPopupPhotos||[];
+    const cols=photos.length?(photos.length===1?1:photos.length===2?2:3):0;
+    const thumbHtml=cols?'<div class="record-photos" style="grid-template-columns:repeat('+cols+',1fr)">'+photos.map((u,i)=>'<img class="record-photo" src="'+u+'" onclick="event.stopPropagation();openLightboxFromThumb(this,'+i+')">').join('')+'</div>':'';
+    const inner=currentPopupItem.children[1];
+    if(!inner)return;
+    if(wasHidden){
+      inner.innerHTML=(mood?'<span class="record-tag">'+mood+'</span>':'')+'<div class="record-text">'+text+'</div>'+thumbHtml;
+    } else {
+      inner.innerHTML='<span class="record-hidden-placeholder">— hidden —</span>';
+    }
+  }
+  showToast(wasHidden?'표시됨':'숨겨짐');
 }
 
 function openRecordPopup(time,mood,text,photoUrls,notionUrl,blockId,photoBlockId,itemEl){
@@ -1131,7 +1170,9 @@ function openRecordPopup(time,mood,text,photoUrls,notionUrl,blockId,photoBlockId
   document.getElementById('rp-text').textContent=text||'';document.getElementById('rp-text').style.display='';
   document.getElementById('rp-edit-wrap').style.display='none';document.getElementById('rp-save-actions').style.display='none';
   document.getElementById('rp-actions').style.display=blockId?'flex':'none';
-  
+  const _hideBtn=document.getElementById('rp-hide-btn');
+  if(_hideBtn)_hideBtn.textContent=blockId&&isRecordHidden(blockId)?'SHOW':'HIDE';
+
   /* 여기서 항상 EDIT(수정) 모드로 사진을 띄웁니다! */
   renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
   document.getElementById('rp-photos').style.display='none';
