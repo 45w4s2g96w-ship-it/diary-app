@@ -560,7 +560,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
       <div class="input-actions">
         <button class="attach-btn" onclick="document.getElementById('photo-input').click()">+ PHOTO</button>
-        <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
+        <div style="display:flex;gap:6px;">
+          <button class="submit-btn" id="save-hidden-btn" onclick="saveRecord(true)" style="background:transparent;color:var(--ink-muted);border:1px solid var(--rule);">HIDDEN</button>
+          <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
+        </div>
       </div>
       <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
     </div>
@@ -1083,10 +1086,13 @@ function selectMoodByName(name){
   });
 }
 /* Record save */
-async function saveRecord(){
+async function saveRecord(asHidden=false){
   const text=document.getElementById('memo-input').value.trim();
   if(!text&&selectedPhotos.length===0){showToast('Please enter content');return;}
-  const btn=document.getElementById('save-btn');btn.disabled=true;document.getElementById('loading').classList.remove('hidden');
+  const btn=document.getElementById('save-btn');
+  const hiddenBtn=document.getElementById('save-hidden-btn');
+  btn.disabled=true;if(hiddenBtn)hiddenBtn.disabled=true;
+  document.getElementById('loading').classList.remove('hidden');
   try{
     const now=new Date();const timeStr=formatTime(now);
     let photoUrls=[],uploadFailed=false;
@@ -1105,12 +1111,15 @@ async function saveRecord(){
       blockId=ad.results&&ad.results[0]?ad.results[0].id:null;
       photoBlockId=(photoUrls.length>0&&ad.results&&ad.results[1])?ad.results[1].id:null;
     }
+    if(asHidden&&blockId){const h=getHiddenRecords();h.add(blockId);saveHiddenRecords(h);}
     if(uploadFailed)showToast('Failed to upload some photos');
     addRecordToUI(timeStr,selectedMood,text,photoUrls,notionUrl,blockId,photoBlockId);
     document.getElementById('memo-input').value='';document.getElementById('memo-input').style.height='';
-    selectedMood='';selectedPhotos=[];document.getElementById('input-photo-preview').innerHTML='';document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));showToast('Saved!');
+    selectedMood='';selectedPhotos=[];document.getElementById('input-photo-preview').innerHTML='';document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));
+    showToast(asHidden?'저장됨 (숨김)':'Saved!');
   }catch(e){showToast('error');console.error(e);}
-  btn.disabled=false;document.getElementById('loading').classList.add('hidden');
+  btn.disabled=false;if(hiddenBtn)hiddenBtn.disabled=false;
+  document.getElementById('loading').classList.add('hidden');
 }
 
 /* Record UI */
