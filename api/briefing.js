@@ -81,6 +81,18 @@ async function fetchSeoulWeather() {
   }
 }
 
+async function fetchKoreanHolidays(year) {
+  try {
+    const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/KR`);
+    if (!res.ok) return new Set();
+    const data = await res.json();
+    return new Set(data.map((h) => h.date));
+  } catch (e) {
+    console.error('holiday fetch failed', e);
+    return new Set();
+  }
+}
+
 async function fetchDiary(token, yesterdayStr) {
   try {
     const res = await fetch(`https://api.notion.com/v1/databases/${DIARY_DB}/query`, {
@@ -113,11 +125,17 @@ async function runBriefing(overrideDate = null) {
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = yesterday.toISOString().slice(0, 10);
 
-  const [todaySchedule, diaryResult, newsItems, seoulWeather] = await Promise.all([
+  const [y, mo, d] = todayStr.split('-').map(Number);
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const dow = new Date(y, mo - 1, d).getDay();
+  const dayName = days[dow];
+
+  const [todaySchedule, diaryResult, newsItems, seoulWeather, holidaySet] = await Promise.all([
     fetchTodayEvents(ICLOUD_CALENDAR_URLS, todayStr).catch(() => ''),
     fetchDiary(NOTION_TOKEN, yesterdayStr),
     fetchGoogleNewsRSS(),
     fetchSeoulWeather().catch(() => ''),
+    fetchKoreanHolidays(y).catch(() => new Set()),
   ]);
 
   const { diarySummary, diarySuggest } = diaryResult;
@@ -128,17 +146,14 @@ async function runBriefing(overrideDate = null) {
     .map((item, i) => `${i + 1}. [${item.source}] ${item.title}${item.desc ? ' / ' + item.desc : ''} / URL: ${item.link}`)
     .join('\n');
 
-  const [y, mo, d] = todayStr.split('-').map(Number);
-  const days = ['일', '월', '화', '수', '목', '금', '토'];
-  const dow = new Date(y, mo - 1, d).getDay();
-  const dayName = days[dow];
-
-  const isWeekday = dow >= 1 && dow <= 5;
+  const isHoliday = holidaySet.has(todayStr);
   const hasOff = /\[Off\]/.test(todaySchedule);
   const hasWFH = /재택/.test(todaySchedule);
   let workStatusNote;
-  if (!isWeekday) {
+  if (dow === 0 || dow === 6) {
     workStatusNote = '오늘은 주말이다. 9~18시 회사 출근 가정을 적용하지 않는다.';
+  } else if (isHoliday) {
+    workStatusNote = '오늘은 평일이지만 한국 공휴일이다. 9~18시 회사 출근 가정을 적용하지 않는다.';
   } else if (hasOff) {
     workStatusNote = '오늘은 평일이지만 [Off] 일정이 있다. 9~18시 회사 출근 가정을 적용하지 않고, 그 Off 일정 종류(연차/오전반차/오후반차/반반차)의 정의에 따라 하루를 묘사한다.';
   } else if (hasWFH) {
