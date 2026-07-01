@@ -71,7 +71,7 @@ async function fetchKmaSkyStatus(apiKey) {
     const baseTime = `${String(baseHour).padStart(2, '0')}30`;
 
     const url = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
-      + `?serviceKey=${apiKey}&numOfRows=60&pageNo=1&dataType=JSON`
+      + `?serviceKey=${encodeURIComponent(apiKey)}&numOfRows=60&pageNo=1&dataType=JSON`
       + `&base_date=${baseDateStr}&base_time=${baseTime}&nx=60&ny=127`;
     const res = await fetch(url);
     const data = await res.json();
@@ -363,7 +363,7 @@ async function callClaude(apiKey, systemPrompt, userPrompt) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-sonnet-5',
         max_tokens: 2200,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],

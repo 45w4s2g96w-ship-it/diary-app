@@ -23,6 +23,10 @@ vercel.json                → 서울 리전(icn1) 고정 설정
 - `NOTION_DB_ID` — 다이어리 DB ID
 - `CLAUDE_API_KEY` — Anthropic API 키
 
+모닝브리핑 날씨 정확도를 높이려면 아래도 등록하세요 (선택):
+
+- `KMA_API_KEY` — data.go.kr 기상청 단기예보 조회서비스 일반 인증키 (없으면 Open-Meteo로 자동 대체)
+
 ## 배포
 
 1. 이 폴더 전체를 GitHub 저장소에 push
