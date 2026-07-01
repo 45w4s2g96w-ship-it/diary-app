@@ -183,7 +183,12 @@ async function runBriefing(overrideDate = null) {
 
   const excludeSources = ['조선일보', '중앙일보', '동아일보', 'Chosun', 'JoongAng', 'Donga'];
   const newsText = newsItems
-    .map((item, i) => `${i + 1}. [${item.source}] ${item.title}${item.desc ? ' / ' + item.desc : ''} / URL: ${item.link}`)
+    .filter((item) => !excludeSources.some((src) => item.source.includes(src)))
+    .slice(0, 8)
+    .map((item, i) => {
+      const desc = item.desc.length > 200 ? item.desc.slice(0, 200) + '…' : item.desc;
+      return `${i + 1}. [${item.source}] ${item.title}${desc ? ' / ' + desc : ''} / URL: ${item.link}`;
+    })
     .join('\n');
 
   const isHoliday = holidaySet.has(todayStr);
