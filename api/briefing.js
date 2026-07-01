@@ -280,11 +280,13 @@ ${newsText || '(없음)'}
   const briefingResult = await callClaude(ANTHROPIC_API_KEY, systemPrompt, userPrompt);
 
   let parsed;
+  let parseDebug = null;
   try {
     const raw = briefingResult.text || '';
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
   } catch (e) {
+    parseDebug = { stage: 'json_parse_failed', error: String(e), raw: briefingResult.text };
     parsed = {
       weather: '브리핑 생성에 실패했습니다.',
       schedule: '',
@@ -294,16 +296,17 @@ ${newsText || '(없음)'}
     };
   }
 
+  const finalDebug = parseDebug || briefingResult.debug;
   const newBlocks = buildBriefingBlocksFromJSON(parsed);
 
   const diaryPageId = await findTodayDiaryPage(NOTION_TOKEN, todayStr);
   if (!diaryPageId) {
-    return { ok: false, todayStr, error: 'no diary page found for today', briefing: parsed, debug: briefingResult.debug };
+    return { ok: false, todayStr, error: 'no diary page found for today', briefing: parsed, debug: finalDebug };
   }
 
   const toggleId = await findMorningBriefingToggle(NOTION_TOKEN, diaryPageId);
   if (!toggleId) {
-    return { ok: false, todayStr, error: 'morning briefing toggle not found', briefing: parsed, debug: briefingResult.debug };
+    return { ok: false, todayStr, error: 'morning briefing toggle not found', briefing: parsed, debug: finalDebug };
   }
 
   try {
@@ -323,7 +326,7 @@ ${newsText || '(없음)'}
   });
   const pageResult = { ok: appendRes.ok, mode: 'inserted', toggleId, diaryPageId };
 
-  return { ok: pageResult.ok, todayStr, briefing: parsed, debug: briefingResult.debug, notion: pageResult };
+  return { ok: pageResult.ok, todayStr, briefing: parsed, debug: finalDebug, notion: pageResult };
 }
 
 async function findTodayDiaryPage(token, todayStr) {
@@ -369,7 +372,8 @@ async function callClaude(apiKey, systemPrompt, userPrompt) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-5',
-        max_tokens: 2200,
+        max_tokens: 3000,
+        thinking: { type: 'disabled' },
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       })
