@@ -54,19 +54,58 @@ const WMO_KO = {
   95: '천둥번개', 96: '우박 동반 천둥번개', 99: '심한 우박 동반 천둥번개',
 };
 
-async function fetchSeoulWeather() {
+const SKY_KO = { '1': '맑음', '3': '구름많음', '4': '흐림' };
+const PTY_KO = { '1': '비', '2': '비/눈', '3': '눈', '4': '소나기' };
+
+async function fetchKmaSkyStatus(apiKey) {
+  if (!apiKey) return '';
+  try {
+    const kstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    let baseDate = kstNow;
+    let baseHour = kstNow.getUTCHours();
+    if (kstNow.getUTCMinutes() < 45) {
+      baseDate = new Date(kstNow.getTime() - 60 * 60 * 1000);
+      baseHour = baseDate.getUTCHours();
+    }
+    const baseDateStr = baseDate.toISOString().slice(0, 10).replace(/-/g, '');
+    const baseTime = `${String(baseHour).padStart(2, '0')}30`;
+
+    const url = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
+      + `?serviceKey=${apiKey}&numOfRows=60&pageNo=1&dataType=JSON`
+      + `&base_date=${baseDateStr}&base_time=${baseTime}&nx=60&ny=127`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const items = data?.response?.body?.items?.item;
+    if (!Array.isArray(items) || items.length === 0) return '';
+
+    const firstTime = items.find((it) => it.category === 'SKY')?.fcstTime;
+    const sky = items.find((it) => it.category === 'SKY' && it.fcstTime === firstTime)?.fcstValue;
+    const pty = items.find((it) => it.category === 'PTY' && it.fcstTime === firstTime)?.fcstValue;
+
+    if (pty && pty !== '0') return PTY_KO[pty] ?? '';
+    return SKY_KO[sky] ?? '';
+  } catch (e) {
+    console.error('KMA sky fetch failed', e);
+    return '';
+  }
+}
+
+async function fetchSeoulWeather(kmaApiKey) {
   try {
     const url = 'https://api.open-meteo.com/v1/forecast'
       + '?latitude=37.5665&longitude=126.9780'
       + '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m'
       + '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum'
       + '&timezone=Asia%2FSeoul&forecast_days=1';
-    const res = await fetch(url);
+    const [res, kmaSky] = await Promise.all([
+      fetch(url),
+      fetchKmaSkyStatus(kmaApiKey).catch(() => ''),
+    ]);
     const data = await res.json();
     const cur = data.current;
     const daily = data.daily;
     if (!cur) return '';
-    const desc = WMO_KO[cur.weather_code] ?? `코드 ${cur.weather_code}`;
+    const desc = kmaSky || (WMO_KO[cur.weather_code] ?? `코드 ${cur.weather_code}`);
     return [
       `현재기온: ${cur.temperature_2m}°C (체감 ${cur.apparent_temperature}°C)`,
       `최고: ${daily.temperature_2m_max[0]}°C / 최저: ${daily.temperature_2m_min[0]}°C`,
@@ -117,6 +156,7 @@ async function runBriefing(overrideDate = null) {
   const NOTION_TOKEN = process.env.NOTION_TOKEN;
   const ANTHROPIC_API_KEY = process.env.CLAUDE_API_KEY;
   const ICLOUD_CALENDAR_URLS = process.env.ICLOUD_CALENDAR_URLS;
+  const KMA_API_KEY = process.env.KMA_API_KEY;
 
   const now = new Date();
   const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000);
@@ -134,7 +174,7 @@ async function runBriefing(overrideDate = null) {
     fetchTodayEvents(ICLOUD_CALENDAR_URLS, todayStr).catch(() => ''),
     fetchDiary(NOTION_TOKEN, yesterdayStr),
     fetchGoogleNewsRSS(),
-    fetchSeoulWeather().catch(() => ''),
+    fetchSeoulWeather(KMA_API_KEY).catch(() => ''),
     fetchKoreanHolidays(y).catch(() => new Set()),
   ]);
 
@@ -158,8 +198,10 @@ async function runBriefing(overrideDate = null) {
     workStatusNote = '오늘은 평일이지만 [Off] 일정이 있다. 9~18시 회사 출근 가정을 적용하지 않고, 그 Off 일정 종류(연차/오전반차/오후반차/반반차)의 정의에 따라 하루를 묘사한다.';
   } else if (hasWFH) {
     workStatusNote = '오늘은 평일이고 재택근무 일정이 있다. 9~18시 회사 출근 가정을 적용하지 않는다.';
+  } else if (todaySchedule) {
+    workStatusNote = '오늘은 평일이고 [Off]/재택 일정이 없다. 9~18시는 회사 근무 시간으로 간주하고, 이는 당연한 전제이므로 "9시부터 18시까지 회사에 출근해 있으면 되고" 같은 문장으로 굳이 설명하지 않는다. 대신 아래 일정 목록에 있는 항목을 퇴근 후(18시 이후) 일정으로 자연스럽게 이어서 서술한다. 낮 시간(9~18시)에 카페·산책 등 평일 낮 활동은 제안하지 않는다.';
   } else {
-    workStatusNote = '오늘은 평일이고 [Off]/재택 일정이 없다. 9시~18시는 회사에 출근해 있다고 확정 가정한다. 자유 시간이나 리프레시 제안은 반드시 출근 전(9시 이전) 또는 퇴근 후(18시 이후)로만 한정하고, 낮 시간(9~18시)에 카페·산책 등 평일 낮 활동을 절대 제안하지 않는다. 목록에 있는 일정(예: 17시 약속)은 퇴근 후 일정으로 자연스럽게 이어서 서술한다.';
+    workStatusNote = '오늘은 평일이고 [Off]/재택 일정도 그 외 다른 일정도 전혀 없다. 9~18시가 회사 근무 시간이라는 건 당연한 전제이므로 "9시부터 18시까지 회사에 출근해 있으면 되고" 같은 기계적인 설명 문장을 쓰지 않는다. 대신 곧바로 퇴근 후(18시 이후)에 할 만한 구체적인 활동이나 계획을 날씨와 계절에 맞게 추천한다. 낮 시간(9~18시)에 카페·산책 등 평일 낮 활동은 제안하지 않는다.';
   }
 
   const systemPrompt = `너는 민영의 아침 브리핑을 작성하는 비서야.
@@ -209,6 +251,7 @@ async function runBriefing(overrideDate = null) {
     - 오후반차: 오전 출근, 오후가 자유(퇴근).
     - 반반차(2시간): 이벤트 시각 기준으로 앞뒤 2시간이 자유. 나머지 시간은 회사.
   - 일정이 아예 없고 9-6 가정도 적용되지 않는 날(주말, 휴가 등)이면 날씨를 참고해서 오늘 하루에 어울리는 활동을 구체적으로 제안.
+  - "오늘은 평일이고 특별한 일정이 없습니다" 같은 상황 설명으로 문장을 시작하지 않는다. 곧바로 추천 내용이나 일정으로 들어간다.
 - news: 정확히 2개 항목 배열. 각 {"summary": "...", "url": "..."}. summary는 300자 이내, 2~4문장, ~입니다로 종결, "OOO에 따르면" 같은 출처표기 금지. ${excludeSources.join('/')} 출처 기사는 제외. summary에는 한자(漢字)를 절대 쓰지 않는다 — 기사 제목에 民主黨, 與, 野, 法司委 같은 한자나 한자 약칭이 있어도 모두 한글(민주당, 여당, 야당, 법사위 등)로 풀어서 쓴다.
 - yesterday: ${hasDiarySummary ? '300자 이내, 한 문단 3~4문장, 줄바꿈 없음. 요약 + 격려.' : '어제 일기 기록이 없으므로 반드시 빈 문자열("")로 두세요.'}
 - suggestion: ${hasDiarySummary ? '400자 이내. 행동제안 3~4문장 + 줄바꿈 + 인지전환 3~4문장. 일기/제언 참고해서 구체적으로.' : '아래 user 메시지의 "어제 제언"을 그대로 자연스러운 비서 말투로 재서술. 400자 이내. 내용 추가나 변경 금지.'} 일정에 등장하는 인물과 일기에 등장하는 인물 사이의 관계를 임의로 가정하지 말 것 — 서로 모르는 사이일 수 있으므로 두 인물을 연결하는 제안 절대 금지.
