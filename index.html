@@ -12,7 +12,13 @@
 <meta name="theme-color" content="#111111">
 <link id="dynamic-font-link" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<link id="dynamic-font-kr-link" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
 <style>
+  @font-face {
+    font-family: 'NanumSquareNeo';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/NanumSquareNeo-Variable.woff2') format('woff2');
+    font-weight: 100 900;
+  }
   .rp-photo-add-full { width:100%; padding:14px; border:2px dashed var(--rule); background:transparent; color:var(--ink-muted); font-family:var(--font-en); font-size:10px; font-weight:700; letter-spacing:0.08em; cursor:pointer; border-radius:4px; }
 
 :root {
@@ -494,11 +500,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .setup-input { font-size: 13px !important; }
 }
 
-/* 모바일에서 Book, Idea 탭 숨김 */
-@media (max-width: 767px) {
-  .tab-btn[onclick*="book"],
-  .tab-btn[onclick*="idea"] { display: none; }
-}
 /* Todo 헤더 네비게이션 버튼 */
 .todo-nav-btn {
   font-family: var(--font-en);
@@ -571,28 +572,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="setup-label">Password</div>
     <input class="setup-input" id="app-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')saveSettings()">
   </div>
-  <div class="setup-section">
-    <div class="setup-label">Theme Color</div>
-    <div style="display:flex;gap:10px;">
-      <div style="flex:1;">
-        <div style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);margin-bottom:4px;">ACCENT</div>
-        <input type="color" id="theme-accent-input" value="#0038ff" oninput="onThemeColorChange()" style="width:100%;height:38px;border:2px solid var(--ink);border-radius:4px;cursor:pointer;padding:2px;">
-      </div>
-      <div style="flex:1;">
-        <div style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);margin-bottom:4px;">BACKGROUND</div>
-        <input type="color" id="theme-paper-input" value="#ffffff" oninput="onThemeColorChange()" style="width:100%;height:38px;border:2px solid var(--ink);border-radius:4px;cursor:pointer;padding:2px;">
-      </div>
-    </div>
-  </div>
-  <div class="setup-section">
-    <div class="setup-label">Font</div>
-    <select id="theme-font-select" onchange="onThemeFontChange()" style="width:100%;font-family:var(--font-kr);font-size:12px;padding:12px 14px;border:2px solid var(--rule);background:transparent;color:var(--ink);border-radius:4px;outline:none;">
-      <option value="Archivo">Archivo</option>
-      <option value="Space Grotesk">Space Grotesk</option>
-      <option value="Bricolage Grotesque">Bricolage Grotesque</option>
-      <option value="Unbounded">Unbounded</option>
-    </select>
-  </div>
   <button class="setup-save-btn" onclick="saveSettings()">START →</button>
   <button class="setup-logout-btn" onclick="logout()">LOGOUT</button>
 </div>
@@ -615,13 +594,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>
       <span class="tab-label">Memo</span>
     </button>
-    <button class="tab-btn" onclick="switchTab('book',this)" data-num="04.">
-      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <span class="tab-label">Book</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('idea',this)" data-num="05.">
-      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z"/></svg>
-      <span class="tab-label">Idea</span>
+    <button class="tab-btn" onclick="switchTab('setting',this)" data-num="04.">
+      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="tab-label">Setting</span>
     </button>
   </div>
   <div id="app-main">
@@ -800,6 +775,40 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <button class="add-btn-sm" onclick="openAddIdeaPopup()">+ ADD</button>
     </div>
     <div class="idea-list" id="idea-list" style="flex:1;overflow-y:auto;padding:0 var(--pad-h);scrollbar-width:none;"><div class="empty-state">No ideas yet.</div></div>
+  </div>
+
+  <div class="tab-content" id="tab-setting">
+    <div class="section-header">
+      <div class="section-title">Setting</div>
+    </div>
+    <div style="padding:20px var(--pad-h);overflow-y:auto;">
+      <div class="setup-section">
+        <div class="setup-label">Theme Color</div>
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;">
+            <div style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);margin-bottom:4px;">ACCENT</div>
+            <input type="color" id="theme-accent-input" value="#0038ff" oninput="onThemeColorChange()" style="width:100%;height:38px;border:2px solid var(--ink);border-radius:4px;cursor:pointer;padding:2px;">
+          </div>
+          <div style="flex:1;">
+            <div style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);margin-bottom:4px;">BACKGROUND</div>
+            <input type="color" id="theme-paper-input" value="#ffffff" oninput="onThemeColorChange()" style="width:100%;height:38px;border:2px solid var(--ink);border-radius:4px;cursor:pointer;padding:2px;">
+          </div>
+        </div>
+      </div>
+      <div class="setup-section">
+        <div class="setup-label">English Font</div>
+        <select id="theme-font-select" onchange="onThemeFontChange()" style="width:100%;font-family:var(--font-kr);font-size:12px;padding:12px 14px;border:2px solid var(--rule);background:transparent;color:var(--ink);border-radius:4px;outline:none;">
+          <option value="Archivo">Archivo</option>
+          <option value="Space Grotesk">Space Grotesk</option>
+          <option value="Bricolage Grotesque">Bricolage Grotesque</option>
+          <option value="Unbounded">Unbounded</option>
+        </select>
+      </div>
+      <div class="setup-section">
+        <div class="setup-label">Korean Font</div>
+        <select id="theme-font-kr-select" onchange="onThemeFontKrChange()" style="width:100%;font-family:var(--font-kr);font-size:12px;padding:12px 14px;border:2px solid var(--rule);background:transparent;color:var(--ink);border-radius:4px;outline:none;"></select>
+      </div>
+    </div>
   </div>
 
   </div>
@@ -1118,6 +1127,7 @@ function switchTab(tab,btn){
   localStorage.setItem('last_tab',tab);
   if(tab==='idea')loadIdeaFromNotion();
   if(tab==='home')renderHomeTab();
+  if(tab==='setting')initSettingTab();
 }
 
 /* HOME tab */
@@ -1299,9 +1309,6 @@ async function saveSettings(){
 }
 function openSettings(){
   document.getElementById('app-password').value='';
-  document.getElementById('theme-accent-input').value=localStorage.getItem('theme_accent')||'#0038ff';
-  document.getElementById('theme-paper-input').value=localStorage.getItem('theme_paper')||'#ffffff';
-  document.getElementById('theme-font-select').value=localStorage.getItem('theme_font')||'Archivo';
   document.getElementById('setup-screen').classList.remove('hidden');
 }
 
@@ -1312,6 +1319,18 @@ const THEME_FONT_URLS={
   'Bricolage Grotesque':'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;900&display=swap',
   'Unbounded':'https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&display=swap'
 };
+const THEME_FONT_KR_LIST=[
+  'Pretendard','Noto Sans KR','NanumSquareNeo','Noto Serif KR','Nanum Gothic','Nanum Myeongjo',
+  'Nanum Pen Script','Nanum Brush Script','Nanum Gothic Coding','Do Hyeon','Black Han Sans','Jua',
+  'Gaegu','Gamja Flower','Poor Story','Single Day','Stylish','East Sea Dokdo','Hi Melody','Cute Font',
+  'Kirang Haerang','Song Myung','Yeon Sung','Sunflower','Gothic A1','IBM Plex Sans KR','Gugi',
+  'Gowun Batang','Gowun Dodum','Dokdo','Gasoek One','Hahmlet','Jeju Hallasan'
+];
+const THEME_FONT_KR_URLS={};
+THEME_FONT_KR_LIST.forEach(name=>{
+  if(name==='Pretendard'||name==='NanumSquareNeo')return;
+  THEME_FONT_KR_URLS[name]=`https://fonts.googleapis.com/css2?family=${name.replace(/ /g,'+')}&display=swap`;
+});
 function applyThemeColors(accent,paper){
   document.documentElement.style.setProperty('--accent',accent);
   document.documentElement.style.setProperty('--paper',paper);
@@ -1326,6 +1345,13 @@ function applyThemeFont(name){
   if(link)link.href=url;
   document.documentElement.style.setProperty('--font-en',`'${name}', sans-serif`);
 }
+function applyThemeFontKr(name){
+  const link=document.getElementById('dynamic-font-kr-link');
+  if(name!=='Pretendard'&&name!=='NanumSquareNeo'&&link){
+    link.href=THEME_FONT_KR_URLS[name]||THEME_FONT_KR_URLS['Noto Sans KR'];
+  }
+  document.documentElement.style.setProperty('--font-kr',`'${name}', sans-serif`);
+}
 function onThemeColorChange(){
   const accent=document.getElementById('theme-accent-input').value;
   const paper=document.getElementById('theme-paper-input').value;
@@ -1337,6 +1363,23 @@ function onThemeFontChange(){
   const name=document.getElementById('theme-font-select').value;
   applyThemeFont(name);
   localStorage.setItem('theme_font',name);
+}
+function onThemeFontKrChange(){
+  const name=document.getElementById('theme-font-kr-select').value;
+  applyThemeFontKr(name);
+  localStorage.setItem('theme_font_kr',name);
+}
+function populateThemeFontKrSelect(){
+  const sel=document.getElementById('theme-font-kr-select');
+  if(!sel||sel.options.length)return;
+  sel.innerHTML=THEME_FONT_KR_LIST.map(name=>`<option value="${name}">${name}</option>`).join('');
+}
+function initSettingTab(){
+  populateThemeFontKrSelect();
+  document.getElementById('theme-accent-input').value=localStorage.getItem('theme_accent')||'#0038ff';
+  document.getElementById('theme-paper-input').value=localStorage.getItem('theme_paper')||'#ffffff';
+  document.getElementById('theme-font-select').value=localStorage.getItem('theme_font')||'Archivo';
+  document.getElementById('theme-font-kr-select').value=localStorage.getItem('theme_font_kr')||'Pretendard';
 }
 
 /* Mood */
@@ -3539,6 +3582,7 @@ async function registerSW(){if(!('serviceWorker' in navigator))return;try{await 
 function init(){
   applyThemeColors(localStorage.getItem('theme_accent')||'#0038ff',localStorage.getItem('theme_paper')||'#ffffff');
   applyThemeFont(localStorage.getItem('theme_font')||'Archivo');
+  applyThemeFontKr(localStorage.getItem('theme_font_kr')||'Pretendard');
   document.getElementById('current-date').textContent=formatDateDisplay(getDiaryDate());
   initQuadDates();
   document.getElementById('td-edit-date-picker').addEventListener('change',e=>{
