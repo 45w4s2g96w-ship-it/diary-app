@@ -530,6 +530,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .home-quote-card { flex: 1; padding: 16px 18px; font-family: var(--font-kr); font-size: 13px; font-weight: 500; line-height: 1.5; color: var(--ink); }
 .home-goal-ring-wrap { flex-shrink: 0; position: relative; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
 .home-goal-ring-label { position: absolute; font-family: var(--font-en); font-size: 12px; font-weight: 900; color: var(--ink); }
+.home-briefing-btn { display: block; width: 100%; margin-top: 12px; padding: 12px 16px; background: var(--accent); color: var(--paper); font-family: var(--font-kr); font-size: 13px; font-weight: 500; text-align: left; cursor: pointer; }
 .home-section { margin-top: 20px; }
 .home-section-label { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 10px; }
 .home-goal-grid { display: flex; flex-direction: column; gap: 8px; }
@@ -611,15 +612,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>
       <span class="tab-label">Memo</span>
     </button>
-    <button class="tab-btn" onclick="switchTab('inbox',this)" data-num="04.">
-      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-      <span class="tab-label">Briefing</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('book',this)" data-num="05.">
+    <button class="tab-btn" onclick="switchTab('book',this)" data-num="04.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       <span class="tab-label">Book</span>
     </button>
-    <button class="tab-btn" onclick="switchTab('idea',this)" data-num="06.">
+    <button class="tab-btn" onclick="switchTab('idea',this)" data-num="05.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z"/></svg>
       <span class="tab-label">Idea</span>
     </button>
@@ -641,6 +638,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <div class="home-goal-ring-label" id="home-goal-ring-label">0/3</div>
       </div>
     </div>
+
+    <button class="home-briefing-btn nb-card nb-shadow" onclick="openBriefingPopup()">🌤️ 오늘의 모닝브리핑</button>
 
     <div class="home-section">
       <div class="home-section-label">🎯 GOAL</div>
@@ -798,15 +797,23 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="idea-list" id="idea-list" style="flex:1;overflow-y:auto;padding:0 var(--pad-h);scrollbar-width:none;"><div class="empty-state">No ideas yet.</div></div>
   </div>
 
-  <div class="tab-content" id="tab-inbox">
-    <div class="section-header">
-      <div class="section-title">Briefing</div>
-      <select id="voice-select" onchange="saveVoicePreference()" style="font-family:var(--font-en);font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:2px solid var(--rule);padding:4px 8px;cursor:pointer;border-radius:4px;outline:none;max-width:120px;"></select>
+  </div>
+</div>
+
+<div class="record-popup-overlay" id="briefing-popup" onclick="if(event.target===this)closeBriefingPopup()">
+  <div class="record-popup-sheet">
+    <div class="rp-header">
+      <div class="rp-time">🌤️ MORNING BRIEFING</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <select id="voice-select" onchange="saveVoicePreference()" style="font-family:var(--font-en);font-size:8px;font-weight:700;color:var(--paper);background:transparent;border:2px solid var(--paper);padding:4px 8px;cursor:pointer;border-radius:4px;outline:none;max-width:120px;"></select>
+        <button class="rp-close" onclick="closeBriefingPopup()">✕ CLOSE</button>
+      </div>
     </div>
     <div class="inbox-list" id="inbox-list"><div class="inbox-empty">Your morning briefing will appear here.</div></div>
   </div>
 </div>
-  </div><div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
+
+  <div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
   <div class="popup-sheet" style="max-height:90vh;overflow-y:auto;">
     <div class="popup-label" id="todo-popup-label"></div>
     <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')document.getElementById('todo-memo-input').focus()">
@@ -1104,7 +1111,6 @@ function switchTab(tab,btn){
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
   localStorage.setItem('last_tab',tab);
-  if(tab==='inbox')loadInbox();
   if(tab==='idea')loadIdeaFromNotion();
   if(tab==='home')renderHomeTab();
 }
@@ -3268,6 +3274,14 @@ function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(
 
 /* Inbox */
 const DIARY_DB='37451f4140c5808e9141c8804e892661';
+function openBriefingPopup(){
+  document.getElementById('briefing-popup').classList.add('open');
+  loadInbox();
+}
+function closeBriefingPopup(){
+  if(speechSynthesis.speaking)speechSynthesis.cancel();
+  document.getElementById('briefing-popup').classList.remove('open');
+}
 async function loadInbox(){
   const list=document.getElementById('inbox-list');
   list.innerHTML='<div class="inbox-empty">Loading...</div>';
