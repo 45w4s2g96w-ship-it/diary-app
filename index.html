@@ -25,6 +25,8 @@
 html { height: 100%; }
 .nb-card { background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; }
 .nb-shadow { box-shadow: 6px 6px 0 var(--ink); }
+.skeleton-row { height: 34px; background: #eee; border-radius: 4px; margin-bottom: 8px; animation: skeleton-pulse 1.2s infinite; }
+@keyframes skeleton-pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
 body {
   background: var(--paper);
   font-family: var(--font-kr);
@@ -1085,6 +1087,21 @@ function formatTime(d){return `${String(d.getHours()).padStart(2,'0')}:${String(
 function getOffsetDate(n){const d=new Date();d.setDate(d.getDate()+n);return d;}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
+/* Skeleton loading */
+const skeletonShown={record:false,todo:false,brain:false,book:false};
+function showSkeletonRows(containerId,count){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  let html='';
+  for(let i=0;i<count;i++)html+='<div class="skeleton-row"></div>';
+  el.innerHTML=html;
+}
+function clearSkeletonRows(containerId){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  el.querySelectorAll('.skeleton-row').forEach(r=>r.remove());
+}
+
 /* Tab */
 function switchTab(tab,btn){
   if(speechSynthesis.speaking)speechSynthesis.cancel();
@@ -1761,6 +1778,7 @@ async function deleteRecord(){
   }catch(e){showToast('Delete failed');}
 }
 async function loadTodayRecords(){
+  if(!skeletonShown.record){showSkeletonRows('record-list',3);skeletonShown.record=true;}
   try{
     const pageId=await getTodayPageId();if(!pageId)return;
     const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
@@ -1814,7 +1832,7 @@ async function loadTodayRecords(){
       i++;
     }
   }catch(e){console.error('load records failed',e);}
-  renderHomeRecentLog();
+  finally{clearSkeletonRows('record-list');renderHomeRecentLog();}
 }
 
 /* ============================================================
@@ -2257,6 +2275,7 @@ async function updateTodoNotionDone(id,done){try{await fetch(WORKER_URL+'/notion
 async function updateTodoNotionDoneFull(id,done){try{const props={'완료':{checkbox:done}};if(done)props['완료일']={date:{start:formatDate(new Date())}};else props['완료일']={date:null};await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});}catch(e){}}
 
 async function loadTodoFromNotion(){
+  if(!skeletonShown.todo){['items-today','items-week','items-month','items-someday'].forEach(id=>showSkeletonRows(id,3));skeletonShown.todo=true;}
   try{
     if(document.getElementById('todo-detail-popup')?.classList.contains('open'))return;
     const now=new Date();const twoDaysAgo=new Date(now);twoDaysAgo.setDate(twoDaysAgo.getDate()-2);
@@ -2307,6 +2326,7 @@ async function loadTodoFromNotion(){
     if(currentTodoView==='week')renderWeeklyView();
     renderGoalBar();
   }catch(e){console.error('loadTodoFromNotion failed',e);}
+  finally{['items-today','items-week','items-month','items-someday'].forEach(id=>clearSkeletonRows(id));}
 }
 
 let currentDetailQuad='',currentDetailIdx=-1;
@@ -2574,6 +2594,7 @@ function saveBrainToStorage(){try{localStorage.setItem('brain_items',JSON.string
 function loadBrainFromStorage(){try{const d=localStorage.getItem('brain_items');if(d)brainItems=JSON.parse(d);}catch(e){}}
 
 async function loadBrainFromNotion(){
+  if(!skeletonShown.brain){showSkeletonRows('brain-list',4);skeletonShown.brain=true;}
   try{
     const res=await fetch(WORKER_URL+'/notion/databases/'+BRAIN_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'처리완료',checkbox:{equals:false}},sorts:[{property:'생성일시',direction:'descending'}],page_size:50})});
     const data=await res.json();if(!data.results)return;
@@ -2594,6 +2615,7 @@ async function loadBrainFromNotion(){
     brainItems=newItems;
     saveBrainToStorage();renderBrainList();
   }catch(e){console.error('loadBrainFromNotion failed',e);}
+  finally{clearSkeletonRows('brain-list');}
 }
 async function addBrainItem(){
   const text=document.getElementById('brain-input').value.trim();if(!text)return;
@@ -3070,6 +3092,7 @@ async function confirmAddBook(){
   showToast('Added!');
 }
 async function loadBookFromNotion(){
+  if(!skeletonShown.book){showSkeletonRows('book-list',3);skeletonShown.book=true;}
   try{
     const res=await fetch(WORKER_URL+'/notion/databases/'+BOOK_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'시작일',direction:'descending'}],page_size:50})});
     const data=await res.json();if(!data.results)return;
@@ -3077,6 +3100,7 @@ async function loadBookFromNotion(){
     bookData=data.results.map(page=>{const id=page.id;const props=page.properties;const title=props['제목']?.title?.map(t=>t.plain_text).join('')||'';const authors=props['저자']?.rich_text?.map(t=>t.plain_text).join('')||'';const genre=props['장르']?.select?.name||'';const startDate=props['시작일']?.date?.start||'';const lastPage=props['읽은 페이지']?.number||0;const cover=props['표지']?.url||localData[id]?.cover||'';return{title,authors,genre,cover,startDate,lastPage,reviews:localData[id]?.reviews||[],notionId:id};}).filter(b=>b.title);
     saveBookToStorage();renderBookList();
   }catch(e){console.error('loadBookFromNotion failed',e);}
+  finally{clearSkeletonRows('book-list');}
 }
 function confirmSubBook(bookIdx){closeSubPopup();const text=subDragItem.text;const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;const book=bookData[bookIdx];const review={date:dateLabel,text};book.reviews.unshift(review);renderBookList();saveBookToStorage();if(book.notionId){const children=[{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'📅 '+dateLabel}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'💭 내 생각'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:text}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 필사'}}]}},{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'필사 내용을 여기에 입력하거나 사진을 첨부하세요.'}}],icon:{emoji:'✍️'},color:'gray_background'}},{object:'block',type:'divider',divider:{}}];fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})}).catch(e=>console.error(e));}markBrainDone(subDragIdx,'book');showToast('Saved to Book!');}
 
