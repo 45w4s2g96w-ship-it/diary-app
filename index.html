@@ -370,6 +370,22 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-close { font-family: var(--font-en); font-size: 10px; font-weight: 600; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
 .rp-body { padding: 14px 22px; }
 .rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: var(--ink); border: 1.5px solid var(--ink); padding: 2px 10px; border-radius: 1px; margin-bottom: 10px; }
+.dd-analysis-card { padding: 16px; border-radius: 4px; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); margin-bottom: 20px; }
+.dd-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.dd-chip { font-family: var(--font-en); font-size: 10px; font-weight: 700; color: var(--ink); background: rgba(255,255,255,0.6); border: 1.5px solid var(--ink); padding: 3px 9px; border-radius: 4px; }
+.dd-analysis-block { font-family: var(--font-kr); font-size: 12px; font-weight: 400; line-height: 1.6; color: var(--ink); margin-bottom: 8px; }
+.dd-analysis-block:last-child { margin-bottom: 0; }
+.dd-analysis-block b { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-soft); display: block; margin-bottom: 3px; text-transform: uppercase; }
+.dd-body { font-family: var(--font-kr); font-size: 12px; font-weight: 400; line-height: 1.7; color: var(--ink); }
+.dd-body-heading { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); text-transform: uppercase; margin: 16px 0 6px; }
+.dd-body-heading:first-child { margin-top: 0; }
+.dd-body-para { margin-bottom: 6px; white-space: pre-wrap; }
+.dd-body-para.done { text-decoration: line-through; color: var(--ink-muted); }
+.dd-body-callout { display: flex; gap: 8px; padding: 8px 0; }
+.dd-body-callout-icon { flex-shrink: 0; }
+.dd-body-cols { display: flex; gap: 14px; margin-bottom: 6px; }
+.dd-body-col { flex: 1; min-width: 0; }
+.dd-body-hr { border: none; border-top: 1px solid var(--rule); margin: 10px 0; }
 .rp-text { font-family: var(--font-kr); font-size: 12px; font-weight: 300; line-height: 1.75; color: var(--ink); white-space: pre-wrap; margin-bottom: 12px; }
 .rp-photos { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin-bottom: 14px; }
 .rp-photo-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 2px; cursor: pointer; display: block; }
@@ -880,6 +896,21 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="td-actions">
         <button class="td-action-btn danger" onclick="deleteTodoItem()">DELETE</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="record-popup-overlay" id="diary-detail-popup" onclick="if(event.target===this)closeDiaryDetail()">
+  <div class="record-popup-sheet">
+    <div class="rp-header"><div class="rp-time" id="dd-date"></div><button class="rp-close" onclick="closeDiaryDetail()">✕ CLOSE</button></div>
+    <div class="rp-body">
+      <div class="dd-analysis-card" id="dd-analysis-card">
+        <div class="dd-chips" id="dd-chips"></div>
+        <div class="dd-analysis-block" id="dd-summary"></div>
+        <div class="dd-analysis-block" id="dd-encourage"></div>
+        <div class="dd-analysis-block" id="dd-advice"></div>
+      </div>
+      <div class="dd-body" id="dd-body"></div>
     </div>
   </div>
 </div>
@@ -3232,6 +3263,133 @@ async function loadInbox(){
     requestAnimationFrame(()=>{list.scrollTop=0;});
   }catch(e){list.innerHTML='<div class="inbox-empty">Load failed</div>';}
 }
+
+/* Diary detail popup */
+const ENERGY_COLORS={'낮음':'#ffb3b3','보통':'#fff3b0','높음':'#b8e6c9'};
+function richTextJoin(arr){return (arr||[]).map(t=>t.plain_text||'').join('').trim();}
+async function openDiaryDetail(page){
+  const props=page.properties||{};
+  const dateStr=props['날짜']?.date?.start||'';
+  const d=dateStr?new Date(dateStr+'T00:00:00'):null;
+  const days=['일','월','화','수','목','금','토'];
+  document.getElementById('dd-date').textContent=d?`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`:dateStr;
+
+  const energy=props['에너지 레벨']?.select?.name||'';
+  const thoughtFlow=richTextJoin(props['사고 흐름']?.rich_text);
+  const summary=richTextJoin(props['일기 요약']?.rich_text);
+  const encourage=richTextJoin(props['격려']?.rich_text);
+  const advice=richTextJoin(props['제언']?.rich_text);
+
+  const card=document.getElementById('dd-analysis-card');
+  card.style.background=ENERGY_COLORS[energy]||'var(--paper)';
+  const chipsEl=document.getElementById('dd-chips');
+  let chipsHtml='';
+  if(energy)chipsHtml+=`<span class="dd-chip">${energy==='높음'?'좋음':energy}</span>`;
+  if(thoughtFlow)chipsHtml+=`<span class="dd-chip">${thoughtFlow}</span>`;
+  chipsEl.innerHTML=chipsHtml;
+  document.getElementById('dd-summary').innerHTML=summary?`<b>일기 요약</b>${summary}`:'';
+  document.getElementById('dd-encourage').innerHTML=encourage?`<b>격려</b>${encourage}`:'';
+  document.getElementById('dd-advice').innerHTML=advice?`<b>제언</b>${advice}`:'';
+
+  const bodyEl=document.getElementById('dd-body');
+  bodyEl.innerHTML='Loading...';
+  document.getElementById('diary-detail-popup').classList.add('open');
+
+  try{
+    let pageBlocks=[];let cursor=null;
+    do{
+      const url=WORKER_URL+'/notion/blocks/'+page.id+'/children'+(cursor?'?start_cursor='+cursor:'');
+      const br=await fetch(url,{headers:notionHeaders()});
+      const bd=await br.json();
+      pageBlocks=pageBlocks.concat(bd.results||[]);
+      cursor=bd.has_more?bd.next_cursor:null;
+    }while(cursor);
+    const toggleBlock=pageBlocks.find(b=>b.type==='heading_4'&&b.heading_4?.is_toggleable&&(b.heading_4?.rich_text||[]).some(t=>(t.plain_text||'').includes('모닝브리핑')));
+    const bodyBlocks=toggleBlock?pageBlocks.filter(b=>b.id!==toggleBlock.id):pageBlocks;
+    const fetchCount={n:pageBlocks.length};
+    bodyEl.innerHTML=await renderNotionBlocksToHtml(bodyBlocks,0,fetchCount);
+  }catch(e){console.error(e);bodyEl.innerHTML='<div class="dd-body-para">Load failed</div>';}
+}
+function closeDiaryDetail(){document.getElementById('diary-detail-popup').classList.remove('open');}
+
+function richTextToHtml(rich){
+  let html='';
+  (rich||[]).forEach(t=>{
+    const content=t.plain_text||t.text?.content||'';
+    if(t.text?.link?.url)html+=`<a href="${t.text.link.url}" target="_blank" style="color:inherit;">${content}</a>`;
+    else if(t.annotations?.bold)html+=`<b style="font-family:inherit;font-size:inherit;font-weight:700;letter-spacing:0;color:inherit;text-transform:none;display:inline;">${content}</b>`;
+    else html+=content;
+  });
+  return html;
+}
+function isBlockDone(blockData){
+  const rich=blockData?.rich_text;
+  if(!rich||!rich.length)return false;
+  return rich.every(t=>t.annotations?.strikethrough===true);
+}
+async function fetchBlockChildren(blockId){
+  let children=[];let cursor=null;
+  do{
+    const url=WORKER_URL+'/notion/blocks/'+blockId+'/children'+(cursor?'?start_cursor='+cursor:'');
+    const br=await fetch(url,{headers:notionHeaders()});
+    const bd=await br.json();
+    children=children.concat(bd.results||[]);
+    cursor=bd.has_more?bd.next_cursor:null;
+  }while(cursor);
+  return children;
+}
+async function renderNotionBlocksToHtml(blocks,depth,fetchCount){
+  if(depth>4||fetchCount.n>=40)return '';
+  let html='';
+  for(const block of blocks){
+    const type=block.type;
+    const data=block[type];
+    if(type==='heading_4'){
+      html+=`<div class="dd-body-heading">${richTextToHtml(data?.rich_text)}</div>`;
+    }else if(type==='paragraph'){
+      const text=richTextToHtml(data?.rich_text);
+      if(text.trim())html+=`<div class="dd-body-para${isBlockDone(data)?' done':''}">${text}</div>`;
+    }else if(type==='quote'||type==='bulleted_list_item'){
+      const text=richTextToHtml(data?.rich_text);
+      if(text.trim())html+=`<div class="dd-body-para">▪️ ${text}</div>`;
+    }else if(type==='divider'){
+      html+='<hr class="dd-body-hr">';
+    }else if(type==='callout'){
+      const text=richTextToHtml(data?.rich_text);
+      const icon=data?.icon?.emoji||'';
+      let childrenHtml='';
+      if(block.has_children&&fetchCount.n<40){
+        fetchCount.n++;
+        const kids=await fetchBlockChildren(block.id);
+        childrenHtml=await renderNotionBlocksToHtml(kids,depth+1,fetchCount);
+      }
+      html+=`<div class="dd-body-callout"><span class="dd-body-callout-icon">${icon}</span><div><div class="dd-body-para">${text}</div>${childrenHtml}</div></div>`;
+    }else if(type==='toggle'){
+      const text=richTextToHtml(data?.rich_text);
+      let childrenHtml='';
+      if(block.has_children&&fetchCount.n<40){
+        fetchCount.n++;
+        const kids=await fetchBlockChildren(block.id);
+        childrenHtml=await renderNotionBlocksToHtml(kids,depth+1,fetchCount);
+      }
+      html+=`<div class="dd-body-heading">${text}</div>${childrenHtml}`;
+    }else if(type==='column_list'){
+      if(fetchCount.n>=40)continue;
+      fetchCount.n++;
+      const columns=await fetchBlockChildren(block.id);
+      let colsHtml='';
+      for(const col of columns){
+        if(col.type!=='column'||fetchCount.n>=40)continue;
+        fetchCount.n++;
+        const colBlocks=await fetchBlockChildren(col.id);
+        colsHtml+=`<div class="dd-body-col">${await renderNotionBlocksToHtml(colBlocks,depth+1,fetchCount)}</div>`;
+      }
+      html+=`<div class="dd-body-cols">${colsHtml}</div>`;
+    }
+  }
+  return html;
+}
+
 let availableVoices=[];
 function loadVoices(){
   availableVoices=speechSynthesis.getVoices().filter(v=>v.lang.startsWith('ko'));
