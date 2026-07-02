@@ -13,7 +13,7 @@
 <link id="dynamic-font-link" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
-  .rp-photo-add-full { width:100%; padding:14px; border:1.5px dashed var(--rule); background:transparent; color:var(--ink-muted); font-family:var(--font-en); font-size:10px; font-weight:700; letter-spacing:0.08em; cursor:pointer; border-radius:2px; }
+  .rp-photo-add-full { width:100%; padding:14px; border:2px dashed var(--rule); background:transparent; color:var(--ink-muted); font-family:var(--font-en); font-size:10px; font-weight:700; letter-spacing:0.08em; cursor:pointer; border-radius:4px; }
 
 :root {
   --paper: #ffffff; --ink: #111111; --ink-soft: #444; --ink-muted: #888;
@@ -134,7 +134,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .emotion-row-label { font-family: var(--font-en); font-size: 7.5px; font-weight: 700; color: var(--ink-muted); min-width: 46px; max-width: 46px; padding-right: 6px; flex-shrink: 0; text-transform: uppercase; line-height: 1.3; }
 .emotion-tags { display: flex; gap: 5px; width: max-content; }
 .tag { font-family: var(--font-kr); font-size: 11px; font-weight: 400; padding: 2px 8px; border: 1.5px solid var(--ink); border-radius: 4px; cursor: pointer; white-space: nowrap; color: var(--ink); background: transparent; transition: all 0.12s; }
-.tag.selected { background: var(--ink); color: var(--paper); font-weight: 600; }
+.tag.selected { background: var(--accent); color: var(--paper); font-weight: 600; border-color: var(--accent); }
 
 /* Input */
 .input-section { padding: 12px var(--pad-h) 10px; border-bottom: 1px solid var(--rule); flex-shrink: 0; }
@@ -176,15 +176,15 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .quad-text { font-family: var(--font-kr); font-size: 12px; font-weight: 300; line-height: 1.45; color: var(--ink); flex: 1; word-break: break-all; }
 .quad-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.quad-overdue { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: #c0392b; display: inline; background: rgba(192,57,43,0.15); padding: 1px 4px; border-radius: 2px; margin-left: 4px; }
+.quad-overdue { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: #c0392b; display: inline; background: rgba(192,57,43,0.15); padding: 1px 4px; border-radius: 4px; margin-left: 4px; }
 .quad-item { user-select: none; -webkit-user-select: none; touch-action: pan-y; }
 .quad-item.dragging { opacity: 0.4; }
 .quad-cell.drag-over { background: rgba(0,0,0,0.06); outline: 2px solid var(--ink) !important; }
 .quad-memo { font-family: var(--font-kr); font-size: 10px; font-weight: 300; color: var(--ink-muted); display: block; }
-.quad-more-btn { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 2px 7px; border-radius: 1px; cursor: pointer; margin-top: 3px; align-self: flex-start; flex-shrink: 0; }
+.quad-more-btn { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-muted); background: transparent; border: 1.5px solid var(--rule); padding: 2px 7px; border-radius: 4px; cursor: pointer; margin-top: 3px; align-self: flex-start; flex-shrink: 0; }
 
 .todo-star { font-size: 11px; line-height: 1; cursor: pointer; flex-shrink: 0; color: var(--ink-muted); user-select: none; -webkit-user-select: none; }
-.todo-star.starred { color: #d4a017; }
+.todo-star.starred { color: var(--accent-yellow); }
 .quad-item .todo-star { margin-top: 1px; }
 .week-col-item .todo-star { margin-top: 1px; }
 .todo-handle { font-size: 14px; line-height: 1; letter-spacing: -1px; cursor: grab; flex-shrink: 0; color: var(--ink-muted); user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -216,7 +216,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .todo-toggle-bar { display: flex; justify-content: flex-end; padding: 10px var(--pad-h) 0; flex-shrink: 0; }
 .todo-toggle { display: flex; border: 2.5px solid var(--ink); border-radius: 4px; overflow: hidden; box-shadow: 3px 3px 0 var(--ink); }
 .toggle-btn { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 12px; border: none; cursor: pointer; transition: all 0.15s; }
-.toggle-btn.active { background: var(--ink); color: var(--paper); }
+.toggle-btn.active { background: var(--accent); color: var(--paper); }
 .toggle-btn.inactive { background: transparent; color: var(--ink-muted); }
 
 /* Braindump */
@@ -260,11 +260,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .week-col-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
   .week-col-text { font-family: var(--font-kr); font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; word-break: break-word; }
   .week-col-text.done { text-decoration: line-through; color: var(--ink-muted); }
-  .week-col-more { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1px solid var(--rule); padding: 2px 6px; border-radius: 1px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
+  .week-col-more { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1.5px solid var(--rule); padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
   .week-row { display: none; }
   .week-overdue-row { display: flex; }
 }
-.brain-reset-btn { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); border: 1px solid var(--rule); padding: 6px 12px; background: none; cursor: pointer; border-radius: 1px; }
+.brain-reset-btn { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); border: 1.5px solid var(--rule); padding: 6px 12px; background: none; cursor: pointer; border-radius: 4px; }
 .brain-input-wrap { padding: 10px var(--pad-h); border-bottom: 1px solid var(--rule); flex-shrink: 0; }
 .brain-textarea { width: 100%; font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink); background: transparent; border: none; outline: none; resize: none; line-height: 1.7; min-height: 60px; overflow: hidden; display: block; }
 .brain-textarea::placeholder { color: var(--ink-muted); }
@@ -274,14 +274,14 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .brain-item { padding: 10px 0; border-bottom: 1px solid var(--rule); user-select: none; }
 .brain-item.dragging { opacity: 0.4; }
 .brain-item-text { font-family: var(--font-kr); font-size: 12px; font-weight: 300; line-height: 1.6; color: var(--ink); margin-bottom: 4px; }
-.brain-tag { display: inline-block; font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 1px; margin-bottom: 4px; }
-.brain-tag.record { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
-.brain-tag.todo { border: 1px solid var(--ink); color: var(--ink); }
-.brain-tag.book { border: 1px solid var(--ink-muted); color: var(--ink-muted); }
-.brain-tag.idea { border: 1px solid #b8860b; color: #b8860b; }
+.brain-tag { display: inline-block; font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 4px; margin-bottom: 4px; }
+.brain-tag.record { border: 1.5px solid var(--ink-muted); color: var(--ink-muted); }
+.brain-tag.todo { border: 1.5px solid var(--ink); color: var(--ink); }
+.brain-tag.book { border: 1.5px solid var(--ink-muted); color: var(--ink-muted); }
+.brain-tag.idea { border: 1.5px solid var(--accent); color: var(--accent); }
 .brain-hold-hint { font-family: var(--font-en); font-size: 8px; color: var(--rule); margin-bottom: 4px; }
 .brain-actions { display: flex; gap: 5px; }
-.brain-action-btn { font-family: var(--font-en); font-size: 8px; font-weight: 700; padding: 4px 9px; border: 1px solid var(--rule); background: transparent; color: var(--ink-muted); cursor: pointer; border-radius: 1px; }
+.brain-action-btn { font-family: var(--font-en); font-size: 8px; font-weight: 700; padding: 4px 9px; border: 1.5px solid var(--rule); background: transparent; color: var(--ink-muted); cursor: pointer; border-radius: 4px; }
 
 /* Drag zones */
 .drag-overlay { position: fixed; inset: 0; z-index: 300; display: none; flex-direction: column; justify-content: flex-end; pointer-events: none; }
@@ -320,14 +320,14 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .review-date { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.08em; margin-bottom: 5px; }
 .review-text { font-family: var(--font-kr); font-size: 12px; font-weight: 300; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
 .back-btn { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
-.todo-date-btn { font-family:var(--font-en); font-size:8px; font-weight:700; letter-spacing:0.06em; padding:5px 10px; border:1.5px solid var(--rule); background:transparent; color:var(--ink-muted); cursor:pointer; border-radius:1px; transition:all 0.12s; }
-.todo-date-btn.selected { background:var(--ink); color:var(--paper); border-color:var(--ink); }
-.genre-btn { font-family:var(--font-kr); font-size:11px; font-weight:400; padding:5px 12px; border:1.5px solid var(--rule); background:transparent; color:var(--ink); cursor:pointer; border-radius:1px; transition:all 0.12s; }
-.genre-btn.selected { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.todo-date-btn { font-family:var(--font-en); font-size:8px; font-weight:700; letter-spacing:0.06em; padding:5px 10px; border:2px solid var(--rule); background:transparent; color:var(--ink-muted); cursor:pointer; border-radius:4px; transition:all 0.12s; }
+.todo-date-btn.selected { background:var(--accent); color:var(--paper); border-color:var(--accent); }
+.genre-btn { font-family:var(--font-kr); font-size:11px; font-weight:400; padding:5px 12px; border:2px solid var(--rule); background:transparent; color:var(--ink); cursor:pointer; border-radius:4px; transition:all 0.12s; }
+.genre-btn.selected { background:var(--accent); color:var(--paper); border-color:var(--accent); }
 .book-search-results { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 12px; scrollbar-width: none; }
 .book-search-results::-webkit-scrollbar { display: none; }
 .book-search-item { display: flex; gap: 10px; padding: 8px; border: 2px solid var(--rule); border-radius: 4px; cursor: pointer; }
-.book-search-item.selected { border-color: var(--ink); }
+.book-search-item.selected { border-color: var(--accent); }
 .book-search-cover { width: 36px; height: 50px; object-fit: cover; border-radius: 1px; flex-shrink: 0; background: var(--rule); }
 .book-search-info { flex: 1; }
 .book-search-title { font-family: var(--font-kr); font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 2px; line-height: 1.3; }
@@ -360,7 +360,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .popup-input-sm { display: block; width: 100%; box-sizing: border-box; font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink-soft); background: transparent; border: none; border-bottom: 1px solid var(--rule); outline: none; padding: 6px 0; line-height: 1.6; margin-bottom: 10px; resize: none; }
 .popup-input-sm::placeholder { color: var(--rule); }
 .popup-btns { display: flex; gap: 8px; justify-content: flex-end; }
-.popup-cancel { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; background: transparent; color: var(--ink-muted); border: 1px solid var(--rule); padding: 10px 16px; cursor: pointer; border-radius: 1px; }
+.popup-cancel { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; background: transparent; color: var(--ink-muted); border: 2px solid var(--rule); padding: 10px 16px; cursor: pointer; border-radius: 4px; }
 .popup-ok { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; background: var(--accent); color: var(--paper); border: 2px solid var(--ink); padding: 10px 28px; cursor: pointer; border-radius: 4px; box-shadow: 5px 5px 0 var(--ink); }
 .sub-popup-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.55); z-index: 500; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .sub-popup-overlay.open { opacity: 1; pointer-events: all; }
@@ -370,10 +370,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .sub-popup-text { font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink); padding: 8px 0; border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
 .sub-choices { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .sub-choice { padding: 11px 14px; border: 2px solid var(--rule); border-radius: 4px; font-family: var(--font-kr); font-size: 12px; font-weight: 400; color: var(--ink); cursor: pointer; background: transparent; text-align: left; }
-.sub-choice:active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.sub-choice:active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 .sub-mood-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .sub-mood-btn { font-family: var(--font-kr); font-size: 12px; font-weight: 400; padding: 5px 12px; border: 2px solid var(--ink); border-radius: 4px; cursor: pointer; background: transparent; color: var(--ink); }
-.sub-mood-btn:active { background: var(--ink); color: var(--paper); }
+.sub-mood-btn:active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
 
 /* Record popup */
 .record-popup-overlay { position: fixed; inset: 0; background: rgba(17,17,17,0.6); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
@@ -385,7 +385,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-time { font-family: var(--font-en); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); }
 .rp-close { font-family: var(--font-en); font-size: 10px; font-weight: 600; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
 .rp-body { padding: 14px 22px; }
-.rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: var(--ink); border: 1.5px solid var(--ink); padding: 2px 10px; border-radius: 1px; margin-bottom: 10px; }
+.rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: var(--ink); border: 1.5px solid var(--ink); padding: 2px 10px; border-radius: 4px; margin-bottom: 10px; }
 .dd-analysis-card { padding: 16px; border-radius: 4px; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); margin-bottom: 20px; }
 .dd-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 .dd-chip { font-family: var(--font-en); font-size: 10px; font-weight: 700; color: var(--ink); background: rgba(255,255,255,0.6); border: 1.5px solid var(--ink); padding: 3px 9px; border-radius: 4px; }
@@ -406,7 +406,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-photos { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin-bottom: 14px; }
 .rp-photo-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 2px; cursor: pointer; display: block; }
 .rp-photos-edit { margin-bottom: 10px; }
-.rp-edit-input { width: 100%; font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--ink); border-radius: 2px; padding: 10px; outline: none; resize: none; line-height: 1.6; margin-bottom: 10px; overflow: hidden; }
+.rp-edit-input { width: 100%; font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink); background: transparent; border: 2px solid var(--ink); border-radius: 4px; padding: 10px; outline: none; resize: none; line-height: 1.6; margin-bottom: 10px; overflow: hidden; }
 .rp-actions { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--rule); }
 .rp-action-btn { flex: 1; padding: 9px; font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.08em; border: 2px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 4px; }
 .rp-action-btn.danger { border-color: #c0392b; color: #c0392b; }
@@ -420,13 +420,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .td-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 12px; border-bottom: 1px solid var(--rule); }
 .td-quad-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; }
 .td-done-check { width: 16px; height: 16px; border: 1.5px solid var(--ink-muted); border-radius: 2px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.td-done-check.done { background: var(--ink); border-color: var(--ink); }
+.td-done-check.done { background: var(--accent); border-color: var(--accent); }
 .td-done-check.done::after { content: ''; display: block; width: 7px; height: 5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .td-close { font-family: var(--font-en); font-size: 10px; font-weight: 600; color: var(--ink-muted); background: none; border: none; cursor: pointer; }
 .td-body { padding: 14px 20px; }
 .td-title { font-family: var(--font-kr); font-size: 16px; font-weight: 400; color: var(--ink); margin-bottom: 4px; line-height: 1.4; }
 .td-due { font-family: var(--font-en); font-size: 9px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.06em; margin-bottom: 8px; }
-.td-memo-display { font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; padding: 8px 10px; background: rgba(0,0,0,0.03); border-radius: 2px; border-left: 2px solid var(--rule); white-space: pre-wrap; }
+.td-memo-display { font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; padding: 8px 10px; background: rgba(0,0,0,0.03); border-radius: 4px; border-left: 2px solid var(--rule); white-space: pre-wrap; }
 .td-field-label { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 4px; }
 .td-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rule); }
 .td-action-btn { flex: 1; padding: 9px; font-family: var(--font-en); font-size: 9px; font-weight: 700; border: 2px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 4px; }
@@ -442,9 +442,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-lb-counter { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-family: var(--font-en); font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
 
 /* Toast & Loading */
-.toast { position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--paper); font-family: var(--font-kr); font-size: 12px; font-weight: 400; padding: 10px 20px; border-radius: 2px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 600; }
+.toast { position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(10px); background: var(--ink); color: var(--paper); font-family: var(--font-kr); font-size: 12px; font-weight: 400; padding: 10px 20px; border-radius: 4px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 600; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.loading-overlay { position: fixed; inset: 0; background: rgba(239,239,237,0.85); display: flex; align-items: center; justify-content: center; z-index: 250; }
+.loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); display: flex; align-items: center; justify-content: center; z-index: 250; }
 .loading-overlay.hidden { display: none; }
 .loading-text { font-family: var(--font-en); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--ink); animation: pulse 1.2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -588,7 +588,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
   <div class="setup-section">
     <div class="setup-label">Font</div>
-    <select id="theme-font-select" onchange="onThemeFontChange()" style="width:100%;font-family:var(--font-kr);font-size:12px;padding:12px 14px;border:1.5px solid var(--rule);background:transparent;color:var(--ink);border-radius:2px;outline:none;">
+    <select id="theme-font-select" onchange="onThemeFontChange()" style="width:100%;font-family:var(--font-kr);font-size:12px;padding:12px 14px;border:2px solid var(--rule);background:transparent;color:var(--ink);border-radius:4px;outline:none;">
       <option value="Archivo">Archivo</option>
       <option value="Space Grotesk">Space Grotesk</option>
       <option value="Bricolage Grotesque">Bricolage Grotesque</option>
@@ -688,10 +688,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="emotion-row" style="margin-top:4px;"><div class="emotion-row-label">Neg.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">불안</span><span class="tag" onclick="selectMood(this)">무기력</span><span class="tag" onclick="selectMood(this)">답답함</span><span class="tag" onclick="selectMood(this)">외로움</span><span class="tag" onclick="selectMood(this)">피곤함</span></div></div>
       <div class="emotion-row" style="margin-top:4px;"><div class="emotion-row-label">Etc.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">멍함</span><span class="tag" onclick="selectMood(this)">복잡함</span><span class="tag" onclick="selectMood(this)">모르겠음</span></div></div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid var(--rule);">
-        <input id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off" style="flex:1;font-family:var(--font-kr);font-size:12px;padding:3px 8px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink);outline:none;">
-        <button id="ctp-pos" onclick="selectCustomType('positive')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink-muted);cursor:pointer;">POS</button>
-        <button id="ctp-neg" onclick="selectCustomType('negative')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink-muted);cursor:pointer;">NEG</button>
-        <button id="ctp-etc" onclick="selectCustomType('etc')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:1.5px solid var(--rule);border-radius:1px;background:transparent;color:var(--ink-muted);cursor:pointer;">ETC</button>
+        <input id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off" style="flex:1;font-family:var(--font-kr);font-size:12px;padding:3px 8px;border:2px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink);outline:none;">
+        <button id="ctp-pos" onclick="selectCustomType('positive')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:2px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink-muted);cursor:pointer;">POS</button>
+        <button id="ctp-neg" onclick="selectCustomType('negative')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:2px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink-muted);cursor:pointer;">NEG</button>
+        <button id="ctp-etc" onclick="selectCustomType('etc')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:2px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink-muted);cursor:pointer;">ETC</button>
       </div>
     </div>
     <div class="input-section">
@@ -807,7 +807,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content" id="tab-inbox">
     <div class="section-header">
       <div class="section-title">Briefing</div>
-      <select id="voice-select" onchange="saveVoicePreference()" style="font-family:var(--font-en);font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:4px 8px;cursor:pointer;border-radius:1px;outline:none;max-width:120px;"></select>
+      <select id="voice-select" onchange="saveVoicePreference()" style="font-family:var(--font-en);font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:2px solid var(--rule);padding:4px 8px;cursor:pointer;border-radius:4px;outline:none;max-width:120px;"></select>
     </div>
     <div class="inbox-list" id="inbox-list"><div class="inbox-empty">Your morning briefing will appear here.</div></div>
   </div>
@@ -829,7 +829,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <select id="todo-time-hour" style="flex:1 1 0;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="">--</option></select>
           <select id="todo-time-min" style="flex:1 1 0;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="">--</option></select>
           <select id="todo-time-ampm" style="flex:1 1 0;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1px solid var(--rule);padding:8px 4px;outline:none;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;box-sizing:border-box;"><option value="AM">AM</option><option value="PM" selected>PM</option></select>
-          <button onclick="document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';" style="flex:0 0 auto;font-family:var(--font-en);font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:8px 9px;cursor:pointer;border-radius:1px;white-space:nowrap;box-sizing:border-box;">✕</button>
+          <button onclick="document.getElementById('todo-time-hour').value='';document.getElementById('todo-time-min').value='';" style="flex:0 0 auto;font-family:var(--font-en);font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:2px solid var(--rule);padding:8px 9px;cursor:pointer;border-radius:4px;white-space:nowrap;box-sizing:border-box;">✕</button>
         </div>
       </div>
     </div>
@@ -893,39 +893,39 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <textarea id="td-edit-text" rows="1" oninput="autoResize(this)" style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--ink);outline:none;padding:6px 0;margin-bottom:14px;resize:none;overflow:hidden;line-height:1.5;display:block;"></textarea>
       <div class="td-field-label">MEMO</div>
       <input id="td-edit-memo" style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink-soft);background:transparent;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:14px;" placeholder="링크, 참고사항...">
-      <button onclick="toggleQuadrantSection()" style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:4px 10px;cursor:pointer;border-radius:1px;margin-bottom:8px;">QUADRANT ▾</button>
+      <button onclick="toggleQuadrantSection()" style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:2px solid var(--rule);padding:4px 10px;cursor:pointer;border-radius:4px;margin-bottom:8px;">QUADRANT ▾</button>
       <div id="td-quadrant-section" style="display:none;margin-bottom:10px;">
         <div style="display:flex;gap:6px;">
-          <button onclick="setTodoEditQuad('today')" id="tq-today" style="flex:1;font-family:var(--font-en);font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">TODAY</button>
-          <button onclick="setTodoEditQuad('week')" id="tq-week" style="flex:1;font-family:var(--font-en);font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">WEEK</button>
-          <button onclick="setTodoEditQuad('month')" id="tq-month" style="flex:1;font-family:var(--font-en);font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">MONTH</button>
-          <button onclick="setTodoEditQuad('someday')" id="tq-someday" style="flex:1;font-family:var(--font-en);font-size:8px;font-weight:700;padding:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">SOMEDAY</button>
+          <button onclick="setTodoEditQuad('today')" id="tq-today" style="flex:1;font-family:var(--font-en);font-size:8px;font-weight:700;padding:6px;border:2px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:4px;">TODAY</button>
+          <button onclick="setTodoEditQuad('week')" id="tq-week" style="flex:1;font-family:var(--font-en);font-size:8px;font-weight:700;padding:6px;border:2px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:4px;">WEEK</button>
+          <button onclick="setTodoEditQuad('month')" id="tq-month" style="flex:1;font-family:var(--font-en);font-size:8px;font-weight:700;padding:6px;border:2px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:4px;">MONTH</button>
+          <button onclick="setTodoEditQuad('someday')" id="tq-someday" style="flex:1;font-family:var(--font-en);font-size:8px;font-weight:700;padding:6px;border:2px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:4px;">SOMEDAY</button>
         </div>
       </div>
       <div class="td-field-label">DUE DATE</div>
       <div style="display:flex;gap:8px;margin-bottom:14px;">
         <div style="flex:1.4;position:relative;display:flex;align-items:center;">
-          <input type="text" id="td-edit-date" placeholder="YYYY-MM-DD" inputmode="numeric" oninput="autoFormatDate(this)" style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 32px 8px 8px;outline:none;box-sizing:border-box;">
+          <input type="text" id="td-edit-date" placeholder="YYYY-MM-DD" inputmode="numeric" oninput="autoFormatDate(this)" style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:2px solid var(--rule);border-radius:4px;padding:8px 32px 8px 8px;outline:none;box-sizing:border-box;">
           <input type="date" id="td-edit-date-picker" style="position:absolute;right:4px;width:24px;height:24px;opacity:0;cursor:pointer;">
           <span style="position:absolute;right:8px;pointer-events:none;font-size:13px;color:var(--ink-muted);">📅</span>
         </div>
         <div style="flex:1.6;display:flex;gap:6px;">
-          <select id="td-time-hour-select" style="flex:1;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;">
+          <select id="td-time-hour-select" style="flex:1;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:2px solid var(--rule);border-radius:4px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;">
             <option value="">--</option>
           </select>
-          <select id="td-time-min-select" style="flex:1;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;">
+          <select id="td-time-min-select" style="flex:1;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:2px solid var(--rule);border-radius:4px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;">
             <option value="">--</option>
           </select>
-          <select id="td-edit-ampm" style="flex:1;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;">
+          <select id="td-edit-ampm" style="flex:1;min-width:0;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:2px solid var(--rule);border-radius:4px;padding:8px 2px;outline:none;text-align:center;text-align-last:center;">
             <option value="AM">AM</option>
             <option value="PM" selected>PM</option>
           </select>
-          <button onclick="document.getElementById('td-time-hour-select').value='';document.getElementById('td-time-min-select').value='';" style="font-family:var(--font-en);font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 8px;cursor:pointer;border-radius:1px;white-space:nowrap;">✕</button>
+          <button onclick="document.getElementById('td-time-hour-select').value='';document.getElementById('td-time-min-select').value='';" style="font-family:var(--font-en);font-size:8px;font-weight:700;color:var(--ink-muted);background:transparent;border:2px solid var(--rule);padding:6px 8px;cursor:pointer;border-radius:4px;white-space:nowrap;">✕</button>
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:0;">
-        <button onclick="cancelTodoEdit()" style="flex:1;font-family:var(--font-en);font-size:9px;font-weight:700;padding:10px;border:1px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:1px;">CANCEL</button>
-        <button onclick="saveTodoEdit()" style="flex:1;font-family:var(--font-en);font-size:9px;font-weight:700;padding:10px;border:none;background:var(--ink);color:var(--paper);cursor:pointer;border-radius:1px;">SAVE</button>
+        <button onclick="cancelTodoEdit()" style="flex:1;font-family:var(--font-en);font-size:9px;font-weight:700;padding:10px;border:2px solid var(--rule);background:transparent;color:var(--ink-muted);cursor:pointer;border-radius:4px;">CANCEL</button>
+        <button onclick="saveTodoEdit()" style="flex:1;font-family:var(--font-en);font-size:9px;font-weight:700;padding:10px;border:2px solid var(--ink);background:var(--accent);color:var(--paper);cursor:pointer;border-radius:4px;box-shadow:4px 4px 0 var(--ink);">SAVE</button>
       </div>
     </div>
     <div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:0 20px 24px;border-top:1px solid var(--rule);min-height:0;">
@@ -971,7 +971,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <button class="popup-cancel" onclick="closeBookEditPopup()" style="flex:1;">CANCEL</button>
         <button class="popup-ok" onclick="confirmBookEdit()" style="flex:1;">SAVE</button>
       </div>
-      <button onclick="confirmBookDelete()" style="width:100%;font-family:var(--font-en);font-size:9px;font-weight:700;padding:10px;border:1px solid #c0392b;background:transparent;color:#c0392b;cursor:pointer;border-radius:1px;">DELETE BOOK</button>
+      <button onclick="confirmBookDelete()" style="width:100%;font-family:var(--font-en);font-size:9px;font-weight:700;padding:10px;border:2px solid #c0392b;background:transparent;color:#c0392b;cursor:pointer;border-radius:4px;">DELETE BOOK</button>
     </div>
   </div>
 </div>
@@ -984,9 +984,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div id="book-manual-entry" style="display:none;margin-bottom:10px;">
       <input id="book-manual-title-direct" placeholder="책 제목" style="width:100%;font-family:var(--font-kr);font-size:12px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:6px;background:transparent;color:var(--ink);">
       <input id="book-manual-author-direct" placeholder="저자" style="width:100%;font-family:var(--font-kr);font-size:12px;border:none;border-bottom:1px solid var(--rule);outline:none;padding:6px 0;margin-bottom:8px;background:transparent;color:var(--ink);">
-      <button onclick="selectManualBookDirect()" style="width:100%;font-family:var(--font-en);font-size:9px;font-weight:700;padding:8px;background:var(--ink);color:var(--paper);border:none;cursor:pointer;border-radius:1px;">이 책으로 선택</button>
+      <button onclick="selectManualBookDirect()" style="width:100%;font-family:var(--font-en);font-size:9px;font-weight:700;padding:8px;background:var(--accent);color:var(--paper);border:2px solid var(--ink);cursor:pointer;border-radius:4px;box-shadow:3px 3px 0 var(--ink);">이 책으로 선택</button>
     </div>
-    <button id="book-manual-toggle" onclick="toggleManualBookEntry()" style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:1px solid var(--rule);padding:6px 12px;cursor:pointer;border-radius:1px;margin-bottom:10px;">✏️ 직접 입력하기</button>
+    <button id="book-manual-toggle" onclick="toggleManualBookEntry()" style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);background:transparent;border:2px solid var(--rule);padding:6px 12px;cursor:pointer;border-radius:4px;margin-bottom:10px;">✏️ 직접 입력하기</button>
     <div class="popup-label" style="margin-bottom:6px;">GENRE</div>
     <div id="book-genre-select" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
       <button onclick="selectBookGenre(this,'소설')" class="genre-btn">소설</button>
@@ -1339,7 +1339,7 @@ function selectCustomType(type){
   selectedMoodType=type;
   const map={positive:'pos',negative:'neg',etc:'etc'};
   ['pos','neg','etc'].forEach(t=>{const b=document.getElementById('ctp-'+t);if(b){b.style.background='';b.style.color='var(--ink-muted)';b.style.borderColor='var(--rule)';}});
-  const a=document.getElementById('ctp-'+map[type]);if(a){a.style.background='var(--ink)';a.style.color='var(--paper)';a.style.borderColor='var(--ink)';}
+  const a=document.getElementById('ctp-'+map[type]);if(a){a.style.background='var(--accent)';a.style.color='var(--paper)';a.style.borderColor='var(--accent)';}
   document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));
   const val=document.getElementById('custom-mood-input')?.value.trim();if(val)selectedMood=val;
 }
@@ -1448,7 +1448,7 @@ function suggestEmotion(text){
   });
   const top=Object.entries(scores).filter(([,s])=>s>0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([e])=>e);
   if(!top.length){el.style.display='none';return;}
-  tagsEl.innerHTML=top.map(e=>`<span onclick="selectMoodByName('${e}')" style="cursor:pointer;padding:2px 8px;border:1px solid var(--rule);border-radius:1px;margin-right:4px;font-size:11px;">${e}</span>`).join('');
+  tagsEl.innerHTML=top.map(e=>`<span onclick="selectMoodByName('${e}')" style="cursor:pointer;padding:2px 8px;border:1.5px solid var(--rule);border-radius:4px;margin-right:4px;font-size:11px;">${e}</span>`).join('');
   el.style.display='block';
 }
 function selectMoodByName(name){
@@ -1592,7 +1592,7 @@ function renderPopupPhotos(photos,id){
   });
   if(currentPopupBlockId){
     const addBtn=document.createElement('button');addBtn.textContent='+';
-    addBtn.style.cssText='aspect-ratio:1;border:1.5px dashed var(--rule);background:transparent;color:var(--ink-muted);font-size:18px;cursor:pointer;border-radius:2px;';
+    addBtn.style.cssText='aspect-ratio:1;border:2px dashed var(--rule);background:transparent;color:var(--ink-muted);font-size:18px;cursor:pointer;border-radius:4px;';
     addBtn.onclick=()=>{
       let fi=document.getElementById('rp-photo-add-input');
       if(!fi){fi=document.createElement('input');fi.type='file';fi.id='rp-photo-add-input';fi.accept='image/*';fi.multiple=true;fi.style.display='none';document.body.appendChild(fi);}
@@ -2373,9 +2373,9 @@ function setTodoEditQuad(q){
   currentEditQuad=q;
   ['today','week','month','someday'].forEach(k=>{
     const b=document.getElementById('tq-'+k);if(!b)return;
-    b.style.background=k===q?'var(--ink)':'transparent';
+    b.style.background=k===q?'var(--accent)':'transparent';
     b.style.color=k===q?'var(--paper)':'var(--ink-muted)';
-    b.style.borderColor=k===q?'var(--ink)':'var(--rule)';
+    b.style.borderColor=k===q?'var(--accent)':'var(--rule)';
   });
 }
 function cancelTodoEdit(){closeTodoDetail();}
@@ -3036,10 +3036,10 @@ function confirmSubIdea(){
     <div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:8px;">IDEA — 분류 선택</div>
     <div style="font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);padding:8px 0;border-bottom:1px solid var(--rule);margin-bottom:14px;max-height:30vh;overflow-y:auto;word-break:break-word;">${text}</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      ${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:var(--font-kr);font-size:12px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}
+      ${['work','life','anything'].map(c=>`<button onclick="document.getElementById('idea-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:2px solid var(--rule);font-family:var(--font-kr);font-size:12px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:4px;">${c}</button>`).join('')}
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:12px;">
-      <button onclick="document.getElementById('idea-overlay').remove()" style="font-family:var(--font-en);font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:1px;">CANCEL</button>
+      <button onclick="document.getElementById('idea-overlay').remove()" style="font-family:var(--font-en);font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:2px solid var(--rule);padding:8px 16px;cursor:pointer;border-radius:4px;">CANCEL</button>
     </div>
   `;
   
@@ -3068,10 +3068,10 @@ function confirmSubBookNew(){closeSubPopup();const text=subDragItem.text;const i
 /* Book */
 let bookData=[],currentBookIdx=-1,selectedSearchBook=null,bookSearchTimer=null;
 function debounceBookSearch(val){clearTimeout(bookSearchTimer);if(!val.trim()){document.getElementById('book-search-results').style.display='none';return;}bookSearchTimer=setTimeout(()=>searchBooks(val),500);}
-async function searchBooks(query){const q=query||document.getElementById('book-search-input').value.trim();if(!q)return;const resultsEl=document.getElementById('book-search-results');resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 중...</div>';resultsEl.style.display='flex';try{const res=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=10&printType=books&langRestrict=ko&key=AIzaSyArr1YU4EBieSgfBdc3pNclfqwJvUpiprw`);const data=await res.json();if(!data.items||!data.items.length){resultsEl.innerHTML=`<div style="font-size:12px;color:var(--ink-muted);padding:8px 0 4px;">검색 결과가 없어요. 직접 입력할 수 있어요.</div><div style="padding:8px;border:1.5px solid var(--rule);border-radius:2px;"><input id="book-manual-title" placeholder="책 제목" style="width:100%;font-size:12px;font-family:var(--font-kr);border:none;border-bottom:1px solid var(--rule);outline:none;padding:4px 0;margin-bottom:6px;background:transparent;color:var(--ink);"><input id="book-manual-author" placeholder="저자" style="width:100%;font-size:12px;font-family:var(--font-kr);border:none;border-bottom:1px solid var(--rule);outline:none;padding:4px 0;background:transparent;color:var(--ink);"><button onclick="selectManualBook()" style="margin-top:8px;width:100%;font-family:var(--font-en);font-size:9px;font-weight:700;padding:8px;background:var(--ink);color:var(--paper);border:none;cursor:pointer;border-radius:1px;">직접 입력으로 추가</button></div>`;return;}resultsEl.innerHTML='';data.items.forEach(item=>{const info=item.volumeInfo;const title=info.title||'';const authors=(info.authors||[]).join(', ');const genre=(info.categories||[])[0]||'';const cover=(info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||'').replace('http://','https://');const el=document.createElement('div');el.className='book-search-item';el.innerHTML=`${cover?`<img class="book-search-cover" src="${cover}" onerror="this.style.display='none'">`:'<div class="book-search-cover"></div>'}<div class="book-search-info"><div class="book-search-title">${title}</div><div class="book-search-author">${authors}</div><div class="book-search-genre">${genre}</div></div>`;el.onclick=()=>{document.querySelectorAll('.book-search-item').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');selectedSearchBook={title,authors,genre:'',cover};document.getElementById('book-genre-input').value='';};resultsEl.appendChild(el);});}catch(e){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 실패.</div>';}}
-function selectManualBook(){const title=document.getElementById('book-manual-title')?.value.trim();const authors=document.getElementById('book-manual-author')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:var(--font-kr);font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
+async function searchBooks(query){const q=query||document.getElementById('book-search-input').value.trim();if(!q)return;const resultsEl=document.getElementById('book-search-results');resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 중...</div>';resultsEl.style.display='flex';try{const res=await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=10&printType=books&langRestrict=ko&key=AIzaSyArr1YU4EBieSgfBdc3pNclfqwJvUpiprw`);const data=await res.json();if(!data.items||!data.items.length){resultsEl.innerHTML=`<div style="font-size:12px;color:var(--ink-muted);padding:8px 0 4px;">검색 결과가 없어요. 직접 입력할 수 있어요.</div><div style="padding:8px;border:2px solid var(--rule);border-radius:4px;"><input id="book-manual-title" placeholder="책 제목" style="width:100%;font-size:12px;font-family:var(--font-kr);border:none;border-bottom:1px solid var(--rule);outline:none;padding:4px 0;margin-bottom:6px;background:transparent;color:var(--ink);"><input id="book-manual-author" placeholder="저자" style="width:100%;font-size:12px;font-family:var(--font-kr);border:none;border-bottom:1px solid var(--rule);outline:none;padding:4px 0;background:transparent;color:var(--ink);"><button onclick="selectManualBook()" style="margin-top:8px;width:100%;font-family:var(--font-en);font-size:9px;font-weight:700;padding:8px;background:var(--accent);color:var(--paper);border:2px solid var(--ink);cursor:pointer;border-radius:4px;box-shadow:3px 3px 0 var(--ink);">직접 입력으로 추가</button></div>`;return;}resultsEl.innerHTML='';data.items.forEach(item=>{const info=item.volumeInfo;const title=info.title||'';const authors=(info.authors||[]).join(', ');const genre=(info.categories||[])[0]||'';const cover=(info.imageLinks?.thumbnail||info.imageLinks?.smallThumbnail||'').replace('http://','https://');const el=document.createElement('div');el.className='book-search-item';el.innerHTML=`${cover?`<img class="book-search-cover" src="${cover}" onerror="this.style.display='none'">`:'<div class="book-search-cover"></div>'}<div class="book-search-info"><div class="book-search-title">${title}</div><div class="book-search-author">${authors}</div><div class="book-search-genre">${genre}</div></div>`;el.onclick=()=>{document.querySelectorAll('.book-search-item').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');selectedSearchBook={title,authors,genre:'',cover};document.getElementById('book-genre-input').value='';};resultsEl.appendChild(el);});}catch(e){resultsEl.innerHTML='<div style="font-size:12px;color:var(--ink-muted);padding:8px 0;">검색 실패.</div>';}}
+function selectManualBook(){const title=document.getElementById('book-manual-title')?.value.trim();const authors=document.getElementById('book-manual-author')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:4px;font-family:var(--font-kr);font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
 function toggleManualBookEntry(){const e=document.getElementById('book-manual-entry');const b=document.getElementById('book-manual-toggle');const shown=e.style.display!=='none';e.style.display=shown?'none':'block';b.textContent=shown?'✏️ 직접 입력하기':'✕ 직접 입력 닫기';}
-function selectManualBookDirect(){const title=document.getElementById('book-manual-title-direct')?.value.trim();const authors=document.getElementById('book-manual-author-direct')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('book-search-results').style.display='flex';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:2px;font-family:var(--font-kr);font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
+function selectManualBookDirect(){const title=document.getElementById('book-manual-title-direct')?.value.trim();const authors=document.getElementById('book-manual-author-direct')?.value.trim();if(!title){showToast('제목을 입력해주세요');return;}selectedSearchBook={title,authors:authors||'',genre:'',cover:''};document.getElementById('book-genre-input').value='';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.getElementById('book-search-results').style.display='flex';document.getElementById('book-search-results').innerHTML=`<div style="padding:8px;background:rgba(0,0,0,0.03);border-radius:4px;font-family:var(--font-kr);font-size:12px;">✓ ${title}${authors?' / '+authors:''}</div>`;showToast('직접 입력 선택됨');}
 function selectBookGenre(btn,genre){document.querySelectorAll('.genre-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');document.getElementById('book-genre-input').value=genre;}
 function openAddBookPopup(){selectedSearchBook=null;document.getElementById('book-search-input').value='';document.getElementById('book-genre-input').value='';document.getElementById('book-search-results').innerHTML='';document.getElementById('book-search-results').style.display='none';document.getElementById('book-manual-entry').style.display='none';document.getElementById('book-manual-toggle').textContent='✏️ 직접 입력하기';document.querySelectorAll('.genre-btn').forEach(b=>b.classList.remove('selected'));document.getElementById('add-book-popup').classList.add('open');setTimeout(()=>document.getElementById('book-search-input').focus(),300);}
 function closeAddBookPopup(){document.getElementById('add-book-popup').classList.remove('open');}
@@ -3128,12 +3128,12 @@ async function confirmBookEdit(){
   showToast('Updated!');
 }
 function confirmBookDelete(){if(!confirm('Delete this book? This cannot be undone.'))return;bookData.splice(bookEditIdx,1);closeBookEditPopup();saveBookToStorage();renderBookList();showToast('Deleted!');}
-function openBookDetail(idx){currentBookIdx=idx;const book=bookData[idx];const notionUrl=book.notionId?'https://notion.so/'+book.notionId.replace(/-/g,''):null;const coverHtml=book.cover?`<a href="${notionUrl||'#'}" target="_blank" style="display:block;flex-shrink:0;cursor:${notionUrl?'pointer':'default'}"><img class="book-detail-cover" src="${book.cover}" style="display:block;"></a>`:`<div class="book-detail-cover" style="display:flex;align-items:center;justify-content:center;font-size:32px;">📖</div>`;const notionBtn=notionUrl?`<a href="${notionUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);border:1px solid var(--rule);padding:5px 10px;text-decoration:none;border-radius:1px;margin-top:10px;">↗ OPEN IN NOTION</a>`:'';document.getElementById('book-detail-header').innerHTML=`${coverHtml}<div class="book-detail-info"><div class="book-detail-title">${book.title}</div><div class="book-detail-author">${book.authors||''}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${book.genre?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1px solid var(--rule);padding:3px 8px;">${book.genre}</span>`:''}${book.startDate?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1px solid var(--rule);padding:3px 8px;">Started ${book.startDate}</span>`:''}${book.lastPage?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink);border:1px solid var(--ink);padding:3px 8px;">p.${book.lastPage}</span>`:''}</div>${notionBtn}</div>`;renderReviews();document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book-detail').classList.add('active');}
+function openBookDetail(idx){currentBookIdx=idx;const book=bookData[idx];const notionUrl=book.notionId?'https://notion.so/'+book.notionId.replace(/-/g,''):null;const coverHtml=book.cover?`<a href="${notionUrl||'#'}" target="_blank" style="display:block;flex-shrink:0;cursor:${notionUrl?'pointer':'default'}"><img class="book-detail-cover" src="${book.cover}" style="display:block;"></a>`:`<div class="book-detail-cover" style="display:flex;align-items:center;justify-content:center;font-size:32px;">📖</div>`;const notionBtn=notionUrl?`<a href="${notionUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);border:1.5px solid var(--rule);padding:5px 10px;text-decoration:none;border-radius:4px;margin-top:10px;">↗ OPEN IN NOTION</a>`:'';document.getElementById('book-detail-header').innerHTML=`${coverHtml}<div class="book-detail-info"><div class="book-detail-title">${book.title}</div><div class="book-detail-author">${book.authors||''}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${book.genre?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1.5px solid var(--rule);padding:3px 8px;border-radius:4px;">${book.genre}</span>`:''}${book.startDate?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1.5px solid var(--rule);padding:3px 8px;border-radius:4px;">Started ${book.startDate}</span>`:''}${book.lastPage?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink);border:1.5px solid var(--ink);padding:3px 8px;border-radius:4px;">p.${book.lastPage}</span>`:''}</div>${notionBtn}</div>`;renderReviews();document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book-detail').classList.add('active');}
 function closeBookDetail(){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book').classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-btn[onclick*="book"]').classList.add('active');}
 
 /* IDEA */
 let ideaData=[];
-const IDEA_SELECT_COLORS={anything:'#5b9bd5',life:'#6fa86f',work:'var(--ink-muted)'};
+const IDEA_SELECT_COLORS={anything:'var(--accent)',life:'var(--accent)',work:'var(--ink-muted)'};
 async function loadIdeaFromNotion(){
   try{
     const res=await fetch(WORKER_URL+'/notion/databases/'+IDEA_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{timestamp:'created_time',direction:'descending'}],page_size:100})});
@@ -3152,7 +3152,7 @@ function renderIdeaList(){
   const list=document.getElementById('idea-list');
   if(!ideaData.length){list.innerHTML='<div class="empty-state">No ideas yet.</div>';return;}
   list.innerHTML=ideaData.map((item,idx)=>{
-    const tag=item.select?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:${IDEA_SELECT_COLORS[item.select]||'var(--ink-muted)'};border:1px solid ${IDEA_SELECT_COLORS[item.select]||'var(--rule)'};padding:2px 7px;border-radius:1px;flex-shrink:0;">${item.select}</span>`:'';
+    const tag=item.select?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:${IDEA_SELECT_COLORS[item.select]||'var(--ink-muted)'};border:1.5px solid ${IDEA_SELECT_COLORS[item.select]||'var(--rule)'};padding:2px 7px;border-radius:4px;flex-shrink:0;">${item.select}</span>`:'';
     return `<div class="idea-item" data-idea-idx="${idx}" style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule);cursor:pointer;">
       <div style="flex:1;">
         <div style="font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);line-height:1.5;">${item.text}</div>
@@ -3179,10 +3179,10 @@ function openAddIdeaPopup(){
   const sheet=document.createElement('div');
   sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border:2.5px solid var(--ink);border-bottom:none;border-radius:4px 4px 0 0;box-shadow:0 -6px 0 var(--ink);padding:20px 20px 36px;';
   sheet.innerHTML=`<div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:10px;">NEW IDEA</div>
-    <textarea id="new-idea-text" rows="3" placeholder="아이디어를 적어주세요..." style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:10px;outline:none;resize:none;box-sizing:border-box;margin-bottom:12px;"></textarea>
+    <textarea id="new-idea-text" rows="3" placeholder="아이디어를 적어주세요..." style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:2px solid var(--rule);border-radius:4px;padding:10px;outline:none;resize:none;box-sizing:border-box;margin-bottom:12px;"></textarea>
     <div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;">CATEGORY</div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">${['anything','life','work'].map(c=>`<button onclick="document.getElementById('idea-add-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:1.5px solid var(--rule);font-family:var(--font-kr);font-size:12px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:2px;">${c}</button>`).join('')}</div>
-    <button onclick="document.getElementById('idea-add-overlay').remove()" style="width:100%;font-family:var(--font-en);font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:1px solid var(--rule);padding:10px;cursor:pointer;border-radius:1px;">CANCEL</button>`;
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">${['anything','life','work'].map(c=>`<button onclick="document.getElementById('idea-add-overlay').dispatchEvent(new CustomEvent('pick',{detail:'${c}'}))" style="padding:11px 14px;border:2px solid var(--rule);font-family:var(--font-kr);font-size:12px;font-weight:400;color:var(--ink);cursor:pointer;background:transparent;text-align:left;border-radius:4px;">${c}</button>`).join('')}</div>
+    <button onclick="document.getElementById('idea-add-overlay').remove()" style="width:100%;font-family:var(--font-en);font-size:10px;font-weight:700;background:transparent;color:var(--ink-muted);border:2px solid var(--rule);padding:10px;cursor:pointer;border-radius:4px;">CANCEL</button>`;
   overlay.id='idea-add-overlay';
   overlay.appendChild(sheet);
   overlay.addEventListener('pick',async(e)=>{
@@ -3206,13 +3206,13 @@ function openIdeaDetail(idx){
   const sheet=document.createElement('div');
   sheet.style.cssText='width:100%;max-width:430px;background:var(--paper);border:2.5px solid var(--ink);border-bottom:none;border-radius:4px 4px 0 0;box-shadow:0 -6px 0 var(--ink);padding:20px 20px 36px;';
   sheet.innerHTML=`<div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--ink-muted);margin-bottom:10px;">IDEA DETAIL</div>
-    <textarea id="idea-edit-text" rows="2" style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:10px;outline:none;resize:none;box-sizing:border-box;margin-bottom:10px;">${item.text}</textarea>
-    <textarea id="idea-edit-memo" rows="3" placeholder="메모..." style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:1.5px solid var(--rule);border-radius:2px;padding:10px;outline:none;resize:none;box-sizing:border-box;margin-bottom:12px;">${item.memo||''}</textarea>
+    <textarea id="idea-edit-text" rows="2" style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:2px solid var(--rule);border-radius:4px;padding:10px;outline:none;resize:none;box-sizing:border-box;margin-bottom:10px;">${item.text}</textarea>
+    <textarea id="idea-edit-memo" rows="3" placeholder="메모..." style="width:100%;font-family:var(--font-kr);font-size:12px;font-weight:300;color:var(--ink);background:transparent;border:2px solid var(--rule);border-radius:4px;padding:10px;outline:none;resize:none;box-sizing:border-box;margin-bottom:12px;">${item.memo||''}</textarea>
     <div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;">CATEGORY</div>
-    <div style="display:flex;gap:6px;margin-bottom:14px;">${['anything','life','work'].map(c=>`<button onclick="document.getElementById('idea-detail-overlay').dispatchEvent(new CustomEvent('cat',{detail:'${c}'}))" style="flex:1;padding:8px 4px;border:1.5px solid ${c===item.select?'var(--ink)':'var(--rule)'};font-family:var(--font-kr);font-size:12px;font-weight:${c===item.select?'600':'300'};color:var(--ink);cursor:pointer;background:${c===item.select?'var(--ink)':'transparent'};color:${c===item.select?'var(--paper)':'var(--ink)'};border-radius:2px;">${c}</button>`).join('')}</div>
+    <div style="display:flex;gap:6px;margin-bottom:14px;">${['anything','life','work'].map(c=>`<button onclick="document.getElementById('idea-detail-overlay').dispatchEvent(new CustomEvent('cat',{detail:'${c}'}))" style="flex:1;padding:8px 4px;border:2px solid ${c===item.select?'var(--accent)':'var(--rule)'};font-family:var(--font-kr);font-size:12px;font-weight:${c===item.select?'600':'300'};cursor:pointer;background:${c===item.select?'var(--accent)':'transparent'};color:${c===item.select?'var(--paper)':'var(--ink)'};border-radius:4px;">${c}</button>`).join('')}</div>
     <div style="display:flex;gap:8px;">
-      <button onclick="document.getElementById('idea-detail-overlay').dispatchEvent(new CustomEvent('del'))" style="font-family:var(--font-en);font-size:9px;font-weight:700;background:transparent;color:#c0392b;border:1px solid #c0392b;padding:10px 14px;cursor:pointer;border-radius:1px;">DELETE</button>
-      <button id="idea-detail-save" style="flex:1;font-family:var(--font-en);font-size:9px;font-weight:700;background:var(--ink);color:var(--paper);border:none;padding:10px;cursor:pointer;border-radius:1px;">SAVE</button>
+      <button onclick="document.getElementById('idea-detail-overlay').dispatchEvent(new CustomEvent('del'))" style="font-family:var(--font-en);font-size:9px;font-weight:700;background:transparent;color:#c0392b;border:2px solid #c0392b;padding:10px 14px;cursor:pointer;border-radius:4px;">DELETE</button>
+      <button id="idea-detail-save" style="flex:1;font-family:var(--font-en);font-size:9px;font-weight:700;background:var(--accent);color:var(--paper);border:2px solid var(--ink);padding:10px;cursor:pointer;border-radius:4px;box-shadow:4px 4px 0 var(--ink);">SAVE</button>
     </div>`;
   let currentCat=item.select||'anything';
   overlay.id='idea-detail-overlay';
@@ -3221,7 +3221,7 @@ function openIdeaDetail(idx){
     currentCat=e.detail;
     sheet.querySelectorAll('button').forEach(b=>{
       const c=b.textContent;if(!['anything','life','work'].includes(c))return;
-      const sel=(c===currentCat);b.style.border=`1.5px solid ${sel?'var(--ink)':'var(--rule)'}`;b.style.fontWeight=sel?'600':'300';b.style.background=sel?'var(--ink)':'transparent';b.style.color=sel?'var(--paper)':'var(--ink)';
+      const sel=(c===currentCat);b.style.border=`2px solid ${sel?'var(--accent)':'var(--rule)'}`;b.style.fontWeight=sel?'600':'300';b.style.background=sel?'var(--accent)':'transparent';b.style.color=sel?'var(--paper)':'var(--ink)';
     });
   });
   overlay.addEventListener('del',async()=>{
@@ -3359,7 +3359,7 @@ async function loadInbox(){
     const bubble=document.createElement('div');bubble.className='inbox-bubble';
     bubble.innerHTML=`<div class="inbox-bubble-briefing">${htmlParts.join('<br>')}</div>`;
     const speakBtn=document.createElement('button');
-    speakBtn.style.cssText='font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:1px;margin-top:8px;display:block;';
+    speakBtn.style.cssText='font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.08em;color:rgba(255,255,255,0.5);background:transparent;border:1.5px solid rgba(255,255,255,0.2);padding:4px 10px;cursor:pointer;border-radius:4px;margin-top:8px;display:block;';
     speakBtn.textContent='🔊 READ';
     const _text=textParts.filter(line=>!/^https?:\/\//.test(line.trim())).join('\n').replace(/\(https?:\/\/[^\s)]+\)/g,'').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu,'').replace(/[ \t]+/g,' ').replace(/^\s+/gm,'');
     speakBtn.onclick=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();speakBtn.textContent='🔊 READ';return;}const utt=new SpeechSynthesisUtterance(_text);utt.lang='ko-KR';utt.rate=0.95;const _voice=getSelectedVoice();if(_voice)utt.voice=_voice;utt.onend=()=>speakBtn.textContent='🔊 READ';speakBtn.textContent='■ STOP';speechSynthesis.speak(utt);};
