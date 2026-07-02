@@ -42,6 +42,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 #setup-screen { position: fixed; inset: 0; background: var(--paper); z-index: 200; display: flex; flex-direction: column; padding: 60px var(--pad-h) 40px; overflow-y: auto; max-width: var(--content-width); margin: 0 auto; left: 50%; transform: translateX(-50%); width: 100%; }
 #setup-screen.hidden { display: none; }
 .setup-title { font-family: var(--font-en); font-weight: 900; font-size: 40px; line-height: 0.95; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 8px; }
+.setup-title.onboarding-pop { animation: onboarding-pop 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes onboarding-pop {
+  0% { transform: scale(0); }
+  45% { transform: scale(1.15); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
 .setup-sub { font-size: 12px; font-weight: 300; color: var(--ink-muted); margin-bottom: 40px; line-height: 1.6; }
 .setup-section { margin-bottom: 28px; }
 .setup-label { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.15em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 8px; }
@@ -558,7 +565,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div class="loading-overlay hidden" id="loading"><div class="loading-text">SAVING...</div></div>
 
 <div id="setup-screen">
-  <div class="setup-title">ARCHIVE</div>
+  <div class="setup-title" id="setup-title">ARCHIVE</div>
   <div class="setup-sub">Set up once,<br>auto-connects every time.</div>
   <div class="setup-section">
     <div class="setup-label">Password</div>
@@ -3515,7 +3522,13 @@ function init(){
     loadBookFromNotion();
   },30000);
 }
-window.onload=()=>{if(localStorage.getItem('app_authed')==='1'&&localStorage.getItem('notion_token')){document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();}};
+window.onload=()=>{
+  if(localStorage.getItem('app_authed')==='1'&&localStorage.getItem('notion_token')){document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();}
+  else if(!localStorage.getItem('onboarding_seen')){
+    document.getElementById('setup-title').classList.add('onboarding-pop');
+    localStorage.setItem('onboarding_seen','1');
+  }
+};
 
 /* 탭 vs 드래그 구분: 이동 거리 10px 이상이면 lastTouchMoved=true */
 let lastTouchStartX=0,lastTouchStartY=0,lastTouchMoved=false;
