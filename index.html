@@ -552,6 +552,28 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="setup-label">Password</div>
     <input class="setup-input" id="app-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')saveSettings()">
   </div>
+  <div class="setup-section">
+    <div class="setup-label">Theme Color</div>
+    <div style="display:flex;gap:10px;">
+      <div style="flex:1;">
+        <div style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);margin-bottom:4px;">ACCENT</div>
+        <input type="color" id="theme-accent-input" value="#0038ff" oninput="onThemeColorChange()" style="width:100%;height:38px;border:2px solid var(--ink);border-radius:4px;cursor:pointer;padding:2px;">
+      </div>
+      <div style="flex:1;">
+        <div style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);margin-bottom:4px;">BACKGROUND</div>
+        <input type="color" id="theme-paper-input" value="#ffffff" oninput="onThemeColorChange()" style="width:100%;height:38px;border:2px solid var(--ink);border-radius:4px;cursor:pointer;padding:2px;">
+      </div>
+    </div>
+  </div>
+  <div class="setup-section">
+    <div class="setup-label">Font</div>
+    <select id="theme-font-select" onchange="onThemeFontChange()" style="width:100%;font-family:var(--font-kr);font-size:12px;padding:12px 14px;border:1.5px solid var(--rule);background:transparent;color:var(--ink);border-radius:2px;outline:none;">
+      <option value="Archivo">Archivo</option>
+      <option value="Space Grotesk">Space Grotesk</option>
+      <option value="Bricolage Grotesque">Bricolage Grotesque</option>
+      <option value="Unbounded">Unbounded</option>
+    </select>
+  </div>
   <button class="setup-save-btn" onclick="saveSettings()">START →</button>
   <button class="setup-logout-btn" onclick="logout()">LOGOUT</button>
 </div>
@@ -1222,7 +1244,47 @@ async function saveSettings(){
     document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();
   }catch(e){showToast('Connection error: '+e.message);btn.textContent='START →';btn.disabled=false;}
 }
-function openSettings(){document.getElementById('app-password').value='';document.getElementById('setup-screen').classList.remove('hidden');}
+function openSettings(){
+  document.getElementById('app-password').value='';
+  document.getElementById('theme-accent-input').value=localStorage.getItem('theme_accent')||'#0038ff';
+  document.getElementById('theme-paper-input').value=localStorage.getItem('theme_paper')||'#ffffff';
+  document.getElementById('theme-font-select').value=localStorage.getItem('theme_font')||'Archivo';
+  document.getElementById('setup-screen').classList.remove('hidden');
+}
+
+/* Theme */
+const THEME_FONT_URLS={
+  'Archivo':'https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&display=swap',
+  'Space Grotesk':'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap',
+  'Bricolage Grotesque':'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;900&display=swap',
+  'Unbounded':'https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&display=swap'
+};
+function applyThemeColors(accent,paper){
+  document.documentElement.style.setProperty('--accent',accent);
+  document.documentElement.style.setProperty('--paper',paper);
+  const hex=paper.replace('#','');
+  const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
+  const luminance=0.299*r+0.587*g+0.114*b;
+  document.documentElement.style.setProperty('--ink',luminance<128?'#ffffff':'#111111');
+}
+function applyThemeFont(name){
+  const url=THEME_FONT_URLS[name]||THEME_FONT_URLS['Archivo'];
+  const link=document.getElementById('dynamic-font-link');
+  if(link)link.href=url;
+  document.documentElement.style.setProperty('--font-en',`'${name}', sans-serif`);
+}
+function onThemeColorChange(){
+  const accent=document.getElementById('theme-accent-input').value;
+  const paper=document.getElementById('theme-paper-input').value;
+  applyThemeColors(accent,paper);
+  localStorage.setItem('theme_accent',accent);
+  localStorage.setItem('theme_paper',paper);
+}
+function onThemeFontChange(){
+  const name=document.getElementById('theme-font-select').value;
+  applyThemeFont(name);
+  localStorage.setItem('theme_font',name);
+}
 
 /* Mood */
 let selectedMood='',selectedMoodType='';
@@ -3363,6 +3425,8 @@ async function registerSW(){if(!('serviceWorker' in navigator))return;try{await 
 
 /* Init */
 function init(){
+  applyThemeColors(localStorage.getItem('theme_accent')||'#0038ff',localStorage.getItem('theme_paper')||'#ffffff');
+  applyThemeFont(localStorage.getItem('theme_font')||'Archivo');
   document.getElementById('current-date').textContent=formatDateDisplay(getDiaryDate());
   initQuadDates();
   document.getElementById('td-edit-date-picker').addEventListener('change',e=>{
