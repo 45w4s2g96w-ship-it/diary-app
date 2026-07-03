@@ -13,6 +13,7 @@
 <link id="dynamic-font-link" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <link id="dynamic-font-kr-link" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   @font-face {
     font-family: 'NanumSquareNeo';
@@ -170,6 +171,33 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .record-text { font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; line-height: 1.55; color: var(--ink); }
 .record-hidden-placeholder { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--rule); display: block; padding: 3px 0; }
 .record-photos { display: grid; gap: 3px; margin-top: 5px; }
+
+/* LOG tab redesign — 상단바/하단바(section-header, tab-bar)는 다른 탭과 동일한 토큰 유지,
+   본문(emotion-section 이하)만 아래 팔레트로 재구성 */
+#record-log-pane { background: #F5F4F0; }
+#tab-record .emotion-section { padding: 14px var(--pad-h) 10px; border-bottom: none; }
+#tab-record .emotion-optional-label { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: #8A8578; }
+#tab-record .emotion-row-label { font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; color: #8A8578; }
+#tab-record .tag { border-color: #14110F; color: #14110F; background: #F5F4F0; }
+#tab-record .tag.selected { background: #1E5BE6; border-color: #1E5BE6; color: #F5F4F0; }
+#tab-record .input-section { margin: 10px var(--pad-h) 12px; background: #ffffff; border: 2.5px solid #14110F; border-radius: 20px; padding: 18px; box-shadow: 5px 5px 0 #14110F; }
+#tab-record .text-input { min-height: 300px; color: #14110F; }
+#tab-record .text-input::placeholder { color: #8A8578; }
+#tab-record .attach-btn { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #8A8578; border: 2px solid #EDEAE2; border-radius: 12px; padding: 8px 14px; transition: transform 0.1s; }
+#tab-record .attach-btn:active { transform: translate(1px,1px); }
+.log-visibility-toggle { display: flex; border: 2px solid #14110F; border-radius: 12px; overflow: hidden; }
+.log-visibility-toggle .lv-opt { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 8px 10px; border: none; background: #F5F4F0; color: #8A8578; cursor: pointer; }
+.log-visibility-toggle .lv-opt.active { background: #14110F; color: #F5F4F0; }
+#tab-record .submit-btn { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; border-radius: 12px; border: 2px solid #14110F; box-shadow: 4px 4px 0 #14110F; transition: all 0.1s; }
+#tab-record #save-btn { background: #1E5BE6; color: #ffffff; }
+#tab-record #save-btn:active { transform: translate(1px,1px); box-shadow: 2px 2px 0 #14110F; }
+.log-caption { font-family: 'Space Mono', monospace; font-size: 9.5px; font-weight: 400; color: #8A8578; padding: 0 var(--pad-h) 12px; letter-spacing: 0.02em; }
+#tab-record .record-list { padding: 0 var(--pad-h) 20px; }
+#tab-record .record-item { border-bottom: 1px solid #EDEAE2; }
+#tab-record .record-time { color: #1E5BE6; }
+#tab-record .record-tag { color: #1E5BE6; border-color: #1E5BE6; }
+#tab-record .record-text { color: #14110F; }
+#tab-record .empty-state { color: #8A8578; font-family: var(--font-kr); }
 .record-photo { width: 100%; height: auto; object-fit: contain; border-radius: 2px; }
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
@@ -672,11 +700,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content" id="tab-record">
     <div class="section-header">
       <div class="section-title" id="current-date"></div>
-      <div style="display:flex;align-items:center;gap:0;">
-        <button id="toggle-log" onclick="switchRecordPane('log')" class="todo-nav-btn" style="color:var(--ink);font-size:13px;">LOG</button>
-        <div class="todo-nav-divider" style="height:13px;margin:0 8px;"></div>
-        <button id="toggle-routine" onclick="switchRecordPane('routine')" class="todo-nav-btn" style="color:var(--ink-muted);font-size:13px;">ROUTINE</button>
-      </div>
     </div>
 
     <div id="record-log-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
@@ -685,26 +708,30 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="emotion-row"><div class="emotion-row-label">Pos.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">평온함</span><span class="tag" onclick="selectMood(this)">뿌듯함</span><span class="tag" onclick="selectMood(this)">감사함</span><span class="tag" onclick="selectMood(this)">행복함</span><span class="tag" onclick="selectMood(this)">설렘</span></div></div>
       <div class="emotion-row" style="margin-top:4px;"><div class="emotion-row-label">Neg.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">불안</span><span class="tag" onclick="selectMood(this)">무기력</span><span class="tag" onclick="selectMood(this)">답답함</span><span class="tag" onclick="selectMood(this)">외로움</span><span class="tag" onclick="selectMood(this)">피곤함</span></div></div>
       <div class="emotion-row" style="margin-top:4px;"><div class="emotion-row-label">Etc.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">멍함</span><span class="tag" onclick="selectMood(this)">복잡함</span><span class="tag" onclick="selectMood(this)">모르겠음</span></div></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid var(--rule);">
-        <input id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off" style="flex:1;font-family:var(--font-kr);font-size:12px;padding:3px 8px;border:2px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink);outline:none;">
-        <button id="ctp-pos" onclick="selectCustomType('positive')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:2px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink-muted);cursor:pointer;">POS</button>
-        <button id="ctp-neg" onclick="selectCustomType('negative')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:2px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink-muted);cursor:pointer;">NEG</button>
-        <button id="ctp-etc" onclick="selectCustomType('etc')" style="font-family:var(--font-en);font-size:8px;font-weight:700;padding:3px 7px;border:2px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink-muted);cursor:pointer;">ETC</button>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid #EDEAE2;">
+        <input id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off" style="flex:1;font-family:var(--font-kr);font-size:12px;padding:3px 8px;border:2px solid #EDEAE2;border-radius:8px;background:transparent;color:#14110F;outline:none;">
+        <button id="ctp-pos" onclick="selectCustomType('positive')" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:3px 7px;border:2px solid #EDEAE2;border-radius:8px;background:transparent;color:#8A8578;cursor:pointer;">POS</button>
+        <button id="ctp-neg" onclick="selectCustomType('negative')" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:3px 7px;border:2px solid #EDEAE2;border-radius:8px;background:transparent;color:#8A8578;cursor:pointer;">NEG</button>
+        <button id="ctp-etc" onclick="selectCustomType('etc')" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:3px 7px;border:2px solid #EDEAE2;border-radius:8px;background:transparent;color:#8A8578;cursor:pointer;">ETC</button>
       </div>
     </div>
     <div class="input-section">
       <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this);suggestEmotion(this.value)"></textarea>
-      <div id="emotion-suggest" style="display:none;font-family:var(--font-kr);font-size:11px;color:var(--ink-muted);margin-bottom:4px;">추천: <span id="emotion-suggest-tags"></span></div>
+      <div id="emotion-suggest" style="display:none;font-family:var(--font-kr);font-size:11px;color:#8A8578;margin-bottom:4px;">추천: <span id="emotion-suggest-tags"></span></div>
       <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
       <div class="input-actions">
-        <button class="attach-btn" onclick="document.getElementById('photo-input').click()">+ PHOTO</button>
-        <div style="display:flex;gap:6px;">
-          <button class="submit-btn" id="save-hidden-btn" onclick="saveRecord(true)" style="background:transparent;color:var(--ink-muted);border:1px solid var(--rule);">HIDDEN</button>
-          <button class="submit-btn" id="save-btn" onclick="saveRecord()">SAVE</button>
+        <button class="attach-btn" onclick="document.getElementById('photo-input').click()">＋ PHOTO</button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="log-visibility-toggle" id="log-visibility-toggle">
+            <button type="button" class="lv-opt active" data-v="public" onclick="setLogVisibility('public')">PUBLIC</button>
+            <button type="button" class="lv-opt" data-v="hidden" onclick="setLogVisibility('hidden')">HIDDEN</button>
+          </div>
+          <button class="submit-btn" id="save-btn" onclick="saveRecord(currentLogHidden)">SAVE</button>
         </div>
       </div>
       <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
     </div>
+    <div class="log-caption">◆ Notion에 자동 동기화됩니다</div>
     <div class="record-list" id="record-list"><div class="empty-state">Write your first log today.</div></div>
     </div>
 
@@ -1419,6 +1446,11 @@ function initSettingTab(){
 
 /* Mood */
 let selectedMood='',selectedMoodType='';
+let currentLogHidden=false;
+function setLogVisibility(v){
+  currentLogHidden=v==='hidden';
+  document.querySelectorAll('#log-visibility-toggle .lv-opt').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
+}
 function selectMood(el){
   document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));
   el.classList.add('selected');selectedMood=el.textContent;selectedMoodType='';
@@ -1602,7 +1634,7 @@ async function saveRecord(asHidden=false){
     if(uploadFailed)showToast('Failed to upload some photos');
     addRecordToUI(timeStr,selectedMood,text,photoUrls,notionUrl,blockId,photoBlockId);
     document.getElementById('memo-input').value='';document.getElementById('memo-input').style.height='';
-    selectedMood='';selectedPhotos=[];document.getElementById('input-photo-preview').innerHTML='';document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));
+    selectedMood='';selectedPhotos=[];document.getElementById('input-photo-preview').innerHTML='';document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));setLogVisibility('public');
     showToast(asHidden?'저장됨 (숨김)':'Saved!');
   }catch(e){if(!isTokenAuthError(e.message))showToast('저장 실패: '+e.message);console.error(e);}
   btn.disabled=false;if(hiddenBtn)hiddenBtn.disabled=false;
