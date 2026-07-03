@@ -126,9 +126,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-day-date { font-family: var(--font-en); font-size: 13px; font-weight: 700; color: var(--ink); margin-top: 1px; }
 .week-row.today .week-day-name { color: var(--accent); }
 .week-items { flex: 1; padding: 7px 0 7px 12px; display: flex; flex-direction: column; align-content: flex-start; gap: 4px; }
-.week-items.two-col { flex-direction: row; flex-wrap: wrap; }
 .week-item { display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%; min-width: 0; user-select: none; -webkit-user-select: none; }
-.week-items.two-col .week-item { width: calc(50% - 2px); }
 .week-check { width: 14px; height: 14px; border: 1.5px solid #d8d8d8; border-radius: 4px; flex-shrink: 0; transition: background 0.12s; display: flex; align-items: center; justify-content: center; }
 .week-check.done { background: var(--accent); border-color: var(--accent); }
 .week-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
@@ -2024,8 +2022,7 @@ function renderWeeklyView(){
     requestAnimationFrame(()=>applyPCWeekOverflow());
   } else {
     function buildRowHtml(items,labelHtml,rowClass,dayStr){
-      const useTwoCol=items.filter(x=>!x.item.done).length>3;
-      let h=`<div class="week-row${rowClass}" data-date="${dayStr||''}"><div class="week-day-label" onclick="openTodoPopupWeek('${dayStr||''}')" ontouchend="event.stopPropagation();if(!weekDragging&&!lastTouchMoved){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}" onclick="if(!event.target.closest('.week-item'))openTodoPopupWeek('${dayStr||''}')" ontouchend="if(!weekDragging&&!lastTouchMoved&&!event.target.closest('.week-item')){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">`;
+      let h=`<div class="week-row${rowClass}" data-date="${dayStr||''}"><div class="week-day-label" onclick="openTodoPopupWeek('${dayStr||''}')" ontouchend="event.stopPropagation();if(!weekDragging&&!lastTouchMoved){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">${labelHtml}</div><div class="week-items" onclick="if(!event.target.closest('.week-item'))openTodoPopupWeek('${dayStr||''}')" ontouchend="if(!weekDragging&&!lastTouchMoved&&!event.target.closest('.week-item')){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">`;
       items.forEach(({item,q,i})=>{
         const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
         h+=`<div class="week-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
