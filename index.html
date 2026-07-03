@@ -561,7 +561,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .home-section { margin-top: 20px; }
 .home-section-label { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 10px; }
 .home-goal-grid { display: flex; flex-direction: column; gap: 8px; }
-.home-goal-card { display: flex; align-items: center; gap: 8px; padding: 12px 14px; }
+.home-goal-card { display: flex; align-items: center; gap: 8px; padding: 12px 14px; cursor: pointer; }
 .home-goal-card-text { flex: 1; font-family: var(--font-kr); font-size: 13px; font-weight: 500; color: var(--ink); }
 .home-goal-card-text.done { text-decoration: line-through; color: var(--ink-muted); }
 .home-goal-empty { display: flex; align-items: center; padding: 12px 14px; border: 2px dashed var(--rule); border-radius: 4px; }
@@ -1192,7 +1192,7 @@ function getStarredTodos(){
 function refreshHomeGoal(){renderHomeGoalRing();renderHomeGoalGrid();}
 function renderHomeGoalRing(){
   const starred=getStarredTodos();
-  const n=starred.length;
+  const n=starred.filter(({item})=>item.done).length;
   const label=document.getElementById('home-goal-ring-label');
   if(label)label.textContent=n+'/3';
   const fg=document.getElementById('home-goal-ring-fg');
@@ -1208,7 +1208,7 @@ function renderHomeGoalGrid(){
   const starred=getStarredTodos();
   let html='';
   starred.forEach(({item,q,i})=>{
-    html+=`<div class="home-goal-card nb-card"><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event);refreshHomeGoal();"></div><div class="home-goal-card-text${item.done?' done':''}">${item.text}</div><span class="todo-star starred" onclick="toggleStar('${q}',${i},event);refreshHomeGoal();">⭐</span></div>`;
+    html+=`<div class="home-goal-card nb-card" onclick="openTodoDetail('${q}',${i})"><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event);refreshHomeGoal();"></div><div class="home-goal-card-text${item.done?' done':''}">${item.text}</div><span class="todo-star starred" onclick="toggleStar('${q}',${i},event);refreshHomeGoal();">⭐</span></div>`;
   });
   for(let s=starred.length;s<3;s++){
     html+=`<div class="home-goal-empty"><input class="home-goal-empty-input" placeholder="+ 목표 입력" onkeydown="if(event.key==='Enter')addHomeGoal(this)"></div>`;
@@ -2296,7 +2296,7 @@ function renderGoalBar(){
   for(let s=0;s<3;s++){
     if(starred[s]){
       const {item,q,i}=starred[s];
-      html+=`<div class="goal-slot filled"><span class="goal-star">★</span><span class="goal-slot-text">${item.text}</span><span class="goal-slot-remove" onclick="toggleStar('${q}',${i},event)">✕</span></div>`;
+      html+=`<div class="goal-slot filled" onclick="openTodoDetail('${q}',${i})" style="cursor:pointer;"><span class="goal-star">★</span><span class="goal-slot-text">${item.text}</span><span class="goal-slot-remove" onclick="toggleStar('${q}',${i},event)">✕</span></div>`;
     }else{
       html+=`<div class="goal-slot empty"><span class="plus">+</span>목록에서 ⭐ 눌러 추가</div>`;
     }
