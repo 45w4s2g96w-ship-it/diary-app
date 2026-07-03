@@ -1496,6 +1496,18 @@ function renderInputPhotoPreview(){
 
 /* Notion helpers */
 function notionHeaders(){return{'Content-Type':'application/json','X-Notion-Token':localStorage.getItem('notion_token')||''};}
+let _reloginPromptShown=false;
+function isTokenAuthError(msg){
+  if(!msg)return false;
+  const m=String(msg).toLowerCase();
+  return m.includes('token is invalid')||m.includes('token_invalid')||m.includes('unauthorized')||m.includes('401');
+}
+function handleNotionAuthError(){
+  if(_reloginPromptShown)return;
+  _reloginPromptShown=true;
+  showToast('로그인이 만료됐어요. 다시 로그인해주세요.');
+  setTimeout(()=>{localStorage.clear();location.reload();},1600);
+}
 
 /* Notion page */
 let cachedPageId=null,cachedPageDate=null;
@@ -1516,7 +1528,10 @@ async function getTodayPageId(){
   const title=`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
   const cr=await fetch(`${WORKER_URL}/notion/pages`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:title}}]},'날짜':{date:{start:dateStr}}},children:[{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'✏️ 틈틈이 기록'}}]}},{object:'block',type:'divider',divider:{}},{object:'block',type:'heading_3',heading_3:{rich_text:[{text:{content:'🌿 감사 일기'}}]}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘 감사한 일'}}],icon:{emoji:'🍀'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'오늘의 칭찬'}}],icon:{emoji:'😊'}}},{object:'block',type:'callout',callout:{rich_text:[{text:{content:'내일 해야 할 일'}}],icon:{emoji:'✅'}}}]})});
   const cd=await cr.json();
-  if(!cr.ok||!cd.id)throw new Error('오늘 페이지 생성 실패: '+(cd.message||cr.status));
+  if(!cr.ok||!cd.id){
+    if(isTokenAuthError(cd.message))handleNotionAuthError();
+    throw new Error('오늘 페이지 생성 실패: '+(cd.message||cr.status));
+  }
   cachedPageId=cd.id;cachedPageDate=dateStr;return cachedPageId;
 }
 
@@ -1577,7 +1592,10 @@ async function saveRecord(asHidden=false){
     if(photoUrls.length>0)children.push({object:'block',type:'column_list',column_list:{children:photoUrls.map(u=>({object:'block',type:'column',column:{children:[{object:'block',type:'image',image:{type:'external',external:{url:u}}}]}}))}});
     const ar=await fetch('/api/insert-record',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({notionToken:localStorage.getItem('notion_token')||'',pageId,children})});
     const ad=await ar.json();
-    if(!ar.ok||!ad.results||!ad.results[0])throw new Error('Notion 저장 실패: '+(ad.message||ar.status));
+    if(!ar.ok||!ad.results||!ad.results[0]){
+      if(isTokenAuthError(ad.message))handleNotionAuthError();
+      throw new Error('Notion 저장 실패: '+(ad.message||ar.status));
+    }
     const blockId=ad.results[0].id;
     const photoBlockId=(photoUrls.length>0&&ad.results[1])?ad.results[1].id:null;
     if(asHidden){const h=getHiddenRecords();h.add(blockId);saveHiddenRecords(h);}
@@ -1586,7 +1604,7 @@ async function saveRecord(asHidden=false){
     document.getElementById('memo-input').value='';document.getElementById('memo-input').style.height='';
     selectedMood='';selectedPhotos=[];document.getElementById('input-photo-preview').innerHTML='';document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));
     showToast(asHidden?'저장됨 (숨김)':'Saved!');
-  }catch(e){showToast('저장 실패: '+e.message);console.error(e);}
+  }catch(e){if(!isTokenAuthError(e.message))showToast('저장 실패: '+e.message);console.error(e);}
   btn.disabled=false;if(hiddenBtn)hiddenBtn.disabled=false;
   document.getElementById('loading').classList.add('hidden');
 }
