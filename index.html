@@ -22,7 +22,7 @@
   .rp-photo-add-full { width:100%; padding:14px; border:2px dashed var(--rule); background:transparent; color:var(--ink-muted); font-family:var(--font-en); font-size:10px; font-weight:700; letter-spacing:0.08em; cursor:pointer; border-radius:4px; }
 
 :root {
-  --paper: #ffffff; --ink: #111111; --ink-soft: #444; --ink-muted: #888;
+  --paper: #ffffff; --ink: #111111; --ink-rgb: 17,17,17; --ink-soft: #444; --ink-muted: #888;
   --rule: #c8c4bc; --pad-h: 22px;
   --accent: #0038ff; --accent-yellow: #fff200;
   --font-en: 'Archivo', sans-serif; --font-kr: 'Pretendard', sans-serif;
@@ -392,7 +392,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .dd-chip { font-family: var(--font-en); font-size: 10px; font-weight: 700; color: var(--ink); background: rgba(255,255,255,0.6); border: 1.5px solid var(--ink); padding: 3px 9px; border-radius: 4px; }
 .dd-analysis-block { font-family: var(--font-kr); font-size: 12px; font-weight: 400; line-height: 1.6; color: var(--ink); margin-bottom: 8px; }
 .dd-analysis-block:last-child { margin-bottom: 0; }
-.dd-analysis-block b { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-soft); display: block; margin-bottom: 3px; text-transform: uppercase; }
+.dd-analysis-block b { font-family: var(--font-en); font-size: 9px; font-weight: 900; letter-spacing: 0.08em; color: var(--ink); display: block; margin-bottom: 3px; text-transform: uppercase; }
 .dd-body { font-family: var(--font-kr); font-size: 12px; font-weight: 400; line-height: 1.7; color: var(--ink); }
 .dd-body-heading { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); text-transform: uppercase; margin: 16px 0 6px; }
 .dd-body-heading:first-child { margin-top: 0; }
@@ -1337,7 +1337,9 @@ function applyThemeColors(accent,paper){
   const hex=paper.replace('#','');
   const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
   const luminance=0.299*r+0.587*g+0.114*b;
-  document.documentElement.style.setProperty('--ink',luminance<128?'#ffffff':'#111111');
+  const dark=luminance<128;
+  document.documentElement.style.setProperty('--ink',dark?'#ffffff':'#111111');
+  document.documentElement.style.setProperty('--ink-rgb',dark?'255,255,255':'17,17,17');
 }
 function applyThemeFont(name){
   const url=THEME_FONT_URLS[name]||THEME_FONT_URLS['Archivo'];
@@ -1972,7 +1974,7 @@ function renderWeeklyView(){
         </div>
         <div class="week-col-items" id="wci-${dayStr}" onclick="if(!event.target.closest('.week-col-item'))openTodoPopupWeek('')" style="cursor:pointer;">`;
       items.forEach(({item,q,i})=>{
-        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
+        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
         html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
           <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
           <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
@@ -1990,7 +1992,7 @@ function renderWeeklyView(){
       const useTwoCol=items.filter(x=>!x.item.done).length>3;
       let h=`<div class="week-row${rowClass}" data-date="${dayStr||''}"><div class="week-day-label" onclick="openTodoPopupWeek('${dayStr||''}')" ontouchend="event.stopPropagation();if(!weekDragging&&!lastTouchMoved){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">${labelHtml}</div><div class="week-items${useTwoCol?' two-col':''}" onclick="if(!event.target.closest('.week-item'))openTodoPopupWeek('')" ontouchend="if(!weekDragging&&!lastTouchMoved&&!event.target.closest('.week-item')){event.preventDefault();openTodoPopupWeek('')}" style="cursor:pointer;">`;
       items.forEach(({item,q,i})=>{
-        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
+        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
         h+=`<div class="week-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
           <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
           <div class="week-item-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
@@ -2294,7 +2296,7 @@ function renderQuad(q){
   visible.forEach(item=>{
     const i=todoData[q].indexOf(item);
     const od=item.dueDate&&!item.done&&new Date(item.dueDate)<now;
-    const timeLabel=item.time?`<span style="font-family:var(--font-kr);font-size:9px;font-weight:300;color:rgba(17,17,17,0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
+    const timeLabel=item.time?`<span style="font-family:var(--font-kr);font-size:9px;font-weight:300;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
     const div=document.createElement('div');div.className='quad-item';div.dataset.q=q;div.dataset.i=i;div.dataset.type='parent';
     div.innerHTML=`<span class="todo-handle">⋮⋮</span><div class="quad-text${item.done?' done':''}">${item.text}${timeLabel}${od?'<span class="quad-overdue"> Overdue</span>':''}</div><span class="todo-star${item.starred?' starred':''}" onclick="toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div>`;
     const pChk=div.querySelector('.quad-check');
@@ -2897,7 +2899,7 @@ document.addEventListener('touchmove',e=>{
       const r=el.getBoundingClientRect();
       const over=t.clientX>=r.left&&t.clientX<=r.right&&t.clientY>=r.top&&t.clientY<=r.bottom;
       el.style.outline=over?'2px solid var(--ink)':'none';
-      el.style.background=over?'rgba(17,17,17,0.07)':'';
+      el.style.background=over?'rgba(var(--ink-rgb),0.07)':'';
     });
   }
 },{passive:false});
@@ -2991,7 +2993,7 @@ document.addEventListener('mousemove',e=>{
       const r=el.getBoundingClientRect();
       const over=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
       el.style.outline=over?'2px solid var(--ink)':'none';
-      el.style.background=over?'rgba(17,17,17,0.07)':'';
+      el.style.background=over?'rgba(var(--ink-rgb),0.07)':'';
     });
   }
 });
