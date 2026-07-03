@@ -703,21 +703,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </div>
 
     <div id="record-log-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
-    <div class="emotion-section">
-      <div class="emotion-optional-label">감정 — OPTIONAL</div>
-      <div class="emotion-row"><div class="emotion-row-label">Pos.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">평온함</span><span class="tag" onclick="selectMood(this)">뿌듯함</span><span class="tag" onclick="selectMood(this)">감사함</span><span class="tag" onclick="selectMood(this)">행복함</span><span class="tag" onclick="selectMood(this)">설렘</span></div></div>
-      <div class="emotion-row" style="margin-top:4px;"><div class="emotion-row-label">Neg.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">불안</span><span class="tag" onclick="selectMood(this)">무기력</span><span class="tag" onclick="selectMood(this)">답답함</span><span class="tag" onclick="selectMood(this)">외로움</span><span class="tag" onclick="selectMood(this)">피곤함</span></div></div>
-      <div class="emotion-row" style="margin-top:4px;"><div class="emotion-row-label">Etc.</div><div class="emotion-tags"><span class="tag" onclick="selectMood(this)">멍함</span><span class="tag" onclick="selectMood(this)">복잡함</span><span class="tag" onclick="selectMood(this)">모르겠음</span></div></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-top:7px;padding-top:7px;border-top:1px solid #EDEAE2;">
-        <input id="custom-mood-input" placeholder="직접 입력..." oninput="handleCustomMood(this)" autocomplete="off" style="flex:1;font-family:var(--font-kr);font-size:12px;padding:3px 8px;border:2px solid #EDEAE2;border-radius:8px;background:transparent;color:#14110F;outline:none;">
-        <button id="ctp-pos" onclick="selectCustomType('positive')" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:3px 7px;border:2px solid #EDEAE2;border-radius:8px;background:transparent;color:#8A8578;cursor:pointer;">POS</button>
-        <button id="ctp-neg" onclick="selectCustomType('negative')" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:3px 7px;border:2px solid #EDEAE2;border-radius:8px;background:transparent;color:#8A8578;cursor:pointer;">NEG</button>
-        <button id="ctp-etc" onclick="selectCustomType('etc')" style="font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:3px 7px;border:2px solid #EDEAE2;border-radius:8px;background:transparent;color:#8A8578;cursor:pointer;">ETC</button>
-      </div>
-    </div>
     <div class="input-section">
-      <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this);suggestEmotion(this.value)"></textarea>
-      <div id="emotion-suggest" style="display:none;font-family:var(--font-kr);font-size:11px;color:#8A8578;margin-bottom:4px;">추천: <span id="emotion-suggest-tags"></span></div>
+      <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
       <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
       <div class="input-actions">
         <button class="attach-btn" onclick="document.getElementById('photo-input').click()">＋ PHOTO</button>
