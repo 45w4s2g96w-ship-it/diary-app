@@ -606,7 +606,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .home-grid { display: flex; flex-direction: column; gap: 18px; }
 @media (min-width: 768px) {
   #tab-home { overflow: hidden; }
-  .home-grid { display: grid; grid-template-columns: 1fr 1fr 1.3fr; grid-template-rows: auto 1fr; grid-template-areas: "morning goal record" "memo diary record"; gap: 16px; flex: 1; min-height: 0; }
+  .home-grid { display: grid; grid-template-columns: 1fr 1fr 1.3fr; grid-template-rows: auto 1fr auto; grid-template-areas: "morning goal record" "memo habit record" "diary diary record"; gap: 16px; flex: 1; min-height: 0; }
   .home-card { border: 2px solid var(--ink); border-radius: 4px; background: var(--paper); padding: 16px; box-shadow: 4px 4px 0 var(--ink); overflow-y: auto; scrollbar-width: none; }
   .home-card::-webkit-scrollbar { display: none; }
   .home-card-morning { grid-area: morning; }
@@ -614,7 +614,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .home-card-record { grid-area: record; margin-top: 0; display: flex; flex-direction: column; min-height: 0; }
   .home-card-record .home-scroll-row { flex-direction: column; overflow-x: hidden; overflow-y: auto; flex: 1; min-height: 0; }
   .home-card-record .home-mini-card { width: auto; }
-  .home-card-diary { grid-area: diary; margin-top: 0; }
+  .home-card-habit { grid-area: habit; margin-top: 0; }
+  .home-card-diary { grid-area: diary; margin-top: 0; max-height: 200px; }
   .home-card-memo { grid-area: memo; margin-top: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   .home-card-memo .home-memo-widget { flex: 1; min-height: 0; }
 }
@@ -632,6 +633,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .home-goal-empty { display: flex; align-items: center; padding: 12px 14px; border: 2px dashed var(--rule); border-radius: 4px; }
 .home-goal-empty-input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--font-kr); font-size: 13px; color: var(--ink); }
 .home-goal-empty-input::placeholder { color: var(--ink-muted); }
+.home-habit-list { display: flex; flex-direction: column; gap: 2px; }
 .home-scroll-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .home-scroll-row::-webkit-scrollbar { display: none; }
 .home-mini-card { flex-shrink: 0; width: 150px; padding: 12px 14px; cursor: pointer; }
@@ -739,6 +741,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="home-section home-card home-card-record">
         <div class="home-section-label">RECENT LOG</div>
         <div class="home-scroll-row" id="home-recent-log"></div>
+      </div>
+
+      <div class="home-section home-card home-card-habit">
+        <div class="home-section-label">✅ HABIT</div>
+        <div class="home-habit-list" id="home-habit-list"><div class="empty-state">Loading...</div></div>
       </div>
 
       <div class="home-section home-card home-card-diary">
@@ -1310,11 +1317,73 @@ function renderHomeTab(){
   renderHomeRecentLog();
   renderHomeRecentDiary();
   loadMemos();
+  loadHabits();
+}
+
+/* Home habit widget */
+const HABIT_DB='49151f4140c582439ddd81dd2d2d5670';
+const HABIT_DAILY_DB='77651f4140c58270b7610134b3416308';
+let habitItems=[];
+async function loadHabits(){
+  const list=document.getElementById('home-habit-list');
+  if(!list)return;
+  list.innerHTML='<div class="empty-state">Loading...</div>';
+  try{
+    const todayStr=formatDate(getDiaryDate());
+    const [habitsRes,dailyRes]=await Promise.all([
+      fetch(WORKER_URL+'/notion/databases/'+HABIT_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'진행중인습관',checkbox:{equals:true}}})}),
+      fetch(WORKER_URL+'/notion/databases/'+HABIT_DAILY_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'날짜',date:{equals:todayStr}}})})
+    ]);
+    const habitsData=await habitsRes.json();
+    const dailyData=await dailyRes.json();
+    const checkinByHabitId=new Map();
+    (dailyData.results||[]).forEach(page=>{
+      (page.properties['습관']?.relation||[]).forEach(rel=>checkinByHabitId.set(rel.id,page.id));
+    });
+    habitItems=(habitsData.results||[]).map(page=>({
+      id:page.id,
+      name:(page.properties['습관']?.title||[]).map(t=>t.plain_text||'').join(''),
+      checkinPageId:checkinByHabitId.get(page.id)||null
+    }));
+    renderHabitList();
+  }catch(e){console.error(e);list.innerHTML='<div class="empty-state">불러오기 실패</div>';}
+}
+function renderHabitList(){
+  const list=document.getElementById('home-habit-list');
+  if(!list)return;
+  if(!habitItems.length){list.innerHTML='<div class="empty-state">진행중인 습관이 없어요.</div>';return;}
+  list.innerHTML=habitItems.map((h,i)=>{
+    const done=!!h.checkinPageId;
+    return `<div class="quad-item" style="cursor:pointer;" onclick="toggleHabit(${i})"><div class="quad-check${done?' done':''}"></div><div class="quad-text${done?' done':''}" data-i="${i}"></div></div>`;
+  }).join('');
+  habitItems.forEach((h,i)=>{
+    const el=list.querySelector(`.quad-text[data-i="${i}"]`);
+    if(el)el.textContent=h.name;
+  });
+}
+async function toggleHabit(i){
+  const h=habitItems[i];
+  if(!h)return;
+  const checked=!h.checkinPageId;
+  try{
+    if(checked){
+      const todayStr=formatDate(getDiaryDate());
+      const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:HABIT_DAILY_DB},properties:{'이름':{title:[{text:{content:h.name+' '+todayStr}}]},'날짜':{date:{start:todayStr}},'습관':{relation:[{id:h.id}]}}})});
+      const data=await res.json();
+      if(!res.ok||!data.id)throw new Error(data.message||'저장 실패');
+      h.checkinPageId=data.id;
+    }else{
+      await fetch(WORKER_URL+'/notion/pages/'+h.checkinPageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})});
+      h.checkinPageId=null;
+    }
+    renderHabitList();
+  }catch(e){console.error(e);showToast('습관 저장 실패');}
 }
 
 /* Home memo widget */
 let memoItems=[],memoFilter='ALL',memoClassifyTargetId=null;
-function getMemoDb(){return localStorage.getItem('memo_db')||'';}
+const MEMO_DB_DEFAULT='37751f4140c580e4b680c979ee1d0f2a';
+function getMemoDb(){return localStorage.getItem('memo_db')||MEMO_DB_DEFAULT;}
 async function loadMemos(){
   const area=document.getElementById('memo-chat-area');
   if(!area)return;
@@ -1326,7 +1395,7 @@ async function loadMemos(){
     const data=await res.json();
     memoItems=(data.results||[]).map(page=>({
       id:page.id,
-      text:(page.properties['이름']?.title||[]).map(t=>t.plain_text||'').join(''),
+      text:(page.properties['제목']?.title||[]).map(t=>t.plain_text||'').join(''),
       category:page.properties['분류']?.select?.name||'NOTHING',
       important:!!page.properties['중요']?.checkbox
     }));
@@ -1367,7 +1436,7 @@ async function saveMemo(){
   const btn=document.getElementById('memo-send-btn');
   btn.disabled=true;
   try{
-    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'중요':{checkbox:false}}})});
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'제목':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'중요':{checkbox:false},'생성일시':{date:{start:new Date().toISOString()}}}})});
     const data=await res.json();
     if(!res.ok||!data.id)throw new Error(data.message||'저장 실패');
     memoItems.unshift({id:data.id,text,category:'NOTHING',important:false});
@@ -1399,7 +1468,7 @@ async function classifyMemo(target){
   if(!id||!item)return;
   closeMemoClassifyPopup();
   try{
-    await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'분류':{select:{name:target}}}})});
+    await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'분류':{select:{name:target}},'처리완료':{checkbox:true}}})});
     item.category=target;
     if(target==='TO-DO'){
       await saveTodoToNotion('someday',item.text,null,'','');
@@ -1657,7 +1726,7 @@ function initSettingTab(){
   document.getElementById('theme-paper-hex').textContent=paper.toUpperCase();
   document.getElementById('theme-font-select').value=localStorage.getItem('theme_font')||'Archivo';
   document.getElementById('theme-font-kr-select').value=localStorage.getItem('theme_font_kr')||'Pretendard';
-  document.getElementById('memo-db-input').value=localStorage.getItem('memo_db')||'';
+  document.getElementById('memo-db-input').value=getMemoDb();
 }
 function saveMemoDbId(){
   localStorage.setItem('memo_db',document.getElementById('memo-db-input').value.trim());
@@ -2685,6 +2754,21 @@ function renderGoalBar(){
   bar.innerHTML=html;
 }
 function autoMoveTodos(){const now=new Date();['month','week'].forEach(q=>{const keep=[];todoData[q].forEach(item=>{if(item.done||!item.dueDate){keep.push(item);return;}const days=(item.dueDate-now)/86400000;if(q==='month'&&days<=7){item.movedFrom='month';todoData.week.push(item);}else if(q==='week'&&days<=0){item.movedFrom='week';todoData.today.push(item);}else keep.push(item);});todoData[q]=keep;});}
+function checkGoalAutoReset(){
+  const now=new Date();
+  const todayReset=new Date(now);todayReset.setHours(5,0,0,0);
+  if(now<todayReset)todayReset.setDate(todayReset.getDate()-1);
+  const lastReset=localStorage.getItem('goal_last_reset');
+  if(lastReset&&new Date(lastReset)>=todayReset)return;
+  const starredItems=[];
+  ['today','week','month','someday'].forEach(q=>{todoData[q].forEach(item=>{if(item.starred)starredItems.push(item);});});
+  starredItems.forEach(item=>{
+    item.starred=false;
+    if(item.notionId)fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'🎯Goal':{checkbox:false}}})}).catch(()=>{});
+  });
+  if(starredItems.length)saveTodoToStorage();
+  localStorage.setItem('goal_last_reset',now.toISOString());
+}
 
 /* renderQuad */
 const quadCollapsed={today:{},week:{},month:{},someday:{}};
@@ -4025,7 +4109,7 @@ function init(){
   for(let h=1;h<=12;h++)pHour.innerHTML+=`<option value="${h}">${h}</option>`;
   for(let m=0;m<60;m+=5)pMin.innerHTML+=`<option value="${m}">${String(m).padStart(2,'0')}</option>`;
   loadTodoFromStorage();loadBookFromStorage();loadBrainFromStorage();
-  autoMoveTodos();renderAllQuads();renderBrainList();renderBookList();
+  autoMoveTodos();checkGoalAutoReset();renderAllQuads();renderBrainList();renderBookList();
   const _lastTodoView=localStorage.getItem('last_todo_view')||'week';
   switchTodoView(_lastTodoView);
   const _lastBtn=document.querySelector(`.tab-btn[onclick*="switchTab('home'"]`);
