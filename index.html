@@ -231,30 +231,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .gratitude-input::placeholder { color: #8A8578; }
 
 /* Quadrant */
-.quad-grid { flex: 1; overflow: hidden; margin: 0 var(--pad-h) var(--pad-h); border: 2.5px solid var(--ink); border-radius: 4px; box-shadow: 6px 6px 0 var(--ink); display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: auto 1fr 1fr; grid-template-areas: "goal goal" "today week" "month someday"; }
-#goal-bar.quad-cell-goal { grid-area: goal; border-bottom: 1.5px solid var(--ink); }
-.quad-cell-today { grid-area: today; border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
-.quad-cell-week { grid-area: week; border-bottom: 1.5px solid var(--ink); }
-.quad-cell-month { grid-area: month; border-right: 1.5px solid var(--ink); }
-.quad-cell-someday { grid-area: someday; }
-@media (min-width: 768px) {
-  .quad-grid { grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; grid-template-areas: "goal today week month" "someday someday someday someday"; }
-  #goal-bar.quad-cell-goal { border-bottom: none; border-right: 1.5px solid var(--ink); }
-  .quad-cell-today { border-bottom: none; border-right: 1.5px solid var(--ink); }
-  .quad-cell-week { border-bottom: none; border-right: 1.5px solid var(--ink); }
-  .quad-cell-month { border-bottom: none; border-right: none; }
-  .quad-cell-someday { border: none; }
-}
-.quad-cell { padding: 12px 12px; min-height: 140px; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; transition: background 0.12s; position: relative; }
+.quad-grid { flex: 1; overflow: hidden; margin: 0 var(--pad-h) var(--pad-h); border: 2.5px solid var(--ink); border-radius: 4px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; box-shadow: 6px 6px 0 var(--ink); }
+.quad-cell { padding: 12px 12px; min-height: 140px; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; transition: background 0.12s; position: relative; border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
+.quad-cell:nth-child(2n) { border-right: none; }
+.quad-cell:nth-child(3), .quad-cell:nth-child(4) { border-bottom: none; }
 .quad-cell:active { background: rgba(0,0,0,0.03); }
-.quad-cell-goal { cursor: default; background: var(--accent); }
-.quad-cell-goal:active { background: var(--accent); }
-.quad-cell-goal #goal-bar-inner { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-.quad-cell-goal .goal-bar-top { flex-shrink: 0; margin-bottom: 8px; }
-.quad-cell-goal .goal-slots { flex: 1; overflow-y: auto; scrollbar-width: none; gap: 5px; }
-.quad-cell-goal .goal-slots::-webkit-scrollbar { display: none; }
-.quad-cell-goal .goal-slot { padding: 7px 9px; }
-.quad-cell-goal::after { content: '★'; position: absolute; top: -14px; right: 10px; font-size: 20px; color: var(--accent-yellow); -webkit-text-stroke: 1.5px var(--ink); transform: rotate(-12deg); pointer-events: none; }
 .quad-label { font-family: var(--font-en); font-size: 9px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; line-height: 1.4; flex-shrink: 0; }
 .quad-due { font-family: var(--font-en); font-size: 8px; font-weight: 600; color: var(--rule); margin-bottom: 8px; flex-shrink: 0; margin-top: -6px; }
 .quad-items { flex: 1; display: flex; flex-direction: column; overflow-y: auto; min-height: 0; scrollbar-width: none; }
@@ -293,7 +274,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   100% { transform: translate(calc(-50% + var(--dx,0px)), calc(-50% - 60px)) scale(0.4); opacity: 0; }
 }
 
-#goal-bar { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+#goal-bar { margin: 0 var(--pad-h) 16px; background: var(--accent); border-radius: 4px; padding: 16px 16px; position: relative; border: 2.5px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); flex-shrink: 0; }
+#goal-bar:empty { display: none; }
+#goal-bar::after { content: '★'; position: absolute; top: -16px; right: 16px; font-size: 26px; color: var(--accent-yellow); -webkit-text-stroke: 2px var(--ink); transform: rotate(-12deg); pointer-events: none; }
+#goal-bar::before { content: 'GOAL!'; position: absolute; bottom: -11px; left: 16px; background: var(--accent-yellow); color: #111111; font-family: var(--font-en); font-size: 9px; font-weight: 900; padding: 2px 8px; border: 2px solid #111111; transform: rotate(-3deg); letter-spacing: 0.04em; }
 .goal-bar-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .goal-bar-title { font-family: var(--font-en); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--paper); flex-shrink: 0; white-space: nowrap; }
 .goal-count { font-family: var(--font-en); font-size: 14px; color: #111111; font-weight: 900; background: var(--accent-yellow); padding: 2px 9px; border-radius: 20px; border: 2px solid #111111; transform: rotate(2deg); display: inline-block; }
@@ -306,7 +290,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .goal-slot-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); font-size: 13px; font-weight: 600; font-family: var(--font-kr); }
 .goal-slot-remove { flex-shrink: 0; cursor: pointer; color: #111111; font-size: 12px; line-height: 1; }
 
-.todo-toggle-bar { display: flex; justify-content: flex-end; padding: 0 var(--pad-h) 12px; flex-shrink: 0; }
 .todo-toggle { display: flex; border: 2px solid var(--ink); border-radius: 4px; overflow: hidden; box-shadow: 3px 3px 0 var(--ink); }
 .toggle-btn { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.06em; padding: 6px 14px; border: none; cursor: pointer; transition: all 0.15s; }
 .toggle-btn.active { background: var(--accent); color: var(--paper); }
@@ -327,32 +310,40 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .brain-zone-item { padding: 10px 0; border-bottom: 1px solid var(--rule); font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink); line-height: 1.5; }
 .brain-zone-empty { padding: 40px 0; text-align: center; font-size: 12px; color: var(--ink-muted); }
 
-/* PC 주간뷰 가로 캘린더 */
-@media (min-width: 768px) {
-  #weekly-list { display: flex; flex-direction: column; height: 100%; }
-  #weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .week-overdue-row { display: none; }
-  .week-overdue-label { flex-shrink: 0; width: 80px; padding: 8px 10px; border-right: 1px solid var(--rule); font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: #c0392b; display: flex; align-items: center; }
-  .week-overdue-items { flex: 1; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-  .week-cols { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; min-height: 0; gap: 8px; padding: 0 8px 8px; }
-  .week-col { display: flex; flex-direction: column; border: 2px solid var(--ink); border-radius: 4px; min-width: 0; overflow: hidden; }
-  .week-col-header { flex-shrink: 0; padding: 6px 8px; border-bottom: 2px solid var(--ink); background: transparent; }
-  .week-col-header.today { background: rgba(0,56,255,0.08); }
-  .week-col-name { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
-  .week-col-date { font-family: var(--font-en); font-size: 13px; font-weight: 900; color: var(--ink); margin-top: 1px; }
-  .week-col-header.today .week-col-name { color: var(--ink); }
-  .week-col-items { flex: 1; overflow-y: auto; padding: 6px; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; }
-  .week-col-items::-webkit-scrollbar { display: none; }
-  .week-col-item { display: flex; align-items: flex-start; gap: 5px; padding: 4px 5px; border: 1.5px solid var(--rule); border-radius: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; }
-  .week-col-item:hover { background: rgba(0,0,0,0.03); }
-  .week-col-check { width: 11px; height: 11px; border: 2px solid var(--ink); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
-  .week-col-check.done { background: var(--accent); border-color: var(--accent); }
-  .week-col-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
-  .week-col-text { font-family: var(--font-kr); font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; word-break: break-word; }
-  .week-col-text.done { text-decoration: line-through; color: var(--ink-muted); }
-  .week-col-more { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1.5px solid var(--rule); padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
-  .week-row { display: none; }
-  .week-overdue-row { display: flex; }
+/* 주간뷰 4x2 캘린더 그리드 (모바일/PC 공통) */
+#weekly-list { display: flex; flex-direction: column; height: 100%; }
+#weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.week-cols { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; min-height: 0; gap: 8px; padding: 0 8px 8px; }
+.week-col { display: flex; flex-direction: column; border: 2px solid var(--ink); border-radius: 4px; min-width: 0; overflow: hidden; }
+.week-col-header { flex-shrink: 0; padding: 6px 8px; border-bottom: 2px solid var(--ink); background: transparent; }
+.week-col-header.today { background: rgba(0,56,255,0.08); }
+.week-col-name { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
+.week-col-date { font-family: var(--font-en); font-size: 13px; font-weight: 900; color: var(--ink); margin-top: 1px; }
+.week-col-header.today .week-col-name { color: var(--ink); }
+.week-col-items { flex: 1; overflow-y: auto; padding: 6px; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; }
+.week-col-items::-webkit-scrollbar { display: none; }
+.week-col-item { display: flex; align-items: flex-start; gap: 5px; padding: 4px 5px; border: 1.5px solid var(--rule); border-radius: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.week-col-item:hover { background: rgba(0,0,0,0.03); }
+.week-col-check { width: 11px; height: 11px; border: 2px solid var(--ink); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+.week-col-check.done { background: var(--accent); border-color: var(--accent); }
+.week-col-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
+.week-col-text { font-family: var(--font-kr); font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; min-width: 0; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.week-col-text.done { text-decoration: line-through; color: var(--ink-muted); }
+.week-col-more { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1.5px solid var(--rule); padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
+.week-goal-col { background: var(--accent); border-color: var(--ink); }
+.week-goal-col .week-col-name, .week-goal-col .week-col-date { color: var(--paper); }
+.week-goal-col .week-col-item { background: var(--paper); border-color: #111111; }
+.week-goal-col .week-col-item.week-goal-empty { background: transparent; border-style: dashed; border-color: rgba(255,255,255,0.6); color: rgba(255,255,255,0.9); font-family: var(--font-kr); font-size: 10px; align-items: center; }
+.week-goal-col .goal-star { color: var(--accent); font-size: 12px; flex-shrink: 0; }
+.week-goal-col .goal-slot-remove { color: #111111; font-size: 10px; cursor: pointer; margin-left: auto; flex-shrink: 0; }
+.week-goal-col .plus { font-family: var(--font-en); font-weight: 900; font-size: 12px; }
+@media (max-width: 480px) {
+  .week-cols { gap: 5px; padding: 0 5px 5px; }
+  .week-col-header { padding: 4px 5px; }
+  .week-col-date { font-size: 11px; }
+  .week-col-items { padding: 4px; gap: 3px; }
+  .week-col-text { font-size: 9.5px; }
+  .week-goal-col .week-col-item.week-goal-empty { font-size: 8.5px; }
 }
 .brain-reset-btn { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: #999999; border: 1.5px solid #dddddd; padding: 5px 10px; background: none; cursor: pointer; border-radius: 14px; }
 .brain-input-wrap { padding: 0 18px 12px; flex-shrink: 0; }
@@ -484,18 +475,29 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-close { font-family: var(--font-en); font-size: 10px; font-weight: 600; color: var(--paper); background: none; border: none; cursor: pointer; }
 .rp-body { padding: 14px 22px; }
 .rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: #111111; background: var(--accent-yellow); border: 2px solid #111111; padding: 2px 10px; border-radius: 4px; margin-bottom: 10px; transform: rotate(-3deg); }
-.dd-analysis-card { padding: 14px; border-radius: 4px; border: 2.5px solid #111111; box-shadow: 5px 5px 0 #111111; margin-bottom: 18px; }
-.dd-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-.dd-chip { font-family: var(--font-en); font-size: 10.5px; font-weight: 700; color: #111111; background: #ffffff; border: 1.5px solid #111111; padding: 4px 10px; border-radius: 20px; }
-.dd-analysis-block { font-family: var(--font-kr); font-size: 12px; font-weight: 400; line-height: 1.6; color: #111111; margin-top: 4px; margin-bottom: 8px; }
-.dd-analysis-block:last-child { margin-bottom: 0; }
-.dd-analysis-block b { font-family: var(--font-en); font-size: 10px; font-weight: 900; letter-spacing: 0.02em; color: #111111; display: block; margin-bottom: 3px; text-transform: uppercase; }
 .dd-body { font-family: var(--font-kr); font-size: 12px; font-weight: 400; line-height: 1.7; color: var(--ink); }
 .dd-body-heading { font-family: var(--font-en); font-size: 10px; font-weight: 900; letter-spacing: 0.05em; color: var(--accent); text-transform: uppercase; margin: 14px 0 8px; }
 #diary-detail-popup .rp-header { background: var(--paper); border-bottom: 1px solid #f0f0f0; padding: 16px 44px 12px 20px; }
 #diary-detail-popup .rp-time { color: var(--ink); font-size: 15px; font-weight: 900; letter-spacing: normal; }
 #diary-detail-popup .rp-close { color: #999999; font-size: 10px; font-weight: 700; }
 #diary-detail-popup .record-popup-sheet::after { display: none; }
+#diary-detail-popup .record-popup-sheet { max-width: 680px; overflow: hidden; display: flex; flex-direction: column; }
+#diary-detail-popup .rp-body { padding: 0; }
+.dd-split { display: flex; flex: 1; min-height: 0; height: min(66vh, 520px); }
+.dd-props-col { flex: 0 0 40%; max-width: 260px; border-right: 1.5px solid var(--rule); padding: 16px 16px; overflow-y: auto; scrollbar-width: none; background: #FAFAF7; }
+.dd-props-col::-webkit-scrollbar { display: none; }
+.dd-content-col { flex: 1; min-width: 0; padding: 16px 20px; overflow-y: auto; scrollbar-width: none; }
+.dd-content-col::-webkit-scrollbar { display: none; }
+.dd-prop { margin-bottom: 16px; }
+.dd-prop:last-child { margin-bottom: 0; }
+.dd-prop-label { font-family: var(--font-en); font-size: 8.5px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.dd-prop-value { font-family: var(--font-kr); font-size: 11.5px; font-weight: 300; line-height: 1.55; color: var(--ink); white-space: pre-wrap; }
+.dd-energy-chip { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; color: #111111; padding: 3px 10px; border-radius: 20px; border: 1.5px solid #111111; }
+@media (max-width: 480px) {
+  .dd-split { height: min(60vh, 460px); }
+  .dd-props-col { flex-basis: 44%; max-width: none; padding: 12px; }
+  .dd-content-col { padding: 12px 14px; }
+}
 .dd-body-heading:first-child { margin-top: 0; }
 .dd-body-para { margin-bottom: 6px; white-space: pre-wrap; }
 .dd-body-para.done { text-decoration: line-through; color: var(--ink-muted); }
@@ -834,7 +836,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <div id="gratitude-fields"><div class="empty-state">Loading...</div></div>
       </div>
 
-      <div class="record-list" id="record-list"><div class="empty-state">Write your first log today.</div></div>
+      <div class="record-list" id="record-list"><div class="empty-state">Write your first diary entry today.</div></div>
       </div>
     </div>
 
@@ -874,33 +876,31 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content" id="tab-todo">
     <div class="section-header todo-header">
       <div class="section-title">To-Do</div>
-      <div class="todo-toggle-bar" style="padding:0;">
-        <div class="todo-toggle">
-          <button id="toggle-week" onclick="switchTodoView('week')" class="toggle-btn active">WEEK</button>
-          <button id="toggle-quad" onclick="switchTodoView('quad')" class="toggle-btn inactive">QUAD</button>
-        </div>
+      <div class="todo-toggle">
+        <button id="toggle-week" onclick="switchTodoView('week')" class="toggle-btn active">WEEK</button>
+        <button id="toggle-quad" onclick="switchTodoView('quad')" class="toggle-btn inactive">QUAD</button>
       </div>
     </div>
+    <div id="goal-bar"></div>
     <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
       <div id="weekly-view" style="flex:1;overflow-y:auto;">
         <div id="weekly-list"></div>
       </div>
       <div id="quad-view" style="flex:1;overflow:hidden;display:none;">
         <div class="quad-grid">
-          <div class="quad-cell quad-cell-goal" id="goal-bar"></div>
-          <div class="quad-cell quad-cell-today" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('today')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('today')}">
+          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('today')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('today')}">
             <div class="quad-label">Today</div><div class="quad-due" id="due-today"></div>
             <div class="quad-items" id="items-today"></div>
           </div>
-          <div class="quad-cell quad-cell-week" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('week')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('week')}">
+          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('week')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('week')}">
             <div class="quad-label">This Week</div><div class="quad-due" id="due-week"></div>
             <div class="quad-items" id="items-week"></div>
           </div>
-          <div class="quad-cell quad-cell-month" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('month')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('month')}">
+          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('month')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('month')}">
             <div class="quad-label">This Month</div><div class="quad-due" id="due-month"></div>
             <div class="quad-items" id="items-month"></div>
           </div>
-          <div class="quad-cell quad-cell-someday" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('someday')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('someday')}">
+          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('someday')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('someday')}">
             <div class="quad-label">Someday</div><div class="quad-due" style="color:var(--rule);">No deadline</div>
             <div class="quad-items" id="items-someday"></div>
           </div>
@@ -1118,14 +1118,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div class="record-popup-overlay" id="diary-detail-popup" onclick="if(event.target===this)closeDiaryDetail()">
   <div class="record-popup-sheet">
     <div class="rp-header"><div class="rp-time" id="dd-date"></div><button class="rp-close" onclick="closeDiaryDetail()">✕ CLOSE</button></div>
-    <div class="rp-body">
-      <div class="dd-analysis-card" id="dd-analysis-card">
-        <div class="dd-chips" id="dd-chips"></div>
-        <div class="dd-analysis-block" id="dd-summary"></div>
-        <div class="dd-analysis-block" id="dd-encourage"></div>
-        <div class="dd-analysis-block" id="dd-advice"></div>
-      </div>
-      <div class="dd-body" id="dd-body"></div>
+    <div class="rp-body dd-split">
+      <div class="dd-props-col" id="dd-props"></div>
+      <div class="dd-content-col dd-body" id="dd-body"></div>
     </div>
   </div>
 </div>
@@ -2387,13 +2382,11 @@ let currentTodoView='week';
 function switchTodoView(view){
   currentTodoView=view;
   localStorage.setItem('last_todo_view',view);
-  const isPC=window.innerWidth>=768;
-  document.getElementById('weekly-view').style.display=view==='week'?(isPC?'flex':'block'):'none';
+  document.getElementById('weekly-view').style.display=view==='week'?'flex':'none';
   document.getElementById('quad-view').style.display=view==='quad'?'flex':'none';
-  document.getElementById('toggle-week').classList.toggle('active',view==='week');
-  document.getElementById('toggle-week').classList.toggle('inactive',view!=='week');
-  document.getElementById('toggle-quad').classList.toggle('active',view==='quad');
-  document.getElementById('toggle-quad').classList.toggle('inactive',view!=='quad');
+  document.getElementById('goal-bar').style.display=view==='quad'?'':'none';
+  document.getElementById('toggle-week').className='toggle-btn'+(view==='week'?' active':' inactive');
+  document.getElementById('toggle-quad').className='toggle-btn'+(view==='quad'?' active':' inactive');
   if(view==='week')renderWeeklyView();
   else renderAllQuads();
 }
@@ -2403,7 +2396,6 @@ function renderWeeklyView(){
   const now=getDiaryDate();
   const todayStr=formatDate(now);
   const DAY_NAMES=['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  const isPC=window.innerWidth>=768;
 
   function getItemsForDay(dayStr, isToday){
     const items=[];
@@ -2432,129 +2424,53 @@ function renderWeeklyView(){
     return items;
   }
 
-  const overdue=[];
+  const starred=[];
   ['today','week','month','someday'].forEach(q=>{
-    todoData[q].forEach((item,i)=>{
-      if(!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr){
-        if(!overdue.some(o=>o.item.notionId&&o.item.notionId===item.notionId))
-          overdue.push({item,q,i});
-      }
-    });
+    todoData[q].forEach((item,i)=>{if(item.starred)starred.push({item,q,i});});
   });
-
-  if(isPC){
-    let html='';
-    html+=`<div class="week-cols">`;
-    for(let d=0;d<8;d++){
-      const day=new Date(now);day.setDate(now.getDate()+d);
-      const dayStr=formatDate(day);
-      const isToday=(d===0);
-      const items=getItemsForDay(dayStr,isToday);
-      const dayName=DAY_NAMES[day.getDay()];
-      const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
-      html+=`<div class="week-col" data-date="${dayStr}">
-        <div class="week-col-header${isToday?' today':''}" onclick="openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">
-          <div class="week-col-name">${dayName}</div>
-          <div class="week-col-date">${dayDateStr}</div>
-        </div>
-        <div class="week-col-items" id="wci-${dayStr}" onclick="if(!event.target.closest('.week-col-item'))openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">`;
-      items.forEach(({item,q,i})=>{
-        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
-        html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
-          <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
-          <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
-          <span class="todo-star${item.starred?' starred':''}" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span>
-          <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
-        </div>`;
-      });
-      html+=`</div></div>`;
+  let goalHtml=`<div class="week-col week-goal-col">
+    <div class="week-col-header"><div class="week-col-name">TODAY'S GOAL</div><div class="week-col-date">${starred.length}/3</div></div>
+    <div class="week-col-items">`;
+  for(let s=0;s<3;s++){
+    if(starred[s]){
+      const {item,q,i}=starred[s];
+      goalHtml+=`<div class="week-col-item" onclick="openTodoDetail('${q}',${i})"><span class="goal-star">★</span><div class="week-col-text">${item.text}</div><span class="goal-slot-remove" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">✕</span></div>`;
+    }else{
+      goalHtml+=`<div class="week-col-item week-goal-empty" onclick="switchTodoView('quad')"><span class="plus">+</span>⭐ 눌러 추가</div>`;
     }
-    html+=`</div>`;
-    list.innerHTML=html;
-    requestAnimationFrame(()=>applyPCWeekOverflow());
-  } else {
-    function buildRowHtml(items,labelHtml,rowClass,dayStr){
-      let h=`<div class="week-row${rowClass}" data-date="${dayStr||''}"><div class="week-day-label" onclick="openTodoPopupWeek('${dayStr||''}')" ontouchend="event.stopPropagation();if(!weekDragging&&!lastTouchMoved){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">${labelHtml}</div><div class="week-items" onclick="if(!event.target.closest('.week-item'))openTodoPopupWeek('${dayStr||''}')" ontouchend="if(!weekDragging&&!lastTouchMoved&&!event.target.closest('.week-item')){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">`;
-      items.forEach(({item,q,i})=>{
-        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
-        h+=`<div class="week-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
-          <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
-          <div class="week-item-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
-          <span class="todo-star${item.starred?' starred':''}" onclick="event.stopPropagation();toggleStar('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span>
-          <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleTodo('${q}',${i},event)"></div>
-        </div>`;
-      });
-      return h+`</div></div>`;
-    }
-
-    let html='';
-    for(let d=0;d<8;d++){
-      const day=new Date(now);day.setDate(now.getDate()+d);
-      const dayStr=formatDate(day);const isToday=(d===0);
-      const items=getItemsForDay(dayStr,isToday);
-      const dayName=DAY_NAMES[day.getDay()];
-      const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
-      const labelHtml=`<div class="week-day-name">${dayName}</div><div class="week-day-date">${dayDateStr}</div>`;
-      html+=buildRowHtml(items,labelHtml,isToday?' today':'',dayStr);
-    }
-    list.innerHTML=html;
-    requestAnimationFrame(()=>applyMobileWeekOverflow());
   }
-  renderGoalBar();
-}
+  goalHtml+='</div></div>';
 
-function applyPCWeekOverflow(){
-  const cols=document.querySelectorAll('.week-col');
-  const colArr=Array.from(cols);
-  const nonToday=colArr.filter(c=>!c.querySelector('.week-col-header.today'));
-  for(let i=nonToday.length-1;i>=0;i--){
-    const col=nonToday[i];
-    const itemsEl=col.querySelector('.week-col-items');
-    if(!itemsEl)continue;
-    const colH=col.clientHeight;
-    const headerH=col.querySelector('.week-col-header')?.offsetHeight||40;
-    const available=colH-headerH-8;
-    if(itemsEl.scrollHeight<=available)continue;
-    const children=Array.from(itemsEl.children);
-    let accH=0;let showCount=0;
-    for(const el of children){
-      accH+=el.offsetHeight||20;
-      if(accH>available-20)break;
-      showCount++;
-    }
-    showCount=Math.max(1,showCount);
-    const hidden=children.slice(showCount);
-    if(!hidden.length)continue;
-    hidden.forEach(el=>el.style.display='none');
-    const btn=document.createElement('button');
-    btn.className='week-col-more';
-    btn.textContent=`+${hidden.length}`;
-    btn.onclick=(e)=>{e.stopPropagation();hidden.forEach(el=>el.style.display='');btn.remove();};
-    itemsEl.appendChild(btn);
-  }
-}
+  const dow=now.getDay();
+  const monday=new Date(now);monday.setDate(now.getDate()-((dow+6)%7));
 
-function applyMobileWeekOverflow(){
-  const viewH=window.innerHeight;
-  const rows=Array.from(document.querySelectorAll('#weekly-list .week-row:not(.week-overdue)'));
-  if(!rows.length)return;
-  const totalH=rows.reduce((s,r)=>s+r.offsetHeight,0);
-  if(totalH<=viewH*0.85)return;
-  for(let i=rows.length-1;i>=1;i--){
-    const row=rows[i];
-    const items=Array.from(row.querySelectorAll('.week-item'));
-    if(items.length<=3)continue;
-    const hidden=items.slice(3);
-    hidden.forEach(el=>el.style.display='none');
-    const itemsWrap=row.querySelector('.week-items');
-    const btn=document.createElement('button');
-    btn.className='week-more-btn';
-    btn.textContent=`+${hidden.length}`;
-    btn.onclick=(e)=>{e.stopPropagation();hidden.forEach(el=>el.style.display='');btn.remove();};
-    itemsWrap?.appendChild(btn);
-    const newTotal=rows.reduce((s,r)=>s+r.offsetHeight,0);
-    if(newTotal<=viewH*0.85)break;
+  let html=`<div class="week-cols">${goalHtml}`;
+  for(let d=0;d<7;d++){
+    const day=new Date(monday);day.setDate(monday.getDate()+d);
+    const dayStr=formatDate(day);
+    const isToday=dayStr===todayStr;
+    const items=getItemsForDay(dayStr,isToday);
+    const dayName=DAY_NAMES[day.getDay()];
+    const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
+    html+=`<div class="week-col" data-date="${dayStr}">
+      <div class="week-col-header${isToday?' today':''}" onclick="openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">
+        <div class="week-col-name">${dayName}</div>
+        <div class="week-col-date">${dayDateStr}</div>
+      </div>
+      <div class="week-col-items" id="wci-${dayStr}" onclick="if(!event.target.closest('.week-col-item'))openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">`;
+    items.forEach(({item,q,i})=>{
+      const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
+      html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
+        <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
+        <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
+        <span class="todo-star${item.starred?' starred':''}" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span>
+        <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
+      </div>`;
+    });
+    html+=`</div></div>`;
   }
+  html+=`</div>`;
+  list.innerHTML=html;
 }
 
 
@@ -3961,21 +3877,26 @@ async function openDiaryDetail(page){
   document.getElementById('dd-date').textContent=d?`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`:dateStr;
 
   const energy=props['에너지 레벨']?.select?.name||'';
-  const thoughtFlow=richTextJoin(props['사고 흐름']?.rich_text);
-  const summary=richTextJoin(props['일기 요약']?.rich_text);
-  const encourage=richTextJoin(props['격려']?.rich_text);
-  const advice=richTextJoin(props['제언']?.rich_text);
-
-  const card=document.getElementById('dd-analysis-card');
-  card.style.background=ENERGY_COLORS[energy]||'var(--paper)';
-  const chipsEl=document.getElementById('dd-chips');
-  let chipsHtml='';
-  if(energy)chipsHtml+=`<span class="dd-chip">${energy==='높음'?'좋음':energy}</span>`;
-  if(thoughtFlow)chipsHtml+=`<span class="dd-chip">${thoughtFlow}</span>`;
-  chipsEl.innerHTML=chipsHtml;
-  document.getElementById('dd-summary').innerHTML=summary?`<b>일기 요약</b>${summary}`:'';
-  document.getElementById('dd-encourage').innerHTML=encourage?`<b>격려</b>${encourage}`:'';
-  document.getElementById('dd-advice').innerHTML=advice?`<b>제언</b>${advice}`:'';
+  const sleepStart=richTextJoin(props['취침']?.rich_text);
+  const sleepEnd=richTextJoin(props['기상']?.rich_text);
+  const ddProps=[
+    {label:'일기 요약',value:richTextJoin(props['일기 요약']?.rich_text)},
+    {label:'수면',value:(sleepStart||sleepEnd)?`취침 ${sleepStart||'-'} · 기상 ${sleepEnd||'-'}`:''},
+    {label:'사고 흐름',value:richTextJoin(props['사고 흐름']?.rich_text)},
+    {label:'의미 점화 단어',value:richTextJoin(props['의미 점화 단어']?.rich_text)},
+    {label:'자기대화 톤',value:richTextJoin(props['자기대화 톤']?.rich_text)},
+    {label:'시도&결과 루프',value:richTextJoin(props['시도&결과 루프']?.rich_text)},
+    {label:'인지 오류',value:richTextJoin(props['인지 오류']?.rich_text)},
+    {label:'격려',value:richTextJoin(props['격려']?.rich_text)},
+    {label:'제언',value:richTextJoin(props['제언']?.rich_text)},
+  ];
+  const propsEl=document.getElementById('dd-props');
+  let propsHtml=energy?`<div class="dd-prop"><span class="dd-energy-chip" style="background:${ENERGY_COLORS[energy]||'var(--paper)'};">${energy}</span></div>`:'';
+  ddProps.forEach(({label,value})=>{
+    if(!value)return;
+    propsHtml+=`<div class="dd-prop"><div class="dd-prop-label">${label}</div><div class="dd-prop-value">${value}</div></div>`;
+  });
+  propsEl.innerHTML=propsHtml||'<div class="dd-prop-value" style="color:var(--ink-muted);">기록된 속성이 없어요.</div>';
 
   const bodyEl=document.getElementById('dd-body');
   bodyEl.innerHTML='Loading...';
