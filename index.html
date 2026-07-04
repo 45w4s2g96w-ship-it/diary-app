@@ -200,12 +200,61 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .record-photo { width: 100%; height: auto; object-fit: contain; border-radius: 2px; }
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
+/* Diary split: properties (left) + writing (right) */
+.diary-split { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+.diary-props { flex-shrink: 0; border-bottom: 1.5px solid var(--rule); background: var(--paper); }
+.diary-props-label { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; padding: 12px var(--pad-h) 0; }
+.diary-props-inner { display: flex; flex-direction: row; gap: 8px; overflow-x: auto; padding: 8px var(--pad-h) 12px; scrollbar-width: none; }
+.diary-props-inner::-webkit-scrollbar { display: none; }
+.diary-prop-card { flex-shrink: 0; width: 160px; padding: 10px 12px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--paper); }
+.diary-prop-label { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
+.diary-prop-value { font-family: var(--font-kr); font-size: 12px; font-weight: 400; color: var(--ink); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
+@media (min-width: 768px) {
+  .diary-split { flex-direction: row; }
+  .diary-props { width: 260px; border-bottom: none; border-right: 1.5px solid var(--rule); overflow-y: auto; scrollbar-width: none; }
+  .diary-props::-webkit-scrollbar { display: none; }
+  .diary-props-inner { flex-direction: column; overflow-x: visible; padding: 8px 16px 16px; }
+  .diary-prop-card { width: auto; }
+}
+
+/* Gratitude journal */
+.gratitude-section { margin: 0 var(--pad-h) 14px; background: #ffffff; border: 2.5px solid #14110F; border-radius: 20px; padding: 16px 18px; box-shadow: 5px 5px 0 #14110F; flex-shrink: 0; }
+.gratitude-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.gratitude-title { font-family: var(--font-kr); font-size: 13px; font-weight: 700; color: #14110F; }
+.gratitude-save-btn { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; background: #1E5BE6; color: #ffffff; border: 2px solid #14110F; border-radius: 12px; padding: 6px 12px; cursor: pointer; box-shadow: 3px 3px 0 #14110F; }
+.gratitude-save-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #14110F; }
+.gratitude-field { margin-bottom: 10px; }
+.gratitude-field:last-child { margin-bottom: 0; }
+.gratitude-label { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.02em; color: #8A8578; margin-bottom: 4px; }
+.gratitude-input { width: 100%; font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; color: #14110F; background: transparent; border: none; border-bottom: 1.5px solid #EDEAE2; outline: none; resize: none; line-height: 1.6; min-height: 32px; padding: 4px 0; display: block; }
+.gratitude-input::placeholder { color: #8A8578; }
+
 /* Quadrant */
-.quad-grid { flex: 1; overflow: hidden; margin: 0 var(--pad-h) var(--pad-h); border: 2.5px solid var(--ink); border-radius: 4px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; box-shadow: 6px 6px 0 var(--ink); }
-.quad-cell { padding: 12px 12px; min-height: 140px; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; transition: background 0.12s; position: relative; border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
-.quad-cell:nth-child(2n) { border-right: none; }
-.quad-cell:nth-child(3), .quad-cell:nth-child(4) { border-bottom: none; }
+.quad-grid { flex: 1; overflow: hidden; margin: 0 var(--pad-h) var(--pad-h); border: 2.5px solid var(--ink); border-radius: 4px; box-shadow: 6px 6px 0 var(--ink); display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: auto 1fr 1fr; grid-template-areas: "goal goal" "today week" "month someday"; }
+#goal-bar.quad-cell-goal { grid-area: goal; border-bottom: 1.5px solid var(--ink); }
+.quad-cell-today { grid-area: today; border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
+.quad-cell-week { grid-area: week; border-bottom: 1.5px solid var(--ink); }
+.quad-cell-month { grid-area: month; border-right: 1.5px solid var(--ink); }
+.quad-cell-someday { grid-area: someday; }
+@media (min-width: 768px) {
+  .quad-grid { grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; grid-template-areas: "goal today week month" "someday someday someday someday"; }
+  #goal-bar.quad-cell-goal { border-bottom: none; border-right: 1.5px solid var(--ink); }
+  .quad-cell-today { border-bottom: none; border-right: 1.5px solid var(--ink); }
+  .quad-cell-week { border-bottom: none; border-right: 1.5px solid var(--ink); }
+  .quad-cell-month { border-bottom: none; border-right: none; }
+  .quad-cell-someday { border: none; }
+}
+.quad-cell { padding: 12px 12px; min-height: 140px; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; transition: background 0.12s; position: relative; }
 .quad-cell:active { background: rgba(0,0,0,0.03); }
+.quad-cell-goal { cursor: default; background: var(--accent); }
+.quad-cell-goal:active { background: var(--accent); }
+.quad-cell-goal #goal-bar-inner { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.quad-cell-goal .goal-bar-top { flex-shrink: 0; margin-bottom: 8px; }
+.quad-cell-goal .goal-slots { flex: 1; overflow-y: auto; scrollbar-width: none; gap: 5px; }
+.quad-cell-goal .goal-slots::-webkit-scrollbar { display: none; }
+.quad-cell-goal .goal-slot { padding: 7px 9px; }
+.quad-cell-goal::after { content: '★'; position: absolute; top: -14px; right: 10px; font-size: 20px; color: var(--accent-yellow); -webkit-text-stroke: 1.5px var(--ink); transform: rotate(-12deg); pointer-events: none; }
 .quad-label { font-family: var(--font-en); font-size: 9px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; line-height: 1.4; flex-shrink: 0; }
 .quad-due { font-family: var(--font-en); font-size: 8px; font-weight: 600; color: var(--rule); margin-bottom: 8px; flex-shrink: 0; margin-top: -6px; }
 .quad-items { flex: 1; display: flex; flex-direction: column; overflow-y: auto; min-height: 0; scrollbar-width: none; }
@@ -244,10 +293,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   100% { transform: translate(calc(-50% + var(--dx,0px)), calc(-50% - 60px)) scale(0.4); opacity: 0; }
 }
 
-#goal-bar { margin: 0 var(--pad-h) 16px; background: var(--accent); border-radius: 4px; padding: 16px 16px; position: relative; border: 2.5px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); flex-shrink: 0; }
-#goal-bar:empty { display: none; }
-#goal-bar::after { content: '★'; position: absolute; top: -16px; right: 16px; font-size: 26px; color: var(--accent-yellow); -webkit-text-stroke: 2px var(--ink); transform: rotate(-12deg); pointer-events: none; }
-#goal-bar::before { content: 'GOAL!'; position: absolute; bottom: -11px; left: 16px; background: var(--accent-yellow); color: #111111; font-family: var(--font-en); font-size: 9px; font-weight: 900; padding: 2px 8px; border: 2px solid #111111; transform: rotate(-3deg); letter-spacing: 0.04em; }
+#goal-bar { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .goal-bar-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .goal-bar-title { font-family: var(--font-en); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--paper); flex-shrink: 0; white-space: nowrap; }
 .goal-count { font-family: var(--font-en); font-size: 14px; color: #111111; font-weight: 900; background: var(--accent-yellow); padding: 2px 9px; border-radius: 20px; border: 2px solid #111111; transform: rotate(2deg); display: inline-block; }
@@ -267,8 +313,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .toggle-btn.inactive { background: var(--paper); color: var(--ink); }
 
 /* Braindump */
-.brain-item { position: relative; overflow: hidden; border-bottom: 1px solid #f0f0f0; background: var(--paper); }
-.brain-item-inner { display: flex; flex-direction: column; background: var(--paper); transition: transform 0.15s; padding: 10px 0; will-change: transform; position: relative; z-index: 1; }
+.brain-item { position: relative; overflow: hidden; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 3px 3px 0 var(--ink); }
+.brain-item-inner { display: flex; flex-direction: column; background: var(--paper); transition: transform 0.15s; padding: 12px 14px; will-change: transform; position: relative; z-index: 1; }
 .brain-swipe-bg { position: absolute; right: 0; top: 0; bottom: 0; width: 0; max-width: 80px; background: #c0392b; display: flex; align-items: center; justify-content: center; font-family: var(--font-en); font-size: 9px; font-weight: 700; color: white; letter-spacing: 0.08em; pointer-events: none; z-index: 0; overflow: hidden; transition: width 0.15s; }
 /* 브레인덤프 존 패널 */
 .brain-zone-panel { position: fixed; inset: 0; background: var(--paper); z-index: 350; display: flex; flex-direction: column; }
@@ -313,8 +359,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .brain-textarea { width: 100%; font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; color: var(--ink); background: transparent; border: 2.5px solid var(--ink); border-radius: 4px; outline: none; resize: none; line-height: 1.7; min-height: 52px; overflow: hidden; display: block; padding: 10px; box-shadow: 3px 3px 0 var(--ink); box-sizing: border-box; }
 .brain-textarea::placeholder { color: var(--ink-muted); }
 .brain-add-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); border: 2px solid var(--ink); padding: 7px 16px; cursor: pointer; border-radius: 4px; box-shadow: 2px 2px 0 var(--ink); margin-top: 8px; }
-.brain-list { flex: 1; overflow-y: auto; padding: 0 18px 16px; scrollbar-width: none; }
+.brain-list { flex: 1; overflow-y: auto; padding: 0 18px 16px; scrollbar-width: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; align-content: start; }
 .brain-list::-webkit-scrollbar { display: none; }
+.brain-list .empty-state { grid-column: 1 / -1; }
 .brain-item.dragging { opacity: 0.4; }
 .brain-item-text { font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; line-height: 1.55; color: var(--ink); margin-bottom: 4px; }
 .brain-tag { display: inline-block; font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 4px; margin-bottom: 4px; }
@@ -554,31 +601,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .setup-input { font-size: 13px !important; }
 }
 
-/* Todo 헤더 네비게이션 버튼 */
-.todo-nav-btn {
-  font-family: var(--font-en);
-  font-size: 19px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-.todo-nav-divider {
-  width: 1.5px;
-  height: 15px;
-  background: var(--ink);
-  margin: 0 10px;
-  flex-shrink: 0;
-  opacity: 0.15;
-}
-@media (min-width: 768px) {
-  .todo-nav-btn { font-size: 30px; }
-  .todo-nav-divider { height: 20px; margin: 0 16px; }
-}
-
 /* HOME tab */
 #tab-home { padding: var(--pad-h); padding-bottom: 88px; gap: 18px; overflow-y: auto; }
 .home-quote-row { display: flex; align-items: center; gap: 14px; }
@@ -639,7 +661,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </button>
     <button class="tab-btn" onclick="switchTab('record',this)" data-num="01.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      <span class="tab-label">Log</span>
+      <span class="tab-label">Diary</span>
     </button>
     <button class="tab-btn" onclick="switchTab('todo',this)" data-num="02.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -691,7 +713,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
     <div id="home-fab-wrap">
       <div id="home-fab-menu">
-        <button class="fab-mini" onclick="fabAction('record')" title="Log">✏️</button>
+        <button class="fab-mini" onclick="fabAction('record')" title="Diary">✏️</button>
         <button class="fab-mini" onclick="fabAction('todo')" title="To-Do">✓</button>
         <button class="fab-mini" onclick="fabAction('dump')" title="Memo">📝</button>
       </div>
@@ -704,23 +726,39 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="section-title" id="current-date"></div>
     </div>
 
-    <div id="record-log-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
-    <div class="input-section">
-      <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
-      <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
-      <div class="input-actions">
-        <button class="attach-btn" onclick="document.getElementById('photo-input').click()">＋ PHOTO</button>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="log-visibility-toggle" id="log-visibility-toggle">
-            <button type="button" class="lv-opt active" data-v="public" onclick="setLogVisibility('public')">PUBLIC</button>
-            <button type="button" class="lv-opt" data-v="hidden" onclick="setLogVisibility('hidden')">HIDDEN</button>
-          </div>
-          <button class="submit-btn" id="save-btn" onclick="saveRecord(currentLogHidden)">SAVE</button>
-        </div>
+    <div class="diary-split">
+      <div class="diary-props">
+        <div class="diary-props-label">TODAY'S PROPERTIES</div>
+        <div class="diary-props-inner" id="diary-props-inner"><div class="diary-prop-empty">Loading...</div></div>
       </div>
-      <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
-    </div>
-    <div class="record-list" id="record-list"><div class="empty-state">Write your first log today.</div></div>
+
+      <div id="record-log-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
+      <div class="input-section">
+        <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
+        <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
+        <div class="input-actions">
+          <button class="attach-btn" onclick="document.getElementById('photo-input').click()">＋ PHOTO</button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="log-visibility-toggle" id="log-visibility-toggle">
+              <button type="button" class="lv-opt active" data-v="public" onclick="setLogVisibility('public')">PUBLIC</button>
+              <button type="button" class="lv-opt" data-v="hidden" onclick="setLogVisibility('hidden')">HIDDEN</button>
+            </div>
+            <button class="submit-btn" id="save-btn" onclick="saveRecord(currentLogHidden)">SAVE</button>
+          </div>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
+      </div>
+
+      <div class="gratitude-section nb-card">
+        <div class="gratitude-header">
+          <div class="gratitude-title">🌿 감사 일기</div>
+          <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude()">SAVE</button>
+        </div>
+        <div id="gratitude-fields"><div class="empty-state">Loading...</div></div>
+      </div>
+
+      <div class="record-list" id="record-list"><div class="empty-state">Write your first log today.</div></div>
+      </div>
     </div>
 
     <div id="record-routine-pane" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:0 var(--pad-h) 20px;scrollbar-width:none;">
@@ -748,7 +786,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="popup-sheet">
       <div class="popup-label">어디로 보낼까요?</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <button class="qc-sheet-type-btn" onclick="routeBrainItem('record')"><span style="font-size:15px;">✏️</span>LOG로 보내기</button>
+        <button class="qc-sheet-type-btn" onclick="routeBrainItem('record')"><span style="font-size:15px;">✏️</span>DIARY로 보내기</button>
         <button class="qc-sheet-type-btn" onclick="routeBrainItem('todo')"><span style="font-size:15px;">✓</span>TODO로 보내기</button>
         <button class="qc-sheet-type-btn" onclick="routeBrainItem('idea')"><span style="font-size:15px;">💡</span>IDEA로 보내기</button>
       </div>
@@ -758,32 +796,34 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <div class="tab-content" id="tab-todo">
     <div class="section-header todo-header">
-      <div style="display:flex;align-items:center;gap:0;">
-        <button id="toggle-week" onclick="switchTodoView('week')" class="todo-nav-btn" style="color:var(--ink);">WEEK</button>
-        <div class="todo-nav-divider"></div>
-        <button id="toggle-quad" onclick="switchTodoView('quad')" class="todo-nav-btn" style="color:#c7c7c7;">QUAD</button>
+      <div class="section-title">To-Do</div>
+      <div class="todo-toggle-bar" style="padding:0;">
+        <div class="todo-toggle">
+          <button id="toggle-week" onclick="switchTodoView('week')" class="toggle-btn active">WEEK</button>
+          <button id="toggle-quad" onclick="switchTodoView('quad')" class="toggle-btn inactive">QUAD</button>
+        </div>
       </div>
     </div>
-    <div id="goal-bar"></div>
     <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
       <div id="weekly-view" style="flex:1;overflow-y:auto;">
         <div id="weekly-list"></div>
       </div>
       <div id="quad-view" style="flex:1;overflow:hidden;display:none;">
         <div class="quad-grid">
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('today')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('today')}">
+          <div class="quad-cell quad-cell-goal" id="goal-bar"></div>
+          <div class="quad-cell quad-cell-today" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('today')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('today')}">
             <div class="quad-label">Today</div><div class="quad-due" id="due-today"></div>
             <div class="quad-items" id="items-today"></div>
           </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('week')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('week')}">
+          <div class="quad-cell quad-cell-week" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('week')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('week')}">
             <div class="quad-label">This Week</div><div class="quad-due" id="due-week"></div>
             <div class="quad-items" id="items-week"></div>
           </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('month')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('month')}">
+          <div class="quad-cell quad-cell-month" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('month')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('month')}">
             <div class="quad-label">This Month</div><div class="quad-due" id="due-month"></div>
             <div class="quad-items" id="items-month"></div>
           </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('someday')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('someday')}">
+          <div class="quad-cell quad-cell-someday" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('someday')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('someday')}">
             <div class="quad-label">Someday</div><div class="quad-due" style="color:var(--rule);">No deadline</div>
             <div class="quad-items" id="items-someday"></div>
           </div>
@@ -897,7 +937,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div class="popup-overlay" id="quickcapture-popup" onclick="if(event.target===this)closeQuickCapture()">
   <div class="popup-sheet">
     <div class="qc-sheet-types">
-      <button class="qc-sheet-type-btn" id="qc-type-record" onclick="setQuickCaptureType('record')">LOG</button>
+      <button class="qc-sheet-type-btn" id="qc-type-record" onclick="setQuickCaptureType('record')">DIARY</button>
       <button class="qc-sheet-type-btn" id="qc-type-todo" onclick="setQuickCaptureType('todo')">TO-DO</button>
       <button class="qc-sheet-type-btn" id="qc-type-dump" onclick="setQuickCaptureType('dump')">MEMO</button>
     </div>
@@ -1169,6 +1209,7 @@ function switchTab(tab,btn){
   if(tab==='idea')loadIdeaFromNotion();
   if(tab==='home')renderHomeTab();
   if(tab==='setting')initSettingTab();
+  if(tab==='record')loadDiaryPanel();
 }
 
 /* HOME tab */
@@ -1553,6 +1594,115 @@ async function getTodayPageId(){
   }
   cachedPageId=cd.id;cachedPageDate=dateStr;return cachedPageId;
 }
+
+/* Diary properties (left pane) */
+const ENERGY_COLORS_DIARY={'낮음':'#ffb3b3','보통':'#fff3b0','높음':'#b8e6c9'};
+const DIARY_PROP_FIELDS=[
+  {key:'사고 흐름',label:'사고 흐름'},
+  {key:'의미 점화 단어',label:'의미 점화 단어'},
+  {key:'자기대화 톤',label:'자기대화 톤'},
+  {key:'시도&결과 루프',label:'시도&결과 루프'},
+  {key:'인지 오류',label:'인지 오류'},
+  {key:'일기 요약',label:'일기 요약'},
+  {key:'격려',label:'격려'},
+  {key:'제언',label:'제언'}
+];
+function richTextJoinDiary(arr){return (arr||[]).map(t=>t.plain_text||'').join('').trim();}
+function diaryPropCard(label,value,bg){
+  const card=document.createElement('div');
+  card.className='diary-prop-card';
+  if(bg)card.style.background=bg;
+  const l=document.createElement('div');l.className='diary-prop-label';l.textContent=label;
+  const v=document.createElement('div');v.className='diary-prop-value';v.textContent=value;
+  card.appendChild(l);card.appendChild(v);
+  return card;
+}
+async function loadDiaryProps(){
+  const el=document.getElementById('diary-props-inner');
+  if(!el)return;
+  el.innerHTML='<div class="diary-prop-empty">Loading...</div>';
+  try{
+    const pageId=await getTodayPageId();
+    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});
+    const page=await res.json();
+    const props=page.properties||{};
+    if(!props['분석 완료']?.checkbox){
+      el.innerHTML='<div class="diary-prop-empty">오늘의 분석은 아직 준비되지 않았어요.<br>하루가 끝나면 자동으로 채워져요.</div>';
+      return;
+    }
+    el.innerHTML='';
+    const energy=props['에너지 레벨']?.select?.name||'';
+    if(energy)el.appendChild(diaryPropCard('에너지 레벨',energy==='높음'?'좋음':energy,ENERGY_COLORS_DIARY[energy]));
+    DIARY_PROP_FIELDS.forEach(f=>{
+      const v=richTextJoinDiary(props[f.key]?.rich_text);
+      if(v)el.appendChild(diaryPropCard(f.label,v));
+    });
+    if(!el.children.length)el.innerHTML='<div class="diary-prop-empty">표시할 속성이 없어요.</div>';
+  }catch(e){console.error(e);el.innerHTML='<div class="diary-prop-empty">불러오기 실패</div>';}
+}
+
+/* Gratitude journal (오늘의 감사 일기) */
+const GRATITUDE_FIELDS=[
+  {emoji:'🍀',label:'🍀 오늘 감사한 일',placeholder:'오늘 감사한 일'},
+  {emoji:'😊',label:'😊 오늘의 칭찬',placeholder:'오늘의 칭찬'},
+  {emoji:'✅',label:'✅ 내일 해야 할 일',placeholder:'내일 해야 할 일'}
+];
+let gratitudeBlockIds={};
+async function loadGratitudeSection(){
+  const wrap=document.getElementById('gratitude-fields');
+  if(!wrap)return;
+  wrap.innerHTML='<div class="empty-state">Loading...</div>';
+  gratitudeBlockIds={};
+  try{
+    const pageId=await getTodayPageId();
+    let blocks=[];let cursor=null;
+    do{
+      const url=WORKER_URL+'/notion/blocks/'+pageId+'/children'+(cursor?'?start_cursor='+cursor:'');
+      const br=await fetch(url,{headers:notionHeaders()});
+      const bd=await br.json();
+      blocks=blocks.concat(bd.results||[]);
+      cursor=bd.has_more?bd.next_cursor:null;
+    }while(cursor);
+    wrap.innerHTML='';
+    GRATITUDE_FIELDS.forEach(f=>{
+      const block=blocks.find(b=>b.type==='callout'&&b.callout?.icon?.emoji===f.emoji);
+      let value='';
+      if(block){
+        gratitudeBlockIds[f.emoji]=block.id;
+        const text=richTextJoinDiary(block.callout.rich_text);
+        value=(text&&text!==f.placeholder)?text:'';
+      }
+      const row=document.createElement('div');row.className='gratitude-field';
+      const label=document.createElement('div');label.className='gratitude-label';label.textContent=f.label;
+      const ta=document.createElement('textarea');
+      ta.className='gratitude-input';ta.dataset.emoji=f.emoji;ta.placeholder=f.placeholder;ta.rows=2;ta.value=value;
+      ta.oninput=function(){autoResize(this);};
+      row.appendChild(label);row.appendChild(ta);
+      wrap.appendChild(row);
+    });
+    wrap.querySelectorAll('.gratitude-input').forEach(t=>autoResize(t));
+  }catch(e){console.error(e);wrap.innerHTML='<div class="empty-state">불러오기 실패</div>';}
+}
+async function saveGratitude(){
+  const inputs=document.querySelectorAll('.gratitude-input');
+  const btn=document.getElementById('gratitude-save-btn');
+  if(btn)btn.disabled=true;
+  try{
+    const patches=[];
+    inputs.forEach(t=>{
+      const emoji=t.dataset.emoji;
+      const blockId=gratitudeBlockIds[emoji];
+      if(!blockId)return;
+      const field=GRATITUDE_FIELDS.find(f=>f.emoji===emoji);
+      const content=t.value.trim()||field.placeholder;
+      patches.push(fetch(WORKER_URL+'/notion/blocks/'+blockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({callout:{rich_text:[{text:{content}}],icon:{emoji}}})}));
+    });
+    await Promise.all(patches);
+    showToast('감사 일기 저장됨!');
+  }catch(e){console.error(e);showToast('저장 실패');}
+  if(btn)btn.disabled=false;
+}
+function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection();}
 
 /* ROUTINE — 오늘 루틴 체크리스트 */
 const ROUTINE_GROUPS=[  {label:'🌤️ 아침',items:[    {key:'🌤️물 한잔',label:'물 한잔'},    {key:'🌤️아침 약',label:'아침 약'},    {key:'🌤️5분 명상',label:'5분 명상'},    {key:'🌤️스트레칭',label:'스트레칭'}  ]},  {label:'☀️ 종일',items:[    {key:'☀️물 2리터 마시기',label:'물 2리터 마시기'},    {key:'☀️틈틈이 기록',label:'틈틈이 기록'},    {key:'☀️산책',label:'산책'}  ]},  {label:'🌙 저녁',items:[    {key:'🌙책상 치우기',label:'책상 치우기'},    {key:'🌙설거지',label:'설거지'},    {key:'🌙저녁 약',label:'저녁 약'},    {key:'🌙일기 쓰기',label:'일기 쓰기'}  ]}];let routineSelected=[];function switchRecordPane(pane){  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';  if(pane==='routine')loadRoutineState();}function renderRoutineChecklist(){  const c=document.getElementById('routine-checklist');  c.innerHTML=ROUTINE_GROUPS.map(g=>`    <div style="margin-bottom:18px;">      <div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>      ${g.items.map(it=>{        const done=routineSelected.includes(it.key);        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${it.key.replace(/'/g,"\\'")}')">          <div class="quad-check${done?' done':''}"></div>          <div class="quad-text${done?' done':''}">${it.label}</div>        </div>`;      }).join('')}    </div>`).join('');}async function loadRoutineState(){  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">Loading...</div>';  try{    const pageId=await getTodayPageId();    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});    const data=await res.json();    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);  }catch(e){console.error(e);routineSelected=[];}  renderRoutineChecklist();}async function toggleRoutineItem(key){  if(routineSelected.includes(key))routineSelected=routineSelected.filter(i=>i!==key);  else routineSelected.push(key);  renderRoutineChecklist();  try{    const pageId=await getTodayPageId();    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});  }catch(e){console.error(e);showToast('fail');}}
@@ -1979,8 +2129,10 @@ function switchTodoView(view){
   const isPC=window.innerWidth>=768;
   document.getElementById('weekly-view').style.display=view==='week'?(isPC?'flex':'block'):'none';
   document.getElementById('quad-view').style.display=view==='quad'?'flex':'none';
-  document.getElementById('toggle-week').style.color=view==='week'?'var(--ink)':'#c7c7c7';
-  document.getElementById('toggle-quad').style.color=view==='quad'?'var(--ink)':'#c7c7c7';
+  document.getElementById('toggle-week').classList.toggle('active',view==='week');
+  document.getElementById('toggle-week').classList.toggle('inactive',view!=='week');
+  document.getElementById('toggle-quad').classList.toggle('active',view==='quad');
+  document.getElementById('toggle-quad').classList.toggle('inactive',view!=='quad');
   if(view==='week')renderWeeklyView();
   else renderAllQuads();
 }
@@ -2882,7 +3034,7 @@ async function confirmSubRecord(mood){
     document.querySelectorAll('#tab-record .tag').forEach(t=>{if(t.textContent===mood){t.classList.add('selected');selectedMood=mood;}});
   }
   markBrainDone(brainIdx,'record');
-  showToast('Log 탭으로 이동했어요');
+  showToast('Diary 탭으로 이동했어요');
 }
 
 function confirmSubTodo(q){
@@ -3139,7 +3291,7 @@ document.addEventListener('mouseup',e=>{
   }
 });
 
-const BRAIN_ZONE_LABELS={record:'Log',todo:'To-Do',idea:'Idea'};
+const BRAIN_ZONE_LABELS={record:'Diary',todo:'To-Do',idea:'Idea'};
 function openBrainZone(zone){
   const panel=document.getElementById('brain-zone-panel');
   const title=document.getElementById('brain-zone-title');
