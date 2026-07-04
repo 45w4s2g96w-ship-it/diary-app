@@ -225,21 +225,20 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-book { background: #F5F4F0; }
 .diary-props { flex-shrink: 0; border-bottom: 1.5px solid #EDEAE2; background: #F5F4F0; }
 .diary-props-label { font-family: var(--font-kr); font-size: 13px; font-weight: 700; color: #14110F; padding: 14px var(--pad-h) 0; }
-.diary-props-inner { display: flex; flex-direction: row; gap: 8px; overflow-x: auto; padding: 10px var(--pad-h) 14px; scrollbar-width: none; }
-.diary-props-inner::-webkit-scrollbar { display: none; }
-.diary-prop-card { flex-shrink: 0; width: 160px; padding: 10px 12px; border: 1.5px solid #EDEAE2; border-radius: 4px; background: #ffffff; }
-.diary-prop-label { font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8578; margin-bottom: 4px; }
-.diary-prop-value { font-family: var(--font-kr); font-size: 12px; font-weight: 400; color: #14110F; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 .diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: #8A8578; line-height: 1.6; }
-.diary-summary-quote { margin: 10px var(--pad-h) 0; padding: 14px 16px; background: #ffffff; border-left: 3px solid #1E5BE6; border-radius: 0 4px 4px 0; font-family: var(--font-kr); font-size: 13px; font-weight: 500; line-height: 1.6; color: #14110F; }
+.diary-summary-box { margin: 10px var(--pad-h) 16px; padding: 18px 20px; background: #ffffff; border: 1.5px solid #EDEAE2; border-radius: 8px; font-family: var(--font-kr); color: #14110F; }
+.diary-summary-box .ds-energy { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 20px; border: 1.5px solid #14110F; margin-bottom: 12px; }
+.diary-summary-box .ds-quote { font-size: 13.5px; font-weight: 500; line-height: 1.75; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px dashed #EDEAE2; white-space: pre-wrap; }
+.diary-summary-box .ds-row { margin-bottom: 12px; }
+.diary-summary-box .ds-row:last-child { margin-bottom: 0; }
+.diary-summary-box .ds-label { font-family: 'Space Mono', monospace; font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8578; margin-bottom: 3px; }
+.diary-summary-box .ds-value { font-size: 12.5px; font-weight: 400; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
 .diary-recent-label { padding: 4px var(--pad-h) 0; margin-top: 4px; }
 @media (min-width: 768px) {
   .diary-split { flex-direction: row; }
   .diary-props { width: auto; flex: 1; border-bottom: none; border-right: 1.5px dashed #d8d4c8; box-shadow: 6px 0 10px -8px rgba(0,0,0,0.25); overflow-y: auto; scrollbar-width: none; }
   .diary-props::-webkit-scrollbar { display: none; }
-  .diary-props-inner { flex-direction: column; overflow-x: visible; padding: 10px 16px 16px; }
-  .diary-prop-card { width: auto; }
-  .diary-summary-quote { margin: 10px 16px 0; }
+  .diary-summary-box { margin: 10px 16px 16px; }
 }
 .diary-readonly .input-section { display: none; }
 .diary-readonly .gratitude-save-btn { display: none; }
@@ -844,8 +843,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="diary-split diary-book">
       <div class="diary-props">
         <div class="diary-props-label">일기 요약</div>
-        <div class="diary-summary-quote" id="diary-summary-quote" style="display:none;"></div>
-        <div class="diary-props-inner" id="diary-props-inner"><div class="diary-prop-empty">Loading...</div></div>
+        <div class="diary-summary-box" id="diary-summary-box"><div class="diary-prop-empty">Loading...</div></div>
       </div>
 
       <div id="record-log-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
@@ -1930,21 +1928,17 @@ const DIARY_PROP_FIELDS=[
   {key:'제언',label:'제언'}
 ];
 function richTextJoinDiary(arr){return (arr||[]).map(t=>t.plain_text||'').join('').trim();}
-function diaryPropCard(label,value,bg){
-  const card=document.createElement('div');
-  card.className='diary-prop-card';
-  if(bg)card.style.background=bg;
-  const l=document.createElement('div');l.className='diary-prop-label';l.textContent=label;
-  const v=document.createElement('div');v.className='diary-prop-value';v.textContent=value;
-  card.appendChild(l);card.appendChild(v);
-  return card;
+function diaryPropRow(label,value){
+  const row=document.createElement('div');row.className='ds-row';
+  const l=document.createElement('div');l.className='ds-label';l.textContent=label;
+  const v=document.createElement('div');v.className='ds-value';v.textContent=value;
+  row.appendChild(l);row.appendChild(v);
+  return row;
 }
 async function loadDiaryProps(){
-  const el=document.getElementById('diary-props-inner');
-  const quoteEl=document.getElementById('diary-summary-quote');
+  const el=document.getElementById('diary-summary-box');
   if(!el)return;
   el.innerHTML='<div class="diary-prop-empty">Loading...</div>';
-  quoteEl.style.display='none';
   try{
     const pageId=await getDiaryPanelPageId();
     if(!pageId){
@@ -1958,14 +1952,23 @@ async function loadDiaryProps(){
       el.innerHTML='<div class="diary-prop-empty">'+(isDiaryViewingToday()?'오늘의 분석은 아직 준비되지 않았어요.<br>하루가 끝나면 자동으로 채워져요.':'이 날짜엔 분석 기록이 없어요.')+'</div>';
       return;
     }
-    const summary=richTextJoinDiary(props['일기 요약']?.rich_text);
-    if(summary){quoteEl.textContent=summary;quoteEl.style.display='block';}
     el.innerHTML='';
     const energy=props['에너지 레벨']?.select?.name||'';
-    if(energy)el.appendChild(diaryPropCard('에너지 레벨',energy==='높음'?'좋음':energy,ENERGY_COLORS_DIARY[energy]));
+    if(energy){
+      const chip=document.createElement('div');
+      chip.className='ds-energy';
+      chip.style.background=ENERGY_COLORS_DIARY[energy]||'#ffffff';
+      chip.textContent='에너지 '+(energy==='높음'?'좋음':energy);
+      el.appendChild(chip);
+    }
+    const summary=richTextJoinDiary(props['일기 요약']?.rich_text);
+    if(summary){
+      const q=document.createElement('div');q.className='ds-quote';q.textContent=summary;
+      el.appendChild(q);
+    }
     DIARY_PROP_FIELDS.forEach(f=>{
       const v=richTextJoinDiary(props[f.key]?.rich_text);
-      if(v)el.appendChild(diaryPropCard(f.label,v));
+      if(v)el.appendChild(diaryPropRow(f.label,v));
     });
     if(!el.children.length)el.innerHTML='<div class="diary-prop-empty">표시할 속성이 없어요.</div>';
   }catch(e){console.error(e);el.innerHTML='<div class="diary-prop-empty">불러오기 실패</div>';}
