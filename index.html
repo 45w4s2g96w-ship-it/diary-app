@@ -208,6 +208,17 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-nav-btn { font-family: var(--font-en); font-size: 24px; font-weight: 900; background: none; border: none; cursor: pointer; color: #14110F; line-height: 1; padding: 2px 6px; }
 .diary-nav-btn:active { opacity: 0.5; }
 .diary-nav-btn:disabled { opacity: 0.2; cursor: default; }
+.tab-bar-diary-nav { display: none; align-items: center; justify-content: space-between; padding: 14px 16px; border-top: 1px solid var(--rule); margin-top: auto; }
+.tab-bar-diary-nav .diary-date-text { font-family: var(--font-en); font-weight: 900; font-size: 13px; color: var(--ink); text-align: center; flex: 1; }
+.tab-bar-diary-nav .diary-nav-btn { font-size: 16px; color: var(--ink); }
+.diary-write-row { display: flex; flex-direction: column; }
+@media (min-width: 768px) {
+  .diary-mobile-header { display: none; }
+  .tab-bar-diary-nav.active { display: flex; }
+  .diary-write-row { flex-direction: row; gap: 14px; padding: 10px var(--pad-h) 0; }
+  #tab-record .diary-write-row .input-section, .diary-write-row .gratitude-section { flex: 1; min-width: 0; margin: 0 0 12px; }
+  .diary-write-row .input-actions { flex-wrap: wrap; gap: 8px; }
+}
 
 /* Diary split: properties (left page) + writing (right page), styled like an open diary spread */
 .diary-split { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
@@ -728,6 +739,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span class="tab-label">Setting</span>
     </button>
+    <div class="tab-bar-diary-nav" id="tab-bar-diary-nav">
+      <button class="diary-nav-btn" onclick="changeDiaryDate(-1)">‹</button>
+      <div class="diary-date-text"></div>
+      <button class="diary-nav-btn diary-next-btn" onclick="changeDiaryDate(1)">›</button>
+    </div>
   </div>
   <div id="app-main">
   <div id="ptr-indicator" style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:7px;height:0;overflow:hidden;transition:none;z-index:50;pointer-events:none;">
@@ -817,11 +833,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 
   <div class="tab-content" id="tab-record">
-    <div class="section-header">
+    <div class="section-header diary-mobile-header">
       <div class="diary-date-nav">
         <button class="diary-nav-btn" onclick="changeDiaryDate(-1)">‹</button>
-        <div class="section-title" id="current-date"></div>
-        <button class="diary-nav-btn" id="diary-next-btn" onclick="changeDiaryDate(1)">›</button>
+        <div class="section-title diary-date-text"></div>
+        <button class="diary-nav-btn diary-next-btn" onclick="changeDiaryDate(1)">›</button>
       </div>
     </div>
 
@@ -833,6 +849,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
 
       <div id="record-log-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
+      <div class="diary-write-row">
       <div class="input-section">
         <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
         <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
@@ -855,6 +872,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude()">SAVE</button>
         </div>
         <div id="gratitude-fields"><div class="empty-state">Loading...</div></div>
+      </div>
       </div>
 
       <div class="home-section-label diary-recent-label">최근 기록</div>
@@ -1305,6 +1323,7 @@ function switchTab(tab,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
+  document.getElementById('tab-bar-diary-nav').classList.toggle('active',tab==='record');
   if(tab==='idea')loadIdeaFromNotion();
   if(tab==='home')renderHomeTab();
   if(tab==='setting')initSettingTab();
@@ -1886,8 +1905,9 @@ async function getDiaryPanelPageId(){
   return isDiaryViewingToday()?await getTodayPageId():await getPageIdForDate(diaryViewDate);
 }
 function renderDiaryDateHeader(){
-  document.getElementById('current-date').textContent=formatDateDisplay(diaryViewDate);
-  document.getElementById('diary-next-btn').disabled=isDiaryViewingToday();
+  const label=formatDateDisplay(diaryViewDate);
+  document.querySelectorAll('.diary-date-text').forEach(el=>el.textContent=label);
+  document.querySelectorAll('.diary-next-btn').forEach(b=>b.disabled=isDiaryViewingToday());
   document.getElementById('record-log-pane').classList.toggle('diary-readonly',!isDiaryViewingToday());
 }
 function changeDiaryDate(delta){
