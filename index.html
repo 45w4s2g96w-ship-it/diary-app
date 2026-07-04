@@ -267,7 +267,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .toggle-btn.inactive { background: var(--paper); color: var(--ink); }
 
 /* Braindump */
-.brain-item { position: relative; overflow: hidden; border-bottom: 1px solid #f0f0f0; background: var(--paper); }
+.brain-item { position: relative; overflow: hidden; background: var(--paper); margin-bottom: 4px; }
 .brain-item-inner { display: flex; flex-direction: column; background: var(--paper); transition: transform 0.15s; padding: 10px 0; will-change: transform; position: relative; z-index: 1; }
 .brain-swipe-bg { position: absolute; right: 0; top: 0; bottom: 0; width: 0; max-width: 80px; background: #c0392b; display: flex; align-items: center; justify-content: center; font-family: var(--font-en); font-size: 9px; font-weight: 700; color: white; letter-spacing: 0.08em; pointer-events: none; z-index: 0; overflow: hidden; transition: width 0.15s; }
 /* 브레인덤프 존 패널 */
@@ -281,39 +281,47 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .brain-zone-item { padding: 10px 0; border-bottom: 1px solid var(--rule); font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink); line-height: 1.5; }
 .brain-zone-empty { padding: 40px 0; text-align: center; font-size: 12px; color: var(--ink-muted); }
 
-/* PC 주간뷰 가로 캘린더 */
-@media (min-width: 768px) {
-  #weekly-list { display: flex; flex-direction: column; height: 100%; }
-  #weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .week-overdue-row { display: none; }
-  .week-overdue-label { flex-shrink: 0; width: 80px; padding: 8px 10px; border-right: 1px solid var(--rule); font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: #c0392b; display: flex; align-items: center; }
-  .week-overdue-items { flex: 1; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-  .week-cols { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; min-height: 0; gap: 8px; padding: 0 8px 8px; }
-  .week-col { display: flex; flex-direction: column; border: 2px solid var(--ink); border-radius: 4px; min-width: 0; overflow: hidden; }
-  .week-col-header { flex-shrink: 0; padding: 6px 8px; border-bottom: 2px solid var(--ink); background: transparent; }
-  .week-col-header.today { background: rgba(0,56,255,0.08); }
-  .week-col-name { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
-  .week-col-date { font-family: var(--font-en); font-size: 13px; font-weight: 900; color: var(--ink); margin-top: 1px; }
-  .week-col-header.today .week-col-name { color: var(--ink); }
-  .week-col-items { flex: 1; overflow-y: auto; padding: 6px; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; }
-  .week-col-items::-webkit-scrollbar { display: none; }
-  .week-col-item { display: flex; align-items: flex-start; gap: 5px; padding: 4px 5px; border: 1.5px solid var(--rule); border-radius: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; }
-  .week-col-item:hover { background: rgba(0,0,0,0.03); }
-  .week-col-check { width: 11px; height: 11px; border: 2px solid var(--ink); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
-  .week-col-check.done { background: var(--accent); border-color: var(--accent); }
-  .week-col-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
-  .week-col-text { font-family: var(--font-kr); font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; word-break: break-word; }
-  .week-col-text.done { text-decoration: line-through; color: var(--ink-muted); }
-  .week-col-more { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1.5px solid var(--rule); padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
-  .week-row { display: none; }
-  .week-overdue-row { display: flex; }
+/* 주간뷰 4x2 캘린더 그리드 (모바일/PC 공통) */
+#weekly-list { display: flex; flex-direction: column; height: 100%; }
+#weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.week-cols { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; min-height: 0; gap: 8px; padding: 0 8px 8px; }
+.week-col { display: flex; flex-direction: column; border: 2px solid var(--ink); border-radius: 4px; min-width: 0; overflow: hidden; }
+.week-col-header { flex-shrink: 0; padding: 6px 8px; border-bottom: 2px solid var(--ink); background: transparent; }
+.week-col-header.today { background: rgba(0,56,255,0.08); }
+.week-col-name { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
+.week-col-date { font-family: var(--font-en); font-size: 13px; font-weight: 900; color: var(--ink); margin-top: 1px; }
+.week-col-header.today .week-col-name { color: var(--ink); }
+.week-col-items { flex: 1; overflow-y: auto; padding: 6px; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; }
+.week-col-items::-webkit-scrollbar { display: none; }
+.week-col-item { display: flex; align-items: flex-start; gap: 5px; padding: 4px 5px; border: 1.5px solid var(--rule); border-radius: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.week-col-item:hover { background: rgba(0,0,0,0.03); }
+.week-col-check { width: 11px; height: 11px; border: 2px solid var(--ink); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+.week-col-check.done { background: var(--accent); border-color: var(--accent); }
+.week-col-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
+.week-col-text { font-family: var(--font-kr); font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; min-width: 0; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.week-col-text.done { text-decoration: line-through; color: var(--ink-muted); }
+.week-col-more { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1.5px solid var(--rule); padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
+.week-goal-col { background: var(--accent); border-color: var(--ink); }
+.week-goal-col .week-col-name, .week-goal-col .week-col-date { color: var(--paper); }
+.week-goal-col .week-col-item { background: var(--paper); border-color: #111111; }
+.week-goal-col .week-col-item.week-goal-empty { background: transparent; border-style: dashed; border-color: rgba(255,255,255,0.6); color: rgba(255,255,255,0.9); font-family: var(--font-kr); font-size: 10px; align-items: center; }
+.week-goal-col .goal-star { color: var(--accent); font-size: 12px; flex-shrink: 0; }
+.week-goal-col .goal-slot-remove { color: #111111; font-size: 10px; cursor: pointer; margin-left: auto; flex-shrink: 0; }
+.week-goal-col .plus { font-family: var(--font-en); font-weight: 900; font-size: 12px; }
+@media (max-width: 480px) {
+  .week-cols { gap: 5px; padding: 0 5px 5px; }
+  .week-col-header { padding: 4px 5px; }
+  .week-col-date { font-size: 11px; }
+  .week-col-items { padding: 4px; gap: 3px; }
+  .week-col-text { font-size: 9.5px; }
+  .week-goal-col .week-col-item.week-goal-empty { font-size: 8.5px; }
 }
 .brain-reset-btn { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: #999999; border: 1.5px solid #dddddd; padding: 5px 10px; background: none; cursor: pointer; border-radius: 14px; }
 .brain-input-wrap { padding: 0 18px 12px; flex-shrink: 0; }
 .brain-textarea { width: 100%; font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; color: var(--ink); background: transparent; border: 2.5px solid var(--ink); border-radius: 4px; outline: none; resize: none; line-height: 1.7; min-height: 52px; overflow: hidden; display: block; padding: 10px; box-shadow: 3px 3px 0 var(--ink); box-sizing: border-box; }
 .brain-textarea::placeholder { color: var(--ink-muted); }
 .brain-add-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); border: 2px solid var(--ink); padding: 7px 16px; cursor: pointer; border-radius: 4px; box-shadow: 2px 2px 0 var(--ink); margin-top: 8px; }
-.brain-list { flex: 1; overflow-y: auto; padding: 0 18px 16px; scrollbar-width: none; }
+.brain-list { flex: 0 1 auto; min-height: 0; overflow-y: auto; padding: 0 18px 16px; scrollbar-width: none; }
 .brain-list::-webkit-scrollbar { display: none; }
 .brain-item.dragging { opacity: 0.4; }
 .brain-item-text { font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; line-height: 1.55; color: var(--ink); margin-bottom: 4px; }
@@ -434,18 +442,29 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .rp-close { font-family: var(--font-en); font-size: 10px; font-weight: 600; color: var(--paper); background: none; border: none; cursor: pointer; }
 .rp-body { padding: 14px 22px; }
 .rp-mood { display: inline-block; font-size: 11px; font-weight: 600; color: #111111; background: var(--accent-yellow); border: 2px solid #111111; padding: 2px 10px; border-radius: 4px; margin-bottom: 10px; transform: rotate(-3deg); }
-.dd-analysis-card { padding: 14px; border-radius: 4px; border: 2.5px solid #111111; box-shadow: 5px 5px 0 #111111; margin-bottom: 18px; }
-.dd-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-.dd-chip { font-family: var(--font-en); font-size: 10.5px; font-weight: 700; color: #111111; background: #ffffff; border: 1.5px solid #111111; padding: 4px 10px; border-radius: 20px; }
-.dd-analysis-block { font-family: var(--font-kr); font-size: 12px; font-weight: 400; line-height: 1.6; color: #111111; margin-top: 4px; margin-bottom: 8px; }
-.dd-analysis-block:last-child { margin-bottom: 0; }
-.dd-analysis-block b { font-family: var(--font-en); font-size: 10px; font-weight: 900; letter-spacing: 0.02em; color: #111111; display: block; margin-bottom: 3px; text-transform: uppercase; }
 .dd-body { font-family: var(--font-kr); font-size: 12px; font-weight: 400; line-height: 1.7; color: var(--ink); }
 .dd-body-heading { font-family: var(--font-en); font-size: 10px; font-weight: 900; letter-spacing: 0.05em; color: var(--accent); text-transform: uppercase; margin: 14px 0 8px; }
 #diary-detail-popup .rp-header { background: var(--paper); border-bottom: 1px solid #f0f0f0; padding: 16px 44px 12px 20px; }
 #diary-detail-popup .rp-time { color: var(--ink); font-size: 15px; font-weight: 900; letter-spacing: normal; }
 #diary-detail-popup .rp-close { color: #999999; font-size: 10px; font-weight: 700; }
 #diary-detail-popup .record-popup-sheet::after { display: none; }
+#diary-detail-popup .record-popup-sheet { max-width: 680px; overflow: hidden; display: flex; flex-direction: column; }
+#diary-detail-popup .rp-body { padding: 0; }
+.dd-split { display: flex; flex: 1; min-height: 0; height: min(66vh, 520px); }
+.dd-props-col { flex: 0 0 40%; max-width: 260px; border-right: 1.5px solid var(--rule); padding: 16px 16px; overflow-y: auto; scrollbar-width: none; background: #FAFAF7; }
+.dd-props-col::-webkit-scrollbar { display: none; }
+.dd-content-col { flex: 1; min-width: 0; padding: 16px 20px; overflow-y: auto; scrollbar-width: none; }
+.dd-content-col::-webkit-scrollbar { display: none; }
+.dd-prop { margin-bottom: 16px; }
+.dd-prop:last-child { margin-bottom: 0; }
+.dd-prop-label { font-family: var(--font-en); font-size: 8.5px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.dd-prop-value { font-family: var(--font-kr); font-size: 11.5px; font-weight: 300; line-height: 1.55; color: var(--ink); white-space: pre-wrap; }
+.dd-energy-chip { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; color: #111111; padding: 3px 10px; border-radius: 20px; border: 1.5px solid #111111; }
+@media (max-width: 480px) {
+  .dd-split { height: min(60vh, 460px); }
+  .dd-props-col { flex-basis: 44%; max-width: none; padding: 12px; }
+  .dd-content-col { padding: 12px 14px; }
+}
 .dd-body-heading:first-child { margin-top: 0; }
 .dd-body-para { margin-bottom: 6px; white-space: pre-wrap; }
 .dd-body-para.done { text-decoration: line-through; color: var(--ink-muted); }
@@ -551,31 +570,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .setup-input { font-size: 13px !important; }
 }
 
-/* Todo 헤더 네비게이션 버튼 */
-.todo-nav-btn {
-  font-family: var(--font-en);
-  font-size: 19px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-.todo-nav-divider {
-  width: 1.5px;
-  height: 15px;
-  background: var(--ink);
-  margin: 0 10px;
-  flex-shrink: 0;
-  opacity: 0.15;
-}
-@media (min-width: 768px) {
-  .todo-nav-btn { font-size: 30px; }
-  .todo-nav-divider { height: 20px; margin: 0 16px; }
-}
-
 /* HOME tab */
 #tab-home { padding: var(--pad-h); padding-bottom: 88px; gap: 18px; overflow-y: auto; }
 .home-quote-row { display: flex; align-items: center; gap: 14px; }
@@ -636,7 +630,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </button>
     <button class="tab-btn" onclick="switchTab('record',this)" data-num="01.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      <span class="tab-label">Log</span>
+      <span class="tab-label">Diary</span>
     </button>
     <button class="tab-btn" onclick="switchTab('todo',this)" data-num="02.">
       <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -688,7 +682,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
     <div id="home-fab-wrap">
       <div id="home-fab-menu">
-        <button class="fab-mini" onclick="fabAction('record')" title="Log">✏️</button>
+        <button class="fab-mini" onclick="fabAction('record')" title="Diary">✏️</button>
         <button class="fab-mini" onclick="fabAction('todo')" title="To-Do">✓</button>
         <button class="fab-mini" onclick="fabAction('dump')" title="Memo">📝</button>
       </div>
@@ -717,7 +711,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
     </div>
-    <div class="record-list" id="record-list"><div class="empty-state">Write your first log today.</div></div>
+    <div class="record-list" id="record-list"><div class="empty-state">Write your first diary entry today.</div></div>
     </div>
 
     <div id="record-routine-pane" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:0 var(--pad-h) 20px;scrollbar-width:none;">
@@ -745,7 +739,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="popup-sheet">
       <div class="popup-label">어디로 보낼까요?</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <button class="qc-sheet-type-btn" onclick="routeBrainItem('record')"><span style="font-size:15px;">✏️</span>LOG로 보내기</button>
+        <button class="qc-sheet-type-btn" onclick="routeBrainItem('record')"><span style="font-size:15px;">✏️</span>Diary로 보내기</button>
         <button class="qc-sheet-type-btn" onclick="routeBrainItem('todo')"><span style="font-size:15px;">✓</span>TODO로 보내기</button>
         <button class="qc-sheet-type-btn" onclick="routeBrainItem('idea')"><span style="font-size:15px;">💡</span>IDEA로 보내기</button>
       </div>
@@ -755,10 +749,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <div class="tab-content" id="tab-todo">
     <div class="section-header todo-header">
-      <div style="display:flex;align-items:center;gap:0;">
-        <button id="toggle-week" onclick="switchTodoView('week')" class="todo-nav-btn" style="color:var(--ink);">WEEK</button>
-        <div class="todo-nav-divider"></div>
-        <button id="toggle-quad" onclick="switchTodoView('quad')" class="todo-nav-btn" style="color:#c7c7c7;">QUAD</button>
+      <div class="section-title">To-Do</div>
+      <div class="todo-toggle">
+        <button id="toggle-week" onclick="switchTodoView('week')" class="toggle-btn active">WEEK</button>
+        <button id="toggle-quad" onclick="switchTodoView('quad')" class="toggle-btn inactive">QUAD</button>
       </div>
     </div>
     <div id="goal-bar"></div>
@@ -894,7 +888,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div class="popup-overlay" id="quickcapture-popup" onclick="if(event.target===this)closeQuickCapture()">
   <div class="popup-sheet">
     <div class="qc-sheet-types">
-      <button class="qc-sheet-type-btn" id="qc-type-record" onclick="setQuickCaptureType('record')">LOG</button>
+      <button class="qc-sheet-type-btn" id="qc-type-record" onclick="setQuickCaptureType('record')">Diary</button>
       <button class="qc-sheet-type-btn" id="qc-type-todo" onclick="setQuickCaptureType('todo')">TO-DO</button>
       <button class="qc-sheet-type-btn" id="qc-type-dump" onclick="setQuickCaptureType('dump')">MEMO</button>
     </div>
@@ -993,14 +987,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 <div class="record-popup-overlay" id="diary-detail-popup" onclick="if(event.target===this)closeDiaryDetail()">
   <div class="record-popup-sheet">
     <div class="rp-header"><div class="rp-time" id="dd-date"></div><button class="rp-close" onclick="closeDiaryDetail()">✕ CLOSE</button></div>
-    <div class="rp-body">
-      <div class="dd-analysis-card" id="dd-analysis-card">
-        <div class="dd-chips" id="dd-chips"></div>
-        <div class="dd-analysis-block" id="dd-summary"></div>
-        <div class="dd-analysis-block" id="dd-encourage"></div>
-        <div class="dd-analysis-block" id="dd-advice"></div>
-      </div>
-      <div class="dd-body" id="dd-body"></div>
+    <div class="rp-body dd-split">
+      <div class="dd-props-col" id="dd-props"></div>
+      <div class="dd-content-col dd-body" id="dd-body"></div>
     </div>
   </div>
 </div>
@@ -1974,11 +1963,11 @@ let currentTodoView='week';
 function switchTodoView(view){
   currentTodoView=view;
   localStorage.setItem('last_todo_view',view);
-  const isPC=window.innerWidth>=768;
-  document.getElementById('weekly-view').style.display=view==='week'?(isPC?'flex':'block'):'none';
+  document.getElementById('weekly-view').style.display=view==='week'?'flex':'none';
   document.getElementById('quad-view').style.display=view==='quad'?'flex':'none';
-  document.getElementById('toggle-week').style.color=view==='week'?'var(--ink)':'#c7c7c7';
-  document.getElementById('toggle-quad').style.color=view==='quad'?'var(--ink)':'#c7c7c7';
+  document.getElementById('goal-bar').style.display=view==='quad'?'':'none';
+  document.getElementById('toggle-week').className='toggle-btn'+(view==='week'?' active':' inactive');
+  document.getElementById('toggle-quad').className='toggle-btn'+(view==='quad'?' active':' inactive');
   if(view==='week')renderWeeklyView();
   else renderAllQuads();
 }
@@ -1988,7 +1977,6 @@ function renderWeeklyView(){
   const now=new Date();
   const todayStr=formatDate(now);
   const DAY_NAMES=['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  const isPC=window.innerWidth>=768;
 
   function getItemsForDay(dayStr, isToday){
     const items=[];
@@ -2017,129 +2005,53 @@ function renderWeeklyView(){
     return items;
   }
 
-  const overdue=[];
+  const starred=[];
   ['today','week','month','someday'].forEach(q=>{
-    todoData[q].forEach((item,i)=>{
-      if(!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr){
-        if(!overdue.some(o=>o.item.notionId&&o.item.notionId===item.notionId))
-          overdue.push({item,q,i});
-      }
-    });
+    todoData[q].forEach((item,i)=>{if(item.starred)starred.push({item,q,i});});
   });
-
-  if(isPC){
-    let html='';
-    html+=`<div class="week-cols">`;
-    for(let d=0;d<8;d++){
-      const day=new Date(now);day.setDate(now.getDate()+d);
-      const dayStr=formatDate(day);
-      const isToday=(d===0);
-      const items=getItemsForDay(dayStr,isToday);
-      const dayName=DAY_NAMES[day.getDay()];
-      const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
-      html+=`<div class="week-col" data-date="${dayStr}">
-        <div class="week-col-header${isToday?' today':''}" onclick="openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">
-          <div class="week-col-name">${dayName}</div>
-          <div class="week-col-date">${dayDateStr}</div>
-        </div>
-        <div class="week-col-items" id="wci-${dayStr}" onclick="if(!event.target.closest('.week-col-item'))openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">`;
-      items.forEach(({item,q,i})=>{
-        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
-        html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
-          <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
-          <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
-          <span class="todo-star${item.starred?' starred':''}" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span>
-          <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
-        </div>`;
-      });
-      html+=`</div></div>`;
+  let goalHtml=`<div class="week-col week-goal-col">
+    <div class="week-col-header"><div class="week-col-name">TODAY'S GOAL</div><div class="week-col-date">${starred.length}/3</div></div>
+    <div class="week-col-items">`;
+  for(let s=0;s<3;s++){
+    if(starred[s]){
+      const {item,q,i}=starred[s];
+      goalHtml+=`<div class="week-col-item" onclick="openTodoDetail('${q}',${i})"><span class="goal-star">★</span><div class="week-col-text">${item.text}</div><span class="goal-slot-remove" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">✕</span></div>`;
+    }else{
+      goalHtml+=`<div class="week-col-item week-goal-empty" onclick="switchTodoView('quad')"><span class="plus">+</span>⭐ 눌러 추가</div>`;
     }
-    html+=`</div>`;
-    list.innerHTML=html;
-    requestAnimationFrame(()=>applyPCWeekOverflow());
-  } else {
-    function buildRowHtml(items,labelHtml,rowClass,dayStr){
-      let h=`<div class="week-row${rowClass}" data-date="${dayStr||''}"><div class="week-day-label" onclick="openTodoPopupWeek('${dayStr||''}')" ontouchend="event.stopPropagation();if(!weekDragging&&!lastTouchMoved){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">${labelHtml}</div><div class="week-items" onclick="if(!event.target.closest('.week-item'))openTodoPopupWeek('${dayStr||''}')" ontouchend="if(!weekDragging&&!lastTouchMoved&&!event.target.closest('.week-item')){event.preventDefault();openTodoPopupWeek('${dayStr||''}')}" style="cursor:pointer;">`;
-      items.forEach(({item,q,i})=>{
-        const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
-        h+=`<div class="week-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
-          <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
-          <div class="week-item-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
-          <span class="todo-star${item.starred?' starred':''}" onclick="event.stopPropagation();toggleStar('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span>
-          <div class="week-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)" ontouchend="event.stopPropagation();event.preventDefault();toggleTodo('${q}',${i},event)"></div>
-        </div>`;
-      });
-      return h+`</div></div>`;
-    }
-
-    let html='';
-    for(let d=0;d<8;d++){
-      const day=new Date(now);day.setDate(now.getDate()+d);
-      const dayStr=formatDate(day);const isToday=(d===0);
-      const items=getItemsForDay(dayStr,isToday);
-      const dayName=DAY_NAMES[day.getDay()];
-      const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
-      const labelHtml=`<div class="week-day-name">${dayName}</div><div class="week-day-date">${dayDateStr}</div>`;
-      html+=buildRowHtml(items,labelHtml,isToday?' today':'',dayStr);
-    }
-    list.innerHTML=html;
-    requestAnimationFrame(()=>applyMobileWeekOverflow());
   }
-  renderGoalBar();
-}
+  goalHtml+='</div></div>';
 
-function applyPCWeekOverflow(){
-  const cols=document.querySelectorAll('.week-col');
-  const colArr=Array.from(cols);
-  const nonToday=colArr.filter(c=>!c.querySelector('.week-col-header.today'));
-  for(let i=nonToday.length-1;i>=0;i--){
-    const col=nonToday[i];
-    const itemsEl=col.querySelector('.week-col-items');
-    if(!itemsEl)continue;
-    const colH=col.clientHeight;
-    const headerH=col.querySelector('.week-col-header')?.offsetHeight||40;
-    const available=colH-headerH-8;
-    if(itemsEl.scrollHeight<=available)continue;
-    const children=Array.from(itemsEl.children);
-    let accH=0;let showCount=0;
-    for(const el of children){
-      accH+=el.offsetHeight||20;
-      if(accH>available-20)break;
-      showCount++;
-    }
-    showCount=Math.max(1,showCount);
-    const hidden=children.slice(showCount);
-    if(!hidden.length)continue;
-    hidden.forEach(el=>el.style.display='none');
-    const btn=document.createElement('button');
-    btn.className='week-col-more';
-    btn.textContent=`+${hidden.length}`;
-    btn.onclick=(e)=>{e.stopPropagation();hidden.forEach(el=>el.style.display='');btn.remove();};
-    itemsEl.appendChild(btn);
-  }
-}
+  const dow=now.getDay();
+  const monday=new Date(now);monday.setDate(now.getDate()-((dow+6)%7));
 
-function applyMobileWeekOverflow(){
-  const viewH=window.innerHeight;
-  const rows=Array.from(document.querySelectorAll('#weekly-list .week-row:not(.week-overdue)'));
-  if(!rows.length)return;
-  const totalH=rows.reduce((s,r)=>s+r.offsetHeight,0);
-  if(totalH<=viewH*0.85)return;
-  for(let i=rows.length-1;i>=1;i--){
-    const row=rows[i];
-    const items=Array.from(row.querySelectorAll('.week-item'));
-    if(items.length<=3)continue;
-    const hidden=items.slice(3);
-    hidden.forEach(el=>el.style.display='none');
-    const itemsWrap=row.querySelector('.week-items');
-    const btn=document.createElement('button');
-    btn.className='week-more-btn';
-    btn.textContent=`+${hidden.length}`;
-    btn.onclick=(e)=>{e.stopPropagation();hidden.forEach(el=>el.style.display='');btn.remove();};
-    itemsWrap?.appendChild(btn);
-    const newTotal=rows.reduce((s,r)=>s+r.offsetHeight,0);
-    if(newTotal<=viewH*0.85)break;
+  let html=`<div class="week-cols">${goalHtml}`;
+  for(let d=0;d<7;d++){
+    const day=new Date(monday);day.setDate(monday.getDate()+d);
+    const dayStr=formatDate(day);
+    const isToday=dayStr===todayStr;
+    const items=getItemsForDay(dayStr,isToday);
+    const dayName=DAY_NAMES[day.getDay()];
+    const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
+    html+=`<div class="week-col" data-date="${dayStr}">
+      <div class="week-col-header${isToday?' today':''}" onclick="openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">
+        <div class="week-col-name">${dayName}</div>
+        <div class="week-col-date">${dayDateStr}</div>
+      </div>
+      <div class="week-col-items" id="wci-${dayStr}" onclick="if(!event.target.closest('.week-col-item'))openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">`;
+    items.forEach(({item,q,i})=>{
+      const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
+      html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
+        <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
+        <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
+        <span class="todo-star${item.starred?' starred':''}" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span>
+        <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
+      </div>`;
+    });
+    html+=`</div></div>`;
   }
+  html+=`</div>`;
+  list.innerHTML=html;
 }
 
 
@@ -3531,21 +3443,26 @@ async function openDiaryDetail(page){
   document.getElementById('dd-date').textContent=d?`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`:dateStr;
 
   const energy=props['에너지 레벨']?.select?.name||'';
-  const thoughtFlow=richTextJoin(props['사고 흐름']?.rich_text);
-  const summary=richTextJoin(props['일기 요약']?.rich_text);
-  const encourage=richTextJoin(props['격려']?.rich_text);
-  const advice=richTextJoin(props['제언']?.rich_text);
-
-  const card=document.getElementById('dd-analysis-card');
-  card.style.background=ENERGY_COLORS[energy]||'var(--paper)';
-  const chipsEl=document.getElementById('dd-chips');
-  let chipsHtml='';
-  if(energy)chipsHtml+=`<span class="dd-chip">${energy==='높음'?'좋음':energy}</span>`;
-  if(thoughtFlow)chipsHtml+=`<span class="dd-chip">${thoughtFlow}</span>`;
-  chipsEl.innerHTML=chipsHtml;
-  document.getElementById('dd-summary').innerHTML=summary?`<b>일기 요약</b>${summary}`:'';
-  document.getElementById('dd-encourage').innerHTML=encourage?`<b>격려</b>${encourage}`:'';
-  document.getElementById('dd-advice').innerHTML=advice?`<b>제언</b>${advice}`:'';
+  const sleepStart=richTextJoin(props['취침']?.rich_text);
+  const sleepEnd=richTextJoin(props['기상']?.rich_text);
+  const ddProps=[
+    {label:'일기 요약',value:richTextJoin(props['일기 요약']?.rich_text)},
+    {label:'수면',value:(sleepStart||sleepEnd)?`취침 ${sleepStart||'-'} · 기상 ${sleepEnd||'-'}`:''},
+    {label:'사고 흐름',value:richTextJoin(props['사고 흐름']?.rich_text)},
+    {label:'의미 점화 단어',value:richTextJoin(props['의미 점화 단어']?.rich_text)},
+    {label:'자기대화 톤',value:richTextJoin(props['자기대화 톤']?.rich_text)},
+    {label:'시도&결과 루프',value:richTextJoin(props['시도&결과 루프']?.rich_text)},
+    {label:'인지 오류',value:richTextJoin(props['인지 오류']?.rich_text)},
+    {label:'격려',value:richTextJoin(props['격려']?.rich_text)},
+    {label:'제언',value:richTextJoin(props['제언']?.rich_text)},
+  ];
+  const propsEl=document.getElementById('dd-props');
+  let propsHtml=energy?`<div class="dd-prop"><span class="dd-energy-chip" style="background:${ENERGY_COLORS[energy]||'var(--paper)'};">${energy}</span></div>`:'';
+  ddProps.forEach(({label,value})=>{
+    if(!value)return;
+    propsHtml+=`<div class="dd-prop"><div class="dd-prop-label">${label}</div><div class="dd-prop-value">${value}</div></div>`;
+  });
+  propsEl.innerHTML=propsHtml||'<div class="dd-prop-value" style="color:var(--ink-muted);">기록된 속성이 없어요.</div>';
 
   const bodyEl=document.getElementById('dd-body');
   bodyEl.innerHTML='Loading...';
