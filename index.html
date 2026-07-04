@@ -200,23 +200,36 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .record-photo { width: 100%; height: auto; object-fit: contain; border-radius: 2px; }
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
-/* Diary split: properties (left) + writing (right) */
+/* Diary date navigation */
+.diary-date-nav { display: flex; align-items: center; gap: 10px; }
+.diary-nav-btn { font-family: var(--font-en); font-size: 24px; font-weight: 900; background: none; border: none; cursor: pointer; color: #14110F; line-height: 1; padding: 2px 6px; }
+.diary-nav-btn:active { opacity: 0.5; }
+.diary-nav-btn:disabled { opacity: 0.2; cursor: default; }
+
+/* Diary split: properties (left page) + writing (right page), styled like an open diary spread */
 .diary-split { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
-.diary-props { flex-shrink: 0; border-bottom: 1.5px solid var(--rule); background: var(--paper); }
-.diary-props-label { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--ink-muted); text-transform: uppercase; padding: 12px var(--pad-h) 0; }
-.diary-props-inner { display: flex; flex-direction: row; gap: 8px; overflow-x: auto; padding: 8px var(--pad-h) 12px; scrollbar-width: none; }
+.diary-book { background: #F5F4F0; }
+.diary-props { flex-shrink: 0; border-bottom: 1.5px solid #EDEAE2; background: #F5F4F0; }
+.diary-props-label { font-family: var(--font-kr); font-size: 13px; font-weight: 700; color: #14110F; padding: 14px var(--pad-h) 0; }
+.diary-props-inner { display: flex; flex-direction: row; gap: 8px; overflow-x: auto; padding: 10px var(--pad-h) 14px; scrollbar-width: none; }
 .diary-props-inner::-webkit-scrollbar { display: none; }
-.diary-prop-card { flex-shrink: 0; width: 160px; padding: 10px 12px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--paper); }
-.diary-prop-label { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
-.diary-prop-value { font-family: var(--font-kr); font-size: 12px; font-weight: 400; color: var(--ink); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
-.diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
+.diary-prop-card { flex-shrink: 0; width: 160px; padding: 10px 12px; border: 1.5px solid #EDEAE2; border-radius: 4px; background: #ffffff; }
+.diary-prop-label { font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8578; margin-bottom: 4px; }
+.diary-prop-value { font-family: var(--font-kr); font-size: 12px; font-weight: 400; color: #14110F; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: #8A8578; line-height: 1.6; }
+.diary-summary-quote { margin: 10px var(--pad-h) 0; padding: 14px 16px; background: #ffffff; border-left: 3px solid #1E5BE6; border-radius: 0 4px 4px 0; font-family: var(--font-kr); font-size: 13px; font-weight: 500; line-height: 1.6; color: #14110F; }
+.diary-recent-label { padding: 4px var(--pad-h) 0; margin-top: 4px; }
 @media (min-width: 768px) {
   .diary-split { flex-direction: row; }
-  .diary-props { width: 260px; border-bottom: none; border-right: 1.5px solid var(--rule); overflow-y: auto; scrollbar-width: none; }
+  .diary-props { width: 280px; border-bottom: none; border-right: 1.5px dashed #d8d4c8; box-shadow: 6px 0 10px -8px rgba(0,0,0,0.25); overflow-y: auto; scrollbar-width: none; }
   .diary-props::-webkit-scrollbar { display: none; }
-  .diary-props-inner { flex-direction: column; overflow-x: visible; padding: 8px 16px 16px; }
+  .diary-props-inner { flex-direction: column; overflow-x: visible; padding: 10px 16px 16px; }
   .diary-prop-card { width: auto; }
+  .diary-summary-quote { margin: 10px 16px 0; }
 }
+.diary-readonly .input-section { display: none; }
+.diary-readonly .gratitude-save-btn { display: none; }
+.diary-readonly .gratitude-input { color: #8A8578; }
 
 /* Gratitude journal */
 .gratitude-section { margin: 0 var(--pad-h) 14px; background: #ffffff; border: 2.5px solid #14110F; border-radius: 20px; padding: 16px 18px; box-shadow: 5px 5px 0 #14110F; flex-shrink: 0; }
@@ -802,12 +815,17 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
   <div class="tab-content" id="tab-record">
     <div class="section-header">
-      <div class="section-title" id="current-date"></div>
+      <div class="diary-date-nav">
+        <button class="diary-nav-btn" onclick="changeDiaryDate(-1)">‹</button>
+        <div class="section-title" id="current-date"></div>
+        <button class="diary-nav-btn" id="diary-next-btn" onclick="changeDiaryDate(1)">›</button>
+      </div>
     </div>
 
-    <div class="diary-split">
+    <div class="diary-split diary-book">
       <div class="diary-props">
-        <div class="diary-props-label">TODAY'S PROPERTIES</div>
+        <div class="diary-props-label">일기 요약</div>
+        <div class="diary-summary-quote" id="diary-summary-quote" style="display:none;"></div>
         <div class="diary-props-inner" id="diary-props-inner"><div class="diary-prop-empty">Loading...</div></div>
       </div>
 
@@ -836,6 +854,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <div id="gratitude-fields"><div class="empty-state">Loading...</div></div>
       </div>
 
+      <div class="home-section-label diary-recent-label">최근 기록</div>
       <div class="record-list" id="record-list"><div class="empty-state">Write your first diary entry today.</div></div>
       </div>
     </div>
@@ -1286,7 +1305,7 @@ function switchTab(tab,btn){
   if(tab==='idea')loadIdeaFromNotion();
   if(tab==='home')renderHomeTab();
   if(tab==='setting')initSettingTab();
-  if(tab==='record')loadDiaryPanel();
+  if(tab==='record'){diaryViewDate=getDiaryDate();renderDiaryDateHeader();loadDiaryPanel();}
 }
 
 /* HOME tab */
@@ -1851,6 +1870,31 @@ async function getTodayPageId(){
   cachedPageId=cd.id;cachedPageDate=dateStr;return cachedPageId;
 }
 
+/* Date navigation for the Diary tab */
+let diaryViewDate=getDiaryDate();
+async function getPageIdForDate(date){
+  const db=localStorage.getItem('notion_db');const dateStr=formatDate(date);
+  const sr=await fetch(`${WORKER_URL}/notion/databases/${db}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{property:'날짜',date:{equals:dateStr}}})});
+  const sd=await sr.json();
+  return (sd.results&&sd.results.length>0)?sd.results[0].id:null;
+}
+function isDiaryViewingToday(){return formatDate(diaryViewDate)===formatDate(getDiaryDate());}
+async function getDiaryPanelPageId(){
+  return isDiaryViewingToday()?await getTodayPageId():await getPageIdForDate(diaryViewDate);
+}
+function renderDiaryDateHeader(){
+  document.getElementById('current-date').textContent=formatDateDisplay(diaryViewDate);
+  document.getElementById('diary-next-btn').disabled=isDiaryViewingToday();
+  document.getElementById('record-log-pane').classList.toggle('diary-readonly',!isDiaryViewingToday());
+}
+function changeDiaryDate(delta){
+  const d=new Date(diaryViewDate);d.setDate(d.getDate()+delta);
+  if(formatDate(d)>formatDate(getDiaryDate()))return;
+  diaryViewDate=d;
+  renderDiaryDateHeader();
+  loadDiaryPanel();
+}
+
 /* Diary properties (left pane) */
 const ENERGY_COLORS_DIARY={'낮음':'#ffb3b3','보통':'#fff3b0','높음':'#b8e6c9'};
 const DIARY_PROP_FIELDS=[
@@ -1859,7 +1903,6 @@ const DIARY_PROP_FIELDS=[
   {key:'자기대화 톤',label:'자기대화 톤'},
   {key:'시도&결과 루프',label:'시도&결과 루프'},
   {key:'인지 오류',label:'인지 오류'},
-  {key:'일기 요약',label:'일기 요약'},
   {key:'격려',label:'격려'},
   {key:'제언',label:'제언'}
 ];
@@ -1875,17 +1918,25 @@ function diaryPropCard(label,value,bg){
 }
 async function loadDiaryProps(){
   const el=document.getElementById('diary-props-inner');
+  const quoteEl=document.getElementById('diary-summary-quote');
   if(!el)return;
   el.innerHTML='<div class="diary-prop-empty">Loading...</div>';
+  quoteEl.style.display='none';
   try{
-    const pageId=await getTodayPageId();
+    const pageId=await getDiaryPanelPageId();
+    if(!pageId){
+      el.innerHTML='<div class="diary-prop-empty">이 날짜엔 다이어리 페이지가 없어요.</div>';
+      return;
+    }
     const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});
     const page=await res.json();
     const props=page.properties||{};
     if(!props['분석 완료']?.checkbox){
-      el.innerHTML='<div class="diary-prop-empty">오늘의 분석은 아직 준비되지 않았어요.<br>하루가 끝나면 자동으로 채워져요.</div>';
+      el.innerHTML='<div class="diary-prop-empty">'+(isDiaryViewingToday()?'오늘의 분석은 아직 준비되지 않았어요.<br>하루가 끝나면 자동으로 채워져요.':'이 날짜엔 분석 기록이 없어요.')+'</div>';
       return;
     }
+    const summary=richTextJoinDiary(props['일기 요약']?.rich_text);
+    if(summary){quoteEl.textContent=summary;quoteEl.style.display='block';}
     el.innerHTML='';
     const energy=props['에너지 레벨']?.select?.name||'';
     if(energy)el.appendChild(diaryPropCard('에너지 레벨',energy==='높음'?'좋음':energy,ENERGY_COLORS_DIARY[energy]));
@@ -1910,7 +1961,11 @@ async function loadGratitudeSection(){
   wrap.innerHTML='<div class="empty-state">Loading...</div>';
   gratitudeBlockIds={};
   try{
-    const pageId=await getTodayPageId();
+    const pageId=await getDiaryPanelPageId();
+    if(!pageId){
+      wrap.innerHTML='<div class="empty-state">이 날짜엔 다이어리 페이지가 없어요.</div>';
+      return;
+    }
     let blocks=[];let cursor=null;
     do{
       const url=WORKER_URL+'/notion/blocks/'+pageId+'/children'+(cursor?'?start_cursor='+cursor:'');
@@ -1932,6 +1987,7 @@ async function loadGratitudeSection(){
       const label=document.createElement('div');label.className='gratitude-label';label.textContent=f.label;
       const ta=document.createElement('textarea');
       ta.className='gratitude-input';ta.dataset.emoji=f.emoji;ta.placeholder=f.placeholder;ta.rows=2;ta.value=value;
+      ta.disabled=!isDiaryViewingToday();
       ta.oninput=function(){autoResize(this);};
       row.appendChild(label);row.appendChild(ta);
       wrap.appendChild(row);
@@ -1958,7 +2014,7 @@ async function saveGratitude(){
   }catch(e){console.error(e);showToast('저장 실패');}
   if(btn)btn.disabled=false;
 }
-function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection();}
+function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection();loadRecordsForViewedDate();}
 
 /* ROUTINE — 오늘 루틴 체크리스트 */
 const ROUTINE_GROUPS=[  {label:'🌤️ 아침',items:[    {key:'🌤️물 한잔',label:'물 한잔'},    {key:'🌤️아침 약',label:'아침 약'},    {key:'🌤️5분 명상',label:'5분 명상'},    {key:'🌤️스트레칭',label:'스트레칭'}  ]},  {label:'☀️ 종일',items:[    {key:'☀️물 2리터 마시기',label:'물 2리터 마시기'},    {key:'☀️틈틈이 기록',label:'틈틈이 기록'},    {key:'☀️산책',label:'산책'}  ]},  {label:'🌙 저녁',items:[    {key:'🌙책상 치우기',label:'책상 치우기'},    {key:'🌙설거지',label:'설거지'},    {key:'🌙저녁 약',label:'저녁 약'},    {key:'🌙일기 쓰기',label:'일기 쓰기'}  ]}];let routineSelected=[];function switchRecordPane(pane){  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';  if(pane==='routine')loadRoutineState();}function renderRoutineChecklist(){  const c=document.getElementById('routine-checklist');  c.innerHTML=ROUTINE_GROUPS.map(g=>`    <div style="margin-bottom:18px;">      <div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>      ${g.items.map(it=>{        const done=routineSelected.includes(it.key);        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${it.key.replace(/'/g,"\\'")}')">          <div class="quad-check${done?' done':''}"></div>          <div class="quad-text${done?' done':''}">${it.label}</div>        </div>`;      }).join('')}    </div>`).join('');}async function loadRoutineState(){  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">Loading...</div>';  try{    const pageId=await getTodayPageId();    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});    const data=await res.json();    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);  }catch(e){console.error(e);routineSelected=[];}  renderRoutineChecklist();}async function toggleRoutineItem(key){  if(routineSelected.includes(key))routineSelected=routineSelected.filter(i=>i!==key);  else routineSelected.push(key);  renderRoutineChecklist();  try{    const pageId=await getTodayPageId();    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});  }catch(e){console.error(e);showToast('fail');}}
@@ -2317,10 +2373,11 @@ async function deleteRecord(){
     if(currentPopupItem)currentPopupItem.remove();closeRecordPopup();showToast('Deleted!');
   }catch(e){showToast('Delete failed');}
 }
-async function loadTodayRecords(){
-  if(!skeletonShown.record){showSkeletonRows('record-list',3);skeletonShown.record=true;}
+async function loadRecordsForViewedDate(){
+  showSkeletonRows('record-list',3);
   try{
-    const pageId=await getTodayPageId();if(!pageId)return;
+    const pageId=await getDiaryPanelPageId();
+    if(!pageId){clearSkeletonRows('record-list');document.getElementById('record-list').innerHTML='<div class="empty-state">이 날짜엔 기록이 없어요.</div>';return;}
     const notionUrl='https://notion.so/'+pageId.replace(/-/g,'');
     let allBlocks=[],cursor;
     do{
@@ -2372,7 +2429,12 @@ async function loadTodayRecords(){
       i++;
     }
   }catch(e){console.error('load records failed',e);}
-  finally{clearSkeletonRows('record-list');renderHomeRecentLog();}
+  finally{
+    clearSkeletonRows('record-list');
+    const list=document.getElementById('record-list');
+    if(list&&!list.querySelector('.record-item'))list.innerHTML='<div class="empty-state">'+(isDiaryViewingToday()?'Write your first diary entry today.':'이 날짜엔 기록이 없어요.')+'</div>';
+    if(isDiaryViewingToday())renderHomeRecentLog();
+  }
 }
 
 /* ============================================================
@@ -4017,7 +4079,7 @@ function init(){
   applyThemeColors(localStorage.getItem('theme_accent')||'#0038ff',localStorage.getItem('theme_paper')||'#ffffff');
   applyThemeFont(localStorage.getItem('theme_font')||'Archivo');
   applyThemeFontKr(localStorage.getItem('theme_font_kr')||'Pretendard');
-  document.getElementById('current-date').textContent=formatDateDisplay(getDiaryDate());
+  renderDiaryDateHeader();
   initQuadDates();
   document.getElementById('td-edit-date-picker').addEventListener('change',e=>{
     document.getElementById('td-edit-date').value=e.target.value;
@@ -4035,7 +4097,7 @@ function init(){
   switchTodoView(_lastTodoView);
   const _lastBtn=document.querySelector(`.tab-btn[onclick*="switchTab('home'"]`);
   if(_lastBtn)switchTab('home',_lastBtn);
-  loadTodayRecords();registerSW();
+  loadRecordsForViewedDate();registerSW();
   loadTodoFromNotion();
   loadBookFromNotion();
   loadBrainFromNotion();
