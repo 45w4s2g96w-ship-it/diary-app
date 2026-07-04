@@ -97,7 +97,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 /* Tablet / PC */
 @media (min-width: 768px) {
-  :root { --pad-h: 48px; }
   .todo-header { padding-left: var(--pad-h) !important; }
   body { position: fixed; inset: 0; overflow: hidden; }
   #app { flex-direction: row; height: 100%; }
@@ -113,7 +112,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .tab-btn.active .tab-num { color: var(--paper); }
 }
 @media (min-width: 1400px) {
-  :root { --pad-h: 72px; }
   .tab-bar { width: 220px; }
   .tab-label { font-size: 36px; }
   .tab-btn { padding: 26px 24px; }
@@ -237,7 +235,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .diary-split { flex-direction: row; }
   .diary-props { width: auto; flex: 1; border-bottom: none; border-right: 1.5px dashed #d8d4c8; box-shadow: 6px 0 10px -8px rgba(0,0,0,0.25); overflow-y: auto; scrollbar-width: none; }
   .diary-props::-webkit-scrollbar { display: none; }
-  .diary-summary-box { margin: 10px 16px 14px; }
 }
 .diary-readonly .input-section { display: none; }
 .diary-readonly .gratitude-save-btn { display: none; }
