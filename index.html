@@ -231,6 +231,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-summary-box .ds-label { font-family: 'Space Mono', monospace; font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8578; margin-bottom: 3px; }
 .diary-summary-box .ds-value { font-size: 12.5px; font-weight: 400; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
 .diary-recent-label { padding: 4px var(--pad-h) 0; margin-top: 4px; }
+.diary-recent-box { margin: 14px var(--pad-h) 20px; padding: 14px 16px 16px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.diary-recent-box .diary-recent-label { padding: 0; margin: 0 0 10px; }
+#tab-record .diary-recent-box .record-list { padding: 0; flex: 1; min-height: 0; }
+#tab-record .diary-recent-box .record-item { border: 2px solid var(--ink); border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
+#tab-record .diary-recent-box .record-item:last-child { margin-bottom: 0; }
 @media (min-width: 768px) {
   .diary-split { flex-direction: row; }
   .diary-props { width: auto; flex: 1; border-bottom: none; border-right: 1.5px dashed #d8d4c8; box-shadow: 6px 0 10px -8px rgba(0,0,0,0.25); overflow-y: auto; scrollbar-width: none; }
@@ -868,8 +873,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       </div>
 
-      <div class="home-section-label diary-recent-label">최근 기록</div>
-      <div class="record-list" id="record-list"><div class="empty-state">Write your first diary entry today.</div></div>
+      <div class="diary-recent-box">
+        <div class="home-section-label diary-recent-label">최근 기록</div>
+        <div class="record-list" id="record-list"><div class="empty-state">Write your first diary entry today.</div></div>
+      </div>
       </div>
     </div>
 
