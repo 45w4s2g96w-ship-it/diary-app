@@ -1263,7 +1263,7 @@ function displayTime12h(time24){
 function formatDateShort(d){return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
 function formatDateDisplay(d){const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} — ${days[d.getDay()]}`;}
 function formatTime(d){return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
-function getOffsetDate(n){const d=new Date();d.setDate(d.getDate()+n);return d;}
+function getOffsetDate(n){const d=getDiaryDate();d.setDate(d.getDate()+n);return d;}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
 /* Skeleton loading */
@@ -2400,7 +2400,7 @@ function switchTodoView(view){
 
 function renderWeeklyView(){
   const list=document.getElementById('weekly-list');
-  const now=new Date();
+  const now=getDiaryDate();
   const todayStr=formatDate(now);
   const DAY_NAMES=['SUN','MON','TUE','WED','THU','FRI','SAT'];
   const isPC=window.innerWidth>=768;
@@ -2560,7 +2560,7 @@ function applyMobileWeekOverflow(){
 
 function quadForDate(d){
   if(!d)return 'week';
-  const now=new Date();
+  const now=getDiaryDate();
   const todayStr=formatDate(now);
   const dueDateStr=formatDate(d);
   const days=(d-now)/86400000;
@@ -2591,14 +2591,14 @@ function switchTodoCart(pane){
 /* Todo */
 const QUAD_CFG={today:{label:'Today',offset:0},week:{label:'This Week',offset:7},month:{label:'This Month',offset:30},someday:{label:'Someday',offset:null}};
 let todoData={today:[],week:[],month:[],someday:[]},currentQuad='',currentTodoPane='todo';
-function initQuadDates(){document.getElementById('due-today').textContent=formatDateShort(new Date());document.getElementById('due-week').textContent='+7d  '+formatDateShort(getOffsetDate(7));document.getElementById('due-month').textContent='+30d  '+formatDateShort(getOffsetDate(30));}
+function initQuadDates(){document.getElementById('due-today').textContent=formatDateShort(getDiaryDate());document.getElementById('due-week').textContent='+7d  '+formatDateShort(getOffsetDate(7));document.getElementById('due-month').textContent='+30d  '+formatDateShort(getOffsetDate(30));}
 let todoPopupSelectedDate=null;
 function onTodoDateInputChange(){
   const val=document.getElementById('todo-date-input').value;
   todoPopupSelectedDate=val?new Date(val+'T23:59:59'):null;
 }
 function getWeekDueDate(){
-  const d=new Date();d.setDate(d.getDate()+6);
+  const d=getDiaryDate();d.setDate(d.getDate()+6);
   if(d.getDay()===6)d.setDate(d.getDate()-1);
   return d;
 }
@@ -2753,7 +2753,7 @@ function renderGoalBar(){
   html+=`</div>`;
   bar.innerHTML=html;
 }
-function autoMoveTodos(){const now=new Date();['month','week'].forEach(q=>{const keep=[];todoData[q].forEach(item=>{if(item.done||!item.dueDate){keep.push(item);return;}const days=(item.dueDate-now)/86400000;if(q==='month'&&days<=7){item.movedFrom='month';todoData.week.push(item);}else if(q==='week'&&days<=0){item.movedFrom='week';todoData.today.push(item);}else keep.push(item);});todoData[q]=keep;});}
+function autoMoveTodos(){const now=getDiaryDate();['month','week'].forEach(q=>{const keep=[];todoData[q].forEach(item=>{if(item.done||!item.dueDate){keep.push(item);return;}const days=(item.dueDate-now)/86400000;if(q==='month'&&days<=7){item.movedFrom='month';todoData.week.push(item);}else if(q==='week'&&days<=0){item.movedFrom='week';todoData.today.push(item);}else keep.push(item);});todoData[q]=keep;});}
 function checkGoalAutoReset(){
   const now=new Date();
   const todayReset=new Date(now);todayReset.setHours(5,0,0,0);
@@ -2851,7 +2851,7 @@ async function loadTodoFromNotion(){
   if(!skeletonShown.todo){['items-today','items-week','items-month','items-someday'].forEach(id=>showSkeletonRows(id,3));skeletonShown.todo=true;}
   try{
     if(document.getElementById('todo-detail-popup')?.classList.contains('open'))return;
-    const now=new Date();const twoDaysAgo=new Date(now);twoDaysAgo.setDate(twoDaysAgo.getDate()-2);
+    const now=getDiaryDate();const twoDaysAgo=new Date(now);twoDaysAgo.setDate(twoDaysAgo.getDate()-2);
     const res=await fetch(WORKER_URL+'/notion/databases/'+TODO_DB+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({filter:{or:[{property:'완료',checkbox:{equals:false}},{and:[{property:'완료',checkbox:{equals:true}},{property:'완료일',date:{on_or_after:formatDate(twoDaysAgo)}}]}]},sorts:[{property:'추가일',direction:'ascending'}],page_size:100})});
     const data=await res.json();if(!data.results)return;
     const newTodo={today:[],week:[],month:[],someday:[]};
@@ -3144,7 +3144,7 @@ function endTodoDrag(targetQ,targetItemEl){
   if(!targetQ||targetQ===todoDragQ){todoDragItem=null;todoDragQ=null;todoDragI=null;return;}
   const cfg=QUAD_CFG[targetQ];
   let newDue=null;
-  if(cfg.offset!==null){newDue=new Date();newDue.setDate(newDue.getDate()+cfg.offset);newDue.setHours(23,59,59,0);}
+  if(cfg.offset!==null){newDue=getDiaryDate();newDue.setDate(newDue.getDate()+cfg.offset);newDue.setHours(23,59,59,0);}
   const item=todoData[todoDragQ][todoDragI];
   todoData[todoDragQ].splice(todoDragI,1);
   item.dueDate=newDue;
@@ -3440,7 +3440,7 @@ document.addEventListener('touchend',e=>{
     if(targetDate&&weekDragItem){
       const newDue=new Date(targetDate+'T23:59:59');
       weekDragItem.dueDate=newDue;
-      const now=new Date();
+      const now=getDiaryDate();
       const days=(newDue-now)/86400000;
       const dueDateStr=formatDate(newDue);
       const todayStr=formatDate(now);
@@ -3525,7 +3525,7 @@ document.addEventListener('mouseup',e=>{
     if(targetDate&&weekDragItem){
       const newDue=new Date(targetDate+'T23:59:59');
       weekDragItem.dueDate=newDue;
-      const now=new Date();
+      const now=getDiaryDate();
       const days=(newDue-now)/86400000;
       const dueDateStr=formatDate(newDue);
       const todayStr=formatDate(now);
