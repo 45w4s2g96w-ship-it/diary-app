@@ -603,6 +603,21 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 /* HOME tab */
 #tab-home { padding: var(--pad-h); padding-bottom: 88px; gap: 18px; overflow-y: auto; }
+.home-grid { display: flex; flex-direction: column; gap: 18px; }
+@media (min-width: 768px) {
+  #tab-home { overflow: hidden; }
+  .home-grid { display: grid; grid-template-columns: 1fr 1fr 1.3fr; grid-template-rows: auto 1fr; grid-template-areas: "morning goal record" "memo diary record"; gap: 16px; flex: 1; min-height: 0; }
+  .home-card { border: 2px solid var(--ink); border-radius: 4px; background: var(--paper); padding: 16px; box-shadow: 4px 4px 0 var(--ink); overflow-y: auto; scrollbar-width: none; }
+  .home-card::-webkit-scrollbar { display: none; }
+  .home-card-morning { grid-area: morning; }
+  .home-card-goal { grid-area: goal; margin-top: 0; }
+  .home-card-record { grid-area: record; margin-top: 0; display: flex; flex-direction: column; min-height: 0; }
+  .home-card-record .home-scroll-row { flex-direction: column; overflow-x: hidden; overflow-y: auto; flex: 1; min-height: 0; }
+  .home-card-record .home-mini-card { width: auto; }
+  .home-card-diary { grid-area: diary; margin-top: 0; }
+  .home-card-memo { grid-area: memo; margin-top: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .home-card-memo .home-memo-widget { flex: 1; min-height: 0; }
+}
 .home-quote-row { display: flex; align-items: center; gap: 14px; }
 .home-quote-card { flex: 1; padding: 16px 18px; font-family: var(--font-kr); font-size: 13px; font-weight: 500; line-height: 1.5; color: var(--ink); }
 .home-goal-ring-wrap { flex-shrink: 0; position: relative; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
@@ -624,6 +639,24 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .home-mini-card-text { font-family: var(--font-kr); font-size: 12px; font-weight: 400; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .home-mini-card-date { font-family: var(--font-en); font-size: 15px; font-weight: 900; color: var(--ink); }
 .home-empty-hint { font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); padding: 10px 0; }
+
+/* Home memo widget */
+.home-memo-widget { display: flex; flex-direction: column; }
+.memo-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; flex-shrink: 0; }
+.memo-tabs::-webkit-scrollbar { display: none; }
+.memo-tab { flex-shrink: 0; font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 5px 10px; border: 1.5px solid var(--rule); border-radius: 20px; background: var(--paper); color: var(--ink-muted); cursor: pointer; }
+.memo-tab.active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+.memo-chat-area { flex: 1; min-height: 120px; max-height: 260px; overflow-y: auto; scrollbar-width: none; padding: 6px 0; display: flex; flex-direction: column; gap: 8px; }
+.memo-chat-area::-webkit-scrollbar { display: none; }
+.memo-item { border: 1.5px solid var(--ink); border-radius: 4px; padding: 8px 10px; cursor: pointer; }
+.memo-item-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+.memo-item-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.04em; color: var(--accent); }
+.memo-item-star { cursor: pointer; font-size: 12px; flex-shrink: 0; }
+.memo-item-text { font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; line-height: 1.5; color: var(--ink); word-break: break-word; }
+.memo-input-row { display: flex; gap: 6px; align-items: flex-end; margin-top: 8px; flex-shrink: 0; }
+.memo-input { flex: 1; font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--rule); border-radius: 4px; outline: none; resize: none; line-height: 1.5; padding: 8px 10px; min-height: 34px; max-height: 100px; overflow-y: auto; }
+.memo-input::placeholder { color: var(--ink-muted); }
+.memo-send-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); border: 2px solid var(--ink); padding: 8px 14px; cursor: pointer; border-radius: 4px; box-shadow: 2px 2px 0 var(--ink); flex-shrink: 0; }
 #home-fab-wrap { position: fixed; right: 18px; bottom: 66px; z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 #home-fab-menu { display: flex; flex-direction: column; gap: 10px; align-items: center; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity 0.18s, transform 0.18s; }
 #home-fab-menu.open { opacity: 1; pointer-events: all; transform: translateY(0); }
@@ -683,32 +716,55 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 
   <div class="tab-content active" id="tab-home">
-    <div class="home-quote-row">
-      <div class="home-quote-card nb-card nb-shadow" id="home-quote-card"></div>
-      <div class="home-goal-ring-wrap">
-        <svg width="56" height="56" viewBox="0 0 56 56">
-          <circle cx="28" cy="28" r="24" fill="none" stroke="var(--rule)" stroke-width="5"/>
-          <circle id="home-goal-ring-fg" cx="28" cy="28" r="24" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" transform="rotate(-90 28 28)"/>
-        </svg>
-        <div class="home-goal-ring-label" id="home-goal-ring-label">0/3</div>
+    <div class="home-grid">
+      <div class="home-card home-card-morning">
+        <div class="home-quote-row">
+          <div class="home-quote-card nb-card nb-shadow" id="home-quote-card"></div>
+          <div class="home-goal-ring-wrap">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="var(--rule)" stroke-width="5"/>
+              <circle id="home-goal-ring-fg" cx="28" cy="28" r="24" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+            </svg>
+            <div class="home-goal-ring-label" id="home-goal-ring-label">0/3</div>
+          </div>
+        </div>
+        <button class="home-briefing-btn nb-card nb-shadow" onclick="openBriefingPopup()">🌤️ 오늘의 모닝브리핑</button>
       </div>
-    </div>
 
-    <button class="home-briefing-btn nb-card nb-shadow" onclick="openBriefingPopup()">🌤️ 오늘의 모닝브리핑</button>
+      <div class="home-section home-card home-card-goal">
+        <div class="home-section-label">🎯 GOAL</div>
+        <div class="home-goal-grid" id="home-goal-grid"></div>
+      </div>
 
-    <div class="home-section">
-      <div class="home-section-label">🎯 GOAL</div>
-      <div class="home-goal-grid" id="home-goal-grid"></div>
-    </div>
+      <div class="home-section home-card home-card-record">
+        <div class="home-section-label">RECENT LOG</div>
+        <div class="home-scroll-row" id="home-recent-log"></div>
+      </div>
 
-    <div class="home-section">
-      <div class="home-section-label">RECENT LOG</div>
-      <div class="home-scroll-row" id="home-recent-log"></div>
-    </div>
+      <div class="home-section home-card home-card-diary">
+        <div class="home-section-label">RECENT DIARY</div>
+        <div class="home-scroll-row" id="home-recent-diary"></div>
+      </div>
 
-    <div class="home-section">
-      <div class="home-section-label">RECENT DIARY</div>
-      <div class="home-scroll-row" id="home-recent-diary"></div>
+      <div class="home-section home-card home-card-memo">
+        <div class="home-section-label">💬 MEMO</div>
+        <div class="home-memo-widget">
+          <div class="memo-tabs" id="memo-tabs">
+            <button class="memo-tab active" data-f="ALL" onclick="setMemoFilter('ALL')">ALL</button>
+            <button class="memo-tab" data-f="★" onclick="setMemoFilter('★')">⭐</button>
+            <button class="memo-tab" data-f="DIARY" onclick="setMemoFilter('DIARY')">DIARY</button>
+            <button class="memo-tab" data-f="TO-DO" onclick="setMemoFilter('TO-DO')">TO-DO</button>
+            <button class="memo-tab" data-f="IDEA" onclick="setMemoFilter('IDEA')">IDEA</button>
+            <button class="memo-tab" data-f="BOOKMARK" onclick="setMemoFilter('BOOKMARK')">BOOKMARK</button>
+            <button class="memo-tab" data-f="ETC" onclick="setMemoFilter('ETC')">ETC</button>
+          </div>
+          <div class="memo-chat-area" id="memo-chat-area"><div class="empty-state">Loading...</div></div>
+          <div class="memo-input-row">
+            <textarea class="memo-input" id="memo-widget-input" placeholder="메모를 남겨보세요." rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveMemo();}"></textarea>
+            <button class="memo-send-btn" id="memo-send-btn" onclick="saveMemo()">SEND</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="home-fab-wrap">
@@ -718,6 +774,20 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <button class="fab-mini" onclick="fabAction('dump')" title="Memo">📝</button>
       </div>
       <button id="home-fab-main" onclick="toggleFabMenu()">+</button>
+    </div>
+  </div>
+
+  <div class="popup-overlay" id="memo-classify-popup" onclick="if(event.target===this)closeMemoClassifyPopup()">
+    <div class="popup-sheet">
+      <div class="popup-label">어디로 분류할까요?</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="qc-sheet-type-btn" onclick="classifyMemo('DIARY')"><span style="font-size:15px;">📔</span>DIARY로 보내기</button>
+        <button class="qc-sheet-type-btn" onclick="classifyMemo('TO-DO')"><span style="font-size:15px;">✓</span>TO-DO로 보내기</button>
+        <button class="qc-sheet-type-btn" onclick="classifyMemo('IDEA')"><span style="font-size:15px;">💡</span>IDEA로 보내기</button>
+        <button class="qc-sheet-type-btn" onclick="classifyMemo('BOOKMARK')"><span style="font-size:15px;">🔖</span>BOOKMARK로 보내기</button>
+        <button class="qc-sheet-type-btn" onclick="classifyMemo('ETC')"><span style="font-size:15px;">📁</span>ETC로 보내기</button>
+      </div>
+      <div class="popup-btns" style="margin-top:10px;"><button class="popup-cancel" onclick="closeMemoClassifyPopup()">CANCEL</button></div>
     </div>
   </div>
 
@@ -889,6 +959,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="setup-section">
         <div class="setup-label">한글 폰트</div>
         <select id="theme-font-kr-select" onchange="onThemeFontKrChange()"></select>
+      </div>
+      <div class="setup-section">
+        <div class="setup-label">메모 DB (홈 위젯)</div>
+        <input class="setup-input" id="memo-db-input" placeholder="Notion Memo Database ID" oninput="saveMemoDbId()">
+        <div class="footer-note">이름/분류(select)/중요(checkbox)/링크(url)/마감일(date) 속성을 가진 Notion DB를 만들고 ID를 붙여넣으세요.</div>
       </div>
     </div>
   </div>
@@ -1234,6 +1309,118 @@ function renderHomeTab(){
   renderHomeGoalGrid();
   renderHomeRecentLog();
   renderHomeRecentDiary();
+  loadMemos();
+}
+
+/* Home memo widget */
+let memoItems=[],memoFilter='ALL',memoClassifyTargetId=null;
+function getMemoDb(){return localStorage.getItem('memo_db')||'';}
+async function loadMemos(){
+  const area=document.getElementById('memo-chat-area');
+  if(!area)return;
+  const db=getMemoDb();
+  if(!db){area.innerHTML='<div class="empty-state">Setting 탭에서 메모 DB를 연결해주세요.</div>';return;}
+  area.innerHTML='<div class="empty-state">Loading...</div>';
+  try{
+    const res=await fetch(WORKER_URL+'/notion/databases/'+db+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'생성일시',direction:'descending'}],page_size:100})});
+    const data=await res.json();
+    memoItems=(data.results||[]).map(page=>({
+      id:page.id,
+      text:(page.properties['이름']?.title||[]).map(t=>t.plain_text||'').join(''),
+      category:page.properties['분류']?.select?.name||'NOTHING',
+      important:!!page.properties['중요']?.checkbox
+    }));
+    renderMemoList();
+  }catch(e){console.error(e);area.innerHTML='<div class="empty-state">불러오기 실패</div>';}
+}
+function setMemoFilter(f){
+  memoFilter=f;
+  document.querySelectorAll('.memo-tab').forEach(b=>b.classList.toggle('active',b.dataset.f===f));
+  renderMemoList();
+}
+function renderMemoList(){
+  const area=document.getElementById('memo-chat-area');
+  if(!area)return;
+  const items=memoItems.filter(m=>{
+    if(memoFilter==='ALL')return true;
+    if(memoFilter==='★')return m.important;
+    return m.category===memoFilter;
+  });
+  if(!items.length){area.innerHTML='<div class="empty-state">메모가 없어요.</div>';return;}
+  area.innerHTML=items.map(m=>{
+    const tag=m.category&&m.category!=='NOTHING'?`<span class="memo-item-tag">${m.category}</span>`:'<span></span>';
+    return `<div class="memo-item" data-id="${m.id}" onclick="openMemoClassifyPopup('${m.id}')">
+      <div class="memo-item-top">${tag}<span style="display:flex;gap:8px;align-items:center;"><span class="memo-item-star" onclick="event.stopPropagation();toggleMemoImportant('${m.id}')">${m.important?'⭐':'☆'}</span><span class="memo-item-star" onclick="event.stopPropagation();deleteMemo('${m.id}')">✕</span></span></div>
+      <div class="memo-item-text"></div>
+    </div>`;
+  }).join('');
+  items.forEach(m=>{
+    const el=area.querySelector(`.memo-item[data-id="${m.id}"] .memo-item-text`);
+    if(el)el.textContent=m.text;
+  });
+}
+async function saveMemo(){
+  const input=document.getElementById('memo-widget-input');
+  const text=input.value.trim();
+  const db=getMemoDb();
+  if(!text||!db)return;
+  const btn=document.getElementById('memo-send-btn');
+  btn.disabled=true;
+  try{
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'이름':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'중요':{checkbox:false}}})});
+    const data=await res.json();
+    if(!res.ok||!data.id)throw new Error(data.message||'저장 실패');
+    memoItems.unshift({id:data.id,text,category:'NOTHING',important:false});
+    input.value='';input.style.height='';
+    renderMemoList();
+  }catch(e){console.error(e);showToast('메모 저장 실패');}
+  btn.disabled=false;
+}
+async function toggleMemoImportant(id){
+  const item=memoItems.find(m=>m.id===id);
+  if(!item)return;
+  item.important=!item.important;
+  renderMemoList();
+  try{
+    await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'중요':{checkbox:item.important}}})});
+  }catch(e){console.error(e);}
+}
+function openMemoClassifyPopup(id){
+  memoClassifyTargetId=id;
+  document.getElementById('memo-classify-popup').classList.add('open');
+}
+function closeMemoClassifyPopup(){
+  memoClassifyTargetId=null;
+  document.getElementById('memo-classify-popup').classList.remove('open');
+}
+async function classifyMemo(target){
+  const id=memoClassifyTargetId;
+  const item=memoItems.find(m=>m.id===id);
+  if(!id||!item)return;
+  closeMemoClassifyPopup();
+  try{
+    await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'분류':{select:{name:target}}}})});
+    item.category=target;
+    if(target==='TO-DO'){
+      await saveTodoToNotion('someday',item.text,null,'','');
+      showToast('TO-DO에 추가됨!');
+    }else if(target==='DIARY'){
+      const pageId=await getTodayPageId();
+      const timeStr=formatTime(new Date());
+      await fetch('/api/insert-record',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({notionToken:localStorage.getItem('notion_token')||'',pageId,children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:timeStr},annotations:{color:'gray'}},{type:'text',text:{content:'\n'+item.text}}]}}]})});
+      showToast('Diary에 추가됨!');
+    }else{
+      showToast(target+'로 분류됨');
+    }
+    renderMemoList();
+  }catch(e){console.error(e);showToast('분류 실패');}
+}
+async function deleteMemo(id){
+  try{
+    await fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})});
+    memoItems=memoItems.filter(m=>m.id!==id);
+    renderMemoList();
+  }catch(e){console.error(e);showToast('삭제 실패');}
 }
 function getStarredTodos(){
   const starred=[];
@@ -1470,6 +1657,11 @@ function initSettingTab(){
   document.getElementById('theme-paper-hex').textContent=paper.toUpperCase();
   document.getElementById('theme-font-select').value=localStorage.getItem('theme_font')||'Archivo';
   document.getElementById('theme-font-kr-select').value=localStorage.getItem('theme_font_kr')||'Pretendard';
+  document.getElementById('memo-db-input').value=localStorage.getItem('memo_db')||'';
+}
+function saveMemoDbId(){
+  localStorage.setItem('memo_db',document.getElementById('memo-db-input').value.trim());
+  loadMemos();
 }
 
 /* Mood */
