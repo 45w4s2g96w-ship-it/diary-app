@@ -183,7 +183,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 #tab-record .emotion-row-label { font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; color: #8A8578; }
 #tab-record .tag { border-color: #14110F; color: #14110F; background: #F5F4F0; }
 #tab-record .tag.selected { background: #1E5BE6; border-color: #1E5BE6; color: #F5F4F0; }
-#tab-record .input-section { margin: 10px var(--pad-h) 12px; background: #ffffff; border: 2.5px solid #14110F; border-radius: 20px; padding: 18px; box-shadow: 5px 5px 0 #14110F; }
+#tab-record .input-section { margin: 10px var(--pad-h) 14px; background: #ffffff; border: 1.5px solid #EDEAE2; border-radius: 8px; padding: 18px; box-shadow: none; }
 #tab-record .text-input { min-height: 90px; color: #14110F; }
 #tab-record .text-input::placeholder { color: #8A8578; }
 #tab-record .attach-btn { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #8A8578; border: 2px solid #EDEAE2; border-radius: 12px; padding: 8px 14px; transition: transform 0.1s; }
@@ -216,7 +216,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .diary-mobile-header { display: none; }
   .tab-bar-diary-nav.active { display: flex; }
   .diary-write-row { flex-direction: row; gap: 14px; padding: 10px var(--pad-h) 0; }
-  #tab-record .diary-write-row .input-section, .diary-write-row .gratitude-section { flex: 1; min-width: 0; margin: 0 0 12px; }
+  #tab-record .diary-write-row .input-section, .diary-write-row .gratitude-section { flex: 1; min-width: 0; margin: 0 0 14px; }
   .diary-write-row .input-actions { flex-wrap: wrap; gap: 8px; }
 }
 
@@ -224,9 +224,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-split { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
 .diary-book { background: #F5F4F0; }
 .diary-props { flex-shrink: 0; border-bottom: 1.5px solid #EDEAE2; background: #F5F4F0; }
-.diary-props-label { font-family: var(--font-kr); font-size: 13px; font-weight: 700; color: #14110F; padding: 14px var(--pad-h) 0; }
 .diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: #8A8578; line-height: 1.6; }
-.diary-summary-box { margin: 10px var(--pad-h) 16px; padding: 18px 20px; background: #ffffff; border: 1.5px solid #EDEAE2; border-radius: 8px; font-family: var(--font-kr); color: #14110F; }
+.diary-summary-box { margin: 10px var(--pad-h) 14px; padding: 18px 20px; background: #ffffff; border: 1.5px solid #EDEAE2; border-radius: 8px; font-family: var(--font-kr); color: #14110F; }
 .diary-summary-box .ds-energy { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 20px; border: 1.5px solid #14110F; margin-bottom: 12px; }
 .diary-summary-box .ds-quote { font-size: 13.5px; font-weight: 500; line-height: 1.75; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px dashed #EDEAE2; white-space: pre-wrap; }
 .diary-summary-box .ds-row { margin-bottom: 12px; }
@@ -238,14 +237,14 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .diary-split { flex-direction: row; }
   .diary-props { width: auto; flex: 1; border-bottom: none; border-right: 1.5px dashed #d8d4c8; box-shadow: 6px 0 10px -8px rgba(0,0,0,0.25); overflow-y: auto; scrollbar-width: none; }
   .diary-props::-webkit-scrollbar { display: none; }
-  .diary-summary-box { margin: 10px 16px 16px; }
+  .diary-summary-box { margin: 10px 16px 14px; }
 }
 .diary-readonly .input-section { display: none; }
 .diary-readonly .gratitude-save-btn { display: none; }
 .diary-readonly .gratitude-input { color: #8A8578; }
 
 /* Gratitude journal */
-.gratitude-section { margin: 0 var(--pad-h) 14px; background: #ffffff; border: 2.5px solid #14110F; border-radius: 20px; padding: 16px 18px; box-shadow: 5px 5px 0 #14110F; flex-shrink: 0; }
+.gratitude-section { margin: 0 var(--pad-h) 14px; background: #ffffff; border: 1.5px solid #EDEAE2; border-radius: 8px; padding: 16px 18px; box-shadow: none; flex-shrink: 0; }
 .gratitude-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .gratitude-title { font-family: var(--font-kr); font-size: 13px; font-weight: 700; color: #14110F; }
 .gratitude-save-btn { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; background: #1E5BE6; color: #ffffff; border: 2px solid #14110F; border-radius: 12px; padding: 6px 12px; cursor: pointer; box-shadow: 3px 3px 0 #14110F; }
@@ -842,7 +841,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
     <div class="diary-split diary-book">
       <div class="diary-props">
-        <div class="diary-props-label">일기 요약</div>
         <div class="diary-summary-box" id="diary-summary-box"><div class="diary-prop-empty">Loading...</div></div>
       </div>
 
