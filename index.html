@@ -343,18 +343,23 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .brain-zone-item { padding: 10px 0; border-bottom: 1px solid var(--rule); font-family: var(--font-kr); font-size: 12px; font-weight: 300; color: var(--ink); line-height: 1.5; }
 .brain-zone-empty { padding: 40px 0; text-align: center; font-size: 12px; color: var(--ink-muted); }
 
-/* 주간뷰 4x2 캘린더 그리드 (모바일/PC 공통) */
+/* 주간뷰: 모바일은 1x8 세로 배열(목표+오늘부터 7일), PC는 4x2 그리드 */
 #weekly-list { display: flex; flex-direction: column; height: 100%; }
 #weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-.week-cols { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; min-height: 0; gap: 8px; padding: 0 8px 8px; }
-.week-col { display: flex; flex-direction: column; border: 2px solid var(--ink); border-radius: 4px; min-width: 0; overflow: hidden; }
+.week-cols { flex: 1; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; min-height: 0; gap: 8px; padding: 0 8px 8px; }
+.week-col { display: flex; flex-direction: column; border: 2px solid var(--ink); border-radius: 4px; min-width: 0; flex-shrink: 0; }
 .week-col-header { flex-shrink: 0; padding: 6px 8px; border-bottom: 2px solid var(--ink); background: transparent; }
 .week-col-header.today { background: rgba(0,56,255,0.08); }
 .week-col-name { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
 .week-col-date { font-family: var(--font-en); font-size: 13px; font-weight: 900; color: var(--ink); margin-top: 1px; }
 .week-col-header.today .week-col-name { color: var(--ink); }
-.week-col-items { flex: 1; overflow-y: auto; padding: 6px; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; }
+.week-col-items { flex: none; overflow: visible; padding: 6px; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; }
 .week-col-items::-webkit-scrollbar { display: none; }
+@media (min-width: 768px) {
+  .week-cols { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; }
+  .week-col { overflow: hidden; }
+  .week-col-items { flex: 1; overflow-y: auto; }
+}
 .week-col-item { display: flex; align-items: flex-start; gap: 5px; padding: 4px 5px; border: 1.5px solid var(--rule); border-radius: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; }
 .week-col-item:hover { background: rgba(0,0,0,0.03); }
 .week-col-check { width: 11px; height: 11px; border: 2px solid var(--ink); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
@@ -2521,7 +2526,7 @@ function renderWeeklyView(){
         const uid=item.notionId||item.text;
         if(seenIds.has(uid))return;
         if(isToday){
-          if(q==='today'&&(!item.dueDate||formatDate(new Date(item.dueDate))===dayStr)){
+          if(q==='today'&&(!item.dueDate||formatDate(new Date(item.dueDate))<=dayStr)){
             seenIds.add(uid);items.push({item,q,i});return;
           }
         }
@@ -2557,12 +2562,9 @@ function renderWeeklyView(){
   }
   goalHtml+='</div></div>';
 
-  const dow=now.getDay();
-  const monday=new Date(now);monday.setDate(now.getDate()-((dow+6)%7));
-
   let html=`<div class="week-cols">${goalHtml}`;
   for(let d=0;d<7;d++){
-    const day=new Date(monday);day.setDate(monday.getDate()+d);
+    const day=new Date(now);day.setDate(now.getDate()+d);
     const dayStr=formatDate(day);
     const isToday=dayStr===todayStr;
     const items=getItemsForDay(dayStr,isToday);
@@ -2576,9 +2578,11 @@ function renderWeeklyView(){
       <div class="week-col-items" id="wci-${dayStr}" onclick="if(!event.target.closest('.week-col-item'))openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">`;
     items.forEach(({item,q,i})=>{
       const timeLabel=item.time?`<span style="font-size:9px;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
+      const overdue=!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr;
+      const overdueBadge=overdue?'<span class="quad-overdue"> 마감 지남</span>':'';
       html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
         <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
-        <div class="week-col-text${item.done?' done':''}" style="${!item.done&&item.dueDate&&formatDate(new Date(item.dueDate))<todayStr?'color:#c0392b;':''}">${item.text}${timeLabel}</div>
+        <div class="week-col-text${item.done?' done':''}" style="${overdue?'color:#c0392b;':''}">${item.text}${timeLabel}${overdueBadge}</div>
         <span class="todo-star${item.starred?' starred':''}" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span>
         <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
       </div>`;
@@ -2841,7 +2845,7 @@ function renderQuad(q){
     const od=item.dueDate&&!item.done&&new Date(item.dueDate)<now;
     const timeLabel=item.time?`<span style="font-family:var(--font-kr);font-size:9px;font-weight:300;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
     const div=document.createElement('div');div.className='quad-item';div.dataset.q=q;div.dataset.i=i;div.dataset.type='parent';
-    div.innerHTML=`<span class="todo-handle">⋮⋮</span><div class="quad-text${item.done?' done':''}">${item.text}${timeLabel}${od?'<span class="quad-overdue"> Overdue</span>':''}</div><span class="todo-star${item.starred?' starred':''}" onclick="toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div>`;
+    div.innerHTML=`<span class="todo-handle">⋮⋮</span><div class="quad-text${item.done?' done':''}">${item.text}${timeLabel}${od?'<span class="quad-overdue"> 마감 지남</span>':''}</div><span class="todo-star${item.starred?' starred':''}" onclick="toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div>`;
     const pChk=div.querySelector('.quad-check');
     if(pChk){pChk.addEventListener('mousedown',e=>e.stopPropagation());pChk.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});}
     const pStar=div.querySelector('.todo-star');
