@@ -58,7 +58,7 @@ const SKY_KO = { '1': '맑음', '3': '구름많음', '4': '흐림' };
 const PTY_KO = { '1': '비', '2': '비/눈', '3': '눈', '4': '소나기' };
 
 async function fetchKmaSkyStatus(apiKey) {
-  if (!apiKey) return '';
+  if (!apiKey) return { desc: '', error: null };
   try {
     const kstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
     let baseDate = kstNow;
@@ -74,19 +74,35 @@ async function fetchKmaSkyStatus(apiKey) {
       + `?serviceKey=${encodeURIComponent(apiKey)}&numOfRows=60&pageNo=1&dataType=JSON`
       + `&base_date=${baseDateStr}&base_time=${baseTime}&nx=60&ny=127`;
     const res = await fetch(url);
-    const data = await res.json();
+    const raw = await res.text();
+
+    // data.go.kr returns an XML error body (auth/quota failures) even when
+    // dataType=JSON is requested, so a plain res.json() would throw and hide the reason.
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      const xmlMsg = (raw.match(/<returnAuthMsg>([^<]*)<\/returnAuthMsg>/)
+        || raw.match(/<errMsg>([^<]*)<\/errMsg>/) || [])[1];
+      return { desc: '', error: `KMA non-JSON response${xmlMsg ? ': ' + xmlMsg : ` (HTTP ${res.status})`}` };
+    }
+
+    const header = data?.response?.header;
+    if (header && header.resultCode !== '00') {
+      return { desc: '', error: `KMA ${header.resultCode} ${header.resultMsg}` };
+    }
+
     const items = data?.response?.body?.items?.item;
-    if (!Array.isArray(items) || items.length === 0) return '';
+    if (!Array.isArray(items) || items.length === 0) return { desc: '', error: 'KMA returned no forecast items' };
 
     const firstTime = items.find((it) => it.category === 'SKY')?.fcstTime;
     const sky = items.find((it) => it.category === 'SKY' && it.fcstTime === firstTime)?.fcstValue;
     const pty = items.find((it) => it.category === 'PTY' && it.fcstTime === firstTime)?.fcstValue;
 
-    if (pty && pty !== '0') return PTY_KO[pty] ?? '';
-    return SKY_KO[sky] ?? '';
+    const desc = (pty && pty !== '0') ? (PTY_KO[pty] ?? '') : (SKY_KO[sky] ?? '');
+    return { desc, error: desc ? null : `KMA returned unmapped codes (SKY=${sky}, PTY=${pty})` };
   } catch (e) {
-    console.error('KMA sky fetch failed', e);
-    return '';
+    return { desc: '', error: String(e) };
   }
 }
 
@@ -97,20 +113,20 @@ async function fetchSeoulWeather(kmaApiKey) {
       + '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m'
       + '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum'
       + '&timezone=Asia%2FSeoul&forecast_days=1';
-    const [res, kmaSky] = await Promise.all([
+    const [res, kma] = await Promise.all([
       fetch(url),
-      fetchKmaSkyStatus(kmaApiKey).catch(() => ''),
+      fetchKmaSkyStatus(kmaApiKey).catch((e) => ({ desc: '', error: String(e) })),
     ]);
     const data = await res.json();
     if (!res.ok || data.error) {
       const reason = data.reason || `open-meteo HTTP ${res.status}`;
       console.error('weather fetch failed', reason);
-      return { text: '', error: reason };
+      return { text: '', error: reason, kmaError: kma.error };
     }
     const cur = data.current;
     const daily = data.daily;
-    if (!cur) return { text: '', error: 'open-meteo response missing current data' };
-    const desc = kmaSky || (WMO_KO[cur.weather_code] ?? `코드 ${cur.weather_code}`);
+    if (!cur) return { text: '', error: 'open-meteo response missing current data', kmaError: kma.error };
+    const desc = kma.desc || (WMO_KO[cur.weather_code] ?? `코드 ${cur.weather_code}`);
     const text = [
       `현재기온: ${cur.temperature_2m}°C (체감 ${cur.apparent_temperature}°C)`,
       `최고: ${daily.temperature_2m_max[0]}°C / 최저: ${daily.temperature_2m_min[0]}°C`,
@@ -119,7 +135,8 @@ async function fetchSeoulWeather(kmaApiKey) {
       `풍속: ${cur.wind_speed_10m}km/h`,
       `현재강수: ${cur.precipitation}mm`,
     ].join(', ');
-    return { text, error: null };
+    // KMA sky status failed, so this fell back to Open-Meteo's less Korea-tuned model — worth flagging even though text still came through.
+    return { text, error: null, kmaError: kma.desc ? null : kma.error };
   } catch (e) {
     console.error('weather fetch failed', e);
     return { text: '', error: String(e) };
@@ -303,7 +320,11 @@ ${newsText || '(없음)'}
     };
   }
 
-  const weatherDebug = weatherResult.error ? { stage: 'weather_fetch_failed', error: weatherResult.error } : null;
+  const weatherDebug = weatherResult.error
+    ? { stage: 'weather_fetch_failed', error: weatherResult.error, kmaError: weatherResult.kmaError }
+    : weatherResult.kmaError
+      ? { stage: 'kma_sky_status_fallback', error: weatherResult.kmaError }
+      : null;
   const finalDebug = parseDebug || briefingResult.debug || weatherDebug;
   const newBlocks = buildBriefingBlocksFromJSON(parsed);
 
