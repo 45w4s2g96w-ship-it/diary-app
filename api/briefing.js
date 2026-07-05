@@ -102,11 +102,16 @@ async function fetchSeoulWeather(kmaApiKey) {
       fetchKmaSkyStatus(kmaApiKey).catch(() => ''),
     ]);
     const data = await res.json();
+    if (!res.ok || data.error) {
+      const reason = data.reason || `open-meteo HTTP ${res.status}`;
+      console.error('weather fetch failed', reason);
+      return { text: '', error: reason };
+    }
     const cur = data.current;
     const daily = data.daily;
-    if (!cur) return '';
+    if (!cur) return { text: '', error: 'open-meteo response missing current data' };
     const desc = kmaSky || (WMO_KO[cur.weather_code] ?? `코드 ${cur.weather_code}`);
-    return [
+    const text = [
       `현재기온: ${cur.temperature_2m}°C (체감 ${cur.apparent_temperature}°C)`,
       `최고: ${daily.temperature_2m_max[0]}°C / 최저: ${daily.temperature_2m_min[0]}°C`,
       `날씨(이 표현 그대로 사용, 변경 금지): ${desc}`,
@@ -114,9 +119,10 @@ async function fetchSeoulWeather(kmaApiKey) {
       `풍속: ${cur.wind_speed_10m}km/h`,
       `현재강수: ${cur.precipitation}mm`,
     ].join(', ');
+    return { text, error: null };
   } catch (e) {
     console.error('weather fetch failed', e);
-    return '';
+    return { text: '', error: String(e) };
   }
 }
 
@@ -170,13 +176,14 @@ async function runBriefing(overrideDate = null) {
   const dow = new Date(y, mo - 1, d).getDay();
   const dayName = days[dow];
 
-  const [todaySchedule, diaryResult, newsItems, seoulWeather, holidaySet] = await Promise.all([
+  const [todaySchedule, diaryResult, newsItems, weatherResult, holidaySet] = await Promise.all([
     fetchTodayEvents(ICLOUD_CALENDAR_URLS, todayStr).catch(() => ''),
     fetchDiary(NOTION_TOKEN, yesterdayStr),
     fetchGoogleNewsRSS(),
-    fetchSeoulWeather(KMA_API_KEY).catch(() => ''),
+    fetchSeoulWeather(KMA_API_KEY).catch((e) => ({ text: '', error: String(e) })),
     fetchKoreanHolidays(y).catch(() => new Set()),
   ]);
+  const seoulWeather = weatherResult.text;
 
   const { diarySummary, diarySuggest } = diaryResult;
   const hasDiarySummary = !!diarySummary;
@@ -296,7 +303,8 @@ ${newsText || '(없음)'}
     };
   }
 
-  const finalDebug = parseDebug || briefingResult.debug;
+  const weatherDebug = weatherResult.error ? { stage: 'weather_fetch_failed', error: weatherResult.error } : null;
+  const finalDebug = parseDebug || briefingResult.debug || weatherDebug;
   const newBlocks = buildBriefingBlocksFromJSON(parsed);
 
   const diaryPageId = await findTodayDiaryPage(NOTION_TOKEN, todayStr);
