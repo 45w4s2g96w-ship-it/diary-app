@@ -789,7 +789,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
       <div class="home-section home-card home-card-habit">
         <div class="home-section-label">✅ HABIT</div>
-        <div class="home-habit-list" id="home-habit-list"><div class="empty-state">Loading...</div></div>
+        <div class="home-habit-list" id="home-habit-list"><div class="empty-state">불러오는 중...</div></div>
       </div>
 
       <div class="home-section home-card home-card-diary">
@@ -809,7 +809,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
             <button class="memo-tab" data-f="BOOKMARK" onclick="setMemoFilter('BOOKMARK')">BOOKMARK</button>
             <button class="memo-tab" data-f="ETC" onclick="setMemoFilter('ETC')">ETC</button>
           </div>
-          <div class="memo-chat-area" id="memo-chat-area"><div class="empty-state">Loading...</div></div>
+          <div class="memo-chat-area" id="memo-chat-area"><div class="empty-state">불러오는 중...</div></div>
           <div class="memo-input-row">
             <textarea class="memo-input" id="memo-widget-input" placeholder="메모를 남겨보세요." rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveMemo();}"></textarea>
             <button class="memo-send-btn" id="memo-send-btn" onclick="saveMemo()">SEND</button>
@@ -853,7 +853,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
     <div class="diary-split diary-book">
       <div class="diary-props">
-        <div class="diary-summary-box" id="diary-summary-box"><div class="diary-prop-empty">Loading...</div></div>
+        <div class="diary-summary-box" id="diary-summary-box"><div class="diary-prop-empty">불러오는 중...</div></div>
       </div>
 
       <div id="record-log-pane">
@@ -863,11 +863,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           <div class="gratitude-title">🌿 감사 일기</div>
           <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude()">SAVE</button>
         </div>
-        <div id="gratitude-fields"><div class="empty-state">Loading...</div></div>
+        <div id="gratitude-fields"><div class="empty-state">불러오는 중...</div></div>
       </div>
 
       <div class="input-section">
-        <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
+        <textarea class="text-input" id="memo-input" placeholder="무엇이든 적어보세요." rows="3" oninput="autoResize(this)"></textarea>
         <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
         <div class="input-actions">
           <button class="attach-btn" onclick="document.getElementById('photo-input').click()">＋ PHOTO</button>
@@ -885,7 +885,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
       <div class="diary-recent-box">
         <div class="home-section-label diary-recent-label">최근 기록</div>
-        <div class="record-list" id="record-list"><div class="empty-state">Write your first diary entry today.</div></div>
+        <div class="record-list" id="record-list"><div class="empty-state">오늘의 첫 기록을 남겨보세요.</div></div>
       </div>
       </div>
     </div>
@@ -903,10 +903,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div style="display:flex;flex:1;overflow:hidden;min-height:0;">
       <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
         <div class="brain-input-wrap">
-          <textarea class="brain-textarea" id="brain-input" placeholder="Write a memo." oninput="autoResize(this)"></textarea>
+          <textarea class="brain-textarea" id="brain-input" placeholder="메모를 적어보세요." oninput="autoResize(this)"></textarea>
           <button class="brain-add-btn" onclick="addBrainItem()">ADD</button>
         </div>
-        <div class="brain-list" id="brain-list"><div class="empty-state">Swipe left to delete.</div></div>
+        <div class="brain-list" id="brain-list"><div class="empty-state">왼쪽으로 스와이프해서 삭제하세요.</div></div>
       </div>
     </div>
   </div>
@@ -964,7 +964,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="section-title">Book</div>
       <button class="add-btn-sm" onclick="openAddBookPopup()">+ ADD</button>
     </div>
-    <div class="book-list" id="book-list"><div class="empty-state">No books added yet.</div></div>
+    <div class="book-list" id="book-list"><div class="empty-state">아직 등록된 책이 없어요.</div></div>
   </div>
 
   <div class="tab-content" id="tab-book-detail">
@@ -973,7 +973,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <button class="add-btn-sm" onclick="openAddReviewPopup()">+ 독서 기록</button>
     </div>
     <div class="book-detail-header" id="book-detail-header"></div>
-    <div class="review-list" id="review-list"><div class="empty-state">No reading notes yet.</div></div>
+    <div class="review-list" id="review-list"><div class="empty-state">아직 독서노트가 없어요.</div></div>
   </div>
 
   <div class="tab-content" id="tab-idea">
@@ -981,7 +981,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="section-title">Idea</div>
       <button class="add-btn-sm" onclick="openAddIdeaPopup()">+ ADD</button>
     </div>
-    <div class="idea-list" id="idea-list" style="flex:1;overflow-y:auto;padding:0 var(--pad-h);scrollbar-width:none;"><div class="empty-state">No ideas yet.</div></div>
+    <div class="idea-list" id="idea-list" style="flex:1;overflow-y:auto;padding:0 var(--pad-h);scrollbar-width:none;"><div class="empty-state">아직 아이디어가 없어요.</div></div>
   </div>
 
   <div class="tab-content" id="tab-setting">
@@ -1019,7 +1019,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       <div class="setup-section">
         <div class="setup-label">메모 DB (홈 위젯)</div>
-        <input class="setup-input" id="memo-db-input" placeholder="Notion Memo Database ID" oninput="saveMemoDbId()">
+        <input class="setup-input" id="memo-db-input" placeholder="노션 메모 데이터베이스 ID" oninput="saveMemoDbId()">
         <div class="footer-note">이름/분류(select)/중요(checkbox)/링크(url)/마감일(date) 속성을 가진 Notion DB를 만들고 ID를 붙여넣으세요.</div>
       </div>
     </div>
@@ -1044,7 +1044,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="popup-overlay" id="todo-popup" onclick="if(event.target===this)closeTodoPopup()">
   <div class="popup-sheet" style="max-height:90vh;overflow-y:auto;">
     <div class="popup-label" id="todo-popup-label"></div>
-    <input class="popup-input" id="todo-input" placeholder="Enter a task..." onkeydown="if(event.key==='Enter')document.getElementById('todo-memo-input').focus()">
+    <input class="popup-input" id="todo-input" placeholder="할 일을 입력하세요..." onkeydown="if(event.key==='Enter')document.getElementById('todo-memo-input').focus()">
     <div style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:6px;">MEMO <span style="font-weight:400;letter-spacing:0;text-transform:none;font-family:var(--font-kr);font-size:9px;color:var(--rule);">optional</span></div>
     <textarea class="popup-input-sm" id="todo-memo-input" placeholder="메모 (링크, 참고사항...)" rows="2" oninput="autoResize(this)"></textarea>
     <div style="display:flex;flex-direction:column;gap:0;">
@@ -1179,12 +1179,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="popup-sheet">
     <div class="popup-label">EDIT BOOK</div>
     <div class="popup-label" style="margin-bottom:4px;">TITLE</div>
-    <input class="popup-input" id="book-edit-title" placeholder="Book title">
+    <input class="popup-input" id="book-edit-title" placeholder="책 제목">
     <div class="popup-label" style="margin-bottom:4px;">GENRE</div>
     <input class="popup-input" id="book-edit-genre" placeholder="장르" style="margin-bottom:14px;">
     <div class="popup-label" style="margin-bottom:4px;">COVER IMAGE</div>
     <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
-      <input class="popup-input" id="book-edit-cover-url" placeholder="Image URL" style="margin-bottom:0;flex:1;">
+      <input class="popup-input" id="book-edit-cover-url" placeholder="이미지 URL" style="margin-bottom:0;flex:1;">
       <span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">OR</span>
       <button onclick="document.getElementById('book-edit-cover-file').click()" style="font-family:var(--font-en);font-size:9px;font-weight:700;padding:8px 12px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer;white-space:nowrap;">UPLOAD</button>
       <input type="file" id="book-edit-cover-file" accept="image/*" style="display:none;" onchange="handleBookCoverUpload(this)">
@@ -1235,7 +1235,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     <div class="popup-label">독서 기록</div>
     <div class="popup-due" id="review-date-label"></div>
     <div class="popup-label" style="margin-bottom:4px;">마지막 페이지 <span style="font-weight:400;font-size:9px;color:var(--rule);letter-spacing:0;text-transform:none;">optional</span></div>
-    <input class="popup-input" id="review-page-input" type="number" placeholder="e.g. 128" style="margin-bottom:14px;">
+    <input class="popup-input" id="review-page-input" type="number" placeholder="예: 128" style="margin-bottom:14px;">
     <div class="popup-label" style="margin-bottom:4px;">인상 깊은 구절 <span style="font-weight:400;font-size:9px;color:var(--rule);letter-spacing:0;text-transform:none;">optional</span></div>
     <textarea class="popup-input" id="review-quote-input" placeholder="인상 깊었던 구절을 적어봐요." rows="3" style="resize:none;line-height:1.7;min-height:64px;margin-bottom:6px;" oninput="autoResize(this)"></textarea>
     <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px;">
@@ -1369,12 +1369,12 @@ function renderHomeTab(){
 /* Home habit widget */
 const HABIT_DB='49151f4140c582439ddd81dd2d2d5670';
 const HABIT_DAILY_DB='77651f4140c58270b7610134b3416308';
-const HABIT_CATEGORIES=[{key:'morning',label:'아침'},{key:'day',label:'종일'},{key:'night',label:'밤'}];
+const HABIT_CATEGORIES=[{key:'morning',label:'morning'},{key:'day',label:'day'},{key:'night',label:'night'}];
 let habitItems=[];
 async function loadHabits(){
   const list=document.getElementById('home-habit-list');
   if(!list)return;
-  list.innerHTML='<div class="empty-state">Loading...</div>';
+  list.innerHTML='<div class="empty-state">불러오는 중...</div>';
   try{
     const todayStr=formatDate(getDiaryDate());
     const [habitsRes,dailyRes]=await Promise.all([
@@ -1441,7 +1441,7 @@ async function loadMemos(){
   if(!area)return;
   const db=getMemoDb();
   if(!db){area.innerHTML='<div class="empty-state">Setting 탭에서 메모 DB를 연결해주세요.</div>';return;}
-  area.innerHTML='<div class="empty-state">Loading...</div>';
+  area.innerHTML='<div class="empty-state">불러오는 중...</div>';
   try{
     const res=await fetch(WORKER_URL+'/notion/databases/'+db+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'생성일시',direction:'descending'}],page_size:100})});
     const data=await res.json();
@@ -1611,7 +1611,7 @@ let homeRecentDiaryPages=[];
 async function renderHomeRecentDiary(){
   const row=document.getElementById('home-recent-diary');
   if(!row)return;
-  row.innerHTML='<div class="home-empty-hint">Loading...</div>';
+  row.innerHTML='<div class="home-empty-hint">불러오는 중...</div>';
   try{
     const res=await fetch(`${WORKER_URL}/notion/databases/${DIARY_DB}/query`,{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'날짜',direction:'descending'}],page_size:3})});
     const data=await res.json();
@@ -1683,19 +1683,19 @@ async function submitQuickCapture(){
 }
 
 /* Auth */
-function logout(){if(!confirm('Log out?'))return;localStorage.clear();location.reload();}
+function logout(){if(!confirm('로그아웃 하시겠어요?'))return;localStorage.clear();location.reload();}
 async function saveSettings(){
   const pw=document.getElementById('app-password').value.trim();
-  if(!pw){showToast('password');return;}
+  if(!pw){showToast('비밀번호를 입력하세요');return;}
   const btn=document.querySelector('.setup-save-btn');btn.textContent='confirming...';btn.disabled=true;
   try{
     const res=await fetch(WORKER_URL+'/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
-    if(!res.ok){const e=await res.text().catch(()=>'');showToast('error: '+res.status+' '+e.slice(0,30));btn.textContent='START →';btn.disabled=false;return;}
+    if(!res.ok){const e=await res.text().catch(()=>'');showToast('오류: '+res.status+' '+e.slice(0,30));btn.textContent='START →';btn.disabled=false;return;}
     const data=await res.json();
     localStorage.setItem('notion_token',data.notion_token);localStorage.setItem('notion_db',data.notion_db);
     localStorage.setItem('cloud_name',data.cloud_name);localStorage.setItem('cloud_key',data.cloud_key);localStorage.setItem('app_authed','1');
     document.getElementById('setup-screen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');init();
-  }catch(e){showToast('Connection error: '+e.message);btn.textContent='START →';btn.disabled=false;}
+  }catch(e){showToast('연결 오류: '+e.message);btn.textContent='START →';btn.disabled=false;}
 }
 function openSettings(){
   document.getElementById('app-password').value='';
@@ -1822,7 +1822,7 @@ async function uploadToCloudinary(file) {
   const uploadPreset = 'diary_app'; 
   
   if (!cloudName) {
-    showToast('no name');
+    showToast('이름을 입력하세요');
     return null;
   }
   
@@ -1958,7 +1958,7 @@ async function loadDiaryProps(){
   const propsWrap=document.querySelector('.diary-props');
   if(!el)return;
   if(propsWrap)propsWrap.style.display='';
-  el.innerHTML='<div class="diary-prop-empty">Loading...</div>';
+  el.innerHTML='<div class="diary-prop-empty">불러오는 중...</div>';
   try{
     const pageId=await getDiaryPanelPageId();
     if(!pageId){
@@ -2007,7 +2007,7 @@ let gratitudeItemBlockIds={};
 async function loadGratitudeSection(){
   const wrap=document.getElementById('gratitude-fields');
   if(!wrap)return;
-  wrap.innerHTML='<div class="empty-state">Loading...</div>';
+  wrap.innerHTML='<div class="empty-state">불러오는 중...</div>';
   gratitudeItemBlockIds={};
   try{
     const pageId=await getDiaryPanelPageId();
@@ -2071,7 +2071,7 @@ async function saveGratitude(){
 function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection();loadRecordsForViewedDate();}
 
 /* ROUTINE — 오늘 루틴 체크리스트 */
-const ROUTINE_GROUPS=[  {label:'🌤️ 아침',items:[    {key:'🌤️물 한잔',label:'물 한잔'},    {key:'🌤️아침 약',label:'아침 약'},    {key:'🌤️5분 명상',label:'5분 명상'},    {key:'🌤️스트레칭',label:'스트레칭'}  ]},  {label:'☀️ 종일',items:[    {key:'☀️물 2리터 마시기',label:'물 2리터 마시기'},    {key:'☀️틈틈이 기록',label:'틈틈이 기록'},    {key:'☀️산책',label:'산책'}  ]},  {label:'🌙 저녁',items:[    {key:'🌙책상 치우기',label:'책상 치우기'},    {key:'🌙설거지',label:'설거지'},    {key:'🌙저녁 약',label:'저녁 약'},    {key:'🌙일기 쓰기',label:'일기 쓰기'}  ]}];let routineSelected=[];function switchRecordPane(pane){  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';  if(pane==='routine')loadRoutineState();}function renderRoutineChecklist(){  const c=document.getElementById('routine-checklist');  c.innerHTML=ROUTINE_GROUPS.map(g=>`    <div style="margin-bottom:18px;">      <div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>      ${g.items.map(it=>{        const done=routineSelected.includes(it.key);        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${it.key.replace(/'/g,"\\'")}')">          <div class="quad-check${done?' done':''}"></div>          <div class="quad-text${done?' done':''}">${it.label}</div>        </div>`;      }).join('')}    </div>`).join('');}async function loadRoutineState(){  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">Loading...</div>';  try{    const pageId=await getTodayPageId();    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});    const data=await res.json();    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);  }catch(e){console.error(e);routineSelected=[];}  renderRoutineChecklist();}async function toggleRoutineItem(key){  if(routineSelected.includes(key))routineSelected=routineSelected.filter(i=>i!==key);  else routineSelected.push(key);  renderRoutineChecklist();  try{    const pageId=await getTodayPageId();    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});  }catch(e){console.error(e);showToast('fail');}}
+const ROUTINE_GROUPS=[  {label:'🌤️ 아침',items:[    {key:'🌤️물 한잔',label:'물 한잔'},    {key:'🌤️아침 약',label:'아침 약'},    {key:'🌤️5분 명상',label:'5분 명상'},    {key:'🌤️스트레칭',label:'스트레칭'}  ]},  {label:'☀️ 종일',items:[    {key:'☀️물 2리터 마시기',label:'물 2리터 마시기'},    {key:'☀️틈틈이 기록',label:'틈틈이 기록'},    {key:'☀️산책',label:'산책'}  ]},  {label:'🌙 저녁',items:[    {key:'🌙책상 치우기',label:'책상 치우기'},    {key:'🌙설거지',label:'설거지'},    {key:'🌙저녁 약',label:'저녁 약'},    {key:'🌙일기 쓰기',label:'일기 쓰기'}  ]}];let routineSelected=[];function switchRecordPane(pane){  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';  if(pane==='routine')loadRoutineState();}function renderRoutineChecklist(){  const c=document.getElementById('routine-checklist');  c.innerHTML=ROUTINE_GROUPS.map(g=>`    <div style="margin-bottom:18px;">      <div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>      ${g.items.map(it=>{        const done=routineSelected.includes(it.key);        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${it.key.replace(/'/g,"\\'")}')">          <div class="quad-check${done?' done':''}"></div>          <div class="quad-text${done?' done':''}">${it.label}</div>        </div>`;      }).join('')}    </div>`).join('');}async function loadRoutineState(){  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">불러오는 중...</div>';  try{    const pageId=await getTodayPageId();    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});    const data=await res.json();    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);  }catch(e){console.error(e);routineSelected=[];}  renderRoutineChecklist();}async function toggleRoutineItem(key){  if(routineSelected.includes(key))routineSelected=routineSelected.filter(i=>i!==key);  else routineSelected.push(key);  renderRoutineChecklist();  try{    const pageId=await getTodayPageId();    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});  }catch(e){console.error(e);showToast('실패');}}
 
 /* 감정 추천 */
 const EMOTION_KEYWORDS={
@@ -2107,7 +2107,7 @@ function selectMoodByName(name){
 /* Record save */
 async function saveRecord(asHidden=false){
   const text=document.getElementById('memo-input').value.trim();
-  if(!text&&selectedPhotos.length===0){showToast('Please enter content');return;}
+  if(!text&&selectedPhotos.length===0){showToast('내용을 입력하세요');return;}
   const btn=document.getElementById('save-btn');
   const hiddenBtn=document.getElementById('save-hidden-btn');
   btn.disabled=true;if(hiddenBtn)hiddenBtn.disabled=true;
@@ -2134,7 +2134,7 @@ async function saveRecord(asHidden=false){
     const blockId=ad.results[0].id;
     const photoBlockId=(photoUrls.length>0&&ad.results[1])?ad.results[1].id:null;
     if(asHidden){const h=getHiddenRecords();h.add(blockId);saveHiddenRecords(h);}
-    if(uploadFailed)showToast('Failed to upload some photos');
+    if(uploadFailed)showToast('일부 사진 업로드 실패');
     addRecordToUI(timeStr,selectedMood,text,photoUrls,notionUrl,blockId,photoBlockId);
     document.getElementById('memo-input').value='';document.getElementById('memo-input').style.height='';
     selectedMood='';selectedPhotos=[];document.getElementById('input-photo-preview').innerHTML='';document.querySelectorAll('#tab-record .tag').forEach(t=>t.classList.remove('selected'));setLogVisibility('public');
@@ -2279,7 +2279,7 @@ function updateRecordListThumbnails(){
 }
 
 async function addRecordPhotosInline(input){
-  if(!currentPopupBlockId){showToast('Cannot add photos to this log');return;}
+  if(!currentPopupBlockId){showToast('이 기록에는 사진을 추가할 수 없어요');return;}
   const files=Array.from(input.files);input.value='';
   if(!files.length)return;
   document.getElementById('loading').classList.remove('hidden');
@@ -2290,12 +2290,12 @@ async function addRecordPhotosInline(input){
     renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
     updateRecordListThumbnails();
     showToast(failed?'Failed to upload some photos':'Photo added!');
-  }catch(e){console.error(e);showToast('Failed to add photo');}
+  }catch(e){console.error(e);showToast('사진 추가 실패');}
   document.getElementById('loading').classList.add('hidden');
 }
 
 async function removeRecordPhotoInline(idx){
-  if(!confirm('Delete this photo?'))return;
+  if(!confirm('이 사진을 삭제할까요?'))return;
   currentPopupPhotos.splice(idx,1);
   document.getElementById('loading').classList.remove('hidden');
   try{
@@ -2303,8 +2303,8 @@ async function removeRecordPhotoInline(idx){
     renderPopupPhotos(currentPopupPhotos,'rp-photos');
     renderPopupPhotos(currentPopupPhotos,'rp-photos-edit');
     updateRecordListThumbnails();
-    showToast('Photo deleted!');
-  }catch(e){console.error(e);showToast('Failed to delete photo');}
+    showToast('사진 삭제됨!');
+  }catch(e){console.error(e);showToast('사진 삭제 실패');}
   document.getElementById('loading').classList.add('hidden');
 }
 
@@ -2351,7 +2351,7 @@ function closeRecordPopup(){
 }
 
 function cancelRecordEdit(){
-  if(!confirm('Discard changes?'))return;
+  if(!confirm('변경사항을 취소할까요?'))return;
   toggleRecordEdit();
 }
 
@@ -2410,9 +2410,9 @@ async function saveRecordEdit(){
       if(t)t.textContent=newText;
     }
     toggleRecordEdit();
-    showToast('Updated!');
+    showToast('수정됨!');
   }catch(e){
-    showToast('fail');
+    showToast('실패');
     console.error(e);
   }
   document.getElementById('loading').classList.add('hidden');
@@ -2420,12 +2420,12 @@ async function saveRecordEdit(){
 
 async function deleteRecord(){
   if(!currentPopupBlockId)return;
-  if(!confirm('Delete? This cannot be undone.'))return;
+  if(!confirm('삭제할까요? 되돌릴 수 없어요.'))return;
   try{
     await fetch(WORKER_URL+'/notion/blocks/'+currentPopupBlockId,{method:'DELETE',headers:notionHeaders()});
     if(currentPhotoBlockId)await fetch(WORKER_URL+'/notion/blocks/'+currentPhotoBlockId,{method:'DELETE',headers:notionHeaders()}).catch(()=>{});
-    if(currentPopupItem)currentPopupItem.remove();closeRecordPopup();showToast('Deleted!');
-  }catch(e){showToast('Delete failed');}
+    if(currentPopupItem)currentPopupItem.remove();closeRecordPopup();showToast('삭제됨!');
+  }catch(e){showToast('삭제 실패');}
 }
 async function loadRecordsForViewedDate(){
   showSkeletonRows('record-list',3);
@@ -2486,7 +2486,7 @@ async function loadRecordsForViewedDate(){
   finally{
     clearSkeletonRows('record-list');
     const list=document.getElementById('record-list');
-    if(list&&!list.querySelector('.record-item'))list.innerHTML='<div class="empty-state">'+(isDiaryViewingToday()?'Write your first diary entry today.':'이 날짜엔 기록이 없어요.')+'</div>';
+    if(list&&!list.querySelector('.record-item'))list.innerHTML='<div class="empty-state">'+(isDiaryViewingToday()?'오늘의 첫 기록을 남겨보세요.':'이 날짜엔 기록이 없어요.')+'</div>';
     if(isDiaryViewingToday())renderHomeRecentLog();
   }
 }
@@ -2668,7 +2668,7 @@ async function confirmTodo(){
   if(currentTodoView==='week')renderWeeklyView();
   const id=await saveTodoToNotion(currentQuad,text,dueDate,memo,timeVal);
   if(id){item.notionId=id;saveTodoToStorage();}
-  showToast('Added!');
+  showToast('추가됨!');
   if(window._brainTodoCallback){
     markBrainDone(window._brainTodoCallback.idx,'todo');
     window._brainTodoCallback=null;
@@ -3002,9 +3002,9 @@ async function saveTodoEdit(){
     const dm=dateVal.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/);
     if(dm){
       dateVal=`${dm[1]}-${dm[2].padStart(2,'0')}-${dm[3].padStart(2,'0')}`;
-      if(isNaN(new Date(dateVal+'T00:00:00').getTime())){showToast('check date (YYYY-MM-DD)');return;}
+      if(isNaN(new Date(dateVal+'T00:00:00').getTime())){showToast('날짜 형식을 확인하세요 (YYYY-MM-DD)');return;}
     }else{
-      showToast('check date (YYYY-MM-DD)');return;
+      showToast('날짜 형식을 확인하세요 (YYYY-MM-DD)');return;
     }
   }
   const newQuad=currentEditQuad||currentDetailQuad;
@@ -3016,9 +3016,9 @@ async function saveTodoEdit(){
       const idx=todoData[q].findIndex(it=>it.notionId===currentDetailItemNotionId);
       if(idx>=0){currentDetailQuad=q;currentDetailIdx=idx;item=todoData[q][idx];found=true;break;}
     }
-    if(!found){showToast('not found. try again.');closeTodoDetail();return;}
+    if(!found){showToast('찾을 수 없어요. 다시 시도하세요.');closeTodoDetail();return;}
   }
-  if(!item){showToast('not found. try again.');closeTodoDetail();return;}
+  if(!item){showToast('찾을 수 없어요. 다시 시도하세요.');closeTodoDetail();return;}
   item.text=text;item.memo=memo;item.time=timeVal;
   item.dueDate=dateVal?new Date(dateVal+'T23:59:59'):null;
 
@@ -3038,7 +3038,7 @@ async function saveTodoEdit(){
       await fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});
     }catch(e){console.error(e);}
   }
-  closeTodoDetail();showToast('Updated!');
+  closeTodoDetail();showToast('수정됨!');
 }
 function preventBodyScroll(e){if(!e.target.closest('.todo-detail-sheet'))e.preventDefault();}
 function closeTodoDetail(){
@@ -3077,7 +3077,7 @@ function syncParentFieldsFromForm(){
     fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})}).catch(console.error);
   }
 }
-function deleteTodoItem(){if(!confirm('Delete? This cannot be undone.'))return;const _di=todoData[currentDetailQuad][currentDetailIdx];todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();if(currentTodoView==='week')renderWeeklyView();showToast('Deleted!');if(_di&&_di.notionId){fetch(WORKER_URL+'/notion/pages/'+_di.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));}}
+function deleteTodoItem(){if(!confirm('삭제할까요? 되돌릴 수 없어요.'))return;const _di=todoData[currentDetailQuad][currentDetailIdx];todoData[currentDetailQuad].splice(currentDetailIdx,1);closeTodoDetail();renderAllQuads();saveTodoToStorage();if(currentTodoView==='week')renderWeeklyView();showToast('삭제됨!');if(_di&&_di.notionId){fetch(WORKER_URL+'/notion/pages/'+_di.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(e=>console.error(e));}}
 
 let weekDragItem=null,weekDragQ=null,weekDragI=null,weekDragging=false,weekDragTimer=null,weekDragEl=null;
 function startWeekItemDrag(e,q,i){
@@ -3243,7 +3243,7 @@ async function saveBrainToNotion(text){
 function renderBrainList(){
   const list=document.getElementById('brain-list');
   const untagged=brainItems.filter(item=>!item.tag);
-  if(!untagged.length){list.innerHTML='<div class="empty-state">Swipe left to delete.</div>';return;}
+  if(!untagged.length){list.innerHTML='<div class="empty-state">왼쪽으로 스와이프해서 삭제하세요.</div>';return;}
   list.innerHTML=untagged.map((item)=>{
     const idx=brainItems.indexOf(item);
     return `
@@ -3662,7 +3662,7 @@ function confirmSubIdea(){
     ideaData.unshift({text,select:cat,notionId:nid});
     renderIdeaList();
     markBrainDone(idx,'idea');
-    showToast('Saved as Idea!');
+    showToast('IDEA로 저장됨!');
   });
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
   document.body.appendChild(overlay);
@@ -3694,7 +3694,7 @@ async function confirmAddBook(){
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:BOOK_DB},properties:props,children})});
     const data=await res.json();book.notionId=data.id||null;saveBookToStorage();
   }catch(e){console.error(e);}
-  showToast('Added!');
+  showToast('추가됨!');
 }
 async function loadBookFromNotion(){
   if(!skeletonShown.book){showSkeletonRows('book-list',3);skeletonShown.book=true;}
@@ -3707,19 +3707,19 @@ async function loadBookFromNotion(){
   }catch(e){console.error('loadBookFromNotion failed',e);}
   finally{clearSkeletonRows('book-list');}
 }
-function confirmSubBook(bookIdx){closeSubPopup();const text=subDragItem.text;const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;const book=bookData[bookIdx];const review={date:dateLabel,text};book.reviews.unshift(review);renderBookList();saveBookToStorage();if(book.notionId){const children=[{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'📅 '+dateLabel}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'💭 내 생각'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:text}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 필사'}}]}},{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'필사 내용을 여기에 입력하거나 사진을 첨부하세요.'}}],icon:{emoji:'✍️'},color:'gray_background'}},{object:'block',type:'divider',divider:{}}];fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})}).catch(e=>console.error(e));}markBrainDone(subDragIdx,'book');showToast('Saved to Book!');}
+function confirmSubBook(bookIdx){closeSubPopup();const text=subDragItem.text;const now=new Date();const days=['일','월','화','수','목','금','토'];const dateLabel=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;const book=bookData[bookIdx];const review={date:dateLabel,text};book.reviews.unshift(review);renderBookList();saveBookToStorage();if(book.notionId){const children=[{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'📅 '+dateLabel}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'💭 내 생각'}}]}},{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:text}}]}},{object:'block',type:'heading_3',heading_3:{rich_text:[{type:'text',text:{content:'✍️ 필사'}}]}},{object:'block',type:'callout',callout:{rich_text:[{type:'text',text:{content:'필사 내용을 여기에 입력하거나 사진을 첨부하세요.'}}],icon:{emoji:'✍️'},color:'gray_background'}},{object:'block',type:'divider',divider:{}}];fetch(WORKER_URL+'/notion/blocks/'+book.notionId+'/children',{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({children})}).catch(e=>console.error(e));}markBrainDone(subDragIdx,'book');showToast('Book으로 저장됨!');}
 
 let bookEditIdx=-1,bookEditCoverUrl='',bookEditHoldTimer=null;
-function renderBookList(){const list=document.getElementById('book-list');if(!bookData.length){list.innerHTML='<div class="empty-state">No books added yet.</div>';return;}list.innerHTML=bookData.map((book,i)=>`<div class="book-card" id="bc-${i}" onclick="openBookDetail(${i})">${book.cover?`<img class="book-cover-img" src="${book.cover}" onerror="this.outerHTML='<div class=book-cover-placeholder>📖</div>'">`:'<div class="book-cover-placeholder">📖</div>'}<div class="book-card-info"><div><div class="book-card-title">${book.title}</div><div class="book-card-author">${book.authors||''}</div></div><div class="book-card-meta"><span class="book-genre-tag">${book.genre||''}</span><span class="book-review-count">${book.reviews.length?book.reviews.length+' notes':'No notes'}</span></div></div></div>`).join('');bookData.forEach((_,i)=>{const el=document.getElementById('bc-'+i);if(!el)return;el.addEventListener('touchstart',e=>{bookEditHoldTimer=setTimeout(()=>openBookEditPopup(i),600);},{passive:true});el.addEventListener('touchend',()=>clearTimeout(bookEditHoldTimer));el.addEventListener('touchmove',()=>clearTimeout(bookEditHoldTimer));el.addEventListener('contextmenu',e=>{e.preventDefault();openBookEditPopup(i);});});}
+function renderBookList(){const list=document.getElementById('book-list');if(!bookData.length){list.innerHTML='<div class="empty-state">아직 등록된 책이 없어요.</div>';return;}list.innerHTML=bookData.map((book,i)=>`<div class="book-card" id="bc-${i}" onclick="openBookDetail(${i})">${book.cover?`<img class="book-cover-img" src="${book.cover}" onerror="this.outerHTML='<div class=book-cover-placeholder>📖</div>'">`:'<div class="book-cover-placeholder">📖</div>'}<div class="book-card-info"><div><div class="book-card-title">${book.title}</div><div class="book-card-author">${book.authors||''}</div></div><div class="book-card-meta"><span class="book-genre-tag">${book.genre||''}</span><span class="book-review-count">${book.reviews.length?book.reviews.length+'개의 노트':'노트 없음'}</span></div></div></div>`).join('');bookData.forEach((_,i)=>{const el=document.getElementById('bc-'+i);if(!el)return;el.addEventListener('touchstart',e=>{bookEditHoldTimer=setTimeout(()=>openBookEditPopup(i),600);},{passive:true});el.addEventListener('touchend',()=>clearTimeout(bookEditHoldTimer));el.addEventListener('touchmove',()=>clearTimeout(bookEditHoldTimer));el.addEventListener('contextmenu',e=>{e.preventDefault();openBookEditPopup(i);});});}
 function openBookEditPopup(idx){bookEditIdx=idx;bookEditCoverUrl=bookData[idx].cover||'';document.getElementById('book-edit-title').value=bookData[idx].title||'';document.getElementById('book-edit-genre').value=bookData[idx].genre||'';document.getElementById('book-edit-cover-url').value=bookEditCoverUrl;const preview=document.getElementById('book-edit-cover-preview');const img=document.getElementById('book-edit-cover-img');if(bookEditCoverUrl){img.src=bookEditCoverUrl;preview.style.display='block';}else{preview.style.display='none';}document.getElementById('book-edit-popup').classList.add('open');}
 function closeBookEditPopup(){document.getElementById('book-edit-popup').classList.remove('open');}
-async function handleBookCoverUpload(input){const file=input.files[0];if(!file)return;const url=await uploadToCloudinary(file);if(url){bookEditCoverUrl=url;document.getElementById('book-edit-cover-url').value=url;document.getElementById('book-edit-cover-img').src=url;document.getElementById('book-edit-cover-preview').style.display='block';showToast('Uploaded!');}}
+async function handleBookCoverUpload(input){const file=input.files[0];if(!file)return;const url=await uploadToCloudinary(file);if(url){bookEditCoverUrl=url;document.getElementById('book-edit-cover-url').value=url;document.getElementById('book-edit-cover-img').src=url;document.getElementById('book-edit-cover-preview').style.display='block';showToast('업로드됨!');}}
 async function confirmBookEdit(){
   const title=document.getElementById('book-edit-title').value.trim();
   const genre=document.getElementById('book-edit-genre').value.trim();
   const urlInput=document.getElementById('book-edit-cover-url').value.trim();
   const cover=urlInput||bookEditCoverUrl;
-  if(!title){showToast('Title required');return;}
+  if(!title){showToast('제목을 입력하세요');return;}
   const book=bookData[bookEditIdx];
   book.title=title;book.cover=cover;book.genre=genre;
   closeBookEditPopup();saveBookToStorage();renderBookList();
@@ -3730,9 +3730,9 @@ async function confirmBookEdit(){
       await fetch(WORKER_URL+'/notion/pages/'+book.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:props})});
     }catch(e){console.error(e);}
   }
-  showToast('Updated!');
+  showToast('수정됨!');
 }
-function confirmBookDelete(){if(!confirm('Delete this book? This cannot be undone.'))return;bookData.splice(bookEditIdx,1);closeBookEditPopup();saveBookToStorage();renderBookList();showToast('Deleted!');}
+function confirmBookDelete(){if(!confirm('이 책을 삭제할까요? 되돌릴 수 없어요.'))return;bookData.splice(bookEditIdx,1);closeBookEditPopup();saveBookToStorage();renderBookList();showToast('삭제됨!');}
 function openBookDetail(idx){currentBookIdx=idx;const book=bookData[idx];const notionUrl=book.notionId?'https://notion.so/'+book.notionId.replace(/-/g,''):null;const coverHtml=book.cover?`<a href="${notionUrl||'#'}" target="_blank" style="display:block;flex-shrink:0;cursor:${notionUrl?'pointer':'default'}"><img class="book-detail-cover" src="${book.cover}" style="display:block;"></a>`:`<div class="book-detail-cover" style="display:flex;align-items:center;justify-content:center;font-size:32px;">📖</div>`;const notionBtn=notionUrl?`<a href="${notionUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);border:1.5px solid var(--rule);padding:5px 10px;text-decoration:none;border-radius:4px;margin-top:10px;">↗ OPEN IN NOTION</a>`:'';document.getElementById('book-detail-header').innerHTML=`${coverHtml}<div class="book-detail-info"><div class="book-detail-title">${book.title}</div><div class="book-detail-author">${book.authors||''}</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${book.genre?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1.5px solid var(--rule);padding:3px 8px;border-radius:4px;">${book.genre}</span>`:''}${book.startDate?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink-muted);border:1.5px solid var(--rule);padding:3px 8px;border-radius:4px;">Started ${book.startDate}</span>`:''}${book.lastPage?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:var(--ink);border:1.5px solid var(--ink);padding:3px 8px;border-radius:4px;">p.${book.lastPage}</span>`:''}</div>${notionBtn}</div>`;renderReviews();document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book-detail').classList.add('active');}
 function closeBookDetail(){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.getElementById('tab-book').classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.tab-btn[onclick*="book"]').classList.add('active');}
 
@@ -3755,7 +3755,7 @@ async function loadIdeaFromNotion(){
 }
 function renderIdeaList(){
   const list=document.getElementById('idea-list');
-  if(!ideaData.length){list.innerHTML='<div class="empty-state">No ideas yet.</div>';return;}
+  if(!ideaData.length){list.innerHTML='<div class="empty-state">아직 아이디어가 없어요.</div>';return;}
   list.innerHTML=ideaData.map((item,idx)=>{
     const tag=item.select?`<span style="font-family:var(--font-en);font-size:8px;font-weight:700;letter-spacing:0.08em;color:${IDEA_SELECT_COLORS[item.select]||'var(--ink-muted)'};border:1.5px solid ${IDEA_SELECT_COLORS[item.select]||'var(--rule)'};padding:2px 7px;border-radius:4px;flex-shrink:0;">${item.select}</span>`:'';
     return `<div class="idea-item" data-idea-idx="${idx}" style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 12px;border:2px solid var(--ink);border-radius:4px;margin-bottom:8px;cursor:pointer;">
@@ -3792,12 +3792,12 @@ function openAddIdeaPopup(){
   overlay.appendChild(sheet);
   overlay.addEventListener('pick',async(e)=>{
     const text=document.getElementById('new-idea-text').value.trim();
-    if(!text){showToast('Please enter content');return;}
+    if(!text){showToast('내용을 입력하세요');return;}
     const select=e.detail;
     document.getElementById('idea-add-overlay').remove();
     try{
       await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:IDEA_DB},properties:{'이름':{title:[{text:{content:text}}]},'선택':{select:{name:select}}}})});
-      showToast('Idea saved!');
+      showToast('IDEA로 저장됨!');
       loadIdeaFromNotion();
     }catch(err){console.error(err);showToast('저장 실패');}
   });
@@ -3830,7 +3830,7 @@ function openIdeaDetail(idx){
     });
   });
   overlay.addEventListener('del',async()=>{
-    if(!confirm('Delete this idea?'))return;
+    if(!confirm('이 아이디어를 삭제할까요?'))return;
     overlay.remove();
     if(item.notionId)fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})}).catch(console.error);
     ideaData.splice(idx,1);renderIdeaList();
@@ -3844,7 +3844,7 @@ function openIdeaDetail(idx){
       try{await fetch(WORKER_URL+'/notion/pages/'+item.notionId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'이름':{title:[{text:{content:text}}]},'선택':{select:{name:currentCat}},'메모':{rich_text:[{text:{content:memo}}]}}})});}
       catch(e){console.error(e);}
     }
-    showToast('Saved!');
+    showToast('저장됨!');
   });
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
   document.body.appendChild(overlay);
@@ -3872,7 +3872,7 @@ async function confirmAddReview(){
       await Promise.all(patches);
     }catch(e){console.error(e);}
   }
-  showToast('Saved!');
+  showToast('저장됨!');
 }
 function saveBookToStorage(){localStorage.setItem('book_data',JSON.stringify(bookData));}
 function loadBookFromStorage(){try{const d=localStorage.getItem('book_data');if(d)bookData=JSON.parse(d);}catch(e){}}
@@ -3889,7 +3889,7 @@ function closeBriefingPopup(){
 }
 async function loadInbox(){
   const list=document.getElementById('inbox-list');
-  list.innerHTML='<div class="inbox-empty">Loading...</div>';
+  list.innerHTML='<div class="inbox-empty">불러오는 중...</div>';
   try{
     const d=getDiaryDate();const dateStr=formatDate(d);
     // 1. DIARY_DB에서 오늘 날짜 페이지 찾기
@@ -4015,7 +4015,7 @@ async function openDiaryDetail(page){
   propsEl.innerHTML=propsHtml||'<div class="dd-prop-value" style="color:var(--ink-muted);">기록된 속성이 없어요.</div>';
 
   const bodyEl=document.getElementById('dd-body');
-  bodyEl.innerHTML='Loading...';
+  bodyEl.innerHTML='불러오는 중...';
   document.getElementById('diary-detail-popup').classList.add('open');
 
   try{
