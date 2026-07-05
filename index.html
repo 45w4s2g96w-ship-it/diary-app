@@ -181,7 +181,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 #tab-record .emotion-row-label { font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; color: #8A8578; }
 #tab-record .tag { border-color: #14110F; color: #14110F; background: #F5F4F0; }
 #tab-record .tag.selected { background: #1E5BE6; border-color: #1E5BE6; color: #F5F4F0; }
-#tab-record .input-section { margin: 10px var(--pad-h) 14px; background: #ffffff; border: 1.5px solid #EDEAE2; border-radius: 8px; padding: 18px; box-shadow: none; }
+#tab-record .input-section { margin: 10px var(--pad-h) 14px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; padding: 18px 20px; box-shadow: 4px 4px 0 var(--ink); }
 #tab-record .text-input { min-height: 90px; color: #14110F; }
 #tab-record .text-input::placeholder { color: #8A8578; }
 #tab-record .attach-btn { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #8A8578; border: 2px solid #EDEAE2; border-radius: 12px; padding: 8px 14px; transition: transform 0.1s; }
@@ -219,11 +219,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 }
 
 /* Diary split: properties (left page) + writing (right page), styled like an open diary spread */
-.diary-split { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+.diary-split { display: flex; flex-direction: column; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; min-height: 0; }
+#record-log-pane { display: flex; flex-direction: column; }
 .diary-book { background: #F5F4F0; }
 .diary-props { flex-shrink: 0; border-bottom: 1.5px solid #EDEAE2; background: #F5F4F0; }
 .diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: #8A8578; line-height: 1.6; }
-.diary-summary-box { margin: 10px var(--pad-h) 14px; padding: 18px 20px; background: #ffffff; border: 1.5px solid #EDEAE2; border-radius: 8px; font-family: var(--font-kr); color: #14110F; }
+.diary-summary-box { margin: 10px var(--pad-h) 14px; padding: 18px 20px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); font-family: var(--font-kr); color: #14110F; }
 .diary-summary-box .ds-energy { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 20px; border: 1.5px solid #14110F; margin-bottom: 12px; }
 .diary-summary-box .ds-quote { font-size: 13.5px; font-weight: 500; line-height: 1.75; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px dashed #EDEAE2; white-space: pre-wrap; }
 .diary-summary-box .ds-row { margin-bottom: 12px; }
@@ -231,22 +232,27 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-summary-box .ds-label { font-family: 'Space Mono', monospace; font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8578; margin-bottom: 3px; }
 .diary-summary-box .ds-value { font-size: 12.5px; font-weight: 400; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
 .diary-recent-label { padding: 4px var(--pad-h) 0; margin-top: 4px; }
-.diary-recent-box { margin: 14px var(--pad-h) 20px; padding: 14px 16px 16px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.diary-recent-box { margin: 14px var(--pad-h) 20px; padding: 14px 20px 16px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); display: flex; flex-direction: column; }
 .diary-recent-box .diary-recent-label { padding: 0; margin: 0 0 10px; }
-#tab-record .diary-recent-box .record-list { padding: 0; flex: 1; min-height: 0; }
+#tab-record .diary-recent-box .record-list { padding: 0; }
+@media (min-width: 768px) {
+  .diary-recent-box { flex: 1; min-height: 0; overflow: hidden; }
+  #tab-record .diary-recent-box .record-list { flex: 1; min-height: 0; }
+}
 #tab-record .diary-recent-box .record-item { border: 2px solid var(--ink); border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
 #tab-record .diary-recent-box .record-item:last-child { margin-bottom: 0; }
 @media (min-width: 768px) {
-  .diary-split { flex-direction: row; }
+  .diary-split { flex-direction: row; overflow: hidden; }
   .diary-props { width: auto; flex: 1; border-bottom: none; border-right: 1.5px dashed #d8d4c8; box-shadow: 6px 0 10px -8px rgba(0,0,0,0.25); overflow-y: auto; scrollbar-width: none; }
   .diary-props::-webkit-scrollbar { display: none; }
+  #record-log-pane { flex: 1; overflow: hidden; min-height: 0; }
 }
 .diary-readonly .input-section { display: none; }
 .diary-readonly .gratitude-save-btn { display: none; }
 .diary-readonly .gratitude-input { color: #8A8578; }
 
 /* Gratitude journal */
-.gratitude-section { margin: 0 var(--pad-h) 14px; background: #ffffff; border: 1.5px solid #EDEAE2; border-radius: 8px; padding: 16px 18px; box-shadow: none; flex-shrink: 0; }
+.gratitude-section { margin: 0 var(--pad-h) 14px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; padding: 16px 20px; box-shadow: 4px 4px 0 var(--ink); flex-shrink: 0; }
 .gratitude-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .gratitude-title { font-family: var(--font-kr); font-size: 13px; font-weight: 700; color: #14110F; }
 .gratitude-save-btn { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; background: #1E5BE6; color: #ffffff; border: 2px solid #14110F; border-radius: 12px; padding: 6px 12px; cursor: pointer; box-shadow: 3px 3px 0 #14110F; }
@@ -846,7 +852,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <div class="diary-summary-box" id="diary-summary-box"><div class="diary-prop-empty">Loading...</div></div>
       </div>
 
-      <div id="record-log-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;">
+      <div id="record-log-pane">
       <div class="diary-write-row">
       <div class="input-section">
         <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
@@ -1951,7 +1957,7 @@ async function loadDiaryProps(){
     const page=await res.json();
     const props=page.properties||{};
     if(!props['분석 완료']?.checkbox){
-      el.innerHTML='<div class="diary-prop-empty">'+(isDiaryViewingToday()?'오늘의 분석은 아직 준비되지 않았어요.<br>하루가 끝나면 자동으로 채워져요.':'이 날짜엔 분석 기록이 없어요.')+'</div>';
+      el.innerHTML='<div class="diary-prop-empty">'+(isDiaryViewingToday()?'오늘 하루도 화이팅! 💪':'이 날짜엔 분석 기록이 없어요.')+'</div>';
       return;
     }
     el.innerHTML='';
