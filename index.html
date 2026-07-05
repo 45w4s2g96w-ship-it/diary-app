@@ -668,7 +668,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .home-goal-empty { display: flex; align-items: center; padding: 12px 14px; border: 2px dashed var(--rule); border-radius: 4px; }
 .home-goal-empty-input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--font-kr); font-size: 13px; color: var(--ink); }
 .home-goal-empty-input::placeholder { color: var(--ink-muted); }
-.home-habit-list { display: flex; flex-direction: column; gap: 2px; }
+.home-habit-list { display: flex; gap: 10px; align-items: flex-start; }
+.home-habit-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.home-habit-col-title { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
+.home-habit-col .quad-text { font-size: 11px; }
+.home-habit-empty { font-family: var(--font-kr); font-size: 11px; color: var(--ink-muted); padding: 3px 0; }
 .home-scroll-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .home-scroll-row::-webkit-scrollbar { display: none; }
 .home-mini-card { flex-shrink: 0; width: 150px; padding: 12px 14px; cursor: pointer; }
@@ -854,6 +858,14 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
       <div id="record-log-pane">
       <div class="diary-write-row">
+      <div class="gratitude-section nb-card">
+        <div class="gratitude-header">
+          <div class="gratitude-title">🌿 감사 일기</div>
+          <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude()">SAVE</button>
+        </div>
+        <div id="gratitude-fields"><div class="empty-state">Loading...</div></div>
+      </div>
+
       <div class="input-section">
         <textarea class="text-input" id="memo-input" placeholder="Write anything." rows="3" oninput="autoResize(this)"></textarea>
         <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
@@ -868,14 +880,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
           </div>
         </div>
         <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
-      </div>
-
-      <div class="gratitude-section nb-card">
-        <div class="gratitude-header">
-          <div class="gratitude-title">🌿 감사 일기</div>
-          <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude()">SAVE</button>
-        </div>
-        <div id="gratitude-fields"><div class="empty-state">Loading...</div></div>
       </div>
       </div>
 
@@ -1365,6 +1369,7 @@ function renderHomeTab(){
 /* Home habit widget */
 const HABIT_DB='49151f4140c582439ddd81dd2d2d5670';
 const HABIT_DAILY_DB='77651f4140c58270b7610134b3416308';
+const HABIT_CATEGORIES=[{key:'morning',label:'아침'},{key:'day',label:'종일'},{key:'night',label:'밤'}];
 let habitItems=[];
 async function loadHabits(){
   const list=document.getElementById('home-habit-list');
@@ -1385,6 +1390,7 @@ async function loadHabits(){
     habitItems=(habitsData.results||[]).map(page=>({
       id:page.id,
       name:(page.properties['습관']?.title||[]).map(t=>t.plain_text||'').join(''),
+      category:page.properties['구분']?.select?.name||'day',
       checkinPageId:checkinByHabitId.get(page.id)||null
     }));
     renderHabitList();
@@ -1394,9 +1400,13 @@ function renderHabitList(){
   const list=document.getElementById('home-habit-list');
   if(!list)return;
   if(!habitItems.length){list.innerHTML='<div class="empty-state">진행중인 습관이 없어요.</div>';return;}
-  list.innerHTML=habitItems.map((h,i)=>{
-    const done=!!h.checkinPageId;
-    return `<div class="quad-item" style="cursor:pointer;" onclick="toggleHabit(${i})"><div class="quad-check${done?' done':''}"></div><div class="quad-text${done?' done':''}" data-i="${i}"></div></div>`;
+  list.innerHTML=HABIT_CATEGORIES.map(cat=>{
+    const indices=habitItems.map((h,i)=>i).filter(i=>habitItems[i].category===cat.key);
+    const body=indices.length?indices.map(i=>{
+      const h=habitItems[i];const done=!!h.checkinPageId;
+      return `<div class="quad-item" style="cursor:pointer;" onclick="toggleHabit(${i})"><div class="quad-check${done?' done':''}"></div><div class="quad-text${done?' done':''}" data-i="${i}"></div></div>`;
+    }).join(''):'<div class="home-habit-empty">-</div>';
+    return `<div class="home-habit-col"><div class="home-habit-col-title">${cat.label}</div>${body}</div>`;
   }).join('');
   habitItems.forEach((h,i)=>{
     const el=list.querySelector(`.quad-text[data-i="${i}"]`);
