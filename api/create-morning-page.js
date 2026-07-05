@@ -62,26 +62,24 @@ export default async function handler(request) {
         object: 'block',
         type: 'heading_4',
         heading_4: {
-          rich_text: [{ type: 'text', text: { content: '🌙 일기' } }],
+          rich_text: [{ type: 'text', text: { content: '🌻 감사한 일' } }],
           color: 'default'
         }
       },
+      { object: 'block', type: 'numbered_list_item', numbered_list_item: { rich_text: [] } },
+      { object: 'block', type: 'numbered_list_item', numbered_list_item: { rich_text: [] } },
+      { object: 'block', type: 'numbered_list_item', numbered_list_item: { rich_text: [] } },
       {
         object: 'block',
-        type: 'quote',
-        quote: {
-          rich_text: [{ type: 'text', text: { content: '감사한 일\n' } }],
+        type: 'heading_4',
+        heading_4: {
+          rich_text: [{ type: 'text', text: { content: '👏 노력한 일' } }],
           color: 'default'
         }
       },
-      {
-        object: 'block',
-        type: 'quote',
-        quote: {
-          rich_text: [{ type: 'text', text: { content: '노력한 일\n' } }],
-          color: 'default'
-        }
-      }
+      { object: 'block', type: 'numbered_list_item', numbered_list_item: { rich_text: [] } },
+      { object: 'block', type: 'numbered_list_item', numbered_list_item: { rich_text: [] } },
+      { object: 'block', type: 'numbered_list_item', numbered_list_item: { rich_text: [] } }
     ]
   };
 

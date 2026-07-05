@@ -1983,17 +1983,16 @@ async function loadDiaryProps(){
 }
 
 /* Gratitude journal (오늘의 감사 일기) */
-const GRATITUDE_FIELDS=[
-  {emoji:'🍀',label:'🍀 오늘 감사한 일',placeholder:'오늘 감사한 일'},
-  {emoji:'😊',label:'😊 오늘의 칭찬',placeholder:'오늘의 칭찬'},
-  {emoji:'✅',label:'✅ 내일 해야 할 일',placeholder:'내일 해야 할 일'}
+const GRATITUDE_GROUPS=[
+  {emoji:'🌻',title:'감사한 일',match:'감사한 일'},
+  {emoji:'👏',title:'노력한 일',match:'노력한 일'}
 ];
-let gratitudeBlockIds={};
+let gratitudeItemBlockIds={};
 async function loadGratitudeSection(){
   const wrap=document.getElementById('gratitude-fields');
   if(!wrap)return;
   wrap.innerHTML='<div class="empty-state">Loading...</div>';
-  gratitudeBlockIds={};
+  gratitudeItemBlockIds={};
   try{
     const pageId=await getDiaryPanelPageId();
     if(!pageId){
@@ -2009,22 +2008,29 @@ async function loadGratitudeSection(){
       cursor=bd.has_more?bd.next_cursor:null;
     }while(cursor);
     wrap.innerHTML='';
-    GRATITUDE_FIELDS.forEach(f=>{
-      const block=blocks.find(b=>b.type==='callout'&&b.callout?.icon?.emoji===f.emoji);
-      let value='';
-      if(block){
-        gratitudeBlockIds[f.emoji]=block.id;
-        const text=richTextJoinDiary(block.callout.rich_text);
-        value=(text&&text!==f.placeholder)?text:'';
+    GRATITUDE_GROUPS.forEach(group=>{
+      const headingIdx=blocks.findIndex(b=>b.type==='heading_4'&&richTextJoinDiary(b.heading_4.rich_text).includes(group.match));
+      const items=[];
+      if(headingIdx!==-1){
+        for(let i=headingIdx+1;i<blocks.length&&items.length<3;i++){
+          if(blocks[i].type!=='numbered_list_item')break;
+          items.push(blocks[i]);
+        }
       }
-      const row=document.createElement('div');row.className='gratitude-field';
-      const label=document.createElement('div');label.className='gratitude-label';label.textContent=f.label;
-      const ta=document.createElement('textarea');
-      ta.className='gratitude-input';ta.dataset.emoji=f.emoji;ta.placeholder=f.placeholder;ta.rows=2;ta.value=value;
-      ta.disabled=!isDiaryViewingToday();
-      ta.oninput=function(){autoResize(this);};
-      row.appendChild(label);row.appendChild(ta);
-      wrap.appendChild(row);
+      const groupEl=document.createElement('div');groupEl.className='gratitude-field';
+      const label=document.createElement('div');label.className='gratitude-label';label.textContent=group.emoji+' '+group.title;
+      groupEl.appendChild(label);
+      for(let i=0;i<3;i++){
+        const b=items[i];
+        const ta=document.createElement('textarea');
+        ta.className='gratitude-input';ta.dataset.group=group.match;ta.dataset.idx=i;ta.placeholder=(i+1)+'.';ta.rows=1;
+        ta.value=b?richTextJoinDiary(b.numbered_list_item.rich_text):'';
+        ta.disabled=!isDiaryViewingToday()||!b;
+        ta.oninput=function(){autoResize(this);};
+        if(b)gratitudeItemBlockIds[group.match+'_'+i]=b.id;
+        groupEl.appendChild(ta);
+      }
+      wrap.appendChild(groupEl);
     });
     wrap.querySelectorAll('.gratitude-input').forEach(t=>autoResize(t));
   }catch(e){console.error(e);wrap.innerHTML='<div class="empty-state">불러오기 실패</div>';}
@@ -2036,12 +2042,10 @@ async function saveGratitude(){
   try{
     const patches=[];
     inputs.forEach(t=>{
-      const emoji=t.dataset.emoji;
-      const blockId=gratitudeBlockIds[emoji];
+      const blockId=gratitudeItemBlockIds[t.dataset.group+'_'+t.dataset.idx];
       if(!blockId)return;
-      const field=GRATITUDE_FIELDS.find(f=>f.emoji===emoji);
-      const content=t.value.trim()||field.placeholder;
-      patches.push(fetch(WORKER_URL+'/notion/blocks/'+blockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({callout:{rich_text:[{text:{content}}],icon:{emoji}}})}));
+      const content=t.value.trim();
+      patches.push(fetch(WORKER_URL+'/notion/blocks/'+blockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({numbered_list_item:{rich_text:content?[{text:{content}}]:[]}})}));
     });
     await Promise.all(patches);
     showToast('감사 일기 저장됨!');
