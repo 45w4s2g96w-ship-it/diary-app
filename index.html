@@ -225,8 +225,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-props { flex-shrink: 0; border-bottom: 1.5px solid #EDEAE2; background: #F5F4F0; }
 .diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: #8A8578; line-height: 1.6; }
 .diary-summary-box { margin: 10px var(--pad-h) 14px; padding: 18px 20px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); font-family: var(--font-kr); color: #14110F; }
-.diary-summary-box.diary-cheer { background: transparent; border: none; box-shadow: none; padding: 18px 20px; }
-.diary-summary-box.diary-cheer .diary-prop-empty { padding: 0; font-size: 18px; }
 .diary-summary-box .ds-energy { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 20px; border: 1.5px solid #14110F; margin-bottom: 12px; }
 .diary-summary-box .ds-quote { font-size: 13.5px; font-weight: 500; line-height: 1.75; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px dashed #EDEAE2; white-space: pre-wrap; }
 .diary-summary-box .ds-row { margin-bottom: 12px; }
@@ -1947,8 +1945,9 @@ function diaryPropRow(label,value){
 }
 async function loadDiaryProps(){
   const el=document.getElementById('diary-summary-box');
+  const propsWrap=document.querySelector('.diary-props');
   if(!el)return;
-  el.classList.remove('diary-cheer');
+  if(propsWrap)propsWrap.style.display='';
   el.innerHTML='<div class="diary-prop-empty">Loading...</div>';
   try{
     const pageId=await getDiaryPanelPageId();
@@ -1961,8 +1960,7 @@ async function loadDiaryProps(){
     const props=page.properties||{};
     if(!props['분석 완료']?.checkbox){
       if(isDiaryViewingToday()){
-        el.classList.add('diary-cheer');
-        el.innerHTML='<div class="diary-prop-empty">오늘 하루도 화이팅! 💪</div>';
+        if(propsWrap)propsWrap.style.display='none';
       }else{
         el.innerHTML='<div class="diary-prop-empty">이 날짜엔 분석 기록이 없어요.</div>';
       }
