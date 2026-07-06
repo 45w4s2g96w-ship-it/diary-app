@@ -22,8 +22,15 @@ export default async function handler(request) {
   };
 
   // Find last block in 📝 기록 section to insert after
-  const pbRes = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, { headers });
-  const pb = (await pbRes.json()).results || [];
+  const pb = [];
+  let cursor = null;
+  do {
+    const qs = cursor ? `?page_size=100&start_cursor=${cursor}` : '?page_size=100';
+    const pbRes = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children${qs}`, { headers });
+    const pbData = await pbRes.json();
+    pb.push(...(pbData.results || []));
+    cursor = pbData.has_more ? pbData.next_cursor : null;
+  } while (cursor);
 
   let afterBlockId = null;
   let inG = false;
