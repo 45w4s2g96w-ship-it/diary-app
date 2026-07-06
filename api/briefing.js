@@ -90,6 +90,71 @@ async function fetchKmaSkyStatus(apiKey) {
   }
 }
 
+async function fetchKmaVilageFcst(apiKey) {
+  if (!apiKey) return '';
+  try {
+    const kstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    const bases = [2, 5, 8, 11, 14, 17, 20, 23];
+    const hour = kstNow.getUTCHours();
+    const minute = kstNow.getUTCMinutes();
+    let baseDate = new Date(kstNow);
+    let baseHour = -1;
+    for (const t of bases) {
+      if (hour > t || (hour === t && minute >= 10)) baseHour = t;
+    }
+    if (baseHour === -1) {
+      baseDate = new Date(kstNow.getTime() - 24 * 60 * 60 * 1000);
+      baseHour = 23;
+    }
+    const baseDateStr = baseDate.toISOString().slice(0, 10).replace(/-/g, '');
+    const baseTime = `${String(baseHour).padStart(2, '0')}00`;
+    const todayFcstDate = kstNow.toISOString().slice(0, 10).replace(/-/g, '');
+
+    const url = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst'
+      + `?serviceKey=${encodeURIComponent(apiKey)}&numOfRows=300&pageNo=1&dataType=JSON`
+      + `&base_date=${baseDateStr}&base_time=${baseTime}&nx=60&ny=127`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const items = data?.response?.body?.items?.item;
+    if (!Array.isArray(items)) return '';
+
+    const todayItems = items.filter((it) => it.fcstDate === todayFcstDate);
+    if (todayItems.length === 0) return '';
+
+    const nums = (cat) => todayItems.filter((it) => it.category === cat).map((it) => Number(it.fcstValue));
+    const t3h = nums('T3H');
+    const tmx = nums('TMX');
+    const tmn = nums('TMN');
+    const maxTemp = tmx.length ? Math.max(...tmx) : (t3h.length ? Math.max(...t3h) : null);
+    const minTemp = tmn.length ? Math.min(...tmn) : (t3h.length ? Math.min(...t3h) : null);
+
+    const nowHHMM = `${String(kstNow.getUTCHours()).padStart(2, '0')}00`;
+    const times3h = [...new Set(todayItems.map((it) => it.fcstTime))].sort();
+    const currentTime = times3h.find((t) => t >= nowHHMM) || times3h[times3h.length - 1];
+    const val = (cat) => todayItems.find((it) => it.category === cat && it.fcstTime === currentTime)?.fcstValue;
+
+    const curTemp = val('T3H');
+    const reh = val('REH');
+    const wsd = val('WSD');
+    const pty = val('PTY');
+    const sky = val('SKY');
+    const desc = (pty && pty !== '0' ? PTY_KO[pty] : null) || SKY_KO[sky] || '';
+
+    if (curTemp == null && maxTemp == null) return '';
+
+    return [
+      curTemp != null ? `현재기온: ${curTemp}°C` : '',
+      (maxTemp != null && minTemp != null) ? `최고: ${maxTemp}°C / 최저: ${minTemp}°C` : '',
+      desc ? `날씨(이 표현 그대로 사용, 변경 금지): ${desc}` : '',
+      reh != null ? `습도: ${reh}%` : '',
+      wsd != null ? `풍속: ${wsd}m/s` : '',
+    ].filter(Boolean).join(', ');
+  } catch (e) {
+    console.error('KMA fallback weather fetch failed', e);
+    return '';
+  }
+}
+
 async function fetchSeoulWeather(kmaApiKey) {
   try {
     const url = 'https://api.open-meteo.com/v1/forecast'
@@ -104,7 +169,7 @@ async function fetchSeoulWeather(kmaApiKey) {
     const data = await res.json();
     const cur = data.current;
     const daily = data.daily;
-    if (!cur) return '';
+    if (!cur || !daily) throw new Error('open-meteo response missing current/daily data');
     const desc = kmaSky || (WMO_KO[cur.weather_code] ?? `코드 ${cur.weather_code}`);
     return [
       `현재기온: ${cur.temperature_2m}°C (체감 ${cur.apparent_temperature}°C)`,
@@ -115,8 +180,8 @@ async function fetchSeoulWeather(kmaApiKey) {
       `현재강수: ${cur.precipitation}mm`,
     ].join(', ');
   } catch (e) {
-    console.error('weather fetch failed', e);
-    return '';
+    console.error('open-meteo weather fetch failed, falling back to KMA', e);
+    return await fetchKmaVilageFcst(kmaApiKey);
   }
 }
 
@@ -258,8 +323,9 @@ async function runBriefing(overrideDate = null) {
   - 일정이 아예 없고 9-6 가정도 적용되지 않는 날(주말, 휴가 등)이면 날씨를 참고해서 오늘 하루에 어울리는 활동을 구체적으로 제안.
   - "오늘은 평일이고 특별한 일정이 없습니다" 같은 상황 설명으로 문장을 시작하지 않는다. 곧바로 추천 내용이나 일정으로 들어간다.
 - news: 정확히 2개 항목 배열. 각 {"summary": "...", "url": "..."}. summary는 300자 이내, 2~4문장, ~입니다로 종결, "OOO에 따르면" 같은 출처표기 금지. ${excludeSources.join('/')} 출처 기사는 제외. summary에는 한자(漢字)를 절대 쓰지 않는다 — 기사 제목에 民主黨, 與, 野, 法司委 같은 한자나 한자 약칭이 있어도 모두 한글(민주당, 여당, 야당, 법사위 등)로 풀어서 쓴다.
-- yesterday: ${hasDiarySummary ? '300자 이내, 한 문단 3~4문장, 줄바꿈 없음. 요약 + 격려.' : '어제 일기 기록이 없으므로 반드시 빈 문자열("")로 두세요.'}
-- suggestion: ${hasDiarySummary ? '400자 이내. 행동제안 3~4문장 + 줄바꿈 + 인지전환 3~4문장. 일기/제언 참고해서 구체적으로.' : '아래 user 메시지의 "어제 제언"을 그대로 자연스러운 비서 말투로 재서술. 400자 이내. 내용 추가나 변경 금지.'} 일정에 등장하는 인물과 일기에 등장하는 인물 사이의 관계를 임의로 가정하지 말 것 — 서로 모르는 사이일 수 있으므로 두 인물을 연결하는 제안 절대 금지.
+- yesterday: ${hasDiarySummary ? '150자 이내, 한 문단 2문장, 줄바꿈 없음. 요약 + 격려.' : '어제 일기 기록이 없으므로 반드시 빈 문자열("")로 두세요.'}
+- suggestion: ${hasDiarySummary ? '200자 이내. 행동제안 1~2문장 + 줄바꿈 + 인지전환 1~2문장. 일기/제언 참고해서 구체적으로.' : '아래 user 메시지의 "어제 제언"을 그대로 자연스러운 비서 말투로 재서술. 200자 이내. 내용 추가나 변경 금지.'} 일정에 등장하는 인물과 일기에 등장하는 인물 사이의 관계를 임의로 가정하지 말 것 — 서로 모르는 사이일 수 있으므로 두 인물을 연결하는 제안 절대 금지.
+  - 절대 규칙: 오늘 일정에 병원/진료/상담 관련 일정이 실제로 있을 때만 "오늘 일기(내용)를 보여주다/공유하다" 같은 제안을 할 수 있다. 그런 일정이 없으면 병원이나 의사·상담사에게 일기를 보여주라는 제안을 절대로 하지 않는다.
 
 [출력 JSON 스키마 - 이 형식 그대로]
 {"weather":"...","schedule":"...","news":[{"summary":"...","url":"..."},{"summary":"...","url":"..."}],"yesterday":"...","suggestion":"..."}`;
