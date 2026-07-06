@@ -46,14 +46,7 @@ export default async function handler(request) {
         inG = true;
       }
     } else {
-      const nx = pb[bi + 1];
-      if (b.type === 'heading_4' && b.heading_4?.rich_text?.some((t) => t.plain_text?.includes('일기'))) break;
-      if (
-        b.type === 'divider' &&
-        nx?.type === 'heading_4' &&
-        nx?.heading_4?.rich_text?.some((t) => t.plain_text?.includes('일기'))
-      )
-        break;
+      if (b.type === 'heading_4') break;
       afterBlockId = b.id;
     }
   }

@@ -2463,7 +2463,7 @@ async function loadRecordsForViewedDate(){
     const girokBlocks=[];let inG=false;
     for(let bi=0;bi<allBlocks.length;bi++){const b=allBlocks[bi];
       if(!inG){if(b.type==='heading_4'&&!b.heading_4?.is_toggleable&&b.heading_4?.rich_text?.some(t=>t.plain_text?.includes('기록')))inG=true;}
-      else{const nx=allBlocks[bi+1];if(b.type==='heading_4'&&b.heading_4?.rich_text?.some(t=>t.plain_text?.includes('일기')))break;if(b.type==='divider'&&nx?.type==='heading_4'&&nx?.heading_4?.rich_text?.some(t=>t.plain_text?.includes('일기')))break;girokBlocks.push(b);}}
+      else{if(b.type==='heading_4')break;girokBlocks.push(b);}}
     let i=0;
     while(i<girokBlocks.length){
       const block=girokBlocks[i];if(block.type!=='paragraph'&&block.type!=='callout'&&block.type!=='quote'){i++;continue;}
