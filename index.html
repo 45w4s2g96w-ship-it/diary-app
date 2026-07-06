@@ -1532,8 +1532,14 @@ async function classifyMemo(target){
       showToast('TO-DO에 추가됨!');
     }else if(target==='DIARY'){
       const pageId=await getTodayPageId();
+      if(!pageId)throw new Error('오늘 페이지를 찾을 수 없습니다');
       const timeStr=formatTime(new Date());
-      await fetch('/api/insert-record',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({notionToken:localStorage.getItem('notion_token')||'',pageId,children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:timeStr},annotations:{color:'gray'}},{type:'text',text:{content:'\n'+item.text}}]}}]})});
+      const dr=await fetch('/api/insert-record',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({notionToken:localStorage.getItem('notion_token')||'',pageId,children:[{object:'block',type:'paragraph',paragraph:{rich_text:[{type:'text',text:{content:timeStr},annotations:{color:'gray'}},{type:'text',text:{content:'\n'+item.text}}]}}]})});
+      const dd=await dr.json();
+      if(!dr.ok||!dd.results||!dd.results[0]){
+        if(isTokenAuthError(dd.message))handleNotionAuthError();
+        throw new Error('Diary 저장 실패: '+(dd.message||dr.status));
+      }
       showToast('Diary에 추가됨!');
     }else{
       showToast(target+'로 분류됨');
@@ -2066,11 +2072,18 @@ async function saveGratitude(){
       const blockId=gratitudeItemBlockIds[t.dataset.group+'_'+t.dataset.idx];
       if(!blockId)return;
       const content=t.value.trim();
-      patches.push(fetch(WORKER_URL+'/notion/blocks/'+blockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({numbered_list_item:{rich_text:content?[{text:{content}}]:[]}})}));
+      patches.push(fetch(WORKER_URL+'/notion/blocks/'+blockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({numbered_list_item:{rich_text:content?[{text:{content}}]:[]}})}).then(async r=>{
+        const d=await r.json();
+        if(!r.ok){
+          if(isTokenAuthError(d.message))handleNotionAuthError();
+          throw new Error(d.message||String(r.status));
+        }
+        return d;
+      }));
     });
     await Promise.all(patches);
     showToast('감사 일기 저장됨!');
-  }catch(e){console.error(e);showToast('저장 실패');}
+  }catch(e){console.error(e);showToast('저장 실패: '+e.message);}
   if(btn)btn.disabled=false;
 }
 function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection();loadRecordsForViewedDate();}
