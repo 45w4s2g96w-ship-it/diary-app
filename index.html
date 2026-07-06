@@ -2072,11 +2072,18 @@ async function saveGratitude(){
       const blockId=gratitudeItemBlockIds[t.dataset.group+'_'+t.dataset.idx];
       if(!blockId)return;
       const content=t.value.trim();
-      patches.push(fetch(WORKER_URL+'/notion/blocks/'+blockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({numbered_list_item:{rich_text:content?[{text:{content}}]:[]}})}));
+      patches.push(fetch(WORKER_URL+'/notion/blocks/'+blockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({numbered_list_item:{rich_text:content?[{text:{content}}]:[]}})}).then(async r=>{
+        const d=await r.json();
+        if(!r.ok){
+          if(isTokenAuthError(d.message))handleNotionAuthError();
+          throw new Error(d.message||String(r.status));
+        }
+        return d;
+      }));
     });
     await Promise.all(patches);
     showToast('감사 일기 저장됨!');
-  }catch(e){console.error(e);showToast('저장 실패');}
+  }catch(e){console.error(e);showToast('저장 실패: '+e.message);}
   if(btn)btn.disabled=false;
 }
 function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection();loadRecordsForViewedDate();}
