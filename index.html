@@ -941,6 +941,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </div>
     <div style="flex:1;min-height:0;padding:0 var(--pad-h) 20px;overflow-y:auto;">
       <div class="win rk-setting-list">
+        <div class="rk-setting-row"><span style="font-weight:700;">★ 메인 컬러 (자동 매칭)</span><div class="rk-setting-color"><span class="hex-label" id="theme-main-hex">#E8A794</span><input type="color" id="theme-main-input" value="#E8A794" oninput="onMainColorChange()"></div></div>
         <div class="rk-setting-row"><span>ink</span><div class="rk-setting-color"><span class="hex-label" id="theme-ink-hex">#14110F</span><input type="color" id="theme-ink-input" value="#14110F" oninput="onThemeColorChange('ink')"></div></div>
         <div class="rk-setting-row"><span>paper</span><div class="rk-setting-color"><span class="hex-label" id="theme-paper-hex">#FBEEF0</span><input type="color" id="theme-paper-input" value="#FBEEF0" oninput="onThemeColorChange('paper')"></div></div>
         <div class="rk-setting-row"><span>accent</span><div class="rk-setting-color"><span class="hex-label" id="theme-accent-hex">#E8A794</span><input type="color" id="theme-accent-input" value="#E8A794" oninput="onThemeColorChange('accent')"></div></div>
@@ -1776,8 +1777,66 @@ THEME_FONT_KR_LIST.forEach(name=>{
   if(name==='Pretendard'||name==='NanumSquareNeo')return;
   THEME_FONT_KR_URLS[name]=`https://fonts.googleapis.com/css2?family=${name.replace(/ /g,'+')}&display=swap`;
 });
-const THEME_COLOR_KEYS=['ink','paper','accent','accent_soft','sage'];
-const THEME_COLOR_DEFAULTS={ink:'#14110F',paper:'#FBEEF0',accent:'#E8A794',accent_soft:'#F6DDE1',sage:'#B8C4A8'};
+const THEME_COLOR_KEYS=['ink','paper','accent','accent_soft','sage','sage_soft','ivory'];
+const THEME_COLOR_DEFAULTS={ink:'#14110F',paper:'#FBEEF0',accent:'#E8A794',accent_soft:'#F6DDE1',sage:'#B8C4A8',sage_soft:'#E4E9DC',ivory:'#FFF8F5'};
+function hexToHsl(hexStr){
+  const hex=hexStr.replace('#','');
+  const r=parseInt(hex.substring(0,2),16)/255,g=parseInt(hex.substring(2,4),16)/255,b=parseInt(hex.substring(4,6),16)/255;
+  const max=Math.max(r,g,b),min=Math.min(r,g,b);
+  let h=0,s=0;const l=(max+min)/2;const d=max-min;
+  if(d!==0){
+    s=l>0.5?d/(2-max-min):d/(max+min);
+    switch(max){
+      case r:h=(g-b)/d+(g<b?6:0);break;
+      case g:h=(b-r)/d+2;break;
+      default:h=(r-g)/d+4;
+    }
+    h*=60;
+  }
+  return {h,s:s*100,l:l*100};
+}
+function hslToHex(h,s,l){
+  h=((h%360)+360)%360;s=Math.max(0,Math.min(100,s))/100;l=Math.max(0,Math.min(100,l))/100;
+  const c=(1-Math.abs(2*l-1))*s;
+  const x=c*(1-Math.abs((h/60)%2-1));
+  const m=l-c/2;
+  let r=0,g=0,b=0;
+  if(h<60){r=c;g=x;}
+  else if(h<120){r=x;g=c;}
+  else if(h<180){g=c;b=x;}
+  else if(h<240){g=x;b=c;}
+  else if(h<300){r=x;b=c;}
+  else{r=c;b=x;}
+  const toHex=v=>Math.round((v+m)*255).toString(16).padStart(2,'0');
+  return '#'+toHex(r)+toHex(g)+toHex(b);
+}
+function generateMatchingPalette(mainHex){
+  const {h,s}=hexToHsl(mainHex);
+  return {
+    accent:mainHex,
+    accent_soft:hslToHex(h-23,s*0.9,92),
+    paper:hslToHex(h-23,s*0.95,96),
+    sage:hslToHex(h+72,s*0.3,71),
+    sage_soft:hslToHex(h+72,s*0.36,89),
+    ivory:hslToHex(h+4,Math.min(100,s*1.4),98),
+    ink:hslToHex(h+10,s*0.22,7),
+  };
+}
+function onMainColorChange(){
+  const mainHex=document.getElementById('theme-main-input').value;
+  localStorage.setItem('theme_main',mainHex);
+  document.getElementById('theme-main-hex').textContent=mainHex.toUpperCase();
+  const palette=generateMatchingPalette(mainHex);
+  Object.keys(palette).forEach(key=>{
+    const val=palette[key];
+    localStorage.setItem('theme_'+key,val);
+    const input=document.getElementById('theme-'+key+'-input');
+    const hexEl=document.getElementById('theme-'+key+'-hex');
+    if(input)input.value=val;
+    if(hexEl)hexEl.textContent=val.toUpperCase();
+  });
+  applyThemeColors();
+}
 function applyThemeColors(){
   const root=document.documentElement.style;
   THEME_COLOR_KEYS.forEach(key=>{
@@ -1833,6 +1892,11 @@ function initSettingTab(){
     if(input)input.value=val;
     if(hex)hex.textContent=val.toUpperCase();
   });
+  const mainVal=localStorage.getItem('theme_main')||localStorage.getItem('theme_accent')||THEME_COLOR_DEFAULTS.accent;
+  const mainInput=document.getElementById('theme-main-input');
+  const mainHex=document.getElementById('theme-main-hex');
+  if(mainInput)mainInput.value=mainVal;
+  if(mainHex)mainHex.textContent=mainVal.toUpperCase();
   document.getElementById('theme-font-select').value=localStorage.getItem('theme_font')||'Archivo';
   document.getElementById('theme-font-kr-select').value=localStorage.getItem('theme_font_kr')||'Pretendard';
   document.getElementById('memo-db-input').value=getMemoDb();
