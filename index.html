@@ -40,7 +40,6 @@ body::before { display: none; }
 .win-titlebar-word { font-family: var(--font-en); font-weight: 900; font-size: 14px; letter-spacing: 0.02em; color: var(--ink); }
 .win-titlebar-dots { display: flex; gap: 6px; }
 .win-titlebar-dots span { width: 9px; height: 9px; border: 1px solid var(--ink); display: inline-block; }
-.win-titlebar-dots span:last-child { background: var(--accent); }
 .win-nav { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--ink); padding: 0 16px; }
 .win-nav-tabs { display: flex; gap: 0; }
 .win-nav .tab-btn { font-family: var(--font-en); font-weight: 700; font-size: 12px; letter-spacing: 0.04em; color: var(--ink-muted); background: none; border: none; padding: 12px 14px 10px; cursor: pointer; border-bottom: 1px solid transparent; margin-bottom: -1px; }
@@ -614,16 +613,16 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 #tab-home { padding: 18px; overflow: hidden; }
 #tab-home > * { margin-bottom: 20px; flex-shrink: 0; }
 #tab-home > *:last-child { margin-bottom: 0; }
-#tab-home > .rk-row-7-5 { flex: 1; min-height: 0; }
+#home-row-gratitude { flex: 1; min-height: 0; }
 #home-memo-card { flex: 1; min-height: 0; }
 #home-memo-card .memo-chat-area { flex: 1; min-height: 0; overflow-y: auto; }
 .home-goal-grid, .home-habit-list-v { max-height: 130px; overflow-y: auto; }
-#home-gratitude-fields { flex: 1; min-height: 0; overflow-y: auto; }
+#home-gratitude-thanks, #home-gratitude-effort { flex: 1; min-height: 0; overflow-y: auto; }
 .rk-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.rk-row-7-5 { display: flex; flex-direction: column; gap: 14px; }
+#dump-memo-tabs, #tab-dump .memo-input-row, #dump-memo-list { padding-left: 18px; padding-right: 18px; }
 @media (min-width: 901px) {
   #tab-home { padding: var(--pad-h); }
-  .rk-row-7-5 { display: grid; grid-template-columns: 7fr 5fr; }
+  #dump-memo-tabs, #tab-dump .memo-input-row, #dump-memo-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
 }
 .rk-card { padding: 12px; }
 .rk-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid var(--ink); padding-bottom: 6px; font-family: var(--font-kr); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); flex-shrink: 0; }
@@ -662,6 +661,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .home-habit-list-v .quad-item { border-bottom: 1px solid var(--ink); padding: 8px 0; }
 .home-habit-list-v .quad-item:last-child { border-bottom: none; }
 .home-habit-time-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); margin-right: 5px; }
+.home-habit-add-row { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--ink); flex-shrink: 0; }
+.home-habit-add-row input { flex: 1; min-width: 0; font-family: var(--font-kr); font-size: 11px; background: var(--ivory); border: 1px solid var(--ink); padding: 6px 8px; outline: none; color: var(--ink); }
+.home-habit-add-row select { font-family: var(--font-kr); font-size: 10px; background: var(--paper); border: 1px solid var(--ink); padding: 0 4px; color: var(--ink); }
 .home-empty-hint { font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); padding: 10px 0; }
 .home-scroll-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
 .home-scroll-row::-webkit-scrollbar { display: none; }
@@ -720,7 +722,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="win-titlebar-word">기록.log ⋆｡°✩</div>
       <div style="display:flex;align-items:center;gap:12px;">
         <span style="cursor:pointer;font-size:14px;" onclick="openBriefingPopup()" title="모닝브리핑">🌤️</span>
-        <div class="win-titlebar-dots"><span></span><span></span><span></span></div>
+        <div class="win-titlebar-dots"><span></span><span></span></div>
       </div>
     </div>
     <div class="win-nav">
@@ -748,24 +750,39 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="rk-card win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'TO-DO')">
         <div class="rk-card-header"><span>✓ 루틴</span></div>
         <div class="home-habit-list-v" id="home-habit-list"><div class="empty-state">불러오는 중...</div></div>
+        <div class="home-habit-add-row">
+          <input id="habit-add-name" placeholder="+ 습관 추가" onkeydown="if(event.key==='Enter')addHabit()">
+          <select id="habit-add-cat">
+            <option value="morning">🌤️ 아침</option>
+            <option value="day" selected>☀️ 종일</option>
+            <option value="night">🌙 저녁</option>
+          </select>
+          <button class="rk-btn-primary-sm" onclick="addHabit()">ADD</button>
+        </div>
       </div>
     </div>
 
-    <div class="rk-row-7-5">
+    <div class="rk-row-2col" id="home-row-gratitude">
+      <div class="rk-card win rk-tint-accent rk-flex-col">
+        <div class="rk-card-header"><span>🌻 감사한 일</span></div>
+        <div id="home-gratitude-thanks"><div class="empty-state">불러오는 중...</div></div>
+      </div>
+      <div class="rk-card win rk-tint-accent rk-flex-col">
+        <div class="rk-card-header"><span>👏 노력한 일</span><button class="rk-btn-primary-sm" id="home-gratitude-save-btn" onclick="saveGratitude('home')">SAVE</button></div>
+        <div id="home-gratitude-effort"><div class="empty-state">불러오는 중...</div></div>
+      </div>
+    </div>
+
+    <div class="rk-row-2col" id="home-row-write">
       <div class="rk-card win rk-flex-col">
         <div class="rk-card-header"><span>✎ 지금 기록하기</span><span class="rk-muted" id="home-now-time"></span></div>
         <textarea class="rk-input-box rk-flex-fill" id="home-record-input" placeholder="오늘 있었던 일, 지금 드는 생각을 가볍게 적어보세요" oninput="autoResize(this)"></textarea>
         <div style="display:flex;justify-content:flex-end;margin-top:10px;"><button class="rk-btn-primary" onclick="homeSaveRecord()">저장</button></div>
       </div>
-      <div class="rk-card win rk-tint-accent rk-flex-col" style="justify-content:space-between;">
-        <div class="rk-card-header"><span>🌻 감사 일기</span><button class="rk-btn-primary-sm" id="home-gratitude-save-btn" onclick="saveGratitude('home')">SAVE</button></div>
-        <div id="home-gratitude-fields"><div class="empty-state">불러오는 중...</div></div>
+      <div class="rk-card win" id="home-recent-card">
+        <div class="rk-card-header"><span>◇ 최근 기록</span></div>
+        <div class="home-scroll-row" id="home-recent-log"></div>
       </div>
-    </div>
-
-    <div class="rk-card win" id="home-recent-card">
-      <div class="rk-card-header"><span>◇ 최근 기록</span></div>
-      <div class="home-scroll-row" id="home-recent-log"></div>
     </div>
 
     <div class="rk-card win rk-flex-col memo-drop-target" id="home-memo-card" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'DIARY')">
@@ -809,10 +826,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <button class="diary-nav-btn diary-next-btn" onclick="changeDiaryDate(1)">▶</button>
         <span id="diary-header-chip" class="diary-header-chip"></span>
       </div>
-      <div class="log-visibility-toggle">
-        <button type="button" class="lv-opt active" id="toggle-log" onclick="switchRecordPane('log')">LOG</button>
-        <button type="button" class="lv-opt" id="toggle-routine" onclick="switchRecordPane('routine')">ROUTINE</button>
-      </div>
     </div>
 
     <div class="diary-props">
@@ -850,26 +863,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
       </div>
     </div>
-
-    <div id="record-routine-pane" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:0 var(--pad-h) 20px;scrollbar-width:none;">
-      <div id="routine-checklist"></div>
-      <div style="display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--ink);padding-top:14px;">
-        <input id="habit-add-name" placeholder="+ 습관 추가" style="flex:1;font-family:var(--font-kr);font-size:12px;background:transparent;border:1px solid var(--ink);padding:8px 10px;outline:none;color:var(--ink);" onkeydown="if(event.key==='Enter')addHabit()">
-        <select id="habit-add-cat" style="font-family:var(--font-kr);font-size:11px;background:var(--paper);border:1px solid var(--ink);padding:0 6px;color:var(--ink);">
-          <option value="morning">🌤️ 아침</option>
-          <option value="day" selected>☀️ 종일</option>
-          <option value="night">🌙 저녁</option>
-        </select>
-        <button onclick="addHabit()" style="font-family:var(--font-en);font-size:10px;font-weight:700;background:var(--accent);color:var(--ink);border:1px solid var(--ink);padding:0 12px;cursor:pointer;">ADD</button>
-      </div>
-    </div>
   </div>
 
   <div class="tab-content" id="tab-dump">
     <div class="section-header">
       <div class="section-title">Memo</div>
     </div>
-    <div class="memo-tabs" id="dump-memo-tabs" style="padding:0 var(--pad-h) 8px;flex-shrink:0;">
+    <div class="memo-tabs" id="dump-memo-tabs" style="padding-bottom:8px;flex-shrink:0;">
       <button class="memo-tab active" data-f="ALL" onclick="setMemoFilter('ALL')">ALL</button>
       <button class="memo-tab" data-f="★" onclick="setMemoFilter('★')">⭐</button>
       <button class="memo-tab" data-f="DIARY" onclick="setMemoFilter('DIARY')">DIARY</button>
@@ -878,11 +878,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <button class="memo-tab" data-f="BOOKMARK" onclick="setMemoFilter('BOOKMARK')">BOOKMARK</button>
       <button class="memo-tab" data-f="ETC" onclick="setMemoFilter('ETC')">ETC</button>
     </div>
-    <div class="memo-input-row" style="padding:0 var(--pad-h) 8px;flex-shrink:0;">
+    <div class="memo-input-row" style="padding-bottom:8px;flex-shrink:0;">
       <textarea class="memo-input" id="dump-memo-input" placeholder="메모를 남겨보세요." rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveMemo('dump-memo-input');}"></textarea>
       <button class="memo-send-btn" id="dump-memo-send-btn" onclick="saveMemo('dump-memo-input')">ADD</button>
     </div>
-    <div class="memo-chat-area" id="dump-memo-list" style="flex:1;min-height:0;overflow-y:auto;padding:0 var(--pad-h) 20px;"><div class="empty-state">불러오는 중...</div></div>
+    <div class="memo-chat-area" id="dump-memo-list" style="flex:1;min-height:0;overflow-y:auto;padding-bottom:20px;"><div class="empty-state">불러오는 중...</div></div>
   </div>
 
   <div class="popup-overlay" id="brain-action-sheet" onclick="if(event.target===this)closeBrainActionSheet()">
@@ -1326,9 +1326,7 @@ function habitCatLabel(key){return (HABIT_CATEGORIES.find(c=>c.key===key)||{}).l
 let habitItems=[];
 async function loadHabits(){
   const homeList=document.getElementById('home-habit-list');
-  const routineList=document.getElementById('routine-checklist');
   if(homeList)homeList.innerHTML='<div class="empty-state">불러오는 중...</div>';
-  if(routineList)routineList.innerHTML='<div class="empty-state">불러오는 중...</div>';
   try{
     const todayStr=formatDate(getDiaryDate());
     const [habitsRes,dailyRes]=await Promise.all([
@@ -1348,49 +1346,26 @@ async function loadHabits(){
       checkinPageId:checkinByHabitId.get(page.id)||null
     }));
     renderHabitList();
-  }catch(e){console.error(e);if(homeList)homeList.innerHTML='<div class="empty-state">불러오기 실패</div>';if(routineList)routineList.innerHTML='<div class="empty-state">불러오기 실패</div>';}
+  }catch(e){console.error(e);if(homeList)homeList.innerHTML='<div class="empty-state">불러오기 실패</div>';}
 }
 function renderHabitList(){
   renderHomeHabitList();
-  renderRoutineChecklist();
 }
 function renderHomeHabitList(){
   const list=document.getElementById('home-habit-list');
   if(!list)return;
   if(!habitItems.length){list.innerHTML='<div class="empty-state">진행중인 습관이 없어요.</div>';return;}
-  const shown=habitItems.slice(0,5);
-  list.innerHTML=shown.map(h=>{
-    const i=habitItems.indexOf(h);const done=!!h.checkinPageId;
-    return `<div class="quad-item" style="cursor:pointer;" onclick="toggleHabit(${i})"><div class="quad-check${done?' done':''}"></div><div class="quad-text${done?' done':''}"><span class="home-habit-time-tag">${habitCatLabel(h.category)}</span><span data-i="${i}"></span></div></div>`;
-  }).join('');
-  shown.forEach(h=>{
-    const i=habitItems.indexOf(h);
-    const el=list.querySelector(`[data-i="${i}"]`);
-    if(el)el.textContent=h.name;
-  });
-}
-function renderRoutineChecklist(){
-  const c=document.getElementById('routine-checklist');
-  if(!c)return;
-  if(!habitItems.length){
-    c.innerHTML='<div class="empty-state">등록된 습관이 없어요. 아래에서 추가해보세요.</div>';
-    return;
-  }
-  c.innerHTML=HABIT_CATEGORIES.map(cat=>{
-    const idxs=habitItems.map((h,i)=>i).filter(i=>habitItems[i].category===cat.key);
-    const body=idxs.length?idxs.map(i=>{
-      const h=habitItems[i];const done=!!h.checkinPageId;
-      return `<div class="quad-item" style="border-bottom:1px solid var(--rule);">
-        <div class="quad-check${done?' done':''}" style="cursor:pointer;" onclick="toggleHabit(${i})"></div>
-        <div class="quad-text${done?' done':''}" data-i="${i}" style="flex:1;cursor:pointer;" onclick="toggleHabit(${i})"></div>
-        <span class="todo-star" style="cursor:pointer;" onclick="cycleHabitCategory(${i})" title="시간대 변경">⇄</span>
-        <span class="todo-star" style="cursor:pointer;" onclick="archiveHabit(${i})" title="삭제">✕</span>
-      </div>`;
-    }).join(''):'<div class="home-habit-empty">-</div>';
-    return `<div style="margin-bottom:18px;"><div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${cat.label}</div>${body}</div>`;
+  list.innerHTML=habitItems.map((h,i)=>{
+    const done=!!h.checkinPageId;
+    return `<div class="quad-item">
+      <div class="quad-check${done?' done':''}" style="cursor:pointer;" onclick="toggleHabit(${i})"></div>
+      <div class="quad-text${done?' done':''}" style="flex:1;cursor:pointer;" onclick="toggleHabit(${i})"><span class="home-habit-time-tag">${habitCatLabel(h.category)}</span><span data-i="${i}"></span></div>
+      <span class="todo-star" style="cursor:pointer;" onclick="cycleHabitCategory(${i})" title="시간대 변경">⇄</span>
+      <span class="todo-star" style="cursor:pointer;" onclick="archiveHabit(${i})" title="삭제">✕</span>
+    </div>`;
   }).join('');
   habitItems.forEach((h,i)=>{
-    const el=c.querySelector(`.quad-text[data-i="${i}"]`);
+    const el=list.querySelector(`[data-i="${i}"]`);
     if(el)el.textContent=h.name;
   });
 }
@@ -2123,16 +2098,23 @@ const GRATITUDE_GROUPS=[
   {emoji:'👏',title:'노력한 일',match:'노력한 일'}
 ];
 let gratitudeItemBlockIds={home:{},diary:{}};
+function gratitudeGroupWrap(scope,groupMatch){
+  if(scope==='home')return document.getElementById(groupMatch==='감사한 일'?'home-gratitude-thanks':'home-gratitude-effort');
+  return document.getElementById('gratitude-fields');
+}
+function gratitudeWraps(scope){
+  return scope==='home'?[document.getElementById('home-gratitude-thanks'),document.getElementById('home-gratitude-effort')]:[document.getElementById('gratitude-fields')];
+}
 async function loadGratitudeSection(scope){
   scope=scope||'diary';
-  const wrap=document.getElementById(scope==='home'?'home-gratitude-fields':'gratitude-fields');
-  if(!wrap)return;
-  wrap.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  const wraps=gratitudeWraps(scope).filter(Boolean);
+  if(!wraps.length)return;
+  wraps.forEach(w=>w.innerHTML='<div class="empty-state">불러오는 중...</div>');
   gratitudeItemBlockIds[scope]={};
   try{
     const pageId=scope==='home'?await getTodayPageId():await getDiaryPanelPageId();
     if(!pageId){
-      wrap.innerHTML='<div class="empty-state">이 날짜엔 다이어리 페이지가 없어요.</div>';
+      wraps.forEach(w=>w.innerHTML='<div class="empty-state">이 날짜엔 다이어리 페이지가 없어요.</div>');
       return;
     }
     let blocks=[];let cursor=null;
@@ -2143,9 +2125,11 @@ async function loadGratitudeSection(scope){
       blocks=blocks.concat(bd.results||[]);
       cursor=bd.has_more?bd.next_cursor:null;
     }while(cursor);
-    wrap.innerHTML='';
+    wraps.forEach(w=>w.innerHTML='');
     const readOnly=scope==='home'?false:!isDiaryViewingToday();
     GRATITUDE_GROUPS.forEach(group=>{
+      const wrap=gratitudeGroupWrap(scope,group.match);
+      if(!wrap)return;
       const headingIdx=blocks.findIndex(b=>b.type==='heading_4'&&richTextJoinDiary(b.heading_4.rich_text).includes(group.match));
       const items=[];
       if(headingIdx!==-1){
@@ -2156,7 +2140,7 @@ async function loadGratitudeSection(scope){
       }
       const groupEl=document.createElement('div');groupEl.className='gratitude-field';
       const label=document.createElement('div');label.className='gratitude-label';label.textContent=group.emoji+' '+group.title;
-      groupEl.appendChild(label);
+      if(scope!=='home')groupEl.appendChild(label);
       for(let i=0;i<3;i++){
         const b=items[i];
         const ta=document.createElement('textarea');
@@ -2169,13 +2153,13 @@ async function loadGratitudeSection(scope){
       }
       wrap.appendChild(groupEl);
     });
-    wrap.querySelectorAll('.gratitude-input').forEach(t=>autoResize(t));
-  }catch(e){console.error(e);wrap.innerHTML='<div class="empty-state">불러오기 실패</div>';}
+    wraps.forEach(w=>w.querySelectorAll('.gratitude-input').forEach(t=>autoResize(t)));
+  }catch(e){console.error(e);wraps.forEach(w=>w.innerHTML='<div class="empty-state">불러오기 실패</div>');}
 }
 async function saveGratitude(scope){
   scope=scope||'diary';
-  const wrap=document.getElementById(scope==='home'?'home-gratitude-fields':'gratitude-fields');
-  const inputs=wrap?wrap.querySelectorAll('.gratitude-input'):[];
+  const wraps=gratitudeWraps(scope).filter(Boolean);
+  const inputs=wraps.flatMap(w=>[...w.querySelectorAll('.gratitude-input')]);
   const btn=document.getElementById(scope==='home'?'home-gratitude-save-btn':'gratitude-save-btn');
   if(btn)btn.disabled=true;
   try{
@@ -2200,14 +2184,6 @@ async function saveGratitude(scope){
 }
 function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection('diary');loadRecordsForViewedDate();}
 
-/* ROUTINE 토글 — 통합 HABIT_DB 체크리스트 재사용 (시간대별 그룹) */
-function switchRecordPane(pane){
-  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';
-  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';
-  document.getElementById('toggle-log').classList.toggle('active',pane==='log');
-  document.getElementById('toggle-routine').classList.toggle('active',pane==='routine');
-  if(pane==='routine')loadHabits();
-}
 
 /* 감정 추천 */
 const EMOTION_KEYWORDS={
@@ -2688,8 +2664,8 @@ function renderWeeklyView(){
     const dayStr=formatDate(day);
     const isToday=dayStr===todayStr;
     const items=getItemsForDay(dayStr,isToday);
-    const dayName=DAY_NAMES[day.getDay()];
-    const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')}`;
+    const dayName=d===0?'오늘':'D+'+d;
+    const dayDateStr=`${day.getMonth()+1}.${String(day.getDate()).padStart(2,'0')} ${DAY_NAMES[day.getDay()]}`;
     html+=`<div class="week-col" data-date="${dayStr}">
       <div class="week-col-header${isToday?' today':''}" onclick="openTodoPopupWeek('${dayStr}')" style="cursor:pointer;">
         <div class="week-col-name">${dayName}</div>
