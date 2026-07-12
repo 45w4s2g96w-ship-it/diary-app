@@ -165,7 +165,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 #record-log-pane { background: var(--paper); }
 #tab-record .section-header { background: var(--paper); padding: 14px var(--pad-h) 10px; border-bottom: none; }
 #tab-record .section-title { font-size: 12.5px; }
-#tab-record .diary-nav-btn { font-size: 15px; }
 #tab-record .emotion-section { padding: 14px var(--pad-h) 10px; border-bottom: none; }
 #tab-record .emotion-optional-label { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
 #tab-record .emotion-row-label { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); }
@@ -190,17 +189,17 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
 /* Diary date navigation */
-.diary-date-nav { display: flex; align-items: center; gap: 10px; }
-.diary-nav-btn { font-family: var(--font-en); font-size: 24px; font-weight: 900; background: none; border: none; cursor: pointer; color: var(--ink); line-height: 1; padding: 2px 6px; }
+.diary-date-nav { display: flex; align-items: center; gap: 12px; }
+.diary-nav-btn { font-family: var(--font-kr); font-size: 14px; font-weight: 700; background: none; border: none; cursor: pointer; color: var(--ink); line-height: 1; padding: 0; }
 .diary-nav-btn:active { opacity: 0.5; }
-.diary-nav-btn:disabled { opacity: 0.2; cursor: default; }
+.diary-nav-btn:disabled { opacity: 0.25; cursor: default; }
 .diary-header-chip { font-family: var(--font-kr); font-size: 10.5px; font-weight: 700; color: var(--ink); background: var(--sage-soft); border: 1.5px solid var(--ink); padding: 4px 10px; margin-left: 8px; white-space: nowrap; }
 .diary-header-chip:empty { display: none; border: none; padding: 0; margin: 0; }
 #tab-record .diary-mobile-header { flex-wrap: wrap; gap: 8px; }
 .diary-write-row { display: flex; flex-direction: column; }
 @media (min-width: 768px) {
-  .diary-write-row { flex-direction: row; gap: 14px; padding: 10px var(--pad-h) 0; }
-  #tab-record .diary-write-row .input-section, .diary-write-row .gratitude-section { flex: 1; min-width: 0; margin: 0 0 14px; }
+  .diary-write-row { flex-direction: row; align-items: stretch; gap: 14px; padding: 10px var(--pad-h) 0; }
+  #tab-record .diary-write-row .input-section, .diary-write-row .diary-recent-box { flex: 1 1 0; min-width: 0; margin: 0 0 14px; }
   .diary-write-row .input-actions { flex-wrap: wrap; gap: 8px; }
 }
 
@@ -210,7 +209,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-book { background: var(--paper); }
 .diary-props { flex-shrink: 0; border-bottom: 1.5px solid var(--ink); background: var(--paper); }
 .diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
-.diary-summary-box { margin: 10px var(--pad-h) 14px; padding: 16px; background: var(--sage-soft); border: 1.5px solid var(--ink); font-family: var(--font-kr); color: var(--ink); }
+.diary-summary-box { margin: 14px var(--pad-h) 14px; padding: 16px; background: var(--sage-soft); border: 1.5px solid var(--ink); font-family: var(--font-kr); color: var(--ink); }
 .diary-summary-box .ds-energy { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; padding: 3px 10px; background: var(--paper); border: 1.5px solid var(--ink); margin-bottom: 12px; }
 .diary-summary-box .ds-quote { font-size: 13px; font-weight: 500; line-height: 1.75; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1.5px solid var(--ink); white-space: pre-wrap; }
 .diary-summary-box .ds-row { margin-bottom: 12px; }
@@ -818,9 +817,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content" id="tab-record">
     <div class="section-header diary-mobile-header">
       <div class="diary-date-nav">
-        <button class="diary-nav-btn" onclick="changeDiaryDate(-1)">‹</button>
+        <button class="diary-nav-btn" onclick="changeDiaryDate(-1)">◀</button>
         <div class="section-title diary-date-text"></div>
-        <button class="diary-nav-btn diary-next-btn" onclick="changeDiaryDate(1)">›</button>
+        <button class="diary-nav-btn diary-next-btn" onclick="changeDiaryDate(1)">▶</button>
         <span id="diary-header-chip" class="diary-header-chip"></span>
       </div>
       <div class="log-visibility-toggle">
