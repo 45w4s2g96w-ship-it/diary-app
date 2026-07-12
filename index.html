@@ -101,7 +101,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 /* Top nav (replaces old bottom/side tab bar) — see .win-nav rules near :root */
 @media (min-width: 768px) {
-  .todo-header { padding-left: var(--pad-h) !important; }
   body { position: fixed; inset: 0; overflow: hidden; }
   #app { height: 100%; }
 }
@@ -124,7 +123,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-overdue .week-day-date { color: #c0392b; display:none; }
 .week-row.week-overdue { display: none; }
 .section-header { padding: 16px var(--pad-h) 14px var(--pad-h); border-bottom: 1px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
-.section-header.todo-header { padding: 16px var(--pad-h) 14px; border-bottom: 1px solid var(--ink); }
 .section-title { padding-left: 0; font-family: var(--font-kr); font-weight: 700; font-size: 12px; line-height: 1; color: var(--ink); letter-spacing: 0.06em; }
 .settings-btn { font-family: var(--font-en); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; }
 .add-btn-sm { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; background: var(--accent); color: var(--paper); border: 2px solid var(--ink); padding: 6px 12px; cursor: pointer; }
@@ -900,10 +898,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 
   <div class="tab-content" id="tab-todo">
-    <div class="section-header todo-header">
-      <div class="section-title">To-Do</div>
-    </div>
-    <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+    <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding-top:18px;">
       <div id="weekly-view" style="flex:1;overflow-y:auto;">
         <div id="weekly-list"></div>
       </div>
@@ -936,10 +931,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 
   <div class="tab-content" id="tab-setting">
-    <div class="section-header">
-      <div class="section-title">Setting</div>
-    </div>
-    <div style="flex:1;min-height:0;padding:0 var(--pad-h) 20px;overflow-y:auto;">
+    <div style="flex:1;min-height:0;padding:18px var(--pad-h) 20px;overflow-y:auto;">
       <div class="win rk-setting-list">
         <div class="rk-setting-row"><span style="font-weight:700;">★ 메인 컬러 (자동 매칭)</span><div class="rk-setting-color"><span class="hex-label" id="theme-main-hex">#E8A794</span><input type="color" id="theme-main-input" value="#E8A794" oninput="onMainColorChange()"></div></div>
         <div class="rk-setting-row"><span>ink</span><div class="rk-setting-color"><span class="hex-label" id="theme-ink-hex">#14110F</span><input type="color" id="theme-ink-input" value="#14110F" oninput="onThemeColorChange('ink')"></div></div>
