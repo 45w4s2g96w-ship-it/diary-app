@@ -223,13 +223,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-readonly .gratitude-save-btn { display: none; }
 .diary-readonly .gratitude-input { color: var(--ink-muted); }
 
-/* 지난 날짜 보기: 분석 요약이 주가 되도록 배치를 다르게 (기록/감사일기는 아래 보조 자료로 축소) */
-#tab-record.diary-past .diary-props { max-height: 60%; }
-#tab-record.diary-past .diary-write-row { flex: 0 0 auto; max-height: 40%; overflow-y: auto; }
-@media (min-width: 768px) {
-  #tab-record.diary-past .diary-write-row { flex-direction: column; }
-  #tab-record.diary-past .diary-recent-box, #tab-record.diary-past .diary-write-row .gratitude-section { flex: 0 0 auto; max-height: none; overflow: visible; }
-}
+/* 지난 날짜 보기: 분석 요약이 있을 때 조금 더 여유있게 — 기록/감사일기는 항상 같은 세로 2열 레이아웃 유지 */
+#tab-record.diary-past .diary-props { max-height: 55%; }
 
 /* Gratitude journal */
 .gratitude-section { background: var(--accent-soft); border: 1.5px solid var(--ink); padding: 16px; flex-shrink: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
