@@ -23,10 +23,40 @@
   .rp-photo-add-full { width:100%; padding:14px; border:2px dashed var(--rule); background:transparent; color:var(--ink-muted); font-family:var(--font-en); font-size:10px; font-weight:700; letter-spacing:0.08em; cursor:pointer; border-radius:4px; }
 
 :root {
-  --paper: #ffffff; --ink: #111111; --ink-rgb: 17,17,17; --ink-soft: #444; --ink-muted: #888;
+  --paper: #FBEEF0; --ink: #14110F; --ink-rgb: 20,17,15; --ink-soft: #444; --ink-muted: #888;
   --rule: #c8c4bc; --pad-h: 22px;
-  --accent: #0038ff; --accent-yellow: #fff200;
+  --accent: #E8A794; --accent-soft: #F6DDE1; --sage: #B8C4A8; --sage-soft: #E4E9DC; --ivory: #FFF8F5;
+  --accent-yellow: #fff200;
   --font-en: 'Archivo', sans-serif; --font-kr: 'Pretendard', sans-serif;
+}
+/* ============ Y2K 레트로 윈도우 재설계 ============ */
+*,*::before,*::after { box-shadow: none !important; border-radius: 0 !important; }
+body::before { display: none; }
+.win { border: 1.5px solid var(--ink); background: var(--paper); }
+#tab-setting input[type=color] { border-radius: 0 !important; }
+#tab-setting input[type=color]::-webkit-color-swatch-wrapper { border-radius: 0; }
+#tab-setting input[type=color]::-webkit-color-swatch { border-radius: 0; }
+
+.app-shell { max-width: 1040px; margin: 0 auto; width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; border-left: 1.5px solid var(--ink); border-right: 1.5px solid var(--ink); }
+.win-titlebar { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1.5px solid var(--ink); }
+.win-titlebar-word { font-family: var(--font-en); font-weight: 900; font-size: 14px; letter-spacing: 0.02em; color: var(--ink); }
+.win-titlebar-dots { display: flex; gap: 6px; }
+.win-titlebar-dots span { width: 9px; height: 9px; border: 1.5px solid var(--ink); display: inline-block; }
+.win-titlebar-dots span:last-child { background: var(--accent); }
+.win-nav { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--ink); padding: 0 16px; }
+.win-nav-tabs { display: flex; gap: 0; }
+.win-nav .tab-btn { font-family: var(--font-en); font-weight: 700; font-size: 12px; letter-spacing: 0.04em; color: var(--ink-muted); background: none; border: none; padding: 12px 14px 10px; cursor: pointer; border-bottom: 1.5px solid transparent; margin-bottom: -1.5px; }
+.win-nav .tab-btn.active { color: var(--ink); border-bottom: 1.5px solid var(--ink); }
+.win-nav-date { font-family: var(--font-en); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-muted); }
+.win-footer { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-top: 1.5px solid var(--ink); font-family: var(--font-en); font-size: 9px; }
+.win-footer-word { color: var(--ink-muted); }
+.win-footer-links { display: flex; gap: 14px; }
+.win-footer-links a, .win-footer-links span { color: var(--ink-muted); text-decoration: none; cursor: pointer; letter-spacing: 0.06em; }
+@media (max-width: 900px) {
+  .app-shell { border-left: none; border-right: none; }
+  .win-titlebar-word { font-size: 12px; }
+  .win-nav .tab-btn { padding: 10px 8px 8px; font-size: 10px; }
+  #tab-book, #tab-book-detail, #add-book-popup, #book-edit-popup, #add-review-popup { display: none !important; }
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { height: 100%; }
@@ -84,37 +114,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .tab-content { display: none; flex-direction: column; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; -webkit-overflow-scrolling: touch; }
 .tab-content.active { display: flex; }
 
-/* Tab bar — mobile (bottom) */
-.tab-bar { display: flex; border-top: 2.5px solid var(--ink); background: var(--paper); flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0px); order: 99; }
-.tab-bar-header { display: none; }
-.tab-num { display: none; }
-.tab-btn { flex: 1; padding: 10px 0 8px; text-align: center; font-family: var(--font-en); font-weight: 700; font-size: 7px; letter-spacing: 0.04em; color: #999; cursor: pointer; border: none; background: var(--paper); transition: all 0.15s; border-right: 1px solid var(--rule); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; }
-.tab-btn:last-child { border-right: none; }
-.tab-btn.active { background: var(--accent); color: var(--paper); }
-.tab-icon { stroke: #999; transition: stroke 0.15s; fill: none; flex-shrink: 0; }
-.tab-btn.active .tab-icon { stroke: var(--paper); }
-.tab-label { font-size: 7px; }
-
-/* Tablet / PC */
+/* Top nav (replaces old bottom/side tab bar) — see .win-nav rules near :root */
 @media (min-width: 768px) {
   .todo-header { padding-left: var(--pad-h) !important; }
   body { position: fixed; inset: 0; overflow: hidden; }
-  #app { flex-direction: row; height: 100%; }
-  .tab-bar { flex-direction: column; justify-content: flex-start; border-top: none; border-right: 2.5px solid var(--ink); width: 180px; flex-shrink: 0; padding-bottom: 0; height: 100%; overflow-y: auto; order: 0; }
-  .tab-bar-header { display: none; }
-  .tab-num { display: block; font-family: var(--font-en); font-size: 10px; font-weight: 700; color: #999; }
-  .tab-icon { display: none; }
-  .tab-btn { flex: 0 0 auto; flex-direction: row; justify-content: space-between; align-items: center; padding: 20px 20px; border-right: none; border-top: 1px solid var(--ink); border-bottom: none; width: 100%; text-align: left; gap: 0; }
-  .tab-btn:last-child { border-bottom: 1px solid var(--ink); }
-  .tab-label { font-family: var(--font-en); font-size: 28px; font-weight: 900; letter-spacing: -0.02em; color: #999; line-height: 1; }
-  .tab-btn.active { background: var(--accent); }
-  .tab-btn.active .tab-label { color: var(--paper); }
-  .tab-btn.active .tab-num { color: var(--paper); }
-}
-@media (min-width: 1400px) {
-  .tab-bar { width: 220px; }
-  .tab-label { font-size: 36px; }
-  .tab-btn { padding: 26px 24px; }
+  #app { height: 100%; }
 }
 
 /* Weekly view */
@@ -206,13 +210,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-nav-btn { font-family: var(--font-en); font-size: 24px; font-weight: 900; background: none; border: none; cursor: pointer; color: #14110F; line-height: 1; padding: 2px 6px; }
 .diary-nav-btn:active { opacity: 0.5; }
 .diary-nav-btn:disabled { opacity: 0.2; cursor: default; }
-.tab-bar-diary-nav { display: none; align-items: center; justify-content: space-between; padding: 14px 16px; border-top: 1px solid var(--rule); margin-top: auto; }
-.tab-bar-diary-nav .diary-date-text { font-family: var(--font-en); font-weight: 900; font-size: 13px; color: var(--ink); text-align: center; flex: 1; }
-.tab-bar-diary-nav .diary-nav-btn { font-size: 16px; color: var(--ink); }
+.diary-header-chip { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); border: 1.5px solid var(--ink); padding: 3px 8px; margin-left: 8px; white-space: nowrap; }
+#tab-record .diary-mobile-header { flex-wrap: wrap; gap: 8px; }
 .diary-write-row { display: flex; flex-direction: column; }
 @media (min-width: 768px) {
-  .diary-mobile-header { display: none; }
-  .tab-bar-diary-nav.active { display: flex; }
   .diary-write-row { flex-direction: row; gap: 14px; padding: 10px var(--pad-h) 0; }
   #tab-record .diary-write-row .input-section, .diary-write-row .gratitude-section { flex: 1; min-width: 0; margin: 0 0 14px; }
   .diary-write-row .input-actions { flex-wrap: wrap; gap: 8px; }
@@ -279,7 +280,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .quad-check.done::after { content: ''; display: block; width: 6px; height: 4px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
 .quad-text { font-family: var(--font-kr); font-size: 11.5px; font-weight: 300; line-height: 1.45; color: var(--ink); flex: 1; word-break: break-all; }
 .quad-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.quad-overdue { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: #c0392b; display: inline; background: rgba(192,57,43,0.15); padding: 1px 4px; border-radius: 4px; margin-left: 4px; }
+.quad-overdue { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: #c0392b; display: inline; background: rgba(192,57,43,0.15); padding: 1px 4px; border-radius: 4px; margin-left: 4px; white-space: nowrap; }
 .quad-item { user-select: none; -webkit-user-select: none; touch-action: pan-y; }
 .quad-item.dragging { opacity: 0.4; }
 .quad-cell.drag-over { background: rgba(0,0,0,0.06); outline: 2px solid var(--ink) !important; }
@@ -356,7 +357,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-col-items { flex: none; overflow: visible; padding: 6px; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; }
 .week-col-items::-webkit-scrollbar { display: none; }
 @media (min-width: 768px) {
-  .week-cols { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 1fr; overflow: hidden; }
+  .week-cols { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); overflow: hidden; }
   .week-col { overflow: hidden; }
   .week-col-items { flex: 1; overflow-y: auto; }
 }
@@ -594,7 +595,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 @media (min-width: 768px) {
   :root { --pad-h: 40px; }
   body { position: fixed; inset: 0; overflow: hidden; }
-  #app { flex-direction: row; height: 100%; }
   .section-header { padding-left: 0 !important; }
   .section-title { padding-left: var(--pad-h); }
   .emotion-section { padding-left: var(--pad-h); padding-right: var(--pad-h); }
@@ -641,68 +641,63 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .setup-input { font-size: 13px !important; }
 }
 
-/* HOME tab */
-#tab-home { padding: var(--pad-h); padding-bottom: 88px; gap: 18px; overflow-y: auto; }
-.home-grid { display: flex; flex-direction: column; gap: 18px; }
-@media (min-width: 768px) {
-  #tab-home { overflow: hidden; }
-  .home-grid { display: grid; grid-template-columns: 1fr 1fr 1.3fr; grid-template-rows: auto 1fr auto; grid-template-areas: "morning goal record" "memo habit record" "diary diary record"; gap: 16px; flex: 1; min-height: 0; }
-  .home-card { border: 2px solid var(--ink); border-radius: 4px; background: var(--paper); padding: 16px; box-shadow: 4px 4px 0 var(--ink); overflow-y: auto; scrollbar-width: none; }
-  .home-card::-webkit-scrollbar { display: none; }
-  .home-card-morning { grid-area: morning; }
-  .home-card-goal { grid-area: goal; margin-top: 0; }
-  .home-card-record { grid-area: record; margin-top: 0; display: flex; flex-direction: column; min-height: 0; }
-  .home-card-record .home-scroll-row { flex-direction: column; overflow-x: hidden; overflow-y: auto; flex: 1; min-height: 0; }
-  .home-card-record .home-mini-card { width: auto; }
-  .home-card-habit { grid-area: habit; margin-top: 0; }
-  .home-card-diary { grid-area: diary; margin-top: 0; max-height: 200px; }
-  .home-card-memo { grid-area: memo; margin-top: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-  .home-card-memo .home-memo-widget { flex: 1; min-height: 0; }
+/* HOME tab — bento grid (see spec: 12 col x 14 row) */
+#tab-home { padding: 14px; overflow-y: auto; }
+.home-grid.bento { display: flex; flex-direction: column; gap: 14px; }
+@media (min-width: 901px) {
+  #tab-home { overflow: hidden; padding: var(--pad-h); }
+  .home-grid.bento { display: grid; grid-template-columns: repeat(12,1fr); grid-auto-rows: 32px; gap: 10px; flex: 1; min-height: 0; }
+  .bento-record { grid-column: 1/8; grid-row: 1/6; }
+  .bento-gratitude { grid-column: 8/13; grid-row: 1/9; }
+  .bento-goal { grid-column: 1/4; grid-row: 6/12; }
+  .bento-routine { grid-column: 4/8; grid-row: 6/12; }
+  .bento-recent { grid-column: 8/13; grid-row: 9/15; }
+  .bento-memo { grid-column: 1/8; grid-row: 12/15; }
 }
-.home-quote-row { display: flex; align-items: center; gap: 14px; }
-.home-quote-card { flex: 1; padding: 16px 18px; font-family: var(--font-kr); font-size: 13px; font-weight: 500; line-height: 1.5; color: var(--ink); }
-.home-goal-ring-wrap { flex-shrink: 0; position: relative; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
-.home-goal-ring-label { position: absolute; font-family: var(--font-en); font-size: 12px; font-weight: 900; color: var(--ink); }
-.home-briefing-btn { display: block; width: 100%; margin-top: 12px; padding: 12px 16px; background: var(--accent); color: var(--paper); font-family: var(--font-kr); font-size: 13px; font-weight: 500; text-align: left; cursor: pointer; }
-.home-section { margin-top: 20px; }
-.home-section-label { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--ink-muted); text-transform: uppercase; margin-bottom: 10px; }
-.home-goal-grid { display: flex; flex-direction: column; gap: 8px; }
-.home-goal-card { display: flex; align-items: center; gap: 8px; padding: 12px 14px; cursor: pointer; }
-.home-goal-card-text { flex: 1; font-family: var(--font-kr); font-size: 13px; font-weight: 500; color: var(--ink); }
+.bento-tile { padding: 12px 14px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.bento-tile-header { font-family: var(--font-kr); font-size: 12.5px; font-weight: 700; color: var(--ink); display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-shrink: 0; }
+.bento-tile-time { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); }
+.bento-scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.bento-scroll::-webkit-scrollbar { display: none; }
+.bento-record-input { width: 100%; min-height: 110px; flex: 1; font-family: var(--font-kr); font-size: 12.5px; color: var(--ink); background: transparent; border: none; outline: none; resize: none; line-height: 1.6; }
+.bento-record-input::placeholder { color: var(--ink-muted); }
+.bento-tile-footer { display: flex; justify-content: flex-end; flex-shrink: 0; margin-top: 6px; }
+.bento-save-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; background: var(--accent); color: var(--ink); border: 1.5px solid var(--ink); padding: 6px 12px; cursor: pointer; }
+.bento-save-btn-sm { font-family: var(--font-en); font-size: 9px; font-weight: 700; background: var(--accent); color: var(--ink); border: 1.5px solid var(--ink); padding: 4px 9px; cursor: pointer; }
+.memo-drop-target.drag-over { background: var(--accent-soft); }
+.home-goal-grid { display: flex; flex-direction: column; gap: 6px; }
+.home-goal-card { display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; border: 1.5px solid var(--ink); }
+.home-goal-card-text { flex: 1; font-family: var(--font-kr); font-size: 12.5px; font-weight: 500; color: var(--ink); }
 .home-goal-card-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.home-goal-empty { display: flex; align-items: center; padding: 12px 14px; border: 2px dashed var(--rule); border-radius: 4px; }
-.home-goal-empty-input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--font-kr); font-size: 13px; color: var(--ink); }
+.home-goal-empty { display: flex; align-items: center; padding: 8px 10px; border: 1.5px dashed var(--rule); }
+.home-goal-empty-input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--font-kr); font-size: 12.5px; color: var(--ink); }
 .home-goal-empty-input::placeholder { color: var(--ink-muted); }
-.home-habit-list { display: flex; gap: 10px; align-items: flex-start; }
-.home-habit-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.home-habit-col-title { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
-.home-habit-col .quad-text { font-size: 11px; }
-.home-habit-empty { font-family: var(--font-kr); font-size: 11px; color: var(--ink-muted); padding: 3px 0; }
-.home-scroll-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-.home-scroll-row::-webkit-scrollbar { display: none; }
-.home-mini-card { flex-shrink: 0; width: 150px; padding: 12px 14px; cursor: pointer; }
-.home-mini-card-time { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); margin-bottom: 4px; }
-.home-mini-card-text { font-family: var(--font-kr); font-size: 12px; font-weight: 400; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
-.home-mini-card-date { font-family: var(--font-en); font-size: 15px; font-weight: 900; color: var(--ink); }
+.home-habit-list-v { display: flex; flex-direction: column; gap: 5px; }
+.home-habit-list-v .quad-item { border-bottom: 1px solid var(--rule); padding: 5px 0; }
+.home-habit-time-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); margin-right: 5px; }
 .home-empty-hint { font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); padding: 10px 0; }
+.home-recent-log-v { display: flex; flex-direction: column; gap: 8px; }
+.home-recent-row { padding: 6px 0; border-bottom: 1px solid var(--rule); cursor: pointer; }
+.home-recent-row:last-child { border-bottom: none; }
+.home-recent-row-time { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); }
+.home-recent-row-text { font-family: var(--font-kr); font-size: 12px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-/* Home memo widget */
-.home-memo-widget { display: flex; flex-direction: column; }
+/* Memo (shared: home tile + memo tab) */
 .memo-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; flex-shrink: 0; }
 .memo-tabs::-webkit-scrollbar { display: none; }
-.memo-tab { flex-shrink: 0; font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 5px 10px; border: 1.5px solid var(--rule); border-radius: 20px; background: var(--paper); color: var(--ink-muted); cursor: pointer; }
-.memo-tab.active { background: var(--accent); color: var(--paper); border-color: var(--accent); }
-.memo-chat-area { flex: 1; min-height: 120px; max-height: 260px; overflow-y: auto; scrollbar-width: none; padding: 6px 0; display: flex; flex-direction: column; gap: 8px; }
+.memo-tab { flex-shrink: 0; font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 5px 10px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink-muted); cursor: pointer; }
+.memo-tab.active { background: var(--accent); color: var(--ink); border-color: var(--ink); }
+.memo-chat-area { flex: 1; min-height: 80px; overflow-y: auto; scrollbar-width: none; padding: 6px 0; display: flex; flex-direction: column; gap: 8px; }
 .memo-chat-area::-webkit-scrollbar { display: none; }
-.memo-item { border: 1.5px solid var(--ink); border-radius: 4px; padding: 8px 10px; cursor: pointer; }
-.memo-item-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
-.memo-item-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.04em; color: var(--accent); }
+.memo-item { border: 1.5px solid var(--ink); padding: 8px 10px; cursor: grab; }
+.memo-item-top { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.memo-item-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); border: 1px solid var(--ink); padding: 1px 5px; }
 .memo-item-star { cursor: pointer; font-size: 12px; flex-shrink: 0; }
 .memo-item-text { font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; line-height: 1.5; color: var(--ink); word-break: break-word; }
-.memo-input-row { display: flex; gap: 6px; align-items: flex-end; margin-top: 8px; flex-shrink: 0; }
-.memo-input { flex: 1; font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--rule); border-radius: 4px; outline: none; resize: none; line-height: 1.5; padding: 8px 10px; min-height: 34px; max-height: 100px; overflow-y: auto; }
+.memo-input-row { display: flex; gap: 6px; align-items: flex-end; flex-shrink: 0; margin-bottom: 8px; }
+.memo-input { flex: 1; font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--ink); outline: none; resize: none; line-height: 1.5; padding: 8px 10px; min-height: 34px; max-height: 100px; overflow-y: auto; }
 .memo-input::placeholder { color: var(--ink-muted); }
-.memo-send-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); border: 2px solid var(--ink); padding: 8px 14px; cursor: pointer; border-radius: 4px; box-shadow: 2px 2px 0 var(--ink); flex-shrink: 0; }
+.memo-send-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; background: var(--accent); color: var(--ink); border: 1.5px solid var(--ink); padding: 8px 14px; cursor: pointer; flex-shrink: 0; }
 #home-fab-wrap { position: fixed; right: 18px; bottom: 66px; z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 #home-fab-menu { display: flex; flex-direction: column; gap: 10px; align-items: center; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity 0.18s, transform 0.18s; }
 #home-fab-menu.open { opacity: 1; pointer-events: all; transform: translateY(0); }
@@ -733,33 +728,24 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 </div>
 
 <div id="app" class="hidden">
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('home',this)" data-num="00.">
-      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
-      <span class="tab-label">Home</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('record',this)" data-num="01.">
-      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      <span class="tab-label">Diary</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('todo',this)" data-num="02.">
-      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      <span class="tab-label">To-Do</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('dump',this)" data-num="03.">
-      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M3 6h18M3 12h18M3 18h12"/><circle cx="19" cy="18" r="2"/></svg>
-      <span class="tab-label">Memo</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('setting',this)" data-num="04.">
-      <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      <span class="tab-label">Setting</span>
-    </button>
-    <div class="tab-bar-diary-nav" id="tab-bar-diary-nav">
-      <button class="diary-nav-btn" onclick="changeDiaryDate(-1)">‹</button>
-      <div class="diary-date-text"></div>
-      <button class="diary-nav-btn diary-next-btn" onclick="changeDiaryDate(1)">›</button>
+  <div class="app-shell win">
+    <div class="win-titlebar">
+      <div class="win-titlebar-word">기록.log ⋆｡°✩</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="cursor:pointer;font-size:14px;" onclick="openBriefingPopup()" title="모닝브리핑">🌤️</span>
+        <div class="win-titlebar-dots"><span></span><span></span><span></span></div>
+      </div>
     </div>
-  </div>
+    <div class="win-nav">
+      <div class="win-nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('home',this)">HOME</button>
+        <button class="tab-btn" onclick="switchTab('record',this)">DIARY</button>
+        <button class="tab-btn" onclick="switchTab('todo',this)">TO-DO</button>
+        <button class="tab-btn" onclick="switchTab('dump',this)">MEMO</button>
+        <button class="tab-btn" onclick="switchTab('setting',this)">SETTING</button>
+      </div>
+      <div class="win-nav-date" id="win-nav-date"></div>
+    </div>
   <div id="app-main">
   <div id="ptr-indicator" style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:7px;height:0;overflow:hidden;transition:none;z-index:50;pointer-events:none;">
     <span id="ptr-spinner" style="display:none;width:13px;height:13px;border:2px solid var(--rule);border-top-color:var(--ink);border-radius:50%;animation:ptr-spin 0.7s linear infinite;flex-shrink:0;"></span>
@@ -767,59 +753,40 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 
   <div class="tab-content active" id="tab-home">
-    <div class="home-grid">
-      <div class="home-card home-card-morning">
-        <div class="home-quote-row">
-          <div class="home-quote-card nb-card nb-shadow" id="home-quote-card"></div>
-          <div class="home-goal-ring-wrap">
-            <svg width="56" height="56" viewBox="0 0 56 56">
-              <circle cx="28" cy="28" r="24" fill="none" stroke="var(--rule)" stroke-width="5"/>
-              <circle id="home-goal-ring-fg" cx="28" cy="28" r="24" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" transform="rotate(-90 28 28)"/>
-            </svg>
-            <div class="home-goal-ring-label" id="home-goal-ring-label">0/3</div>
-          </div>
+    <div class="home-grid bento">
+      <div class="bento-tile bento-record win">
+        <div class="bento-tile-header"><span>✎ 지금 기록하기</span><span class="bento-tile-time" id="home-now-time"></span></div>
+        <textarea class="bento-record-input" id="home-record-input" placeholder="오늘 있었던 일, 지금 드는 생각을 가볍게 적어보세요" oninput="autoResize(this)"></textarea>
+        <div class="bento-tile-footer"><button class="bento-save-btn" onclick="homeSaveRecord()">SAVE ▶</button></div>
+      </div>
+
+      <div class="bento-tile bento-gratitude win">
+        <div class="bento-tile-header"><span>🌻 감사 일기</span><button class="bento-save-btn-sm" id="home-gratitude-save-btn" onclick="saveGratitude('home')">SAVE</button></div>
+        <div id="home-gratitude-fields" class="bento-scroll"><div class="empty-state">불러오는 중...</div></div>
+      </div>
+
+      <div class="bento-tile bento-goal win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'TO-DO')">
+        <div class="bento-tile-header"><span>☆ GOAL</span></div>
+        <div class="home-goal-grid bento-scroll" id="home-goal-grid"></div>
+      </div>
+
+      <div class="bento-tile bento-routine win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'TO-DO')">
+        <div class="bento-tile-header"><span>✓ 루틴</span></div>
+        <div class="home-habit-list-v bento-scroll" id="home-habit-list"><div class="empty-state">불러오는 중...</div></div>
+      </div>
+
+      <div class="bento-tile bento-recent win">
+        <div class="bento-tile-header"><span>◇ 최근 기록</span></div>
+        <div class="home-recent-log-v bento-scroll" id="home-recent-log"></div>
+      </div>
+
+      <div class="bento-tile bento-memo win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'DIARY')">
+        <div class="bento-tile-header"><span>. ᐟ 메모</span></div>
+        <div class="memo-input-row">
+          <textarea class="memo-input" id="home-memo-input" placeholder="메모를 남겨보세요." rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveMemo('home-memo-input');}"></textarea>
+          <button class="memo-send-btn" id="home-memo-send-btn" onclick="saveMemo('home-memo-input')">+</button>
         </div>
-        <button class="home-briefing-btn nb-card nb-shadow" onclick="openBriefingPopup()">🌤️ 오늘의 모닝브리핑</button>
-      </div>
-
-      <div class="home-section home-card home-card-goal">
-        <div class="home-section-label">🎯 GOAL</div>
-        <div class="home-goal-grid" id="home-goal-grid"></div>
-      </div>
-
-      <div class="home-section home-card home-card-record">
-        <div class="home-section-label">RECENT LOG</div>
-        <div class="home-scroll-row" id="home-recent-log"></div>
-      </div>
-
-      <div class="home-section home-card home-card-habit">
-        <div class="home-section-label">✅ HABIT</div>
-        <div class="home-habit-list" id="home-habit-list"><div class="empty-state">불러오는 중...</div></div>
-      </div>
-
-      <div class="home-section home-card home-card-diary">
-        <div class="home-section-label">RECENT DIARY</div>
-        <div class="home-scroll-row" id="home-recent-diary"></div>
-      </div>
-
-      <div class="home-section home-card home-card-memo">
-        <div class="home-section-label">💬 MEMO</div>
-        <div class="home-memo-widget">
-          <div class="memo-tabs" id="memo-tabs">
-            <button class="memo-tab active" data-f="ALL" onclick="setMemoFilter('ALL')">ALL</button>
-            <button class="memo-tab" data-f="★" onclick="setMemoFilter('★')">⭐</button>
-            <button class="memo-tab" data-f="DIARY" onclick="setMemoFilter('DIARY')">DIARY</button>
-            <button class="memo-tab" data-f="TO-DO" onclick="setMemoFilter('TO-DO')">TO-DO</button>
-            <button class="memo-tab" data-f="IDEA" onclick="setMemoFilter('IDEA')">IDEA</button>
-            <button class="memo-tab" data-f="BOOKMARK" onclick="setMemoFilter('BOOKMARK')">BOOKMARK</button>
-            <button class="memo-tab" data-f="ETC" onclick="setMemoFilter('ETC')">ETC</button>
-          </div>
-          <div class="memo-chat-area" id="memo-chat-area"><div class="empty-state">불러오는 중...</div></div>
-          <div class="memo-input-row">
-            <textarea class="memo-input" id="memo-widget-input" placeholder="메모를 남겨보세요." rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveMemo();}"></textarea>
-            <button class="memo-send-btn" id="memo-send-btn" onclick="saveMemo()">SEND</button>
-          </div>
-        </div>
+        <div class="memo-chat-area bento-scroll" id="home-memo-list"><div class="empty-state">불러오는 중...</div></div>
       </div>
     </div>
 
@@ -853,7 +820,20 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <button class="diary-nav-btn" onclick="changeDiaryDate(-1)">‹</button>
         <div class="section-title diary-date-text"></div>
         <button class="diary-nav-btn diary-next-btn" onclick="changeDiaryDate(1)">›</button>
+        <span id="diary-header-chip" class="diary-header-chip"></span>
       </div>
+      <div class="log-visibility-toggle">
+        <button type="button" class="lv-opt active" id="toggle-log" onclick="switchRecordPane('log')">LOG</button>
+        <button type="button" class="lv-opt" id="toggle-routine" onclick="switchRecordPane('routine')">ROUTINE</button>
+      </div>
+    </div>
+
+    <div class="gratitude-section nb-card">
+      <div class="gratitude-header">
+        <div class="gratitude-title">🌻 감사 일기</div>
+        <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude('diary')">SAVE</button>
+      </div>
+      <div id="gratitude-fields"><div class="empty-state">불러오는 중...</div></div>
     </div>
 
     <div class="diary-split diary-book">
@@ -863,15 +843,13 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
       <div id="record-log-pane">
       <div class="diary-write-row">
-      <div class="gratitude-section nb-card">
-        <div class="gratitude-header">
-          <div class="gratitude-title">🌿 감사 일기</div>
-          <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude()">SAVE</button>
-        </div>
-        <div id="gratitude-fields"><div class="empty-state">불러오는 중...</div></div>
+      <div class="diary-recent-box">
+        <div class="home-section-label diary-recent-label">시간대별 기록</div>
+        <div class="record-list" id="record-list"><div class="empty-state">오늘의 첫 기록을 남겨보세요.</div></div>
       </div>
 
       <div class="input-section">
+        <div class="home-section-label" style="margin-bottom:8px;">+ 새 기록 추가</div>
         <textarea class="text-input" id="memo-input" placeholder="무엇이든 적어보세요." rows="3" oninput="autoResize(this)"></textarea>
         <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
         <div class="input-actions">
@@ -887,33 +865,41 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
       </div>
       </div>
-
-      <div class="diary-recent-box">
-        <div class="home-section-label diary-recent-label">최근 기록</div>
-        <div class="record-list" id="record-list"><div class="empty-state">오늘의 첫 기록을 남겨보세요.</div></div>
-      </div>
       </div>
     </div>
 
     <div id="record-routine-pane" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:0 var(--pad-h) 20px;scrollbar-width:none;">
       <div id="routine-checklist"></div>
+      <div style="display:flex;gap:6px;margin-top:10px;border-top:1.5px solid var(--ink);padding-top:14px;">
+        <input id="habit-add-name" placeholder="+ 습관 추가" style="flex:1;font-family:var(--font-kr);font-size:12px;background:transparent;border:1.5px solid var(--ink);padding:8px 10px;outline:none;color:var(--ink);" onkeydown="if(event.key==='Enter')addHabit()">
+        <select id="habit-add-cat" style="font-family:var(--font-kr);font-size:11px;background:var(--paper);border:1.5px solid var(--ink);padding:0 6px;color:var(--ink);">
+          <option value="morning">🌤️ 아침</option>
+          <option value="day" selected>☀️ 종일</option>
+          <option value="night">🌙 저녁</option>
+        </select>
+        <button onclick="addHabit()" style="font-family:var(--font-en);font-size:10px;font-weight:700;background:var(--accent);color:var(--ink);border:1.5px solid var(--ink);padding:0 12px;cursor:pointer;">ADD</button>
+      </div>
     </div>
   </div>
 
   <div class="tab-content" id="tab-dump">
     <div class="section-header">
       <div class="section-title">Memo</div>
-      <button class="brain-reset-btn" onclick="resetBrain()">RESET</button>
     </div>
-    <div style="display:flex;flex:1;overflow:hidden;min-height:0;">
-      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;">
-        <div class="brain-input-wrap">
-          <textarea class="brain-textarea" id="brain-input" placeholder="메모를 적어보세요." oninput="autoResize(this)"></textarea>
-          <button class="brain-add-btn" onclick="addBrainItem()">ADD</button>
-        </div>
-        <div class="brain-list" id="brain-list"><div class="empty-state">왼쪽으로 스와이프해서 삭제하세요.</div></div>
-      </div>
+    <div class="memo-tabs" id="dump-memo-tabs" style="padding:0 var(--pad-h) 8px;flex-shrink:0;">
+      <button class="memo-tab active" data-f="ALL" onclick="setMemoFilter('ALL')">ALL</button>
+      <button class="memo-tab" data-f="★" onclick="setMemoFilter('★')">⭐</button>
+      <button class="memo-tab" data-f="DIARY" onclick="setMemoFilter('DIARY')">DIARY</button>
+      <button class="memo-tab" data-f="TO-DO" onclick="setMemoFilter('TO-DO')">TO-DO</button>
+      <button class="memo-tab" data-f="IDEA" onclick="setMemoFilter('IDEA')">IDEA</button>
+      <button class="memo-tab" data-f="BOOKMARK" onclick="setMemoFilter('BOOKMARK')">BOOKMARK</button>
+      <button class="memo-tab" data-f="ETC" onclick="setMemoFilter('ETC')">ETC</button>
     </div>
+    <div class="memo-input-row" style="padding:0 var(--pad-h) 8px;flex-shrink:0;">
+      <textarea class="memo-input" id="dump-memo-input" placeholder="메모를 남겨보세요." rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveMemo('dump-memo-input');}"></textarea>
+      <button class="memo-send-btn" id="dump-memo-send-btn" onclick="saveMemo('dump-memo-input')">ADD</button>
+    </div>
+    <div class="memo-chat-area" id="dump-memo-list" style="flex:1;padding:0 var(--pad-h) 20px;"><div class="empty-state">불러오는 중...</div></div>
   </div>
 
   <div class="popup-overlay" id="brain-action-sheet" onclick="if(event.target===this)closeBrainActionSheet()">
@@ -931,35 +917,10 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   <div class="tab-content" id="tab-todo">
     <div class="section-header todo-header">
       <div class="section-title">To-Do</div>
-      <div class="todo-toggle">
-        <button id="toggle-week" onclick="switchTodoView('week')" class="toggle-btn active">WEEK</button>
-        <button id="toggle-quad" onclick="switchTodoView('quad')" class="toggle-btn inactive">QUAD</button>
-      </div>
     </div>
-    <div id="goal-bar"></div>
     <div id="todo-pane" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
       <div id="weekly-view" style="flex:1;overflow-y:auto;">
         <div id="weekly-list"></div>
-      </div>
-      <div id="quad-view" style="flex:1;overflow:hidden;display:none;">
-        <div class="quad-grid">
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('today')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('today')}">
-            <div class="quad-label">Today</div><div class="quad-due" id="due-today"></div>
-            <div class="quad-items" id="items-today"></div>
-          </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('week')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('week')}">
-            <div class="quad-label">This Week</div><div class="quad-due" id="due-week"></div>
-            <div class="quad-items" id="items-week"></div>
-          </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('month')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('month')}">
-            <div class="quad-label">This Month</div><div class="quad-due" id="due-month"></div>
-            <div class="quad-items" id="items-month"></div>
-          </div>
-          <div class="quad-cell" onclick="if(!event.target.closest('.quad-item'))openTodoPopup('someday')" ontouchend="if(!todoDragging&&!lastTouchMoved&&!event.target.closest('.quad-item')){event.preventDefault();openTodoPopup('someday')}">
-            <div class="quad-label">Someday</div><div class="quad-due" style="color:var(--rule);">No deadline</div>
-            <div class="quad-items" id="items-someday"></div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -995,19 +956,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </div>
     <div style="padding:0 var(--pad-h) 20px;overflow-y:auto;">
       <div class="setup-section">
-        <div class="setup-label">키컬러</div>
-        <div class="color-row">
-          <input type="color" id="theme-accent-input" value="#0038ff" oninput="onThemeColorChange()">
-          <span class="hex-label" id="theme-accent-hex">#0038FF</span>
-        </div>
-      </div>
-      <div class="setup-section">
-        <div class="setup-label">배경색</div>
-        <div class="color-row">
-          <input type="color" id="theme-paper-input" value="#ffffff" oninput="onThemeColorChange()">
-          <span class="hex-label" id="theme-paper-hex">#FFFFFF</span>
-        </div>
-        <div class="footer-note">어두운 색 선택 시 테두리/글자색 자동 반전돼요</div>
+        <div class="setup-label">✎ COLOR</div>
+        <div class="color-row"><span class="hex-label" id="theme-ink-hex">#14110F</span><input type="color" id="theme-ink-input" value="#14110F" oninput="onThemeColorChange('ink')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">ink</span></div>
+        <div class="color-row"><span class="hex-label" id="theme-paper-hex">#FBEEF0</span><input type="color" id="theme-paper-input" value="#FBEEF0" oninput="onThemeColorChange('paper')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">paper</span></div>
+        <div class="color-row"><span class="hex-label" id="theme-accent-hex">#E8A794</span><input type="color" id="theme-accent-input" value="#E8A794" oninput="onThemeColorChange('accent')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">accent</span></div>
+        <div class="color-row"><span class="hex-label" id="theme-accent_soft-hex">#F6DDE1</span><input type="color" id="theme-accent_soft-input" value="#F6DDE1" oninput="onThemeColorChange('accent_soft')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">accent-soft</span></div>
+        <div class="color-row"><span class="hex-label" id="theme-sage-hex">#B8C4A8</span><input type="color" id="theme-sage-input" value="#B8C4A8" oninput="onThemeColorChange('sage')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">sage</span></div>
       </div>
       <div class="setup-section">
         <div class="setup-label">영문 폰트</div>
@@ -1027,9 +981,19 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <input class="setup-input" id="memo-db-input" placeholder="노션 메모 데이터베이스 ID" oninput="saveMemoDbId()">
         <div class="footer-note">이름/분류(select)/중요(checkbox)/링크(url)/마감일(date) 속성을 가진 Notion DB를 만들고 ID를 붙여넣으세요.</div>
       </div>
+      <div class="setup-section">
+        <div class="setup-label">◇ NOTION</div>
+        <div class="footer-note" id="notion-status-note">연결됨</div>
+      </div>
+      <button class="setup-logout-btn" onclick="logout()">LOGOUT</button>
     </div>
   </div>
 
+  </div>
+  <div class="win-footer">
+    <div class="win-footer-word">기록.log ⋆ 작은 기록의 습관</div>
+    <div class="win-footer-links"><span>NOTION</span><span>EXPORT</span><span>CONTACT</span></div>
+  </div>
   </div>
 </div>
 
@@ -1338,9 +1302,9 @@ function switchTab(tab,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
-  document.getElementById('tab-bar-diary-nav').classList.toggle('active',tab==='record');
   if(tab==='idea')loadIdeaFromNotion();
   if(tab==='home')renderHomeTab();
+  if(tab==='dump')loadMemos();
   if(tab==='setting')initSettingTab();
   if(tab==='record'){diaryViewDate=getDiaryDate();renderDiaryDateHeader();loadDiaryPanel();}
 }
@@ -1361,25 +1325,41 @@ const HOME_QUOTES=[
   '지금까지 잘 버텨온 나를 믿어봐요.'
 ];
 function renderHomeTab(){
-  const quoteEl=document.getElementById('home-quote-card');
-  if(quoteEl)quoteEl.textContent=HOME_QUOTES[Math.floor(Math.random()*HOME_QUOTES.length)];
+  updateHomeNowTime();
   renderHomeGoalRing();
   renderHomeGoalGrid();
   renderHomeRecentLog();
-  renderHomeRecentDiary();
   loadMemos();
   loadHabits();
+  loadGratitudeSection('home');
+}
+function updateHomeNowTime(){
+  const el=document.getElementById('home-now-time');
+  if(!el)return;
+  const d=new Date();
+  el.textContent=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+async function homeSaveRecord(){
+  const input=document.getElementById('home-record-input');
+  const text=input.value.trim();
+  if(!text){showToast('내용을 입력하세요');return;}
+  document.getElementById('memo-input').value=text;
+  await saveRecord();
+  input.value='';input.style.height='';
+  renderHomeRecentLog();
 }
 
-/* Home habit widget */
+/* Habit / routine — 통합: 시간대(아침/종일/저녁)는 습관 항목 자체의 구분(select) 속성 */
 const HABIT_DB='49151f4140c582439ddd81dd2d2d5670';
 const HABIT_DAILY_DB='77651f4140c58270b7610134b3416308';
-const HABIT_CATEGORIES=[{key:'morning',label:'morning'},{key:'day',label:'day'},{key:'night',label:'night'}];
+const HABIT_CATEGORIES=[{key:'morning',label:'🌤️ 아침'},{key:'day',label:'☀️ 종일'},{key:'night',label:'🌙 저녁'}];
+function habitCatLabel(key){return (HABIT_CATEGORIES.find(c=>c.key===key)||{}).label||key;}
 let habitItems=[];
 async function loadHabits(){
-  const list=document.getElementById('home-habit-list');
-  if(!list)return;
-  list.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  const homeList=document.getElementById('home-habit-list');
+  const routineList=document.getElementById('routine-checklist');
+  if(homeList)homeList.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  if(routineList)routineList.innerHTML='<div class="empty-state">불러오는 중...</div>';
   try{
     const todayStr=formatDate(getDiaryDate());
     const [habitsRes,dailyRes]=await Promise.all([
@@ -1399,24 +1379,82 @@ async function loadHabits(){
       checkinPageId:checkinByHabitId.get(page.id)||null
     }));
     renderHabitList();
-  }catch(e){console.error(e);list.innerHTML='<div class="empty-state">불러오기 실패</div>';}
+  }catch(e){console.error(e);if(homeList)homeList.innerHTML='<div class="empty-state">불러오기 실패</div>';if(routineList)routineList.innerHTML='<div class="empty-state">불러오기 실패</div>';}
 }
 function renderHabitList(){
+  renderHomeHabitList();
+  renderRoutineChecklist();
+}
+function renderHomeHabitList(){
   const list=document.getElementById('home-habit-list');
   if(!list)return;
   if(!habitItems.length){list.innerHTML='<div class="empty-state">진행중인 습관이 없어요.</div>';return;}
-  list.innerHTML=HABIT_CATEGORIES.map(cat=>{
-    const indices=habitItems.map((h,i)=>i).filter(i=>habitItems[i].category===cat.key);
-    const body=indices.length?indices.map(i=>{
-      const h=habitItems[i];const done=!!h.checkinPageId;
-      return `<div class="quad-item" style="cursor:pointer;" onclick="toggleHabit(${i})"><div class="quad-check${done?' done':''}"></div><div class="quad-text${done?' done':''}" data-i="${i}"></div></div>`;
-    }).join(''):'<div class="home-habit-empty">-</div>';
-    return `<div class="home-habit-col"><div class="home-habit-col-title">${cat.label}</div>${body}</div>`;
+  const shown=habitItems.slice(0,5);
+  list.innerHTML=shown.map(h=>{
+    const i=habitItems.indexOf(h);const done=!!h.checkinPageId;
+    return `<div class="quad-item" style="cursor:pointer;" onclick="toggleHabit(${i})"><div class="quad-check${done?' done':''}"></div><div class="quad-text${done?' done':''}"><span class="home-habit-time-tag">${habitCatLabel(h.category)}</span><span data-i="${i}"></span></div></div>`;
   }).join('');
-  habitItems.forEach((h,i)=>{
-    const el=list.querySelector(`.quad-text[data-i="${i}"]`);
+  shown.forEach(h=>{
+    const i=habitItems.indexOf(h);
+    const el=list.querySelector(`[data-i="${i}"]`);
     if(el)el.textContent=h.name;
   });
+}
+function renderRoutineChecklist(){
+  const c=document.getElementById('routine-checklist');
+  if(!c)return;
+  if(!habitItems.length){
+    c.innerHTML='<div class="empty-state">등록된 습관이 없어요. 아래에서 추가해보세요.</div>';
+    return;
+  }
+  c.innerHTML=HABIT_CATEGORIES.map(cat=>{
+    const idxs=habitItems.map((h,i)=>i).filter(i=>habitItems[i].category===cat.key);
+    const body=idxs.length?idxs.map(i=>{
+      const h=habitItems[i];const done=!!h.checkinPageId;
+      return `<div class="quad-item" style="border-bottom:1px solid var(--rule);">
+        <div class="quad-check${done?' done':''}" style="cursor:pointer;" onclick="toggleHabit(${i})"></div>
+        <div class="quad-text${done?' done':''}" data-i="${i}" style="flex:1;cursor:pointer;" onclick="toggleHabit(${i})"></div>
+        <span class="todo-star" style="cursor:pointer;" onclick="cycleHabitCategory(${i})" title="시간대 변경">⇄</span>
+        <span class="todo-star" style="cursor:pointer;" onclick="archiveHabit(${i})" title="삭제">✕</span>
+      </div>`;
+    }).join(''):'<div class="home-habit-empty">-</div>';
+    return `<div style="margin-bottom:18px;"><div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${cat.label}</div>${body}</div>`;
+  }).join('');
+  habitItems.forEach((h,i)=>{
+    const el=c.querySelector(`.quad-text[data-i="${i}"]`);
+    if(el)el.textContent=h.name;
+  });
+}
+async function addHabit(){
+  const nameInput=document.getElementById('habit-add-name');
+  const catSelect=document.getElementById('habit-add-cat');
+  if(!nameInput||!catSelect)return;
+  const name=nameInput.value.trim();
+  if(!name)return;
+  const category=catSelect.value;
+  try{
+    const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:HABIT_DB},properties:{'습관':{title:[{text:{content:name}}]},'구분':{select:{name:category}},'진행중인습관':{checkbox:true}}})});
+    const data=await res.json();
+    if(!res.ok||!data.id)throw new Error(data.message||'추가 실패');
+    habitItems.push({id:data.id,name,category,checkinPageId:null});
+    nameInput.value='';
+    renderHabitList();
+    showToast('습관 추가됨!');
+  }catch(e){console.error(e);showToast('습관 추가 실패');}
+}
+function cycleHabitCategory(i){
+  const h=habitItems[i];if(!h)return;
+  const order=HABIT_CATEGORIES.map(c=>c.key);
+  h.category=order[(order.indexOf(h.category)+1)%order.length];
+  renderHabitList();
+  fetch(WORKER_URL+'/notion/pages/'+h.id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'구분':{select:{name:h.category}}}})}).catch(e=>console.error(e));
+}
+async function archiveHabit(i){
+  const h=habitItems[i];if(!h)return;
+  if(!confirm('이 습관을 삭제할까요?'))return;
+  habitItems.splice(i,1);
+  renderHabitList();
+  try{await fetch(WORKER_URL+'/notion/pages/'+h.id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({archived:true})});}catch(e){console.error(e);}
 }
 async function toggleHabit(i){
   const h=habitItems[i];
@@ -1442,11 +1480,13 @@ let memoItems=[],memoFilter='ALL',memoClassifyTargetId=null;
 const MEMO_DB_DEFAULT='37751f4140c580e4b680c979ee1d0f2a';
 function getMemoDb(){return localStorage.getItem('memo_db')||MEMO_DB_DEFAULT;}
 async function loadMemos(){
-  const area=document.getElementById('memo-chat-area');
-  if(!area)return;
   const db=getMemoDb();
-  if(!db){area.innerHTML='<div class="empty-state">Setting 탭에서 메모 DB를 연결해주세요.</div>';return;}
-  area.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  ['home-memo-list','dump-memo-list'].forEach(id=>{
+    const area=document.getElementById(id);
+    if(!area)return;
+    area.innerHTML=db?'<div class="empty-state">불러오는 중...</div>':'<div class="empty-state">Setting 탭에서 메모 DB를 연결해주세요.</div>';
+  });
+  if(!db)return;
   try{
     const res=await fetch(WORKER_URL+'/notion/databases/'+db+'/query',{method:'POST',headers:notionHeaders(),body:JSON.stringify({sorts:[{property:'생성일시',direction:'descending'}],page_size:100})});
     const data=await res.json();
@@ -1457,7 +1497,7 @@ async function loadMemos(){
       important:!!page.properties['중요']?.checkbox
     }));
     renderMemoList();
-  }catch(e){console.error(e);area.innerHTML='<div class="empty-state">불러오기 실패</div>';}
+  }catch(e){console.error(e);['home-memo-list','dump-memo-list'].forEach(id=>{const area=document.getElementById(id);if(area)area.innerHTML='<div class="empty-state">불러오기 실패</div>';});}
 }
 function setMemoFilter(f){
   memoFilter=f;
@@ -1465,18 +1505,24 @@ function setMemoFilter(f){
   renderMemoList();
 }
 function renderMemoList(){
-  const area=document.getElementById('memo-chat-area');
+  renderMemoListInto('home-memo-list','ALL',false);
+  renderMemoListInto('dump-memo-list',memoFilter,true);
+}
+function renderMemoListInto(containerId,filter,draggable){
+  const area=document.getElementById(containerId);
   if(!area)return;
   const items=memoItems.filter(m=>{
-    if(memoFilter==='ALL')return true;
-    if(memoFilter==='★')return m.important;
-    return m.category===memoFilter;
+    if(filter==='ALL')return true;
+    if(filter==='★')return m.important;
+    return m.category===filter;
   });
   if(!items.length){area.innerHTML='<div class="empty-state">메모가 없어요.</div>';return;}
   area.innerHTML=items.map(m=>{
     const tag=m.category&&m.category!=='NOTHING'?`<span class="memo-item-tag">${m.category}</span>`:'<span></span>';
-    return `<div class="memo-item" data-id="${m.id}" onclick="openMemoClassifyPopup('${m.id}')">
-      <div class="memo-item-top">${tag}<span style="display:flex;gap:8px;align-items:center;"><span class="memo-item-star" onclick="event.stopPropagation();toggleMemoImportant('${m.id}')">${m.important?'⭐':'☆'}</span><span class="memo-item-star" onclick="event.stopPropagation();deleteMemo('${m.id}')">✕</span></span></div>
+    const handle=draggable?`<span class="todo-handle" style="cursor:grab;" onclick="event.stopPropagation();">⠿</span>`:'';
+    const dragAttrs=draggable?`draggable="true" ondragstart="onMemoDragStart(event,'${m.id}')" ondragend="onMemoDragEnd(event)"`:'';
+    return `<div class="memo-item" data-id="${m.id}" ${dragAttrs} onclick="openMemoClassifyPopup('${m.id}')">
+      <div class="memo-item-top">${handle}${tag}<span style="display:flex;gap:8px;align-items:center;margin-left:auto;"><span class="memo-item-star" onclick="event.stopPropagation();toggleMemoImportant('${m.id}')">${m.important?'⭐':'☆'}</span><span class="memo-item-star" onclick="event.stopPropagation();deleteMemo('${m.id}')">✕</span></span></div>
       <div class="memo-item-text"></div>
     </div>`;
   }).join('');
@@ -1485,13 +1531,33 @@ function renderMemoList(){
     if(el)el.textContent=m.text;
   });
 }
-async function saveMemo(){
-  const input=document.getElementById('memo-widget-input');
+let memoDragId=null;
+function onMemoDragStart(e,id){
+  memoDragId=id;
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',id);
+}
+function onMemoDragEnd(){
+  memoDragId=null;
+  document.querySelectorAll('.memo-drop-target').forEach(el=>el.classList.remove('drag-over'));
+}
+function onMemoDropTo(e,target){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(!memoDragId)return;
+  memoClassifyTargetId=memoDragId;
+  memoDragId=null;
+  classifyMemo(target);
+}
+async function saveMemo(inputId){
+  const input=document.getElementById(inputId||'home-memo-input');
+  if(!input)return;
   const text=input.value.trim();
   const db=getMemoDb();
   if(!text||!db)return;
-  const btn=document.getElementById('memo-send-btn');
-  btn.disabled=true;
+  const btnId=inputId==='dump-memo-input'?'dump-memo-send-btn':'home-memo-send-btn';
+  const btn=document.getElementById(btnId);
+  if(btn)btn.disabled=true;
   try{
     const res=await fetch(WORKER_URL+'/notion/pages',{method:'POST',headers:notionHeaders(),body:JSON.stringify({parent:{database_id:db},properties:{'제목':{title:[{text:{content:text}}]},'분류':{select:{name:'NOTHING'}},'중요':{checkbox:false},'생성일시':{date:{start:new Date().toISOString()}}}})});
     const data=await res.json();
@@ -1500,7 +1566,7 @@ async function saveMemo(){
     input.value='';input.style.height='';
     renderMemoList();
   }catch(e){console.error(e);showToast('메모 저장 실패');}
-  btn.disabled=false;
+  if(btn)btn.disabled=false;
 }
 async function toggleMemoImportant(id){
   const item=memoItems.find(m=>m.id===id);
@@ -1605,17 +1671,18 @@ async function addHomeGoal(inputEl){
 function renderHomeRecentLog(){
   const row=document.getElementById('home-recent-log');
   if(!row)return;
-  const items=Array.from(document.querySelectorAll('#record-list .record-item')).slice(0,3);
+  const items=Array.from(document.querySelectorAll('#record-list .record-item')).slice(0,5);
   if(!items.length){row.innerHTML='<div class="home-empty-hint">아직 오늘 기록이 없어요.</div>';return;}
   row.innerHTML='';
   items.forEach(el=>{
     const time=el.querySelector('.record-time')?.textContent||'';
-    const text=el.querySelector('.record-text')?.textContent||'';
-    const card=document.createElement('div');
-    card.className='home-mini-card nb-card';
-    card.innerHTML=`<div class="home-mini-card-time">${time}</div><div class="home-mini-card-text">${text}</div>`;
-    card.onclick=()=>el.click();
-    row.appendChild(card);
+    const text=el.querySelector('.record-text')?.textContent||el.querySelector('.record-hidden-placeholder')?.textContent||'';
+    const rowEl=document.createElement('div');
+    rowEl.className='home-recent-row';
+    rowEl.innerHTML=`<div class="home-recent-row-time">${time}</div><div class="home-recent-row-text"></div>`;
+    rowEl.querySelector('.home-recent-row-text').textContent=text;
+    rowEl.onclick=()=>el.click();
+    row.appendChild(rowEl);
   });
 }
 let homeRecentDiaryPages=[];
@@ -1688,8 +1755,8 @@ async function submitQuickCapture(){
     await confirmTodo();
     refreshHomeGoal();
   }else if(quickCaptureType==='dump'){
-    document.getElementById('brain-input').value=text;
-    await addBrainItem();
+    document.getElementById('home-memo-input').value=text;
+    await saveMemo('home-memo-input');
   }
 }
 
@@ -1732,15 +1799,18 @@ THEME_FONT_KR_LIST.forEach(name=>{
   if(name==='Pretendard'||name==='NanumSquareNeo')return;
   THEME_FONT_KR_URLS[name]=`https://fonts.googleapis.com/css2?family=${name.replace(/ /g,'+')}&display=swap`;
 });
-function applyThemeColors(accent,paper){
-  document.documentElement.style.setProperty('--accent',accent);
-  document.documentElement.style.setProperty('--paper',paper);
-  const hex=paper.replace('#','');
+const THEME_COLOR_KEYS=['ink','paper','accent','accent_soft','sage'];
+const THEME_COLOR_DEFAULTS={ink:'#14110F',paper:'#FBEEF0',accent:'#E8A794',accent_soft:'#F6DDE1',sage:'#B8C4A8'};
+function applyThemeColors(){
+  const root=document.documentElement.style;
+  THEME_COLOR_KEYS.forEach(key=>{
+    const val=localStorage.getItem('theme_'+key)||THEME_COLOR_DEFAULTS[key];
+    root.setProperty('--'+key.replace('_','-'),val);
+  });
+  const ink=localStorage.getItem('theme_ink')||THEME_COLOR_DEFAULTS.ink;
+  const hex=ink.replace('#','');
   const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
-  const luminance=0.299*r+0.587*g+0.114*b;
-  const dark=luminance<128;
-  document.documentElement.style.setProperty('--ink',dark?'#ffffff':'#111111');
-  document.documentElement.style.setProperty('--ink-rgb',dark?'255,255,255':'17,17,17');
+  root.setProperty('--ink-rgb',`${r},${g},${b}`);
 }
 function applyThemeFont(name){
   const url=THEME_FONT_URLS[name]||THEME_FONT_URLS['Archivo'];
@@ -1755,14 +1825,12 @@ function applyThemeFontKr(name){
   }
   document.documentElement.style.setProperty('--font-kr',`'${name}', sans-serif`);
 }
-function onThemeColorChange(){
-  const accent=document.getElementById('theme-accent-input').value;
-  const paper=document.getElementById('theme-paper-input').value;
-  applyThemeColors(accent,paper);
-  localStorage.setItem('theme_accent',accent);
-  localStorage.setItem('theme_paper',paper);
-  document.getElementById('theme-accent-hex').textContent=accent.toUpperCase();
-  document.getElementById('theme-paper-hex').textContent=paper.toUpperCase();
+function onThemeColorChange(key){
+  const val=document.getElementById('theme-'+key+'-input').value;
+  localStorage.setItem('theme_'+key,val);
+  const hexEl=document.getElementById('theme-'+key+'-hex');
+  if(hexEl)hexEl.textContent=val.toUpperCase();
+  applyThemeColors();
 }
 function onThemeFontChange(){
   const name=document.getElementById('theme-font-select').value;
@@ -1781,15 +1849,18 @@ function populateThemeFontKrSelect(){
 }
 function initSettingTab(){
   populateThemeFontKrSelect();
-  const accent=localStorage.getItem('theme_accent')||'#0038ff';
-  const paper=localStorage.getItem('theme_paper')||'#ffffff';
-  document.getElementById('theme-accent-input').value=accent;
-  document.getElementById('theme-paper-input').value=paper;
-  document.getElementById('theme-accent-hex').textContent=accent.toUpperCase();
-  document.getElementById('theme-paper-hex').textContent=paper.toUpperCase();
+  THEME_COLOR_KEYS.forEach(key=>{
+    const val=localStorage.getItem('theme_'+key)||THEME_COLOR_DEFAULTS[key];
+    const input=document.getElementById('theme-'+key+'-input');
+    const hex=document.getElementById('theme-'+key+'-hex');
+    if(input)input.value=val;
+    if(hex)hex.textContent=val.toUpperCase();
+  });
   document.getElementById('theme-font-select').value=localStorage.getItem('theme_font')||'Archivo';
   document.getElementById('theme-font-kr-select').value=localStorage.getItem('theme_font_kr')||'Pretendard';
   document.getElementById('memo-db-input').value=getMemoDb();
+  const statusEl=document.getElementById('notion-status-note');
+  if(statusEl)statusEl.textContent=localStorage.getItem('notion_token')?'✓ 연결됨':'연결 안 됨';
 }
 function saveMemoDbId(){
   localStorage.setItem('memo_db',document.getElementById('memo-db-input').value.trim());
@@ -1967,8 +2038,10 @@ function diaryPropRow(label,value){
 async function loadDiaryProps(){
   const el=document.getElementById('diary-summary-box');
   const propsWrap=document.querySelector('.diary-props');
+  const headerChip=document.getElementById('diary-header-chip');
   if(!el)return;
   if(propsWrap)propsWrap.style.display='';
+  if(headerChip)headerChip.textContent='';
   el.innerHTML='<div class="diary-prop-empty">불러오는 중...</div>';
   try{
     const pageId=await getDiaryPanelPageId();
@@ -1995,6 +2068,7 @@ async function loadDiaryProps(){
       chip.style.background=ENERGY_COLORS_DIARY[energy]||'#ffffff';
       chip.textContent='에너지 '+(energy==='높음'?'좋음':energy);
       el.appendChild(chip);
+      if(headerChip)headerChip.textContent='분석 · 에너지 '+(energy==='높음'?'좋음':energy);
     }
     const summary=richTextJoinDiary(props['일기 요약']?.rich_text);
     if(summary){
@@ -2014,14 +2088,15 @@ const GRATITUDE_GROUPS=[
   {emoji:'🌻',title:'감사한 일',match:'감사한 일'},
   {emoji:'👏',title:'노력한 일',match:'노력한 일'}
 ];
-let gratitudeItemBlockIds={};
-async function loadGratitudeSection(){
-  const wrap=document.getElementById('gratitude-fields');
+let gratitudeItemBlockIds={home:{},diary:{}};
+async function loadGratitudeSection(scope){
+  scope=scope||'diary';
+  const wrap=document.getElementById(scope==='home'?'home-gratitude-fields':'gratitude-fields');
   if(!wrap)return;
   wrap.innerHTML='<div class="empty-state">불러오는 중...</div>';
-  gratitudeItemBlockIds={};
+  gratitudeItemBlockIds[scope]={};
   try{
-    const pageId=await getDiaryPanelPageId();
+    const pageId=scope==='home'?await getTodayPageId():await getDiaryPanelPageId();
     if(!pageId){
       wrap.innerHTML='<div class="empty-state">이 날짜엔 다이어리 페이지가 없어요.</div>';
       return;
@@ -2035,6 +2110,7 @@ async function loadGratitudeSection(){
       cursor=bd.has_more?bd.next_cursor:null;
     }while(cursor);
     wrap.innerHTML='';
+    const readOnly=scope==='home'?false:!isDiaryViewingToday();
     GRATITUDE_GROUPS.forEach(group=>{
       const headingIdx=blocks.findIndex(b=>b.type==='heading_4'&&richTextJoinDiary(b.heading_4.rich_text).includes(group.match));
       const items=[];
@@ -2052,9 +2128,9 @@ async function loadGratitudeSection(){
         const ta=document.createElement('textarea');
         ta.className='gratitude-input';ta.dataset.group=group.match;ta.dataset.idx=i;ta.placeholder=(i+1)+'.';ta.rows=1;
         ta.value=b?richTextJoinDiary(b.numbered_list_item.rich_text):'';
-        ta.disabled=!isDiaryViewingToday()||!b;
+        ta.disabled=readOnly||!b;
         ta.oninput=function(){autoResize(this);};
-        if(b)gratitudeItemBlockIds[group.match+'_'+i]=b.id;
+        if(b)gratitudeItemBlockIds[scope][group.match+'_'+i]=b.id;
         groupEl.appendChild(ta);
       }
       wrap.appendChild(groupEl);
@@ -2062,14 +2138,16 @@ async function loadGratitudeSection(){
     wrap.querySelectorAll('.gratitude-input').forEach(t=>autoResize(t));
   }catch(e){console.error(e);wrap.innerHTML='<div class="empty-state">불러오기 실패</div>';}
 }
-async function saveGratitude(){
-  const inputs=document.querySelectorAll('.gratitude-input');
-  const btn=document.getElementById('gratitude-save-btn');
+async function saveGratitude(scope){
+  scope=scope||'diary';
+  const wrap=document.getElementById(scope==='home'?'home-gratitude-fields':'gratitude-fields');
+  const inputs=wrap?wrap.querySelectorAll('.gratitude-input'):[];
+  const btn=document.getElementById(scope==='home'?'home-gratitude-save-btn':'gratitude-save-btn');
   if(btn)btn.disabled=true;
   try{
     const patches=[];
     inputs.forEach(t=>{
-      const blockId=gratitudeItemBlockIds[t.dataset.group+'_'+t.dataset.idx];
+      const blockId=gratitudeItemBlockIds[scope][t.dataset.group+'_'+t.dataset.idx];
       if(!blockId)return;
       const content=t.value.trim();
       patches.push(fetch(WORKER_URL+'/notion/blocks/'+blockId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({numbered_list_item:{rich_text:content?[{text:{content}}]:[]}})}).then(async r=>{
@@ -2086,10 +2164,16 @@ async function saveGratitude(){
   }catch(e){console.error(e);showToast('저장 실패: '+e.message);}
   if(btn)btn.disabled=false;
 }
-function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection();loadRecordsForViewedDate();}
+function loadDiaryPanel(){loadDiaryProps();loadGratitudeSection('diary');loadRecordsForViewedDate();}
 
-/* ROUTINE — 오늘 루틴 체크리스트 */
-const ROUTINE_GROUPS=[  {label:'🌤️ 아침',items:[    {key:'🌤️물 한잔',label:'물 한잔'},    {key:'🌤️아침 약',label:'아침 약'},    {key:'🌤️5분 명상',label:'5분 명상'},    {key:'🌤️스트레칭',label:'스트레칭'}  ]},  {label:'☀️ 종일',items:[    {key:'☀️물 2리터 마시기',label:'물 2리터 마시기'},    {key:'☀️틈틈이 기록',label:'틈틈이 기록'},    {key:'☀️산책',label:'산책'}  ]},  {label:'🌙 저녁',items:[    {key:'🌙책상 치우기',label:'책상 치우기'},    {key:'🌙설거지',label:'설거지'},    {key:'🌙저녁 약',label:'저녁 약'},    {key:'🌙일기 쓰기',label:'일기 쓰기'}  ]}];let routineSelected=[];function switchRecordPane(pane){  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';  document.getElementById('toggle-log').style.color=pane==='log'?'var(--ink)':'var(--ink-muted)';  document.getElementById('toggle-routine').style.color=pane==='routine'?'var(--ink)':'var(--ink-muted)';  if(pane==='routine')loadRoutineState();}function renderRoutineChecklist(){  const c=document.getElementById('routine-checklist');  c.innerHTML=ROUTINE_GROUPS.map(g=>`    <div style="margin-bottom:18px;">      <div style="font-family:var(--font-en);font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:8px;padding-top:14px;">${g.label}</div>      ${g.items.map(it=>{        const done=routineSelected.includes(it.key);        return `<div class="quad-item" style="border-bottom:1px solid var(--rule);cursor:pointer;" onclick="toggleRoutineItem('${it.key.replace(/'/g,"\\'")}')">          <div class="quad-check${done?' done':''}"></div>          <div class="quad-text${done?' done':''}">${it.label}</div>        </div>`;      }).join('')}    </div>`).join('');}async function loadRoutineState(){  document.getElementById('routine-checklist').innerHTML='<div class="empty-state">불러오는 중...</div>';  try{    const pageId=await getTodayPageId();    const res=await fetch(WORKER_URL+'/notion/pages/'+pageId,{headers:notionHeaders()});    const data=await res.json();    routineSelected=(data.properties?.['오늘 루틴']?.multi_select||[]).map(o=>o.name);  }catch(e){console.error(e);routineSelected=[];}  renderRoutineChecklist();}async function toggleRoutineItem(key){  if(routineSelected.includes(key))routineSelected=routineSelected.filter(i=>i!==key);  else routineSelected.push(key);  renderRoutineChecklist();  try{    const pageId=await getTodayPageId();    await fetch(WORKER_URL+'/notion/pages/'+pageId,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'오늘 루틴':{multi_select:routineSelected.map(name=>({name}))}}})});  }catch(e){console.error(e);showToast('실패');}}
+/* ROUTINE 토글 — 통합 HABIT_DB 체크리스트 재사용 (시간대별 그룹) */
+function switchRecordPane(pane){
+  document.getElementById('record-log-pane').style.display=pane==='log'?'flex':'none';
+  document.getElementById('record-routine-pane').style.display=pane==='routine'?'flex':'none';
+  document.getElementById('toggle-log').classList.toggle('active',pane==='log');
+  document.getElementById('toggle-routine').classList.toggle('active',pane==='routine');
+  if(pane==='routine')loadHabits();
+}
 
 /* 감정 추천 */
 const EMOTION_KEYWORDS={
@@ -2512,18 +2596,7 @@ async function loadRecordsForViewedDate(){
 /* ============================================================
    WEEKLY VIEW — 오늘 기준 rolling +7일
    ============================================================ */
-let currentTodoView='week';
-function switchTodoView(view){
-  currentTodoView=view;
-  localStorage.setItem('last_todo_view',view);
-  document.getElementById('weekly-view').style.display=view==='week'?'flex':'none';
-  document.getElementById('quad-view').style.display=view==='quad'?'flex':'none';
-  document.getElementById('goal-bar').style.display=view==='quad'?'':'none';
-  document.getElementById('toggle-week').className='toggle-btn'+(view==='week'?' active':' inactive');
-  document.getElementById('toggle-quad').className='toggle-btn'+(view==='quad'?' active':' inactive');
-  if(view==='week')renderWeeklyView();
-  else renderAllQuads();
-}
+const currentTodoView='week';
 
 function renderWeeklyView(){
   const list=document.getElementById('weekly-list');
@@ -2570,7 +2643,7 @@ function renderWeeklyView(){
       const {item,q,i}=starred[s];
       goalHtml+=`<div class="week-col-item" onclick="openTodoDetail('${q}',${i})"><span class="goal-star">★</span><div class="week-col-text">${item.text}</div><span class="goal-slot-remove" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">✕</span></div>`;
     }else{
-      goalHtml+=`<div class="week-col-item week-goal-empty" onclick="switchTodoView('quad')"><span class="plus">+</span>⭐ 눌러 추가</div>`;
+      goalHtml+=`<div class="week-col-item week-goal-empty" onclick="showToast('목록에서 ⭐ 눌러 오늘의 목표로 추가하세요')"><span class="plus">+</span>⭐ 눌러 추가</div>`;
     }
   }
   goalHtml+='</div></div>';
@@ -2602,6 +2675,27 @@ function renderWeeklyView(){
     });
     html+=`</div></div>`;
   }
+
+  const somedayItems=[];
+  ['today','week','month','someday'].forEach(q=>{
+    todoData[q].forEach((item,i)=>{if(!item.dueDate)somedayItems.push({item,q,i});});
+  });
+  html+=`<div class="week-col" data-date="someday">
+    <div class="week-col-header" onclick="openTodoPopup('someday')" style="cursor:pointer;">
+      <div class="week-col-name">SOMEDAY</div>
+      <div class="week-col-date" style="font-size:10px;">No deadline</div>
+    </div>
+    <div class="week-col-items" onclick="if(!event.target.closest('.week-col-item'))openTodoPopup('someday')" style="cursor:pointer;">`;
+  somedayItems.forEach(({item,q,i})=>{
+    html+=`<div class="week-col-item" onclick="event.stopPropagation();openTodoDetail('${q}',${i})">
+      <span class="todo-handle" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})" ontouchstart="event.stopPropagation();startWeekItemDrag(event,'${q}',${i})">⋮⋮</span>
+      <div class="week-col-text${item.done?' done':''}">${item.text}</div>
+      <span class="todo-star${item.starred?' starred':''}" onclick="event.stopPropagation();toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span>
+      <div class="week-col-check${item.done?' done':''}" onclick="event.stopPropagation();toggleTodo('${q}',${i},event)"></div>
+    </div>`;
+  });
+  html+=`</div></div>`;
+
   html+=`</div>`;
   list.innerHTML=html;
 }
@@ -2640,7 +2734,7 @@ function switchTodoCart(pane){
 /* Todo */
 const QUAD_CFG={today:{label:'Today',offset:0},week:{label:'This Week',offset:7},month:{label:'This Month',offset:30},someday:{label:'Someday',offset:null}};
 let todoData={today:[],week:[],month:[],someday:[]},currentQuad='',currentTodoPane='todo';
-function initQuadDates(){document.getElementById('due-today').textContent=formatDateShort(getDiaryDate());document.getElementById('due-week').textContent='+7d  '+formatDateShort(getOffsetDate(7));document.getElementById('due-month').textContent='+30d  '+formatDateShort(getOffsetDate(30));}
+function initQuadDates(){}
 let todoPopupSelectedDate=null;
 function onTodoDateInputChange(){
   const val=document.getElementById('todo-date-input').value;
@@ -2819,62 +2913,8 @@ function checkGoalAutoReset(){
   localStorage.setItem('goal_last_reset',now.toISOString());
 }
 
-/* renderQuad */
-const quadCollapsed={today:{},week:{},month:{},someday:{}};
-
-function renderQuad(q){
-  const c=document.getElementById('items-'+q);
-  const now=new Date();
-  const visible=todoData[q].filter(item=>{
-    if(!item.done)return true;
-    if(!item.doneAt)return false;
-    const _doneD=new Date(item.doneAt);_doneD.setHours(5,0,0,0);
-    const _nextShow=new Date(_doneD);_nextShow.setDate(_doneD.getDate()+1);
-    return now<_nextShow;
-  });
-  visible.sort((a,b)=>{
-    if(a.done!==b.done)return a.done?1:-1;
-    const at=a.time||'';const bt=b.time||'';
-    if(!a.done){
-      if(q==='week'){
-        const ad=a.dueDate?new Date(a.dueDate).getTime():Infinity;
-        const bd=b.dueDate?new Date(b.dueDate).getTime():Infinity;
-        if(ad!==bd)return ad-bd;
-      }
-      if(at&&bt)return at.localeCompare(bt);
-      if(at)return -1;
-      if(bt)return 1;
-      return 0;
-    } else {
-      if(at&&bt)return at.localeCompare(bt);
-      if(at)return -1;
-      if(bt)return 1;
-      return 0;
-    }
-  });
-  c.innerHTML='';
-  visible.forEach(item=>{
-    const i=todoData[q].indexOf(item);
-    const od=item.dueDate&&!item.done&&new Date(item.dueDate)<now;
-    const timeLabel=item.time?`<span style="font-family:var(--font-kr);font-size:9px;font-weight:300;color:rgba(var(--ink-rgb),0.65);margin-left:4px;">${displayTime12h(item.time)}</span>`:'';
-    const div=document.createElement('div');div.className='quad-item';div.dataset.q=q;div.dataset.i=i;div.dataset.type='parent';
-    div.innerHTML=`<span class="todo-handle">⋮⋮</span><div class="quad-text${item.done?' done':''}">${item.text}${timeLabel}${od?'<span class="quad-overdue"> Overdue</span>':''}</div><span class="todo-star${item.starred?' starred':''}" onclick="toggleStar('${q}',${i},event)">${item.starred?'⭐':'☆'}</span><div class="quad-check${item.done?' done':''}" onclick="toggleTodo('${q}',${i},event)"></div>`;
-    const pChk=div.querySelector('.quad-check');
-    if(pChk){pChk.addEventListener('mousedown',e=>e.stopPropagation());pChk.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});}
-    const pStar=div.querySelector('.todo-star');
-    if(pStar){pStar.addEventListener('mousedown',e=>e.stopPropagation());pStar.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});}
-    const handle=div.querySelector('.todo-handle');
-    if(handle){
-      handle.addEventListener('click',e=>e.stopPropagation());
-      handle.addEventListener('touchstart',e=>{e.stopPropagation();startTodoDrag(e,q,i);},{passive:true});
-      handle.addEventListener('mousedown',e=>{e.stopPropagation();startTodoDrag(e,q,i);});
-    }
-    div.addEventListener('click',e=>{e.stopPropagation();openTodoDetail(q,i);});
-    c.appendChild(div);
-  });
-}
-
-function renderAllQuads(){['today','week','month','someday'].forEach(q=>{document.getElementById('items-'+q).dataset.colKey=q;renderQuad(q);});renderGoalBar();}
+/* QUAD 뷰 삭제됨 — Weekly 뷰만 사용. 기존 호출부와의 호환을 위해 이름은 유지. */
+function renderAllQuads(){renderGoalBar();renderWeeklyView();}
 
 function saveTodoToStorage(){localStorage.setItem('todo_data',JSON.stringify(todoData));}
 function loadTodoFromStorage(){try{const d=localStorage.getItem('todo_data');if(d){const p=JSON.parse(d);Object.keys(p).forEach(q=>{if(todoData[q])todoData[q]=p[q].map(i=>({...i,dueDate:i.dueDate?new Date(i.dueDate):null}));});}}catch(e){}}
@@ -3259,6 +3299,7 @@ async function saveBrainToNotion(text){
 }
 function renderBrainList(){
   const list=document.getElementById('brain-list');
+  if(!list)return;
   const untagged=brainItems.filter(item=>!item.tag);
   if(!untagged.length){list.innerHTML='<div class="empty-state">왼쪽으로 스와이프해서 삭제하세요.</div>';return;}
   list.innerHTML=untagged.map((item)=>{
@@ -4146,10 +4187,18 @@ if(typeof speechSynthesis!=='undefined'){speechSynthesis.onvoiceschanged=loadVoi
 async function registerSW(){if(!('serviceWorker' in navigator))return;try{await navigator.serviceWorker.register('./sw.js');if('Notification' in window&&Notification.permission==='default')await Notification.requestPermission();}catch(e){}}
 
 /* Init */
+function renderNavDate(){
+  const el=document.getElementById('win-nav-date');
+  if(!el)return;
+  const d=new Date();
+  const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  el.textContent=`${d.getMonth()+1}. ${d.getDate()} ${days[d.getDay()]}`;
+}
 function init(){
-  applyThemeColors(localStorage.getItem('theme_accent')||'#0038ff',localStorage.getItem('theme_paper')||'#ffffff');
+  applyThemeColors();
   applyThemeFont(localStorage.getItem('theme_font')||'Archivo');
   applyThemeFontKr(localStorage.getItem('theme_font_kr')||'Pretendard');
+  renderNavDate();
   renderDiaryDateHeader();
   initQuadDates();
   document.getElementById('td-edit-date-picker').addEventListener('change',e=>{
@@ -4164,8 +4213,6 @@ function init(){
   for(let m=0;m<60;m+=5)pMin.innerHTML+=`<option value="${m}">${String(m).padStart(2,'0')}</option>`;
   loadTodoFromStorage();loadBookFromStorage();loadBrainFromStorage();
   autoMoveTodos();checkGoalAutoReset();renderAllQuads();renderBrainList();renderBookList();
-  const _lastTodoView=localStorage.getItem('last_todo_view')||'week';
-  switchTodoView(_lastTodoView);
   const _lastBtn=document.querySelector(`.tab-btn[onclick*="switchTab('home'"]`);
   if(_lastBtn)switchTab('home',_lastBtn);
   loadRecordsForViewedDate();registerSW();
