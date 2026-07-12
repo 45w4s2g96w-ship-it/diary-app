@@ -211,6 +211,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .diary-nav-btn:active { opacity: 0.5; }
 .diary-nav-btn:disabled { opacity: 0.2; cursor: default; }
 .diary-header-chip { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); border: 1.5px solid var(--ink); padding: 3px 8px; margin-left: 8px; white-space: nowrap; }
+.diary-header-chip:empty { display: none; border: none; padding: 0; margin: 0; }
 #tab-record .diary-mobile-header { flex-wrap: wrap; gap: 8px; }
 .diary-write-row { display: flex; flex-direction: column; }
 @media (min-width: 768px) {
@@ -2677,7 +2678,7 @@ function renderWeeklyView(){
   }
 
   const somedayItems=[];
-  ['today','week','month','someday'].forEach(q=>{
+  ['week','month','someday'].forEach(q=>{
     todoData[q].forEach((item,i)=>{if(!item.dueDate)somedayItems.push({item,q,i});});
   });
   html+=`<div class="week-col" data-date="someday">
