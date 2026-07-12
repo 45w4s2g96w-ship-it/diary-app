@@ -26,7 +26,6 @@
   --paper: #FBEEF0; --ink: #14110F; --ink-rgb: 20,17,15; --ink-soft: #6b6360; --ink-muted: #a89c98;
   --rule: var(--ink); --pad-h: 22px;
   --accent: #E8A794; --accent-soft: #F6DDE1; --sage: #B8C4A8; --sage-soft: #E4E9DC; --ivory: #FFF8F5;
-  --accent-yellow: #fff200;
   --font-en: 'Archivo', sans-serif; --font-kr: 'Pretendard', sans-serif;
 }
 /* ============ Y2K 레트로 윈도우 재설계 ============ */
@@ -282,8 +281,8 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 #goal-bar { margin: 0 var(--pad-h) 16px; background: var(--accent); padding: 16px 16px; position: relative; border: 2px solid var(--ink); flex-shrink: 0; }
 #goal-bar:empty { display: none; }
-#goal-bar::after { content: '★'; position: absolute; top: -16px; right: 16px; font-size: 26px; color: var(--accent-yellow); -webkit-text-stroke: 2px var(--ink); transform: rotate(-12deg); pointer-events: none; }
-#goal-bar::before { content: 'GOAL!'; position: absolute; bottom: -11px; left: 16px; background: var(--accent-yellow); color: #111111; font-family: var(--font-en); font-size: 9px; font-weight: 900; padding: 2px 8px; border: 2px solid #111111; transform: rotate(-3deg); letter-spacing: 0.04em; }
+#goal-bar::after { content: '★'; position: absolute; top: -16px; right: 16px; font-size: 26px; color: var(--sage); -webkit-text-stroke: 2px var(--ink); transform: rotate(-12deg); pointer-events: none; }
+#goal-bar::before { content: 'GOAL!'; position: absolute; bottom: -11px; left: 16px; background: var(--sage); color: #111111; font-family: var(--font-en); font-size: 9px; font-weight: 900; padding: 2px 8px; border: 2px solid #111111; transform: rotate(-3deg); letter-spacing: 0.04em; }
 .goal-bar-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .goal-bar-title { font-family: var(--font-en); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--paper); flex-shrink: 0; white-space: nowrap; }
 .goal-count { font-family: var(--font-en); font-size: 14px; color: #111111; font-weight: 900; background: var(--sage); padding: 2px 9px; border: 2px solid #111111; transform: rotate(2deg); display: inline-block; }
