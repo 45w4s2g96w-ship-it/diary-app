@@ -23,8 +23,8 @@
   .rp-photo-add-full { width:100%; padding:14px; border:2px dashed var(--rule); background:transparent; color:var(--ink-muted); font-family:var(--font-en); font-size:10px; font-weight:700; letter-spacing:0.08em; cursor:pointer; border-radius:4px; }
 
 :root {
-  --paper: #FBEEF0; --ink: #14110F; --ink-rgb: 20,17,15; --ink-soft: #444; --ink-muted: #888;
-  --rule: #c8c4bc; --pad-h: 22px;
+  --paper: #FBEEF0; --ink: #14110F; --ink-rgb: 20,17,15; --ink-soft: #6b6360; --ink-muted: #a89c98;
+  --rule: var(--ink); --pad-h: 22px;
   --accent: #E8A794; --accent-soft: #F6DDE1; --sage: #B8C4A8; --sage-soft: #E4E9DC; --ivory: #FFF8F5;
   --accent-yellow: #fff200;
   --font-en: 'Archivo', sans-serif; --font-kr: 'Pretendard', sans-serif;
@@ -91,15 +91,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .setup-input:focus { border-color: var(--ink); }
 .setup-input::placeholder { color: var(--ink-muted); }
 
-#tab-setting .setup-section { margin-bottom: 18px; }
-#tab-setting .setup-label { font-weight: 900; letter-spacing: 0.05em; color: #999999; text-transform: none; }
-#tab-setting .color-row { display: flex; align-items: center; gap: 12px; border: 2px solid var(--ink); border-radius: 4px; padding: 10px 12px; box-shadow: 2px 2px 0 var(--ink); }
-#tab-setting .color-row .hex-label { font-family: var(--font-en); font-size: 12.5px; font-weight: 600; color: var(--ink); }
-#tab-setting input[type=color] { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--ink); padding: 0; cursor: pointer; flex-shrink: 0; background: none; }
-#tab-setting input[type=color]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
-#tab-setting input[type=color]::-webkit-color-swatch { border: none; border-radius: 50%; }
-#tab-setting select { width: 100%; border: 2px solid var(--ink); border-radius: 4px; padding: 10px 12px; font-family: var(--font-kr); font-size: 12.5px; box-shadow: 2px 2px 0 var(--ink); background: var(--paper); color: var(--ink); outline: none; }
-#tab-setting .footer-note { font-size: 10.5px; color: #bbbbbb; margin-top: 4px; }
+#tab-setting .footer-note { font-size: 10.5px; color: var(--ink-muted); margin-top: 4px; }
 .setup-save-btn { width: 100%; margin-top: 20px; font-family: var(--font-en); font-size: 13px; font-weight: 700; letter-spacing: 0.15em; background: var(--accent); color: var(--paper); border: 2px solid var(--ink); border-radius: 4px; padding: 16px; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); }
 .setup-logout-btn { width: 100%; margin-top: 10px; font-family: var(--font-en); font-size: 13px; font-weight: 700; letter-spacing: 0.15em; background: transparent; color: #c0392b; border: 2px solid #c0392b; padding: 14px; cursor: pointer; border-radius: 4px; }
 
@@ -134,9 +126,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 .week-overdue .week-day-name { color: #c0392b; display:none; }
 .week-overdue .week-day-date { color: #c0392b; display:none; }
 .week-row.week-overdue { display: none; }
-.section-header { padding: 28px var(--pad-h) 16px var(--pad-h); border-bottom: 1px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
-.section-header.todo-header { padding: 8px var(--pad-h) 14px; border-bottom: none; }
-.section-title { padding-left: 0; font-family: var(--font-en); font-weight: 900; font-size: 30px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+.section-header { padding: 16px var(--pad-h) 14px var(--pad-h); border-bottom: 1.5px solid var(--ink); flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: space-between; }
+.section-header.todo-header { padding: 16px var(--pad-h) 14px; border-bottom: 1.5px solid var(--ink); }
+.section-title { padding-left: 0; font-family: var(--font-kr); font-weight: 700; font-size: 12px; line-height: 1; color: var(--ink); letter-spacing: 0.06em; }
 .settings-btn { font-family: var(--font-en); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-muted); cursor: pointer; background: none; border: none; }
 .add-btn-sm { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; background: var(--accent); color: var(--paper); border: 2px solid var(--ink); padding: 6px 12px; cursor: pointer; border-radius: 4px; box-shadow: 3px 3px 0 var(--ink); }
 
@@ -173,40 +165,38 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* LOG tab redesign — 하단바(tab-bar)는 다른 탭과 동일한 토큰 유지,
    본문(emotion-section 이하)만 아래 팔레트로 재구성 */
 #record-log-pane { background: #F5F4F0; }
-#tab-record .section-header { background: #F5F4F0; padding: 14px var(--pad-h) 10px; border-bottom: none; }
-#tab-record .section-title { font-size: 17px; }
-#tab-record .diary-nav-btn { font-size: 18px; }
+#tab-record .section-header { background: var(--paper); padding: 14px var(--pad-h) 10px; border-bottom: none; }
+#tab-record .section-title { font-size: 12.5px; }
+#tab-record .diary-nav-btn { font-size: 15px; }
 #tab-record .emotion-section { padding: 14px var(--pad-h) 10px; border-bottom: none; }
-#tab-record .emotion-optional-label { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: #8A8578; }
-#tab-record .emotion-row-label { font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; color: #8A8578; }
-#tab-record .tag { border-color: #14110F; color: #14110F; background: #F5F4F0; }
-#tab-record .tag.selected { background: #1E5BE6; border-color: #1E5BE6; color: #F5F4F0; }
-#tab-record .input-section { margin: 10px var(--pad-h) 14px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; padding: 18px 20px; box-shadow: 4px 4px 0 var(--ink); }
-#tab-record .text-input { min-height: 90px; color: #14110F; }
-#tab-record .text-input::placeholder { color: #8A8578; }
-#tab-record .attach-btn { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #8A8578; border: 2px solid #EDEAE2; border-radius: 12px; padding: 8px 14px; transition: transform 0.1s; }
-#tab-record .attach-btn:active { transform: translate(1px,1px); }
-.log-visibility-toggle { display: flex; border: 2px solid #14110F; border-radius: 12px; overflow: hidden; }
-.log-visibility-toggle .lv-opt { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 8px 10px; border: none; background: #F5F4F0; color: #8A8578; cursor: pointer; }
-.log-visibility-toggle .lv-opt.active { background: #14110F; color: #F5F4F0; }
-#tab-record .submit-btn { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; border-radius: 12px; border: 2px solid #14110F; box-shadow: 4px 4px 0 #14110F; transition: all 0.1s; }
-#tab-record #save-btn { background: #1E5BE6; color: #ffffff; }
-#tab-record #save-btn:active { transform: translate(1px,1px); box-shadow: 2px 2px 0 #14110F; }
+#tab-record .emotion-optional-label { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
+#tab-record .emotion-row-label { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); }
+#tab-record .tag { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+#tab-record .tag.selected { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+#tab-record .input-section { margin: 10px var(--pad-h) 14px; background: var(--paper); border: 1.5px solid var(--ink); padding: 16px; }
+#tab-record .text-input { min-height: 90px; color: var(--ink); }
+#tab-record .text-input::placeholder { color: var(--ink-muted); }
+#tab-record .attach-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-muted); border: 1.5px solid var(--ink); padding: 8px 14px; }
+.log-visibility-toggle { display: flex; gap: 8px; flex-wrap: wrap; }
+.log-visibility-toggle .lv-opt { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 6px 14px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink-muted); cursor: pointer; }
+.log-visibility-toggle .lv-opt.active { background: var(--ink); color: var(--paper); }
+#tab-record .submit-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper); }
+#tab-record #save-btn { background: var(--ink); color: var(--paper); }
 #tab-record .record-list { padding: 0 var(--pad-h) 20px; }
-#tab-record .record-item { border-bottom: 1px solid #EDEAE2; }
-#tab-record .record-time { color: #1E5BE6; }
-#tab-record .record-tag { color: #1E5BE6; border-color: #1E5BE6; }
-#tab-record .record-text { color: #14110F; }
-#tab-record .empty-state { color: #8A8578; font-family: var(--font-kr); }
-.record-photo { width: 100%; height: auto; object-fit: contain; border-radius: 2px; }
+#tab-record .record-item { border-bottom: 1px solid var(--ink); }
+#tab-record .record-time { color: var(--ink-soft); font-weight: 700; }
+#tab-record .record-tag { color: var(--ink); border-color: var(--ink); }
+#tab-record .record-text { color: var(--ink); }
+#tab-record .empty-state { color: var(--ink-muted); font-family: var(--font-kr); }
+.record-photo { width: 100%; height: auto; object-fit: contain; }
 .empty-state { padding: 40px 0; text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-muted); line-height: 1.8; }
 
 /* Diary date navigation */
 .diary-date-nav { display: flex; align-items: center; gap: 10px; }
-.diary-nav-btn { font-family: var(--font-en); font-size: 24px; font-weight: 900; background: none; border: none; cursor: pointer; color: #14110F; line-height: 1; padding: 2px 6px; }
+.diary-nav-btn { font-family: var(--font-en); font-size: 24px; font-weight: 900; background: none; border: none; cursor: pointer; color: var(--ink); line-height: 1; padding: 2px 6px; }
 .diary-nav-btn:active { opacity: 0.5; }
 .diary-nav-btn:disabled { opacity: 0.2; cursor: default; }
-.diary-header-chip { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); border: 1.5px solid var(--ink); padding: 3px 8px; margin-left: 8px; white-space: nowrap; }
+.diary-header-chip { font-family: var(--font-kr); font-size: 10.5px; font-weight: 700; color: var(--ink); background: var(--sage-soft); border: 1.5px solid var(--ink); padding: 4px 10px; margin-left: 8px; white-space: nowrap; }
 .diary-header-chip:empty { display: none; border: none; padding: 0; margin: 0; }
 #tab-record .diary-mobile-header { flex-wrap: wrap; gap: 8px; }
 .diary-write-row { display: flex; flex-direction: column; }
@@ -219,26 +209,26 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 /* Diary split: properties (left page) + writing (right page), styled like an open diary spread */
 .diary-split { display: flex; flex-direction: column; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; min-height: 0; }
 #record-log-pane { display: flex; flex-direction: column; }
-.diary-book { background: #F5F4F0; }
-.diary-props { flex-shrink: 0; border-bottom: 1.5px solid #EDEAE2; background: #F5F4F0; }
-.diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: #8A8578; line-height: 1.6; }
-.diary-summary-box { margin: 10px var(--pad-h) 14px; padding: 18px 20px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); font-family: var(--font-kr); color: #14110F; }
-.diary-summary-box .ds-energy { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; padding: 3px 10px; border-radius: 20px; border: 1.5px solid #14110F; margin-bottom: 12px; }
-.diary-summary-box .ds-quote { font-size: 13.5px; font-weight: 500; line-height: 1.75; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px dashed #EDEAE2; white-space: pre-wrap; }
+.diary-book { background: var(--paper); }
+.diary-props { flex-shrink: 0; border-bottom: 1.5px solid var(--ink); background: var(--paper); }
+.diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
+.diary-summary-box { margin: 10px var(--pad-h) 14px; padding: 16px; background: var(--sage-soft); border: 1.5px solid var(--ink); font-family: var(--font-kr); color: var(--ink); }
+.diary-summary-box .ds-energy { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; padding: 3px 10px; background: var(--paper); border: 1.5px solid var(--ink); margin-bottom: 12px; }
+.diary-summary-box .ds-quote { font-size: 13px; font-weight: 500; line-height: 1.75; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1.5px solid var(--ink); white-space: pre-wrap; }
 .diary-summary-box .ds-row { margin-bottom: 12px; }
 .diary-summary-box .ds-row:last-child { margin-bottom: 0; }
-.diary-summary-box .ds-label { font-family: 'Space Mono', monospace; font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8578; margin-bottom: 3px; }
+.diary-summary-box .ds-label { font-family: var(--font-en); font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 3px; }
 .diary-summary-box .ds-value { font-size: 12.5px; font-weight: 400; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
 .diary-recent-label { padding: 4px var(--pad-h) 0; margin-top: 4px; }
-.diary-recent-box { margin: 14px var(--pad-h) 20px; padding: 14px 20px 16px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); display: flex; flex-direction: column; }
+.diary-recent-box { margin: 14px var(--pad-h) 20px; padding: 16px; background: var(--paper); border: 1.5px solid var(--ink); display: flex; flex-direction: column; }
 .diary-recent-box .diary-recent-label { padding: 0; margin: 0 0 10px; }
 #tab-record .diary-recent-box .record-list { padding: 0; }
 @media (min-width: 768px) {
   .diary-recent-box { flex: 1; min-height: 0; overflow: hidden; }
   #tab-record .diary-recent-box .record-list { flex: 1; min-height: 0; }
 }
-#tab-record .diary-recent-box .record-item { border: 2px solid var(--ink); border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
-#tab-record .diary-recent-box .record-item:last-child { margin-bottom: 0; }
+#tab-record .diary-recent-box .record-item { border-bottom: 1px solid var(--ink); padding: 10px 0; margin-bottom: 0; }
+#tab-record .diary-recent-box .record-item:last-child { border-bottom: none; }
 @media (min-width: 768px) {
   .diary-split { flex-direction: row; overflow: hidden; }
   .diary-props { width: auto; flex: 1; border-bottom: none; border-right: 1.5px dashed #d8d4c8; box-shadow: 6px 0 10px -8px rgba(0,0,0,0.25); overflow-y: auto; scrollbar-width: none; }
@@ -247,19 +237,19 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 }
 .diary-readonly .input-section { display: none; }
 .diary-readonly .gratitude-save-btn { display: none; }
-.diary-readonly .gratitude-input { color: #8A8578; }
+.diary-readonly .gratitude-input { color: var(--ink-muted); }
 
 /* Gratitude journal */
-.gratitude-section { margin: 0 var(--pad-h) 14px; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; padding: 16px 20px; box-shadow: 4px 4px 0 var(--ink); flex-shrink: 0; }
-.gratitude-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.gratitude-title { font-family: var(--font-kr); font-size: 13px; font-weight: 700; color: #14110F; }
-.gratitude-save-btn { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; background: #1E5BE6; color: #ffffff; border: 2px solid #14110F; border-radius: 12px; padding: 6px 12px; cursor: pointer; box-shadow: 3px 3px 0 #14110F; }
-.gratitude-save-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #14110F; }
+.gratitude-section { margin: 0 var(--pad-h) 14px; background: var(--accent-soft); border: 1.5px solid var(--ink); padding: 16px; flex-shrink: 0; }
+.gratitude-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1.5px solid var(--ink); padding-bottom: 8px; }
+.gratitude-title { font-family: var(--font-kr); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); }
+.gratitude-save-btn { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; background: var(--ink); color: var(--paper); border: 1.5px solid var(--ink); padding: 4px 10px; cursor: pointer; }
 .gratitude-field { margin-bottom: 10px; }
 .gratitude-field:last-child { margin-bottom: 0; }
-.gratitude-label { font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.02em; color: #8A8578; margin-bottom: 4px; }
-.gratitude-input { width: 100%; font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; color: #14110F; background: transparent; border: none; border-bottom: 1.5px solid #EDEAE2; outline: none; resize: none; line-height: 1.6; min-height: 32px; padding: 4px 0; display: block; }
-.gratitude-input::placeholder { color: #8A8578; }
+.gratitude-label { font-family: var(--font-kr); font-size: 10.5px; font-weight: 700; color: var(--ink-muted); margin-bottom: 4px; }
+.gratitude-input { width: 100%; font-family: var(--font-kr); font-size: 11.5px; color: var(--ink-muted); background: var(--ivory); border: 1.5px solid var(--ink); outline: none; resize: none; line-height: 1.6; min-height: 30px; padding: 8px 10px; display: block; margin-bottom: 6px; }
+.gratitude-input:focus { color: var(--ink); }
+.gratitude-input::placeholder { color: var(--ink-muted); }
 
 /* Quadrant */
 .quad-grid { flex: 1; overflow: hidden; margin: 0 var(--pad-h) var(--pad-h); border: 2.5px solid var(--ink); border-radius: 4px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; box-shadow: 6px 6px 0 var(--ink); }
@@ -345,34 +335,35 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 #weekly-list { display: flex; flex-direction: column; height: 100%; }
 #weekly-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 .week-cols { flex: 1; display: flex; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; min-height: 0; gap: 8px; padding: 0 8px 8px; }
-.week-col { display: flex; flex-direction: column; border: 2px solid var(--ink); border-radius: 4px; min-width: 0; flex-shrink: 0; }
-.week-col-header { flex-shrink: 0; padding: 6px 8px; border-bottom: 2px solid var(--ink); background: transparent; }
-.week-col-header.today { background: rgba(0,56,255,0.08); }
+.week-col { display: flex; flex-direction: column; border: 1.5px solid var(--ink); min-width: 0; flex-shrink: 0; background: var(--paper); }
+.week-col-header { flex-shrink: 0; padding: 8px 10px; border-bottom: 1.5px solid var(--ink); background: transparent; }
+.week-col-header.today { background: var(--ivory); }
 .week-col-name { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-muted); }
 .week-col-date { font-family: var(--font-en); font-size: 13px; font-weight: 900; color: var(--ink); margin-top: 1px; }
 .week-col-header.today .week-col-name { color: var(--ink); }
-.week-col-items { flex: none; overflow: visible; padding: 6px; scrollbar-width: none; display: flex; flex-direction: column; gap: 4px; }
+.week-col-items { flex: none; overflow: visible; padding: 6px 10px; scrollbar-width: none; display: flex; flex-direction: column; gap: 0; }
 .week-col-items::-webkit-scrollbar { display: none; }
+.week-col.today { background: var(--ivory); }
 @media (min-width: 768px) {
   .week-cols { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); overflow: hidden; }
   .week-col { overflow: hidden; }
   .week-col-items { flex: 1; overflow-y: auto; }
 }
-.week-col-item { display: flex; align-items: flex-start; gap: 5px; padding: 4px 5px; border: 1.5px solid var(--rule); border-radius: 4px; cursor: pointer; user-select: none; -webkit-user-select: none; }
-.week-col-item:hover { background: rgba(0,0,0,0.03); }
-.week-col-check { width: 11px; height: 11px; border: 2px solid var(--ink); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
-.week-col-check.done { background: var(--accent); border-color: var(--accent); }
-.week-col-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--paper); border-bottom: 1.5px solid var(--paper); transform: rotate(-45deg) translateY(-1px); }
-.week-col-text { font-family: var(--font-kr); font-size: 11px; font-weight: 300; color: var(--ink); line-height: 1.3; flex: 1; min-width: 0; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.week-col-item { display: flex; align-items: flex-start; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--ink); cursor: pointer; user-select: none; -webkit-user-select: none; }
+.week-col-items > .week-col-item:last-child { border-bottom: none; }
+.week-col-check { width: 12px; height: 12px; border: 1.5px solid var(--ink); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+.week-col-check.done { background: var(--sage); border-color: var(--ink); }
+.week-col-check.done::after { content: ''; display: block; width: 5px; height: 3.5px; border-left: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); transform: rotate(-45deg) translateY(-1px); }
+.week-col-text { font-family: var(--font-kr); font-size: 11px; font-weight: 400; color: var(--ink); line-height: 1.3; flex: 1; min-width: 0; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .week-col-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.week-col-more { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1.5px solid var(--rule); padding: 2px 6px; border-radius: 4px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
-.week-goal-col { background: var(--accent); border-color: var(--ink); }
-.week-goal-col .week-col-name, .week-goal-col .week-col-date { color: var(--paper); }
-.week-goal-col .week-col-item { background: var(--paper); border-color: #111111; }
-.week-goal-col .week-col-item.week-goal-empty { background: transparent; border-style: dashed; border-color: rgba(255,255,255,0.6); color: rgba(255,255,255,0.9); font-family: var(--font-kr); font-size: 10px; align-items: center; }
-.week-goal-col .goal-star { color: var(--accent); font-size: 12px; flex-shrink: 0; }
-.week-goal-col .goal-slot-remove { color: #111111; font-size: 10px; cursor: pointer; margin-left: auto; flex-shrink: 0; }
+.week-col-more { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); background: transparent; border: 1.5px solid var(--ink); padding: 2px 6px; cursor: pointer; margin-top: 2px; align-self: flex-start; }
+.week-goal-col { background: var(--accent-soft); border-color: var(--ink); }
+.week-goal-col .week-col-item { border-color: var(--ink); }
+.week-goal-col .week-col-item.week-goal-empty { border-style: dashed; color: var(--ink-muted); font-family: var(--font-kr); font-size: 10px; align-items: center; }
+.week-goal-col .goal-star { color: var(--ink); font-size: 12px; flex-shrink: 0; }
+.week-goal-col .goal-slot-remove { color: var(--ink-muted); font-size: 10px; cursor: pointer; margin-left: auto; flex-shrink: 0; }
 .week-goal-col .plus { font-family: var(--font-en); font-weight: 900; font-size: 12px; }
+.week-someday-col { background: var(--sage-soft); border-color: var(--ink); }
 @media (max-width: 480px) {
   .week-cols { gap: 5px; padding: 0 5px 5px; }
   .week-col-header { padding: 4px 5px; }
@@ -604,7 +595,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .inbox-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
   .book-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
   .review-list { padding-left: var(--pad-h); padding-right: var(--pad-h); }
-  .section-title { font-size: 32px !important; }
   .record-text { font-size: 12px !important; }
   .quad-text { font-size: 13px !important; }
   .brain-item-text { font-size: 13px !important; }
@@ -616,7 +606,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 }
 @media (min-width: 1400px) {
   :root { --pad-h: 60px; }
-  .section-title { font-size: 40px !important; }
   .record-text { font-size: 13px !important; }
   .quad-text { font-size: 13px !important; }
   .tag { font-size: 12px !important; }
@@ -638,68 +627,81 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   .setup-input { font-size: 13px !important; }
 }
 
-/* HOME tab — bento grid: 12 cols (8:4 split), uniform 3-row bands, 60px unit */
-#tab-home { padding: 14px; overflow-y: auto; }
-.home-grid.bento { display: flex; flex-direction: column; gap: 14px; }
+/* Shared retro-window utility classes (matches reference mockup) */
+#tab-home { padding: 18px; overflow-y: auto; }
+.rk-section-label { font-family: var(--font-kr); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-soft); margin: 20px 0 10px; }
+.rk-section-label.rk-first { margin-top: 0; }
+.rk-row-2col, .rk-row-7-5 { display: flex; flex-direction: column; gap: 14px; margin-bottom: 4px; }
 @media (min-width: 901px) {
-  #tab-home { overflow-y: auto; padding: var(--pad-h); }
-  .home-grid.bento { display: grid; grid-template-columns: repeat(12,1fr); grid-auto-rows: 60px; gap: 12px; }
-  .bento-record { grid-column: 1/9; grid-row: 1/4; }
-  .bento-gratitude { grid-column: 9/13; grid-row: 1/7; }
-  .bento-goal { grid-column: 1/5; grid-row: 4/7; }
-  .bento-routine { grid-column: 5/9; grid-row: 4/7; }
-  .bento-recent { grid-column: 9/13; grid-row: 7/10; }
-  .bento-memo { grid-column: 1/9; grid-row: 7/10; }
+  #tab-home { padding: var(--pad-h); }
+  .rk-row-2col { display: grid; grid-template-columns: 1fr 1fr; }
+  .rk-row-7-5 { display: grid; grid-template-columns: 7fr 5fr; }
 }
-.bento-tile { padding: 14px 16px; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-.bento-tile-header { font-family: var(--font-kr); font-size: 12.5px; font-weight: 700; color: var(--ink); display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-shrink: 0; }
-.bento-tile-time { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); }
-.bento-scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
-.bento-scroll::-webkit-scrollbar { display: none; }
-.bento-record-input { width: 100%; min-height: 70px; flex: 1; font-family: var(--font-kr); font-size: 12.5px; color: var(--ink); background: transparent; border: none; outline: none; resize: none; line-height: 1.6; overflow-y: auto; }
-.bento-record-input::placeholder { color: var(--ink-muted); }
-.bento-tile-footer { display: flex; justify-content: flex-end; flex-shrink: 0; margin-top: 6px; }
-.bento-save-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; background: var(--accent); color: var(--ink); border: 1.5px solid var(--ink); padding: 6px 12px; cursor: pointer; }
-.bento-save-btn-sm { font-family: var(--font-en); font-size: 9px; font-weight: 700; background: var(--accent); color: var(--ink); border: 1.5px solid var(--ink); padding: 4px 9px; cursor: pointer; }
+.rk-card { padding: 16px; }
+.rk-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1.5px solid var(--ink); padding-bottom: 8px; font-family: var(--font-kr); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); flex-shrink: 0; }
+.rk-tint-accent { background: var(--accent-soft); }
+.rk-tint-sage { background: var(--sage-soft); }
+.rk-tint-ivory { background: var(--ivory); }
+.rk-flex-col { display: flex; flex-direction: column; }
+.rk-flex-fill { flex: 1; min-height: 70px; }
+.rk-input-box { background: var(--ivory); border: 1.5px solid var(--ink); padding: 10px 12px; font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); outline: none; resize: none; line-height: 1.6; }
+.rk-input-box:focus { color: var(--ink); }
+.rk-muted { font-family: var(--font-en); font-size: 10px; color: var(--ink-muted); }
+.rk-btn-primary { font-family: var(--font-en); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 6px 14px; background: var(--ink); color: var(--paper); border: 1.5px solid var(--ink); cursor: pointer; }
+.rk-btn-primary-sm { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 4px 10px; background: var(--ink); color: var(--paper); border: 1.5px solid var(--ink); cursor: pointer; flex-shrink: 0; }
+.rk-setting-list { margin-bottom: 18px; }
+.rk-setting-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; border-bottom: 1px solid var(--ink); font-family: var(--font-kr); font-size: 12px; color: var(--ink); gap: 10px; }
+.rk-setting-row:last-child { border-bottom: none; }
+.rk-setting-row-col { flex-direction: column; align-items: stretch; }
+.rk-setting-color { display: flex; align-items: center; gap: 8px; }
+.rk-setting-row .hex-label { font-family: var(--font-en); font-size: 11px; color: var(--ink-muted); }
+.rk-setting-row input[type=color] { width: 20px; height: 20px; border: 1.5px solid var(--ink); padding: 0; cursor: pointer; background: none; -webkit-appearance: none; appearance: none; }
+.rk-setting-row input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+.rk-setting-row input[type=color]::-webkit-color-swatch { border: none; }
+.rk-setting-row select { border: none; background: transparent; font-family: var(--font-kr); font-size: 11px; color: var(--ink-muted); outline: none; cursor: pointer; text-align: right; }
+.rk-setting-row .setup-input { margin-top: 8px; border: 1.5px solid var(--ink) !important; background: var(--ivory) !important; }
 .memo-drop-target.drag-over { background: var(--accent-soft); }
 .home-goal-grid { display: flex; flex-direction: column; gap: 6px; }
-.home-goal-card { display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; border: 1.5px solid var(--ink); }
-.home-goal-card-text { flex: 1; font-family: var(--font-kr); font-size: 12.5px; font-weight: 500; color: var(--ink); }
+.home-goal-card { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--ink); cursor: pointer; }
+.home-goal-card:last-child { border-bottom: none; }
+.home-goal-card-text { flex: 1; font-family: var(--font-kr); font-size: 12px; color: var(--ink); }
 .home-goal-card-text.done { text-decoration: line-through; color: var(--ink-muted); }
-.home-goal-empty { display: flex; align-items: center; padding: 8px 10px; border: 1.5px dashed var(--rule); }
-.home-goal-empty-input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--font-kr); font-size: 12.5px; color: var(--ink); }
+.home-goal-empty { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--rule); }
+.home-goal-empty:last-child { border-bottom: none; }
+.home-goal-empty-input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--font-kr); font-size: 12px; color: var(--ink); }
 .home-goal-empty-input::placeholder { color: var(--ink-muted); }
-.home-habit-list-v { display: flex; flex-direction: column; gap: 5px; }
-.home-habit-list-v .quad-item { border-bottom: 1px solid var(--rule); padding: 5px 0; }
+.home-habit-list-v { display: flex; flex-direction: column; gap: 0; }
+.home-habit-list-v .quad-item { border-bottom: 1px solid var(--ink); padding: 8px 0; }
+.home-habit-list-v .quad-item:last-child { border-bottom: none; }
 .home-habit-time-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); margin-right: 5px; }
 .home-empty-hint { font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); padding: 10px 0; }
-.home-recent-log-v { display: flex; flex-direction: column; gap: 8px; }
-.home-recent-row { padding: 6px 0; border-bottom: 1px solid var(--rule); cursor: pointer; }
-.home-recent-row:last-child { border-bottom: none; }
-.home-recent-row-time { font-family: var(--font-en); font-size: 9px; font-weight: 700; color: var(--ink-muted); }
-.home-recent-row-text { font-family: var(--font-kr); font-size: 12px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.home-scroll-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+.home-scroll-row::-webkit-scrollbar { display: none; }
+.home-mini-card { flex: 0 0 130px; padding: 10px; cursor: pointer; }
+.home-mini-card-time { font-family: var(--font-en); font-size: 9.5px; font-weight: 700; color: var(--ink-soft); }
+.home-mini-card-text { font-family: var(--font-kr); font-size: 11px; color: var(--ink); margin-top: 5px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 
 /* Memo (shared: home tile + memo tab) */
 .memo-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; flex-shrink: 0; }
 .memo-tabs::-webkit-scrollbar { display: none; }
-.memo-tab { flex-shrink: 0; font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 5px 10px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink-muted); cursor: pointer; }
-.memo-tab.active { background: var(--accent); color: var(--ink); border-color: var(--ink); }
-.memo-chat-area { flex: 1; min-height: 80px; overflow-y: auto; scrollbar-width: none; padding: 6px 0; display: flex; flex-direction: column; gap: 8px; }
-.memo-chat-area::-webkit-scrollbar { display: none; }
-.memo-item { border: 1.5px solid var(--ink); padding: 8px 10px; cursor: grab; }
-.memo-item-top { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
-.memo-item-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); border: 1px solid var(--ink); padding: 1px 5px; }
+.memo-tab { flex-shrink: 0; font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 5px 12px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink-muted); cursor: pointer; }
+.memo-tab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.memo-chat-area { min-height: 40px; display: flex; flex-direction: column; }
+.memo-item { display: flex; align-items: center; gap: 8px; padding: 11px 0; border-bottom: 1px solid var(--ink); cursor: grab; }
+.memo-item:last-child { border-bottom: none; }
+.memo-item-top { display: flex; align-items: center; gap: 6px; }
+.memo-item-tag { font-family: var(--font-en); font-size: 8px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); border: 1px solid var(--ink); padding: 1px 5px; flex-shrink: 0; }
 .memo-item-star { cursor: pointer; font-size: 12px; flex-shrink: 0; }
-.memo-item-text { font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; line-height: 1.5; color: var(--ink); word-break: break-word; }
-.memo-input-row { display: flex; gap: 6px; align-items: flex-end; flex-shrink: 0; margin-bottom: 8px; }
-.memo-input { flex: 1; font-family: var(--font-kr); font-size: 12.5px; font-weight: 300; color: var(--ink); background: transparent; border: 1.5px solid var(--ink); outline: none; resize: none; line-height: 1.5; padding: 8px 10px; min-height: 34px; max-height: 100px; overflow-y: auto; }
+.memo-item-text { flex: 1; font-family: var(--font-kr); font-size: 12px; line-height: 1.5; color: var(--ink); word-break: break-word; }
+.memo-input-row { display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0; margin-bottom: 14px; }
+.memo-input { flex: 1; min-height: 38px; max-height: 100px; overflow-y: auto; font-family: var(--font-kr); font-size: 12px; color: var(--ink); background: var(--ivory); border: 1.5px solid var(--ink); outline: none; resize: none; line-height: 1.5; padding: 10px 12px; }
 .memo-input::placeholder { color: var(--ink-muted); }
-.memo-send-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; background: var(--accent); color: var(--ink); border: 1.5px solid var(--ink); padding: 8px 14px; cursor: pointer; flex-shrink: 0; }
+.memo-send-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; background: var(--ink); color: var(--paper); border: 1.5px solid var(--ink); padding: 8px 14px; cursor: pointer; flex-shrink: 0; }
 #home-fab-wrap { position: fixed; right: 18px; bottom: 66px; z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 #home-fab-menu { display: flex; flex-direction: column; gap: 10px; align-items: center; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity 0.18s, transform 0.18s; }
 #home-fab-menu.open { opacity: 1; pointer-events: all; transform: translateY(0); }
-.fab-mini { width: 42px; height: 42px; border-radius: 50%; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-#home-fab-main { width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: var(--paper); border: 2.5px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); font-size: 26px; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+.fab-mini { width: 42px; height: 42px; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#home-fab-main { width: 52px; height: 52px; background: var(--ink); color: var(--paper); border: 1.5px solid var(--ink); font-size: 26px; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
 #home-fab-main.open { transform: rotate(45deg); }
 @media (min-width: 768px) {
   #home-fab-wrap { right: 30px; bottom: 30px; }
@@ -750,41 +752,45 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 
   <div class="tab-content active" id="tab-home">
-    <div class="home-grid bento">
-      <div class="bento-tile bento-record win">
-        <div class="bento-tile-header"><span>✎ 지금 기록하기</span><span class="bento-tile-time" id="home-now-time"></span></div>
-        <textarea class="bento-record-input" id="home-record-input" placeholder="오늘 있었던 일, 지금 드는 생각을 가볍게 적어보세요" oninput="autoResize(this)"></textarea>
-        <div class="bento-tile-footer"><button class="bento-save-btn" onclick="homeSaveRecord()">SAVE ▶</button></div>
+    <div class="rk-section-label rk-first">◇ 오늘 할 일</div>
+    <div class="rk-row-2col">
+      <div class="rk-card win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'TO-DO')">
+        <div class="rk-card-header"><span>☆ GOAL LIST</span></div>
+        <div class="home-goal-grid" id="home-goal-grid"></div>
       </div>
+      <div class="rk-card win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'TO-DO')">
+        <div class="rk-card-header"><span>✓ 루틴</span></div>
+        <div class="home-habit-list-v" id="home-habit-list"><div class="empty-state">불러오는 중...</div></div>
+      </div>
+    </div>
 
-      <div class="bento-tile bento-gratitude win">
-        <div class="bento-tile-header"><span>🌻 감사 일기</span><button class="bento-save-btn-sm" id="home-gratitude-save-btn" onclick="saveGratitude('home')">SAVE</button></div>
-        <div id="home-gratitude-fields" class="bento-scroll"><div class="empty-state">불러오는 중...</div></div>
+    <div class="rk-section-label">◇ 기록</div>
+    <div class="rk-row-7-5">
+      <div class="rk-card win rk-flex-col">
+        <div class="rk-card-header"><span>✎ 지금 기록하기</span><span class="rk-muted" id="home-now-time"></span></div>
+        <textarea class="rk-input-box rk-flex-fill" id="home-record-input" placeholder="오늘 있었던 일, 지금 드는 생각을 가볍게 적어보세요" oninput="autoResize(this)"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px;"><button class="rk-btn-primary" onclick="homeSaveRecord()">저장</button></div>
       </div>
+      <div class="rk-card win rk-tint-accent rk-flex-col" style="justify-content:space-between;">
+        <div class="rk-card-header"><span>🌻 감사 일기</span><button class="rk-btn-primary-sm" id="home-gratitude-save-btn" onclick="saveGratitude('home')">SAVE</button></div>
+        <div id="home-gratitude-fields"><div class="empty-state">불러오는 중...</div></div>
+      </div>
+    </div>
 
-      <div class="bento-tile bento-goal win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'TO-DO')">
-        <div class="bento-tile-header"><span>☆ GOAL</span></div>
-        <div class="home-goal-grid bento-scroll" id="home-goal-grid"></div>
-      </div>
+    <div class="rk-section-label">◇ 최근 기록</div>
+    <div class="rk-card win">
+      <div class="rk-card-header"><span>◇ 최근 기록</span></div>
+      <div class="home-scroll-row" id="home-recent-log"></div>
+    </div>
 
-      <div class="bento-tile bento-routine win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'TO-DO')">
-        <div class="bento-tile-header"><span>✓ 루틴</span></div>
-        <div class="home-habit-list-v bento-scroll" id="home-habit-list"><div class="empty-state">불러오는 중...</div></div>
+    <div class="rk-section-label">◇ 가볍게</div>
+    <div class="rk-card win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'DIARY')">
+      <div class="rk-card-header"><span>✎ MEMO</span></div>
+      <div class="memo-input-row">
+        <textarea class="rk-input-box memo-input" id="home-memo-input" placeholder="떠오른 생각을 가볍게 적어보세요" rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveMemo('home-memo-input');}"></textarea>
+        <button class="rk-btn-primary-sm" id="home-memo-send-btn" onclick="saveMemo('home-memo-input')">+</button>
       </div>
-
-      <div class="bento-tile bento-recent win">
-        <div class="bento-tile-header"><span>◇ 최근 기록</span></div>
-        <div class="home-recent-log-v bento-scroll" id="home-recent-log"></div>
-      </div>
-
-      <div class="bento-tile bento-memo win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'DIARY')">
-        <div class="bento-tile-header"><span>. ᐟ 메모</span></div>
-        <div class="memo-input-row">
-          <textarea class="memo-input" id="home-memo-input" placeholder="메모를 남겨보세요." rows="1" oninput="autoResize(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveMemo('home-memo-input');}"></textarea>
-          <button class="memo-send-btn" id="home-memo-send-btn" onclick="saveMemo('home-memo-input')">+</button>
-        </div>
-        <div class="memo-chat-area bento-scroll" id="home-memo-list"><div class="empty-state">불러오는 중...</div></div>
-      </div>
+      <div class="memo-chat-area" id="home-memo-list"><div class="empty-state">불러오는 중...</div></div>
     </div>
 
     <div id="home-fab-wrap">
@@ -841,17 +847,17 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div id="record-log-pane">
       <div class="diary-write-row">
       <div class="diary-recent-box">
-        <div class="home-section-label diary-recent-label">시간대별 기록</div>
+        <div class="rk-section-label rk-first diary-recent-label">시간대별 기록</div>
         <div class="record-list" id="record-list"><div class="empty-state">오늘의 첫 기록을 남겨보세요.</div></div>
       </div>
 
       <div class="input-section">
-        <div class="home-section-label" style="margin-bottom:8px;">+ 새 기록 추가</div>
+        <div class="rk-section-label rk-first" style="margin-bottom:8px;">+ 새 기록 추가</div>
         <textarea class="text-input" id="memo-input" placeholder="무엇이든 적어보세요." rows="3" oninput="autoResize(this)"></textarea>
         <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
         <div class="input-actions">
           <button class="attach-btn" onclick="document.getElementById('photo-input').click()">＋ PHOTO</button>
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <div class="log-visibility-toggle" id="log-visibility-toggle">
               <button type="button" class="lv-opt active" data-v="public" onclick="setLogVisibility('public')">PUBLIC</button>
               <button type="button" class="lv-opt" data-v="hidden" onclick="setLogVisibility('hidden')">HIDDEN</button>
@@ -952,37 +958,34 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="section-title">Setting</div>
     </div>
     <div style="padding:0 var(--pad-h) 20px;overflow-y:auto;">
-      <div class="setup-section">
-        <div class="setup-label">✎ COLOR</div>
-        <div class="color-row"><span class="hex-label" id="theme-ink-hex">#14110F</span><input type="color" id="theme-ink-input" value="#14110F" oninput="onThemeColorChange('ink')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">ink</span></div>
-        <div class="color-row"><span class="hex-label" id="theme-paper-hex">#FBEEF0</span><input type="color" id="theme-paper-input" value="#FBEEF0" oninput="onThemeColorChange('paper')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">paper</span></div>
-        <div class="color-row"><span class="hex-label" id="theme-accent-hex">#E8A794</span><input type="color" id="theme-accent-input" value="#E8A794" oninput="onThemeColorChange('accent')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">accent</span></div>
-        <div class="color-row"><span class="hex-label" id="theme-accent_soft-hex">#F6DDE1</span><input type="color" id="theme-accent_soft-input" value="#F6DDE1" oninput="onThemeColorChange('accent_soft')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">accent-soft</span></div>
-        <div class="color-row"><span class="hex-label" id="theme-sage-hex">#B8C4A8</span><input type="color" id="theme-sage-input" value="#B8C4A8" oninput="onThemeColorChange('sage')"><span style="font-family:var(--font-en);font-size:9px;color:var(--ink-muted);">sage</span></div>
+      <div class="rk-section-label rk-first">◇ 컬러</div>
+      <div class="win rk-setting-list">
+        <div class="rk-setting-row"><span>ink</span><div class="rk-setting-color"><span class="hex-label" id="theme-ink-hex">#14110F</span><input type="color" id="theme-ink-input" value="#14110F" oninput="onThemeColorChange('ink')"></div></div>
+        <div class="rk-setting-row"><span>paper</span><div class="rk-setting-color"><span class="hex-label" id="theme-paper-hex">#FBEEF0</span><input type="color" id="theme-paper-input" value="#FBEEF0" oninput="onThemeColorChange('paper')"></div></div>
+        <div class="rk-setting-row"><span>accent</span><div class="rk-setting-color"><span class="hex-label" id="theme-accent-hex">#E8A794</span><input type="color" id="theme-accent-input" value="#E8A794" oninput="onThemeColorChange('accent')"></div></div>
+        <div class="rk-setting-row"><span>accent-soft</span><div class="rk-setting-color"><span class="hex-label" id="theme-accent_soft-hex">#F6DDE1</span><input type="color" id="theme-accent_soft-input" value="#F6DDE1" oninput="onThemeColorChange('accent_soft')"></div></div>
+        <div class="rk-setting-row"><span>sage</span><div class="rk-setting-color"><span class="hex-label" id="theme-sage-hex">#B8C4A8</span><input type="color" id="theme-sage-input" value="#B8C4A8" oninput="onThemeColorChange('sage')"></div></div>
       </div>
-      <div class="setup-section">
-        <div class="setup-label">영문 폰트</div>
-        <select id="theme-font-select" onchange="onThemeFontChange()">
-          <option value="Archivo">Archivo</option>
-          <option value="Space Grotesk">Space Grotesk</option>
-          <option value="Bricolage Grotesque">Bricolage Grotesque</option>
-          <option value="Unbounded">Unbounded</option>
-        </select>
+
+      <div class="rk-section-label">◇ 일반</div>
+      <div class="win rk-setting-list">
+        <div class="rk-setting-row"><span>영문 폰트</span>
+          <select id="theme-font-select" onchange="onThemeFontChange()">
+            <option value="Archivo">Archivo</option>
+            <option value="Space Grotesk">Space Grotesk</option>
+            <option value="Bricolage Grotesque">Bricolage Grotesque</option>
+            <option value="Unbounded">Unbounded</option>
+          </select>
+        </div>
+        <div class="rk-setting-row"><span>한글 폰트</span><select id="theme-font-kr-select" onchange="onThemeFontKrChange()"></select></div>
+        <div class="rk-setting-row rk-setting-row-col">
+          <span>메모 DB (홈 위젯)</span>
+          <input class="setup-input" id="memo-db-input" placeholder="노션 메모 데이터베이스 ID" oninput="saveMemoDbId()">
+          <div class="footer-note">이름/분류(select)/중요(checkbox)/링크(url)/마감일(date) 속성을 가진 Notion DB를 만들고 ID를 붙여넣으세요.</div>
+        </div>
+        <div class="rk-setting-row"><span>Notion 연동</span><span class="rk-muted" id="notion-status-note">연결됨</span></div>
+        <div class="rk-setting-row" style="cursor:pointer;" onclick="logout()"><span>로그아웃</span><span class="rk-muted">▶</span></div>
       </div>
-      <div class="setup-section">
-        <div class="setup-label">한글 폰트</div>
-        <select id="theme-font-kr-select" onchange="onThemeFontKrChange()"></select>
-      </div>
-      <div class="setup-section">
-        <div class="setup-label">메모 DB (홈 위젯)</div>
-        <input class="setup-input" id="memo-db-input" placeholder="노션 메모 데이터베이스 ID" oninput="saveMemoDbId()">
-        <div class="footer-note">이름/분류(select)/중요(checkbox)/링크(url)/마감일(date) 속성을 가진 Notion DB를 만들고 ID를 붙여넣으세요.</div>
-      </div>
-      <div class="setup-section">
-        <div class="setup-label">◇ NOTION</div>
-        <div class="footer-note" id="notion-status-note">연결됨</div>
-      </div>
-      <button class="setup-logout-btn" onclick="logout()">LOGOUT</button>
     </div>
   </div>
 
@@ -1661,21 +1664,22 @@ async function addHomeGoal(inputEl){
     fetch(WORKER_URL+'/notion/pages/'+id,{method:'PATCH',headers:notionHeaders(),body:JSON.stringify({properties:{'🎯Goal':{checkbox:true}}})}).catch(e=>console.error(e));
   }
 }
+const HOME_RECENT_TINTS=['rk-tint-sage','rk-tint-accent','rk-tint-ivory'];
 function renderHomeRecentLog(){
   const row=document.getElementById('home-recent-log');
   if(!row)return;
   const items=Array.from(document.querySelectorAll('#record-list .record-item')).slice(0,5);
   if(!items.length){row.innerHTML='<div class="home-empty-hint">아직 오늘 기록이 없어요.</div>';return;}
   row.innerHTML='';
-  items.forEach(el=>{
+  items.forEach((el,i)=>{
     const time=el.querySelector('.record-time')?.textContent||'';
     const text=el.querySelector('.record-text')?.textContent||el.querySelector('.record-hidden-placeholder')?.textContent||'';
-    const rowEl=document.createElement('div');
-    rowEl.className='home-recent-row';
-    rowEl.innerHTML=`<div class="home-recent-row-time">${time}</div><div class="home-recent-row-text"></div>`;
-    rowEl.querySelector('.home-recent-row-text').textContent=text;
-    rowEl.onclick=()=>el.click();
-    row.appendChild(rowEl);
+    const card=document.createElement('div');
+    card.className='home-mini-card win '+HOME_RECENT_TINTS[i%HOME_RECENT_TINTS.length];
+    card.innerHTML=`<div class="home-mini-card-time">${time}</div><div class="home-mini-card-text"></div>`;
+    card.querySelector('.home-mini-card-text').textContent=text;
+    card.onclick=()=>el.click();
+    row.appendChild(card);
   });
 }
 let homeRecentDiaryPages=[];
@@ -2673,9 +2677,9 @@ function renderWeeklyView(){
   ['week','month','someday'].forEach(q=>{
     todoData[q].forEach((item,i)=>{if(!item.dueDate)somedayItems.push({item,q,i});});
   });
-  html+=`<div class="week-col" data-date="someday">
-    <div class="week-col-header" onclick="openTodoPopup('someday')" style="cursor:pointer;">
-      <div class="week-col-name">SOMEDAY</div>
+  html+=`<div class="week-col week-someday-col" data-date="someday">
+    <div class="week-col-header" onclick="openTodoPopup('someday')" style="cursor:pointer;background:transparent;">
+      <div class="week-col-name">◇ SOMEDAY</div>
       <div class="week-col-date" style="font-size:10px;">No deadline</div>
     </div>
     <div class="week-col-items" onclick="if(!event.target.closest('.week-col-item'))openTodoPopup('someday')" style="cursor:pointer;">`;
