@@ -613,16 +613,16 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 /* Shared retro-window utility classes (matches reference mockup) */
 #tab-home { padding: 18px; overflow-y: auto; }
-.rk-section-label { font-family: var(--font-kr); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-soft); margin: 20px 0 10px; }
-.rk-section-label.rk-first { margin-top: 0; }
-.rk-row-2col, .rk-row-7-5 { display: flex; flex-direction: column; gap: 14px; margin-bottom: 4px; }
+#tab-home > * { margin-bottom: 20px; }
+#tab-home > *:last-child { margin-bottom: 0; }
+.rk-row-2col, .rk-row-7-5 { display: flex; flex-direction: column; gap: 14px; }
 @media (min-width: 901px) {
   #tab-home { padding: var(--pad-h); }
   .rk-row-2col { display: grid; grid-template-columns: 1fr 1fr; }
   .rk-row-7-5 { display: grid; grid-template-columns: 7fr 5fr; }
 }
-.rk-card { padding: 16px; }
-.rk-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--ink); padding-bottom: 8px; font-family: var(--font-kr); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); flex-shrink: 0; }
+.rk-card { padding: 12px; }
+.rk-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid var(--ink); padding-bottom: 6px; font-family: var(--font-kr); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); flex-shrink: 0; }
 .rk-tint-accent { background: var(--accent-soft); }
 .rk-tint-sage { background: var(--sage-soft); }
 .rk-tint-ivory { background: var(--ivory); }
@@ -736,7 +736,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
   </div>
 
   <div class="tab-content active" id="tab-home">
-    <div class="rk-section-label rk-first">◇ 오늘 할 일</div>
     <div class="rk-row-2col">
       <div class="rk-card win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'TO-DO')">
         <div class="rk-card-header"><span>☆ GOAL LIST</span></div>
@@ -748,7 +747,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
     </div>
 
-    <div class="rk-section-label">◇ 기록</div>
     <div class="rk-row-7-5">
       <div class="rk-card win rk-flex-col">
         <div class="rk-card-header"><span>✎ 지금 기록하기</span><span class="rk-muted" id="home-now-time"></span></div>
@@ -761,13 +759,11 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
     </div>
 
-    <div class="rk-section-label">◇ 최근 기록</div>
     <div class="rk-card win">
       <div class="rk-card-header"><span>◇ 최근 기록</span></div>
       <div class="home-scroll-row" id="home-recent-log"></div>
     </div>
 
-    <div class="rk-section-label">◇ 가볍게</div>
     <div class="rk-card win memo-drop-target" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="onMemoDropTo(event,'DIARY')">
       <div class="rk-card-header"><span>✎ MEMO</span></div>
       <div class="memo-input-row">
@@ -820,7 +816,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
     </div>
 
     <div id="record-log-pane">
-      <div class="rk-section-label rk-first" style="margin:16px var(--pad-h) 10px;">◇ 기록</div>
       <div class="diary-write-row">
       <div class="diary-recent-box rk-flex-col">
         <div class="rk-card-header"><span>오늘 쓴 기록</span></div>
@@ -939,7 +934,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       <div class="section-title">Setting</div>
     </div>
     <div style="padding:0 var(--pad-h) 20px;overflow-y:auto;">
-      <div class="rk-section-label rk-first">◇ 컬러</div>
       <div class="win rk-setting-list">
         <div class="rk-setting-row"><span>ink</span><div class="rk-setting-color"><span class="hex-label" id="theme-ink-hex">#14110F</span><input type="color" id="theme-ink-input" value="#14110F" oninput="onThemeColorChange('ink')"></div></div>
         <div class="rk-setting-row"><span>paper</span><div class="rk-setting-color"><span class="hex-label" id="theme-paper-hex">#FBEEF0</span><input type="color" id="theme-paper-input" value="#FBEEF0" oninput="onThemeColorChange('paper')"></div></div>
@@ -948,7 +942,6 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
         <div class="rk-setting-row"><span>sage</span><div class="rk-setting-color"><span class="hex-label" id="theme-sage-hex">#B8C4A8</span><input type="color" id="theme-sage-input" value="#B8C4A8" oninput="onThemeColorChange('sage')"></div></div>
       </div>
 
-      <div class="rk-section-label">◇ 일반</div>
       <div class="win rk-setting-list">
         <div class="rk-setting-row"><span>영문 폰트</span>
           <select id="theme-font-select" onchange="onThemeFontChange()">
