@@ -170,8 +170,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 #tab-record .emotion-row-label { font-family: var(--font-en); font-size: 8px; font-weight: 700; color: var(--ink-muted); }
 #tab-record .tag { border-color: var(--ink); color: var(--ink); background: var(--paper); }
 #tab-record .tag.selected { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-#tab-record .input-section { margin: 10px var(--pad-h) 14px; background: var(--paper); border: 1.5px solid var(--ink); padding: 16px; }
-#tab-record .text-input { min-height: 90px; color: var(--ink); }
+#tab-record .text-input { min-height: 50px; color: var(--ink); }
 #tab-record .text-input::placeholder { color: var(--ink-muted); }
 #tab-record .attach-btn { font-family: var(--font-en); font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink-muted); border: 1.5px solid var(--ink); padding: 8px 14px; }
 .log-visibility-toggle { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -190,54 +189,41 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
 
 /* Diary date navigation */
 .diary-date-nav { display: flex; align-items: center; gap: 12px; }
-.diary-nav-btn { font-family: var(--font-kr); font-size: 14px; font-weight: 700; background: none; border: none; cursor: pointer; color: var(--ink); line-height: 1; padding: 0; }
+.diary-nav-btn { display: inline-flex; align-items: center; justify-content: center; width: 18px; font-family: var(--font-kr); font-size: 12px; font-weight: 700; background: none; border: none; cursor: pointer; color: var(--ink); line-height: 1; padding: 0; }
 .diary-nav-btn:active { opacity: 0.5; }
 .diary-nav-btn:disabled { opacity: 0.25; cursor: default; }
 .diary-header-chip { font-family: var(--font-kr); font-size: 10.5px; font-weight: 700; color: var(--ink); background: var(--sage-soft); border: 1.5px solid var(--ink); padding: 4px 10px; margin-left: 8px; white-space: nowrap; }
 .diary-header-chip:empty { display: none; border: none; padding: 0; margin: 0; }
 #tab-record .diary-mobile-header { flex-wrap: wrap; gap: 8px; }
-.diary-write-row { display: flex; flex-direction: column; }
-@media (min-width: 768px) {
-  .diary-write-row { flex-direction: row; align-items: stretch; gap: 14px; padding: 10px var(--pad-h) 0; }
-  #tab-record .diary-write-row .input-section, .diary-write-row .diary-recent-box { flex: 1 1 0; min-width: 0; margin: 0 0 14px; }
-  .diary-write-row .input-actions { flex-wrap: wrap; gap: 8px; }
-}
 
-/* Diary split: properties (left page) + writing (right page), styled like an open diary spread */
-.diary-split { display: flex; flex-direction: column; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; min-height: 0; }
-#record-log-pane { display: flex; flex-direction: column; }
-.diary-book { background: var(--paper); }
-.diary-props { flex-shrink: 0; border-bottom: 1.5px solid var(--ink); background: var(--paper); }
+/* Diary: properties/analysis (full width, only when present) + 기록/감사일기 equal row */
+#record-log-pane { display: flex; flex-direction: column; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; min-height: 0; }
+.diary-props { flex-shrink: 0; background: var(--paper); }
 .diary-prop-empty { padding: 12px var(--pad-h); font-family: var(--font-kr); font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
-.diary-summary-box { margin: 14px var(--pad-h) 14px; padding: 16px; background: var(--sage-soft); border: 1.5px solid var(--ink); font-family: var(--font-kr); color: var(--ink); }
+.diary-summary-box { margin: 14px var(--pad-h) 0; padding: 16px; background: var(--sage-soft); border: 1.5px solid var(--ink); font-family: var(--font-kr); color: var(--ink); }
 .diary-summary-box .ds-energy { display: inline-block; font-family: var(--font-en); font-size: 10px; font-weight: 900; padding: 3px 10px; background: var(--paper); border: 1.5px solid var(--ink); margin-bottom: 12px; }
 .diary-summary-box .ds-quote { font-size: 13px; font-weight: 500; line-height: 1.75; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1.5px solid var(--ink); white-space: pre-wrap; }
 .diary-summary-box .ds-row { margin-bottom: 12px; }
 .diary-summary-box .ds-row:last-child { margin-bottom: 0; }
 .diary-summary-box .ds-label { font-family: var(--font-en); font-size: 8.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 3px; }
 .diary-summary-box .ds-value { font-size: 12.5px; font-weight: 400; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
-.diary-recent-label { padding: 4px var(--pad-h) 0; margin-top: 4px; }
-.diary-recent-box { margin: 14px var(--pad-h) 20px; padding: 16px; background: var(--paper); border: 1.5px solid var(--ink); display: flex; flex-direction: column; }
-.diary-recent-box .diary-recent-label { padding: 0; margin: 0 0 10px; }
-#tab-record .diary-recent-box .record-list { padding: 0; }
+
+.diary-write-row { display: flex; flex-direction: column; gap: 14px; padding: 0 var(--pad-h) 20px; flex: 1; min-height: 0; }
 @media (min-width: 768px) {
-  .diary-recent-box { flex: 1; min-height: 0; overflow: hidden; }
-  #tab-record .diary-recent-box .record-list { flex: 1; min-height: 0; }
+  .diary-write-row { flex-direction: row; align-items: stretch; }
+  .diary-recent-box, .diary-write-row .gratitude-section { flex: 1 1 0; min-width: 0; }
 }
+.diary-recent-box { padding: 16px; background: var(--paper); border: 1.5px solid var(--ink); display: flex; flex-direction: column; }
+#tab-record .diary-recent-box .record-list { padding: 0; flex-shrink: 0; }
 #tab-record .diary-recent-box .record-item { border-bottom: 1px solid var(--ink); padding: 10px 0; margin-bottom: 0; }
 #tab-record .diary-recent-box .record-item:last-child { border-bottom: none; }
-@media (min-width: 768px) {
-  .diary-split { flex-direction: row; overflow: hidden; }
-  .diary-props { width: auto; flex: 1; border-bottom: none; border-right: 1.5px dashed #d8d4c8; box-shadow: 6px 0 10px -8px rgba(0,0,0,0.25); overflow-y: auto; scrollbar-width: none; }
-  .diary-props::-webkit-scrollbar { display: none; }
-  #record-log-pane { flex: 1; overflow: hidden; min-height: 0; }
-}
-.diary-readonly .input-section { display: none; }
+.diary-inline-add { margin-top: 12px; padding-top: 12px; border-top: 1.5px dashed var(--ink); }
+.diary-readonly .diary-inline-add { display: none; }
 .diary-readonly .gratitude-save-btn { display: none; }
 .diary-readonly .gratitude-input { color: var(--ink-muted); }
 
 /* Gratitude journal */
-.gratitude-section { margin: 0 var(--pad-h) 14px; background: var(--accent-soft); border: 1.5px solid var(--ink); padding: 16px; flex-shrink: 0; }
+.gratitude-section { background: var(--accent-soft); border: 1.5px solid var(--ink); padding: 16px; flex-shrink: 0; display: flex; flex-direction: column; }
 .gratitude-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1.5px solid var(--ink); padding-bottom: 8px; }
 .gratitude-title { font-family: var(--font-kr); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); }
 .gratitude-save-btn { font-family: var(--font-en); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; background: var(--ink); color: var(--paper); border: 1.5px solid var(--ink); padding: 4px 10px; cursor: pointer; }
@@ -828,42 +814,39 @@ body::before { content: ''; position: fixed; inset: 0; background-image: repeati
       </div>
     </div>
 
-    <div class="gratitude-section nb-card">
-      <div class="gratitude-header">
-        <div class="gratitude-title">🌻 감사 일기</div>
-        <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude('diary')">SAVE</button>
-      </div>
-      <div id="gratitude-fields"><div class="empty-state">불러오는 중...</div></div>
+    <div class="diary-props">
+      <div class="diary-summary-box" id="diary-summary-box"><div class="diary-prop-empty">불러오는 중...</div></div>
     </div>
 
-    <div class="diary-split diary-book">
-      <div class="diary-props">
-        <div class="diary-summary-box" id="diary-summary-box"><div class="diary-prop-empty">불러오는 중...</div></div>
-      </div>
-
-      <div id="record-log-pane">
+    <div id="record-log-pane">
+      <div class="rk-section-label rk-first" style="margin:16px var(--pad-h) 10px;">◇ 기록</div>
       <div class="diary-write-row">
-      <div class="diary-recent-box">
-        <div class="rk-section-label rk-first diary-recent-label">시간대별 기록</div>
+      <div class="diary-recent-box rk-flex-col">
+        <div class="rk-card-header"><span>오늘 쓴 기록</span></div>
         <div class="record-list" id="record-list"><div class="empty-state">오늘의 첫 기록을 남겨보세요.</div></div>
+        <div class="diary-inline-add">
+          <textarea class="text-input" id="memo-input" placeholder="+ 새 기록 추가 — 무엇이든 적어보세요." rows="2" oninput="autoResize(this)"></textarea>
+          <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
+          <div class="input-actions">
+            <button class="attach-btn" onclick="document.getElementById('photo-input').click()">＋ PHOTO</button>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <div class="log-visibility-toggle" id="log-visibility-toggle">
+                <button type="button" class="lv-opt active" data-v="public" onclick="setLogVisibility('public')">PUBLIC</button>
+                <button type="button" class="lv-opt" data-v="hidden" onclick="setLogVisibility('hidden')">HIDDEN</button>
+              </div>
+              <button class="submit-btn" id="save-btn" onclick="saveRecord(currentLogHidden)">SAVE</button>
+            </div>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
+        </div>
       </div>
 
-      <div class="input-section">
-        <div class="rk-section-label rk-first" style="margin-bottom:8px;">+ 새 기록 추가</div>
-        <textarea class="text-input" id="memo-input" placeholder="무엇이든 적어보세요." rows="3" oninput="autoResize(this)"></textarea>
-        <div id="input-photo-preview" style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:10px;"></div>
-        <div class="input-actions">
-          <button class="attach-btn" onclick="document.getElementById('photo-input').click()">＋ PHOTO</button>
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <div class="log-visibility-toggle" id="log-visibility-toggle">
-              <button type="button" class="lv-opt active" data-v="public" onclick="setLogVisibility('public')">PUBLIC</button>
-              <button type="button" class="lv-opt" data-v="hidden" onclick="setLogVisibility('hidden')">HIDDEN</button>
-            </div>
-            <button class="submit-btn" id="save-btn" onclick="saveRecord(currentLogHidden)">SAVE</button>
-          </div>
+      <div class="gratitude-section nb-card rk-flex-col">
+        <div class="gratitude-header">
+          <div class="gratitude-title">🌻 감사 일기</div>
+          <button class="gratitude-save-btn" id="gratitude-save-btn" onclick="saveGratitude('diary')">SAVE</button>
         </div>
-        <input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
-      </div>
+        <div id="gratitude-fields"><div class="empty-state">불러오는 중...</div></div>
       </div>
       </div>
     </div>
